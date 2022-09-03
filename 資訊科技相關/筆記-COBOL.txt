@@ -1,0 +1,3925 @@
+
+==VIP(Run COBOL on Windows)==
+0.Windows OS上執行COBOL的方法(gnu_cobol)
+  0.1. 學習資料來源
+    >(先看這一份,還有作業可以寫) COBOL Programming Course(初階版) http://www.csis.ul.ie/cobol/
+    
+    >(超完整,但份量太多) GnuCOBOL Programmer’s Guide(開發人員手冊-Web版) https://devdocs.io/gnu_cobol/
+    > GnuCOBOL Programmer’s Guide(開發人員手冊-PDF版) https://gnucobol.sourceforge.io/guides/GnuCOBOL%202.2%20NOV2017%20Programmers%20Guide%20(US%20Letter).pdf
+    > GnuCOBOL FAQ(有參考價值) http://opencobol.add1tocobol.com/gnucobol/
+    > GnuCOBOL環境說明 https://gnucobol.sourceforge.io/doc/gnucobol.pdf
+    
+  0.2. 模擬環境下載 & 詳細文件 https://arnoldtrembley.com/GnuCOBOL.htm
+    更名：RENAME 
+  
+  0.3. 在Windows上安裝GNUCobol https://medium.com/@sousandrosilveira/installing-gnucobol-3-1-on-windows-1bf27c9b2280
+        解壓縮至COBOL資料夾(例:D:\GnuCOBOL)後，設定下列系統參數：
+          > COB_MAIN_DIR=<COBOL安裝資料夾> ex. D:\GnuCOBOL
+          > COB_CONFIG_DIR=%COB_MAIN_DIR%\config
+          > COB_COPY_DIR=%COB_MAIN_DIR%\copy
+          > COB_CFLAGS=-I”%COB_MAIN_DIR%\include”
+          > COB_LDFLAGS=-L”%COB_MAIN_DIR%\lib”
+          > COB_LIBRARY_PATH=%COB_MAIN_DIR%\extras
+          > PATH=;<COBOL安裝資料夾>\bin
+
+  0.4. 利用VSCode進行COBOL開發 https://medium.com/@sousandrosilveira/programando-em-cobol-no-visual-studio-code-55a3b50fdb3c
+        建議安裝VSCode的Rech相關套件
+          > Rech COBOL => 開發COBOL用
+          > Rech COBOL Debugger => 偵錯用
+          > Rech Batch => 開發BATCH(Shell Script)用
+  
+  0.5. 如何執行COBOL程式 (*.cob or *.cbl 都是COBOL程式檔結尾, 只要編譯軟體認得即可)
+        > cobc -x -free hello.cob => 編譯COBOL程式(生出EXE檔)
+        > ./hello => 執行編譯後的COBOL程式(EXE)
+
+==COBOL on IBM z/OS and Unisys==
+
+  1. 學習IBM z/OS 相關技術的好地方(COBOL, DB2, JCL, CICS, VSAM[進階, 偏系統存儲管理], IMS DB) (2022/04/10) 超讚!!
+    註: 原來 IBM 大型主機上已經有DB了，
+    https://www.mainframestechhelp.com/tutorials/db2/db2statements-in-cobolprogram.htm
+
+  TODO: [..行有餘力, 再來看COBOL+DB的存取範例, 超乎想像..] (2022/04/10)
+
+  2. IBM z/OS 與 Unisys 程式執行方式差異(2022/04/10)=
+    <相同處>
+      1. 先編譯, 再執行
+      2. 都利用JOB執行
+    <相異處>
+      1. IBM z/OS 使用 "JCL" 作為JOB作業排程語言.
+      2. Unisys 使用 "WFL" 作為JOB作業排程語言.
+
+  3. IBM z/OS 與 Unisys 資料儲存方式(2022/04/10)=
+    1. IBM z/OS: 使用DB2
+      * 存取DB2用的SQL指令, 必須要放在COBOL程式內的 <EXEC SQL ... END-EXEC> 段落中, 
+
+    2. Unisys: 使用DMSII
+      註: DMSII並不是一套關聯式資料庫, 而是依DASDL資料規範檔建立的檔案管理系統
+          It was claimed that a network-type database could be built using manual-subset capability. 
+          This was risky, since it depended upon user programs to add and remove records in a manual subset. 
+          
+          There is a substantial difference between DMSII and relational databases: 
+            in DMSII, a record can only be retrieved via an index if the index was designed initially 
+              (or after a reorganization which generates a new subset from all the data in the set). 
+            In the relational model, this is a runtime operation.
+
+          In 1988 Burroughs attempted to make an object-oriented model database known as Infoexec, which was an extra layer atop DMSII. That layer was programmed in Pascal and followed the runtime-selection approach, as the relational model does. Designed by Mike Hammer and Dennis McLeod at the Massachusetts Institute of Technology, it performed poorly. 
+
+===============================================================================
+資料來源：COBOL Programming Course(初階版) http://www.csis.ul.ie/cobol/
+
+  0.程式範例(超實用) <= 2022/04/10 直接從實作中學習;  => 
+    http://www.csis.ul.ie/cobol/examples/default.htm#SimplePrograms
+
+    <複習重點>:
+      1. COBOL程式主要分為3大段落, IDENTIFICATION DIVISION, DATA DIVISION, PROCEDURE DIVISION.
+      1. COBOL程式最後面要加上, STOP RUN.
+      1. COBOL程式不分大小寫, 跟VB的習慣一樣.
+      1. COBOL程式要有 PROGRAM-ID. XXX.
+
+      2. DISPLAY "XXX". <= 顯示資料用.
+      2. DISPLAY "字串", 123. <= 字串與數值一起顯示時, 不用轉型再合併
+         display "Result is : " Result <= Result 是數值變數
+         display "Result is : ", Result
+         display "Result is : ", 123
+      
+      3. ACCEPT VARIABLE. <= 接收資料至變數內使用.
+      3. ACCEPT XXX FROM DATE. <= 預設日期格式為 yyMMdd
+      3. ACCEPT xxx FROM DATE YYYYMMDD. <= 可指定日期格式
+      3. ACCEPT XXX FROM DATE YYYYDDD. <= 可指定一年中的第幾天
+      3. ACCEPT XXX FROM TIME. <= 時間就無法指定格式了.
+
+
+    [Beginners Programs] 2022/04/10
+      # 最短程式(DISPLAY, STOP RUN & PROGRAM-ID 兩個基本要素)
+          $set sourceformat "FREE"
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. SHORTEST.
+
+          PROCEDURE DIVISION.
+          DisplayPrompt.
+              DISPLAY "I did it.".
+              stop run.
+
+      # 使用者輸入(ACCEPT, DISPLAY, ACCEPT FROM DATE, ACCEPT FROM DAY, ACCEPT FROM TIME)
+          *> $set sourceformat "FREE"
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. AcceptAndDisplay.
+          
+          DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01  StudentDetails.
+              02  StudentId   PIC 9(7).
+              02  StudentName.
+                  03  FirstName PIC X(8).
+                  03  LastName  PIC XX.
+              02  CourseCode  PIC X(4).
+              02  Gender  PIC X.
+          
+          *> YYYYMMDD
+          01  CurrentDate.
+              03  CurrentYear PIC 9(4).
+              03  CurrentMonth PIC 99.
+              03  CurrentDay  PIC 99.
+          
+          *> YYDDD
+          01  DayOfYear.
+              03  FILLER PIC 9(4).
+              03  YearDay PIC 9(3).
+          
+          *> HHMMSSss  s = S/100
+          01  CurrentTime.
+              03  CurrentHour PIC 99.
+              03  CurrentMinute PIC 99.
+              03  FILLER PIC 9(4).
+
+          PROCEDURE DIVISION.
+          Begin.
+              DISPLAY "Enter student details using template below".
+              DISPLAY "Enter - ID(7),FirstName(8),LastName(2),CourseCode(4),Gender(1)".
+              DISPLAY "==Please Input Your Data==".
+              ACCEPT StudentDetails.
+              ACCEPT CurrentDate FROM DATE YYYYMMDD.
+              ACCEPT DayOfYear FROM DAY YYYYDDD.
+              ACCEPT CurrentTime FROM TIME.
+              DISPLAY "Name is ", FirstName SPACE LastName.
+              DISPLAY "Date is " CurrentDay Space CurrentMonth Space CurrentYear.
+              DISPLAY "Today is " YearDay " of the year".
+              DISPLAY "The time is " CurrentHour ":" CurrentMinute.
+              STOP RUN.    
+
+      # 基本運算(ACCEPT, DISPLAY, MULTIPLY)
+          
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. MULTIPLIER.
+
+          DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01  Num1 PIC 9 VALUES ZEROES.
+          01  Num2 PIC 9 VALUES ZEROES.
+          01  Result PIC 99 VALUES ZEROES.
+
+          PROCEDURE DIVISION.
+          BEGIN.
+          *>   DISPLAY "ENTER FIRST NUMBER (1 DIGIT):" WITH NO ADVANCING.
+          *>   DISPLAY + [WITH NO ADVANCING]. 表示不加換行符號; 
+          *>        沒 + [WITH NO ADVANCING]. 則會自動加換行符號.
+              DISPLAY "ENTER FIRST NUMBER (1 DIGIT):" WITH NO ADVANCING.
+              ACCEPT Num1.
+              DISPLAY "ENTER second NUMBER (1 DIGIT):" WITH NO ADVANCING.
+              ACCEPT Num2.
+              MULTIPLY Num1 BY Num2 GIVING Result.
+              DISPLAY "Result is = ", Result.
+              STOP RUN.
+
+    [Selection and Interation]
+      # 迴圈 & IF(PERFORM..TIMES, IF)
+        1.注意: 放在 PERFORM..END PERFORM 區域內指令, 不用加句點(.).
+        2.注意: PERFORM..END PERFORM 區域的句點(.), 放在END PERFORM.後即可.
+        3.注意: IF..THEN..END-IF. 使用IF時, 要有 "THEN", 不然會錯.
+      
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. ITERATIONIF.
+
+          DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01  Num1 PIC 9 VALUE ZEROS.
+          01  Num2 PIC 9 VALUE ZEROS.
+          01  Result PIC 99 VALUE ZEROS.
+          01  Operator PIC X VALUE SPACE.
+
+          PROCEDURE DIVISION.
+          Calculator.
+              PERFORM 3 TIMES
+                  DISPLAY "Enter First Number(1 digit):" WITH NO ADVANCING
+                  ACCEPT Num1
+                  DISPLAY "Enter Second Number(1 digit):" WITH NO ADVANCING
+                  ACCEPT Num2
+                  DISPLAY "Enter Operator(+ or *):" WITH NO ADVANCING
+                  ACCEPT Operator
+                  IF Operator = "+" THEN
+                    Add Num1, Num2 Giving Result
+                  END-IF
+                  IF Operator = "*" THEN
+                    Multiply Num1 By Num2 Giving Result
+                  END-IF
+                  Display "Result is = ", Result
+              END-PERFORM.
+              STOP RUN.
+          
+      # 條件式(LEVEL 88 條件名稱[Condition Names], Condition, EVALUATE TRUE..WHEN..END-EVALUATE, PERFORM UNTIL NOT xx ...END-PERFORM.)
+        1.LEVEL 88 條件名稱 + EVALUATE 合併使用.(範例寫法, 真的太美了..)      
+        2.LEVEL 88 條件名稱, 可作為 EVALUATE WHEN 條件式使用.
+        3.LEVEL 88 不能定義類別, 直接給條件值.ex. 88 Vowel VALUE "XXX"
+        4.LEVEL 88 資料型態, 依上階定義為準.
+        5.LEVEL 88 資料值, 可以給多值, 以 ',' 或 ' ' 隔開即可.
+        6.LEVEL 88 可以用 'SET <LEVEL 88> TO TRUE'.
+        7.LEVEL 88 不能用 'SET <LEVEL 88> TO FALSE'. (ERROR).
+        8.LEVEL 88 可以放在 LEVEL 01 - 49 下面.
+
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. CONDITIONS.
+
+          DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01  Char PIC X.
+              88 Vowel VALUE "a", "e", "i", "o", "u".
+              88 Consonant VALUE "b", "c", "d", "f", "g", "h",
+                                  "j" THRU "n", "p" THRU "t",
+                                  "v" THRU "z".
+              88 Digit VALUE "0" THRU "9".
+              88 ValidCharacter VALUE "a" THRU "z", "0" THRU "9".
+          
+          PROCEDURE DIVISION.
+          Begin.
+              DISPLAY "Enter lower case character or digit. No Data ends.".
+              ACCEPT Char.
+              PERFORM UNTIL NOT ValidCharacter
+                  EVALUATE TRUE
+                      WHEN Vowel Display "The letter '" Char "' is a vowel."
+                      WHEN Consonant DISPLAY "The letter '" Char "' is a consonant."
+                      WHEN Digit DISPLAY "The letter '" Char "' is a digit."
+                      WHEN OTHER
+                          DISPLAY "No Match, Problems Found."
+                  END-EVALUATE
+              END-PERFORM.
+              STOP RUN.
+          
+      # 呼叫副程式,再返回(Type1: PERFORM <paragraph>.)
+        1. 注意: PERFORM 特點 == 呼叫副程式, 副程式執行完畢, 程式流會返回呼叫處, 再往下執行.
+
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. PERFORMFORMAT1.
+
+          DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          
+          PROCEDURE DIVISION.
+          TopLevel.
+              DISPLAY "[TopLevel]-In. Starting to run program.".
+              PERFORM OneLevelDown.
+              DISPLAY "[TopLevel]-Back".
+              STOP RUN.
+          
+          TwoLevelDown.
+              DISPLAY "[22-TwoLevel]-In"
+              PERFORM ThreeLevelDown
+              DISPLAY "[22-TwoLevel]-Back".
+              
+          OneLevelDown.
+              DISPLAY "[1-OneLevel]-In"
+              PERFORM TwoLevelDown
+              DISPLAY "[1-OneLevel]-Back".
+              
+          ThreeLevelDown.
+              DISPLAY "[333-ThreeLevel]-In"
+              DISPLAY "[333-ThreeLevel]-Back".
+
+      # 執行多次(Type2: PERFORM ? TIMES .. END-PERFORM | PERFORM <paragraph-name> ? TIMES)
+        
+        1.用法1: PERFORM <paragraph-name> Number? TIMES
+        2.用法2: PERFORM Number? TIMES <要執行的程式碼指令...> END-PERFORM.
+          
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. PERFORMFORMAT2.
+
+          DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01  NumOfTimes PIC 9 VALUE 5.
+          
+          PROCEDURE DIVISION.
+          Begin.
+              DISPLAY "Program Begin.".
+          *>     用法1
+              PERFORM 3 TIMES
+                  DISPLAY ">> In line Perform <<"
+              END-PERFORM
+              DISPLAY "Finished In line Perform".
+          *>     用法2
+              PERFORM OutOfLineEG NumOfTimes TIMES
+              DISPLAY "Back to Program Begin. Program Stop."
+              STOP RUN.
+          
+          OutOfLineEG.
+              DISPLAY ">> Out of line Perform <<".
+
+      # 執行結束(Type3: PERFORM UNTIL <Stop-Condition> .. END-PERFORM | PERFORM <paragraph-name> UNTIL <Stop-Condition>)  
+        1. 常用於 'Process a stream of data讀檔(不定行數)', UNTIL行數結束時, 也是程式結束點.
+        2. 'ON SIZE ERROR', 用於偵測數值超出上下限時.
+        3. 'NOT ON SIZE ERROR', 當數值未超出上下限時.
+        4. 'INITIALIZE', 用於資料項目(data-Item)設為'初始值' 或 '起始值'.
+
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. PERFORMFORMAT3.
+
+          DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01  IterCount PIC 99 VALUE ZEROS.
+              88  MaxCountReached VALUE 99.
+          01  UserInput PIC 99 VALUE ZEROS.
+              88  EndOfUserInput VALUE ZEROS.
+          01  RunningTotal PIC 999 VALUE ZEROS.
+          01  AverageValue PIC 99 VALUE ZEROS.
+          
+          PROCEDURE DIVISION.
+          Begin.
+              PERFORM UNTIL IterCount = 5
+                  DISPLAY "IterCount = ", IterCount
+                  ADD 1 TO IterCount
+              END-PERFORM
+              DISPLAY "FINISH In Line Perform.".
+
+              INITIALIZE IterCount.
+              DISPLAY "After INITIALIZE, IterCount Value = " IterCount.
+
+              DISPLAY "Enter a stream of up to 99 numbers."
+              DISPLAY "Each number must be in the range 1-99. Enter 0 to stop"
+              DISPLAY "Enter Number: " WITH NO ADVANCING.
+              ACCEPT UserInput.
+              PERFORM GetUserInput UNTIL EndOfUserInput OR MaxCountReached.
+
+              DISPLAY "RunningTotal is ", RunningTotal.
+              DISPLAY "IterCount is ", IterCount.
+              COMPUTE AverageValue = RunningTotal / IterCount.
+              DISPLAY "AverageValue is ", AverageValue.
+              STOP RUN.
+
+          GetUserInput.
+              ADD UserInput TO RunningTotal
+                  ON SIZE ERROR DISPLAY "(Error): New Total is too large"
+                  NOT ON SIZE ERROR ADD 1 TO IterCount END-ADD
+              END-ADD
+              
+              DISPLAY "Enter a stream of up to 99 numbers."
+              DISPLAY "Each number must be in the range 1-99. Enter 0 to stop"
+              DISPLAY "Enter Number: " WITH NO ADVANCING.
+              ACCEPT UserInput.
+          
+      # 執行條件-(多重迴圈)(Type4: PERFORM..VARYING..AFTER)
+        1. PERFORM <PARAGRAPH-NAME> WITH TEST BEFORE 
+            VARYING <VARIABLE-NAME> FROM 1 BY 2
+            UNITL <VARIABLE-NAME> GREATER THAN 5.
+        2. PERFOMR <PARAGRAPH-NAME> WITH TEST AFTER
+            VARYING <VARIABLE-NAME> FROM 1 BY 2
+            UNITL <VARIABLE-NAME> GREATER THAN 5.
+        3. 兩者差別在於
+            [WITH TEST BEFORE] => (預設)執行前, 先測試是否符合 UNITL 條件式(不會超出限制)
+            [WITH TEST AFTER] => 執行後, 再測試是否符合 UNITL 條件式(會多作1次)
+        
+        <單迴圈>
+        4. PERFORM VARYING <VARIABLE-NAME> FROM 1 BY 1 UNTIL <VARIABLE-NAME> GREATER THAN 5
+            ...Inline 程式邏輯及演算法...
+          END-PERFORM.
+        5. PERFORM <PARAGRAPH-NAME> 
+            VARYING <VARIABLE-NAME> FROM 1 BY 1 UNTIL <VARIABLE-NAME> GERATER THAN 10.
+        
+        <多重迴圈>
+        6. PERFORM VARYING <VARIABLE-1> FROM 1 BY 1 UNTIL <VARIABLE-1> = 5
+            PERFORM VARYING <VARIABLE-2> FROM 1 BY 1 UNTIL <VARIABLE-2> = 6
+              ...Inline 程式邏輯及演算法...
+              DISPLAY VARIABLE-1 , VARIABLE-2
+            END-PERFORM
+          END-PERFORM.
+        7. PERFORM <PARAGRAPH-NAME>
+            VARYING <VARIABLE-1> FROM 10 BY -1 UNTIL <VARIABLE-1> LESS THAN 0
+            AFTER <VARIABLE-2> FROM 5 BY -1 UNTIL <VARIABLE-2> LESS THAN 0.
+
+          <PARAGRAPH-NAME>.
+            DISPLAY VARIABLE-1 , VARIABLE-2.
+
+        8. 程式範例:            
+          
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. PERFORMFORMAT4.
+          
+          DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01  LoopCount PIC 9 VALUE zeroes.
+          01  LoopCount2 PIC S9 value zeros. //若未加上 S , 則 LoopCount2 永遠都是正數
+
+          PROCEDURE DIVISION.
+          Begin.
+              DISPLAY "Start WHILE Iteration of LoopBody"
+              PERFORM LoopBody WIth TEST BEFORE
+                  varying LoopCount From 1 by 2
+                  until LoopCount greater than 5.
+              DISPLAY "Finished WHILE Iteration. LoopCount = " LoopCount.
+              
+              DISPLAY "Start Repeat Iteration of LoopBody"
+              PERFORM LoopBody With Test after
+                  varying LoopCount From 1 by 2
+                  until LoopCount greater than 5.
+              DISPLAY "Finished Repeat Iteration of LoopBody = " LoopCount.
+              
+              DISPLAY "Start inline loops"
+              PERFORM varying LoopCount From 0 By 1 until LoopCount > 3
+                PERFORM varying LoopCount2 from 3 by -1 until LoopCount2 < 0
+                    DISPLAY "Inline loop " with no advancing
+                    DISPLAY "LoopCount = " LoopCount " LoopCount2 = " LoopCount2
+                END-PERFORM
+              END-PERFORM.
+              DISPLAY "Finished inline loops".
+              
+              DISPLAY "Start Perform..varying..after"
+              PERFORM LoopBody varying LoopCount from 1 by 2 until LoopCount greater than 5
+                  after LoopCount2 from 5 by -2 until LoopCount2 less than zero.
+              
+              DISPLAY "Finished Perform..varying..after".
+
+              STOP RUN.
+
+          LoopBody.
+              DISPLAY "In LoopBody" with no advancing
+              DISPLAY "LoopCount = " LoopCount " LoopCount2 = " LoopCount2.
+
+      # 里程計數器-(迴圈)(Type4: PERFORM..VARYING..AFTER)
+
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. PERFORMFORMAT4-MILEAGECOUNTER.
+          
+          DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01  Counter.
+              03 HundredsCount PIC 99 VALUE Zeros.
+              03 TensCount PIC 99 VALUE Zeros.
+              03 UnitsCount PIC 99 VALUE Zeros.
+          
+          01  DisplayItems.
+              03 PrnHunds PIC 9.
+              03 PrnTens  PIC 9.
+              03 PrnUnits PIC 9.
+          
+          PROCEDURE DIVISION.
+          Begin.
+              PERFORM CountMilage
+                  varying HundredsCount from 0 by 1 until HundredsCount > 9
+                  after TensCount from 0 by 1 until TensCount > 9
+                  after UnitsCount from 0 by 1 until UnitsCount > 9.
+
+              DISPLAY "[Begin] Perform Multiple LOOP - inline code".
+              PERFORM varying HundredsCount from 0 by 1 until HundredsCount > 3
+                  PERFORM varying TensCount from 0 by 1 until TensCount > 2
+                      PERFORM varying UnitsCount from 0 by 1 until UnitsCount > 1
+                          Move HundredsCount to PrnHunds
+                          Move TensCount to PrnTens
+                          Move UnitsCount to PrnUnits
+                          DISPLAY PrnHunds "-" PrnTens "-" PrnUnits
+                      END-PERFORM
+                  END-PERFORM
+              END-PERFORM.
+              DISPLAY "[End] Perform Multiple LOOP - inline code".
+              
+              STOP RUN.
+
+          CountMilage.
+              Move HundredsCount to PrnHunds
+              Move TensCount to PrnTens
+              Move UnitsCount to PrnUnits
+              DISPLAY PrnHunds "-" PrnTens "-" PrnUnits.
+
+    [Sequential Files]
+      # 寫檔: Sequential File, Write, Open OUTPUT, Close, File Description(FD), Select...ASSIGN TO...ORGANIZATION IS LINE SEQUENTIAL.
+        1. 使用 ACCEPT & WRITE 
+        2. Carriage Return (CR).
+        3. 寫檔多使用了 
+            
+            OPEN OUTPUT StudentFile
+              ACCEPT StudentDetails
+              WRITE StudentDetails
+            CLOSE StudentFile
+            
+            ENVIRONMENT DIVISION.
+            INPUT-OUTPUT SECTION.
+            FILE CONTROL.
+              SELECT <FD VARIABLE NAME> ASSIGN TO "<PHYSICAL FILE NAME>"
+                ORGANIZATION IS LINE SEQUENTIAL.
+            
+            DATA DIVISION.
+            FILE SECTION.
+            FD  StudentFile.
+            01  StudentDetails.
+                03  StudentId PIC 9(7).
+                03  StudentName.
+                    05  FirstName PIC X(8).
+                    05  LastName    PIC XX.
+                03  DateOfBirth.
+                    05  YoBirth PIC 9(4).
+                    05  MoBirth PIC 9(2).
+                    05  DoBirth PIC 9(2).
+                03  CourseCode  PIC X(4).
+                03  Gender      PIC X.
+            
+            PROCEDURE DIVISION.
+            BEGIN.
+              OPEN OUTPUT StudentFile
+              PERFORM GetStudentDetails
+              PERFORM UNTIL StudentDetails = SPACE
+                WRITE StudentDetails
+                PERFORM GetStudentDetails
+              END-PERFORM
+              CLOSE StudentFile
+              STOP RUN.
+            
+            GetStudentDetails.
+              ACCEPT StudentDetails.
+
+        4. 程式範例
+          
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. SEQUENTIALFILEWRITE.
+
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+              SELECT StudentFile ASSIGN TO "Student.dat"
+                ORGANIZATION IS LINE SEQUENTIAL.
+
+          DATA DIVISION.
+          FILE SECTION.
+          FD  StudentFile.
+          01  StudentDetails.
+              03  StudentId PIC 9(7).
+              03  StudentName.
+                  05  FirstName PIC X(8).
+                  05  LastName    PIC XX.
+              03  DateOfBirth.
+                  05  YoBirth PIC 9(4).
+                  05  MoBirth PIC 9(2).
+                  05  DoBirth PIC 9(2).
+              03  CourseCode  PIC X(4).
+              03  Gender      PIC X.
+
+          PROCEDURE DIVISION.
+          Begin.
+              OPEN OUTPUT StudentFile
+              DISPLAY "ENTER STUDENT DETAIL USING TEMPLATE BELOW. ENTER NO DATA TO END."
+              
+              PERFORM GetStudentDetails
+              PERFORM UNTIL StudentDetails = SPACE
+                  WRITE StudentDetails
+                  PERFORM GetStudentDetails
+              END-PERFORM
+              
+              CLOSE StudentFile
+              STOP RUN.
+          
+          GetStudentDetails.
+              DISPLAY "Enter => Id,FirstName,LastName,Year,Month,Day,CourseCode,Gender"
+              DISPLAY "1234567FFFFFFFFLLYYYYMMDDCodeG"
+              ACCEPT StudentDetails.
+        
+      # 讀檔(without LEVEL 88): Sequential File, Read, Open Input, Close, File Description(FD), Select..ASSIGN
+        4. 程式範例
+        
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. SEQUENTIALFILEREADNO88.
+          * An example showing how to read a sequential file without
+          * using condition names.
+          * See '讀檔(with LEVEL 88 Condition Name)' for the definitive example.
+
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+              SELECT StudentFile ASSIGN TO "Student.dat"
+                Organization is line sequential.
+
+          DATA DIVISION.
+          FILE SECTION.
+          FD  StudentFile.
+          01  StudentDetails.
+          03  StudentId PIC 9(7).
+          03  StudentName.
+              05  FirstName PIC X(8).
+              05  LastName    PIC XX.
+          03  DateOfBirth.
+              05  YoBirth PIC 9(4).
+              05  MoBirth PIC 9(2).
+              05  DoBirth PIC 9(2).
+          03  CourseCode  PIC X(4).
+          03  Gender      PIC X.
+          
+          PROCEDURE DIVISION.
+          BEGIN.
+              OPEN INPUT StudentFile
+
+              READ StudentFile
+                  AT END MOVE HIGH-VALUES TO StudentDetails
+              END-READ
+              PERFORM UNTIL StudentDetails = HIGH-VALUES
+                  DISPLAY StudentId SPACE StudentName SPACE CourseCode SPACE YoBirth
+                  READ StudentFile
+                      AT END MOVE HIGH-VALUE TO StudentDetails
+                  END-READ
+              END-PERFORM
+
+              CLOSE StudentFile.
+              STOP RUN.
+
+      # 讀檔(with LEVEL 88 Condition Name): Sequential File, Read, Open Input, Close, File Description(FD), Select..assign to ..organization is line sequential.
+        4. 程式範例:
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. SEQUENTIALFILEREADWITH88.
+          * An example program showing how to read a sequential file.
+          * This is the definitive example 
+
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+              SELECT StudentFile ASSIGN TO "Student.dat"
+                ORGANIZATION IS LINE SEQUENTIAL.
+
+          DATA DIVISION.
+          FILE SECTION.
+          FD  StudentFile.
+          01  StudentDetails.
+              88  EndOfStudentFile value high-values.
+              03  StudentId   pic x(7).
+              03  StudentName.
+                  05  FirstName pic x(8).
+                  05  LastName pic xx.
+              03  DateOfBirth.
+                  05  YoBirth pic 9(4).
+                  05  MoBirth pic 9(2).
+                  05  DoBirth pic 9(2).
+              03  CourseCode pic x(4).
+              03  Gender pic x.
+          
+          PROCEDURE DIVISION.
+          BEGIN.
+              OPEN INPUT StudentFile
+
+              READ StudentFile
+                  AT END SET EndOfStudentFile TO TRUE
+              END-READ
+
+              PERFORM UNTIL EndOfStudentFile
+                  DISPLAY StudentId space StudentName space DateOfBirth space Gender
+                  READ StudentFile
+                      AT END SET EndOfStudentFile TO TRUE
+                  END-READ
+              END-PERFORM
+              CLOSE StudentFile.
+              STOP RUN.
+          
+      # 寫檔(插入資料, 比對是否存在, 匯出合併後新檔): Sequential File, Condition Names(Level 88), Read, Write, access mode is sequential
+        4. 程式範例:
+          
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. SEQUENTIALFILE-INSERTRECORDS.
+          * This program updates the Students.Dat file with insertions
+          * taken from the Transins.Dat file to create a new file
+          * - Students.New - which contains the inserted records.
+
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+              SELECT StudentRecords ASSIGN TO "STUDENTS-forInsert.dat"
+                ORGANIZATION IS LINE SEQUENTIAL
+                ACCESS MODE IS SEQUENTIAL.
+
+              SELECT TransRecords ASSIGN TO "TRANS-forInsert.DAT"
+                ORGANIZATION IS LINE SEQUENTIAL
+                ACCESS MODE IS SEQUENTIAL.
+
+              SELECT NewStudentRecords ASSIGN TO "STUDENTs-forInsert.new"
+                ORGANIZATION IS LINE SEQUENTIAL
+                ACCESS MODE IS SEQUENTIAL.
+
+          DATA DIVISION.
+          FILE SECTION.
+          FD  StudentRecords.
+          01  StudentRecord.
+              88  EndOfStudentFile value high-values.
+              03  StudentId pic x(7).
+              03  FILLER pic x(23).
+
+          FD  TransRecords.
+          01  TransRecord.
+              88  EndOfTransFile value high-values.
+              03  TransStudentId pic x(7).
+              03  FILLER pic x(23).
+
+          FD  NewStudentRecords.
+          01  NewStudentRecord PIC x(30).
+          
+          PROCEDURE DIVISION.
+          BEGIN.
+              OPEN INPUT StudentRecords.
+              OPEN INPUT TransRecords.
+              OPEN OUTPUT NewStudentRecords.
+
+              READ StudentRecords
+                  AT END SET EndOfStudentFile TO TRUE
+              END-READ
+
+              READ TransRecords
+                  AT END SET EndOfTransFile TO TRUE
+              END-READ
+
+              PERFORM UNTIL (EndOfStudentFile) AND (EndOfTransFile)
+                  EVALUATE TRUE
+                      WHEN (TransStudentId > StudentId)
+                          WRITE NewStudentRecord FROM StudentRecord
+                          READ StudentRecords
+                              AT END SET EndOfStudentFile TO TRUE
+                          END-READ
+                      WHEN (TransStudentId < StudentId)
+                          WRITE NewStudentRecord FROM TransRecord
+                          READ TransRecords
+                              AT END SET EndOfTransFile TO TRUE
+                          END-READ
+                      WHEN (TransStudentId = StudentId)
+                          DISPLAY "ERROR - " TransStudentId " ALREADY EXISTS IN FILE"
+                          READ TransRecords
+                              AT END SET EndOfTransFile TO TRUE
+                          END-READ
+                  END-EVALUATE
+              END-PERFORM
+
+              CLOSE StudentRecords.
+              CLOSE TransRecords.
+              CLOSE NewStudentRecords.
+              
+              STOP RUN.
+
+      # 讀檔(報表產出): Sequential Files, Condition Names(Level 88), Read, Write, Writing to a Report File.
+        4. 程式範例:
+          
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. SEQUENTIALFILE-REPORT.
+
+          *INPUT      The student record file Students.Dat  Records in this file 
+          *           are sequenced on ascending Student Number. 
+          *OUTPUT     Shows the number of student records in the file and the  
+          *           number of records for males and females. 
+          *PROCESSING For each record read; 
+          *               Adds one to the TotalStudents count 
+          *               IF the Gender is Male   adds one to TotalMales 
+          *               IF the Gender is Female adds one to TotalFemales 
+          *           At end of file writes the results to the report file.         
+
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+              
+              SELECT StudentFile assign to "STUDENTS-reportData.DAT"
+                organization is line sequential
+                access mode is sequential.
+                
+              SELECT ReportFile ASSIGN TO "STUDENTS-reportOutput.dat"
+                ORGANIZATION IS LINE SEQUENTIAL
+                ACCESS MODE IS SEQUENTIAL.
+
+          DATA DIVISION.
+          FILE SECTION.
+          FD  StudentFile.
+          01  StudentDetails.
+              88  EndOfStudentFile VALUE HIGH-VALUES.
+              03  StudentId   PIC x(7).
+              03  StudentName PIC X(10).
+              03  DateOfBirth.
+                  05  YoBirth PIC 9(4).
+                  05  MoBirth PIC 9(2).
+                  05  DoBirth PIC 9(2).
+              03  CourseCode  PIC X(4).
+              03  Gender      PIC X.
+                  88  Male    Value "M","m".
+              
+          FD  ReportFile.
+          01  ReportLine  PIC X(40).
+
+          WORKING-STORAGE SECTION.
+          01  HeadingLine PIC X(21) VALUE "=Record Count Report=".
+
+          01  StudentTotalLine.
+              03  FILLER PIC X(17) VALUE "Total Students = ".
+              03  PrnStudentCount PIC Z,ZZ9.
+          
+          01  MaleTotalLine.
+              03  FILLER PIC X(17) VALUE "Total Males = ".
+              03  PrnMaleCount PIC Z,ZZ9.
+          
+          01  FemaleTotalLine.
+              03  FILLER PIC X(17) VALUE "Total Females = ".
+              03  PrnFemaleCount PIC Z,ZZ9.
+
+          01  WorkingTotal.
+              03  StudentCount    PIC 9(4) VALUE ZERO.
+              03  MaleCount       PIC 9(4) VALUE ZERO.
+              03  FemaleCount     PIC 9(4) VALUE ZERO.
+          
+          PROCEDURE DIVISION.
+          BEGIN.
+              OPEN INPUT StudentFile
+              OPEN OUTPUT ReportFile
+
+              READ StudentFile
+                  AT END SET EndOfStudentFile TO TRUE
+              END-READ
+              PERFORM UNTIL EndOfStudentFile
+                  ADD 1 TO StudentCount
+                  IF Male ADD 1 TO MaleCount
+                      ELSE ADD 1 TO FemaleCount
+                  END-IF
+                  READ StudentFile
+                      AT END SET EndOfStudentFile TO TRUE
+                  END-READ
+              END-PERFORM.
+
+              PERFORM PRINT-REPORT.
+
+              CLOSE StudentFile.
+              CLOSE ReportFile.
+              
+              STOP RUN.
+          
+          PRINT-REPORT.
+              MOVE StudentCount TO PrnStudentCount.
+              MOVE MaleCount TO PrnMaleCount.
+              MOVE FemaleCount TO PrnFemaleCount.
+
+              WRITE ReportLine FROM HeadingLine
+                  AFTER ADVANCING PAGE
+              WRITE ReportLine FROM StudentTotalLine
+                  AFTER ADVANCING 2 LINES
+              WRITE ReportLine FROM MaleTotalLine
+                  AFTER ADVANCING 2 LINES
+              WRITE ReportLine FROM FemaleTotalLine
+                  AFTER ADVANCING 2 LINES.
+            
+    [Sorting and Merging]
+      # 排序(使用WORKING FILE作排序, ACCEPT WORKFILE 暫存, RELEASE WORKFILE 確認寫入): SORT & INPUT PROCEDURE & 除了FD外, 又使用了SD
+        4. 程式範例:
+
+          $ SET SOURCEFORMAT"FREE"
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID.  InputSort.
+          AUTHOR.  Michael Coughlan.
+          * An example program using the SORT and an 
+          * INPUT PROCEDURE.  The program accepts records
+          * from the user and RELEASEs them to the work file
+          * where they are sorted.  This program
+          * allows student records to be entered in any order but
+          * produces a file sequenced on ascending StudentId.
+          
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+              SELECT StudentFile ASSIGN TO "SORTSTUD.DAT"
+              ORGANIZATION IS LINE SEQUENTIAL.
+              SELECT WorkFile ASSIGN TO "WORK.TMP".
+
+
+          DATA DIVISION.
+          FILE SECTION.
+          FD StudentFile.
+          01 StudentDetails      PIC X(30).
+
+          * The StudentDetails record has the description shown below.
+          * But in this program we don't need to refer to any of the items in 
+          * the record and so we have described it as PIC X(32) 
+          * 01 StudentDetails
+          *    02  StudentId       PIC 9(7).
+          *    02  StudentName.
+          *        03 Surname      PIC X(8).
+          *        03 Initials     PIC XX.
+          *    02  DateOfBirth.
+          *        03 YOBirth      PIC 9(4).
+          *        03 MOBirth      PIC 9(2).
+          *        03 DOBirth      PIC 9(2).
+          *    02  CourseCode      PIC X(4).
+          *    02  Gender          PIC X.
+
+
+          SD WorkFile.
+          01 WorkRec.
+            02 WStudentId       PIC 9(7).
+            02 FILLER           PIC X(23).
+
+
+          PROCEDURE DIVISION.
+          Begin.
+            SORT WorkFile ON ASCENDING KEY WStudentId
+                  INPUT PROCEDURE IS GetStudentDetails
+                  GIVING StudentFile.
+            STOP RUN.
+
+
+          GetStudentDetails.
+              DISPLAY "Enter student details using template below."
+              DISPLAY "Enter no data to end.".
+              DISPLAY "Enter - StudId, Surname, Initials, YOB, MOB, DOB, Course, Gender"
+              DISPLAY "NNNNNNNSSSSSSSSIIYYYYMMDDCCCCG"
+              ACCEPT  WorkRec.
+              PERFORM UNTIL WorkRec = SPACES
+                RELEASE WorkRec
+                ACCEPT WorkRec
+              END-PERFORM.
+
+      # 排序(使用WORKING FILE作排序, ACCEPT WORKFILE 暫存, RELEASE WORKFILE 確認寫入):
+        4. 程式範例
+
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. SORT-READDATAFILE.
+          * Uses the the SORT and an INPUT PROCEDURE to read
+          * the student masterfile (sorted on ascending Student Id)
+          * and from it to produce a file containing only the records of
+          * male students sorted on ascending student name.
+
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+              SELECT StudentFile ASSIGN TO "STUDENTS.DAT"
+                ORGANIZATION IS LINE SEQUENTIAL.
+              
+              SELECT StudentFile-Male ASSIGN TO "STUDENTS-MALE.DAT"
+                ORGANIZATION IS LINE SEQUENTIAL.
+
+              SELECT WorkFile ASSIGN TO "WORK.TEMP".
+
+          DATA DIVISION.
+          FILE SECTION.
+          FD  StudentFile.
+          01  StudentRec  PIC X(30).
+              88  EndOfStudentFile VALUE High-value.
+
+          FD  StudentFile-Male.
+          01  StudentRec-Male PIC X(30).
+
+          SD  WorkFile.
+          01  WorkRec.
+              03  FILLER PIC X(7).
+              03  wStudentName PIC X(10).
+              03  FILLER PIC X(12).
+              03  wGender PIC X.
+                  88  MaleStudent VALUE "M".
+
+          PROCEDURE DIVISION.
+          BEGIN.
+              SORT WorkFile ON ASCENDING KEY wStudentName
+                  INPUT PROCEDURE IS GetMaleStudent
+                  GIVING StudentFile-Male.
+              STOP RUN.
+
+          GetMaleStudent.
+              OPEN INPUT StudentFile
+              
+              READ StudentFile
+                  AT END SET EndOfStudentFile TO TRUE
+              END-READ
+              PERFORM UNTIL EndOfStudentFile
+                  MOVE StudentRec TO WorkRec
+                  IF MaleStudent
+                      RELEASE WorkRec
+                  END-IF
+                  READ StudentFile
+                      AT END SET EndOfStudentFile TO TRUE
+                  END-READ
+              END-PERFORM
+
+              CLOSE StudentFile.
+
+      # 合併: (MERGE)
+          注意事項
+            1. MERGE 無法排除重複項目, 只單純把資料合併
+            2. 如須排除重複項目, 請參考: '寫檔(插入資料, 比對是否存在, 匯出合併後新檔)'
+
+          程式範例:
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. MERGEFILES.
+          *> MERGE 無法排除重複項目, 只單純把資料合併
+          
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+              SELECT StudentFile ASSIGN TO "Student.DAT"
+                ORGANIZATION IS LINE SEQUENTIAL.
+
+              SELECT TranFile ASSIGN TO "TRANS-forInsert.DAT"
+                ORGANIZATION IS LINE SEQUENTIAL.
+
+              SELECT NewStudentFile ASSIGN TO "STUDENTs-Merged.dat"
+                ORGANIZATION IS LINE SEQUENTIAL.
+
+              SELECT WorkFile ASSIGN TO "WORK.TMP".
+
+          DATA DIVISION.
+          FILE SECTION.
+          FD  StudentFile.
+          01  StudentRec PIC X(30).
+
+          FD  TranFile.
+          01  TranRec PIC X(30).
+
+          FD  NewStudentFile.
+          01  NewStudentRec PIC X(30).
+
+          SD  WorkFile.
+          01  WorkRec.
+              03  wStudentId  PIC X(7).
+              03  FILLER      PIC X(23).
+
+          PROCEDURE DIVISION.
+          BEGIN.
+              MERGE WorkFile
+                  ON ASCENDING KEY wStudentId
+                  USING TranFile, StudentFile
+                  GIVING NewStudentFile.
+              STOP RUN.
+
+      ==先略過 BEGIN ==
+        # 課後練習1: AromaSalesRpt
+
+        # 課後練習2: CSISEmailDomain
+
+        # 課後練習3: BestSellers
+
+        # 課後練習4: DueSubRpt
+      ==先略過 END ==
+
+    [Direct Access Files]
+      # 新增 Relative File from Sequential File: (核心觀念: Relative files, Sequential fiels, access mode, relative key, file status, read..at end, write..invalid key.)
+        重點:
+          1. Relative File 不是標準ASCII檔, 它無法直接用編輯器產生.
+          2. 語法1(relative , random , relative key , file status)
+            SELECT RelativeFile ASSIGN TO "RelativeFile-IsHere.dat"
+                ORGANIZATION IS RELATIVE
+                ACCESS MODE IS RANDOM
+                RELATIVE KEY IS SupplierKey
+                FILE STATUS IS SupplierStatus.
+          3. 語法2
+            WRITE SupplierRecord
+                      INVALID KEY DISPLAY "SUPPLIER STATUS = " SupplierStatus
+                  END-WRITE
+
+        程式範例:
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. SEQUENTIALFILE-TO-RELATIVEFILE.
+
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+              SELECT RelativeFile ASSIGN TO "RelativeFile-IsHere.dat"
+                ORGANIZATION IS RELATIVE
+                ACCESS MODE IS RANDOM
+                RELATIVE KEY IS SupplierKey
+                FILE STATUS IS SupplierStatus.
+
+              SELECT SequentialFile ASSIGN TO "RelativeFileData.dat"
+                ORGANIZATION IS LINE SEQUENTIAL.
+
+          DATA DIVISION.
+          FILE SECTION.
+          FD  RelativeFile.
+          01  SupplierRecord.
+              03  SupplierCode PIC 99.
+              03  SupplierName PIC X(20).
+              03  SupplierAddress PIC X(50).
+
+          FD  SequentialFile.
+          01  SupplierRecord-Seq.
+              88  EndOfFile   VALUE HIGH-VALUE.
+              03  SupplierCode-Seq PIC 99.
+              03  SupplierName-Seq PIC X(20).
+              03  SupplierAddress-Seq PIC X(50).
+
+          WORKING-STORAGE SECTION.
+          01  SupplierStatus PIC X(2).
+          01  SupplierKey    PIC 99.
+
+          PROCEDURE DIVISION.
+          BEGIN.
+              OPEN OUTPUT RelativeFile.
+              OPEN INPUT SequentialFile.
+
+              READ SequentialFile
+                  AT END SET EndOfFile TO TRUE
+              END-READ
+
+              PERFORM UNTIL EndOfFile
+                  MOVE SupplierRecord-Seq TO SupplierRecord
+                  MOVE SupplierCode-Seq TO SupplierKey
+                  WRITE SupplierRecord
+                      INVALID KEY DISPLAY "SUPPLIER STATUS = " SupplierStatus
+                  END-WRITE
+                  READ SequentialFile
+                      AT END SET EndOfFile TO TRUE
+                  END-READ
+              END-PERFORM
+
+              CLOSE RelativeFile, SequentialFile.
+
+              STOP RUN.
+
+      # 讀取 Relative File: (核心觀念: Relative files, ACCESS MODE, RELATIVE KEY, file STATUS, READ..NEXT RECORD, READ..INVALID KEY, Condition Names, IF)
+          重點:
+            # Relative File != SequentialFile
+            # Relative File 存取方式有兩種:
+              1. DirectRead, 
+                  利用 Relative KEY 抓出 MATCH DATAs.
+                  另有 FILE STATUS 判斷是否 找到資料(FILE STATUS = 23, 表示沒有找到)
+              2. SequentialRead, 比照Sequential File讀取方式,
+                  由頭讀到尾.
+
+          程式範例:
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. RELATIVEFILE-READ.
+            *> Read a relative file directly or in sequence.
+            *> 資料來源必須是 'Relative File', 可以從上一範例取得.
+
+            ENVIRONMENT DIVISION.
+            INPUT-OUTPUT SECTION.
+            FILE-CONTROL.
+                SELECT RelativeFile ASSIGN TO "RelativeFile-IsHere.dat"
+                  ORGANIZATION IS RELATIVE
+                  ACCESS MODE IS DYNAMIC
+                  RELATIVE KEY IS SupplierKey
+                  FILE STATUS IS SupplierStatus.
+
+            DATA DIVISION.
+            FILE SECTION.
+            FD  RelativeFile.
+            01  SupplierRecord.
+                88  EndOfFile   VALUE HIGH-VALUE.
+                03  SupplierCode    PIC 99.
+                03  SupplierName    PIC X(20).
+                03  SupplierAddress PIC X(50).
+                
+            WORKING-STORAGE SECTION.
+            01  SupplierStatus  PIC X(2).
+                88  RECORDFOUND VALUE "00".
+
+            01  SupplierKey PIC 99.
+
+            01  PRNSUPPLIERRECORD.
+                03  PRNSUPPLIERCODE     PIC BB99.
+                03  PRNSUPPLIERNAME     PIC BBX(20).
+                03  PRNSUPPLIERADDRESS  PIC BBX(50).
+            
+            01  READTYPE    PIC 9.
+                88  DIRECTREAD  VALUE 1.
+                88  SEQUENTIALREAD  VALUE 2.
+                
+            PROCEDURE DIVISION.
+            BEGIN.
+                OPEN INPUT RelativeFile.
+                DISPLAY "CHOOSE READ TYPE : DIRECT READ = 1, SEQUENTIAL READ = 2 ? "
+                  WITH NO ADVANCING
+                ACCEPT READTYPE.
+
+                IF DIRECTREAD
+                    DISPLAY "ENTER KEY(2 DIGITS) TO SHOW : " WITH NO ADVANCING
+                    ACCEPT SupplierKey
+                    READ RelativeFile
+                        INVALID KEY DISPLAY "STATUS = ", SupplierStatus
+                    END-READ
+                    PERFORM DISPLAYrECORD
+                END-IF
+
+                IF SEQUENTIALREAD
+                    READ RelativeFile NEXT RECORD
+                        AT END SET EndOfFile TO TRUE
+                    END-READ
+                    PERFORM UNTIL EndOfFile
+                        PERFORM DISPLAYrECORD
+                        READ RelativeFile NEXT RECORD
+                            AT END SET EndOfFile TO TRUE
+                        END-READ
+                    END-PERFORM
+                END-IF
+
+                CLOSE RelativeFile.
+                STOP RUN.
+
+            DISPLAYrECORD.
+                IF RECORDFOUND
+                    MOVE SupplierCode TO PRNSUPPLIERCODE
+                    MOVE SupplierName TO PRNSUPPLIERNAME
+                    MOVE SupplierAddress TO PRNSUPPLIERADDRESS
+                    DISPLAY PRNSUPPLIERRECORD
+                END-IF.
+
+      # 產生 Indexed File: (核心觀念: Indexed files, Sequential files, RECORD KEY, ALTERNATE KEY, READ..AT END, WRITE..INVALID KEY)
+          重點:
+            # RELATIVE FILE, ORGANIZATION IS RELATIVE.
+            # SEQUENTIAL FILE, ORGANIZATION IS LINE SEQUENTIAL.
+            # INDEXED FILE, ORGANIZATION IS INDEXED.
+            # INDEXED FILE, 兩個檔案算1組.
+              1. 資料檔, 內容和資料來源檔一樣.
+              2. 索引檔, 資料檔的索引結果.
+
+          程式範例:
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. INDEXEDFILE-CREATE.
+          *> Create an indexed file from a sequential file.
+
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+              SELECT VideoFile ASSIGN TO "IDXVIDEO.DAT"
+                ORGANIZATION IS INDEXED
+                ACCESS MODE IS RANDOM
+                RECORD KEY IS VideoCode
+          *>     問題出在這裡, ALTERNATE RECORD 少寫關鍵字 KEY..
+                ALTERNATE RECORD KEY IS VideoTitle
+                  WITH DUPLICATES
+                FILE STATUS IS VideoStatus.
+
+              SELECT SeqVideoFile ASSIGN TO "SEQVIDEO.DAT"
+                ORGANIZATION IS LINE SEQUENTIAL.
+          
+          DATA DIVISION.
+          FILE SECTION.
+          FD  VideoFile.
+          01  VideoRecord.
+              03  VideoCode   PIC 9(5).
+              03  VideoTitle  PIC X(40).
+              03  VideoSupplierCode   PIC 99.
+
+          FD  SeqVideoFile.
+          01  SeqVideoRecord.
+              88  EndOfFile VALUE HIGH-VALUE.
+              03  SeqVideoCode    PIC 9(5).
+              03  SeqVideoTitle   PIC X(40).
+              03  SeqVideoSupplierCode    PIC 99.
+
+          WORKING-STORAGE SECTION.
+          01  VideoStatus PIC X(2).
+
+          PROCEDURE DIVISION.
+          BEGIN.
+              OPEN INPUT SeqVideoFile.
+              OPEN OUTPUT VideoFile.
+
+              READ SeqVideoFile
+                  AT END SET EndOfFile TO TRUE
+              END-READ.
+              PERFORM UNTIL EndOfFile
+                  WRITE VideoRecord FROM SeqVideoRecord
+                      INVALID KEY DISPLAY "(INVALID KEY) Record Status = ", VideoStatus
+                  END-WRITE
+                  READ SeqVideoFile
+                      AT END SET EndOfFile TO TRUE
+                  END-READ
+              END-PERFORM.
+
+              CLOSE SeqVideoFile, VideoFile.
+              STOP RUN.
+          
+      # 讀取 Indexed File(direct access): (核心觀念: Indexed files, READ <FileVariable> KEY IS <FileColumn>)
+          重點:
+            1. 長度宣告前面加上 'B' 用途為何, 留出空格
+              01  PRNSUPPLIERRECORD.
+                03  PRNSUPPLIERCODE     PIC BB99. //這裡會留 2個空白在99前面.
+                03  PRNSUPPLIERNAME     PIC BBX(20).
+                03  PRNSUPPLIERADDRESS  PIC BBX(50).
+
+          程式範例(2021-03-22 沒寫成功、2021-03-23 找出問題所在, 產生IndexedFile時有問題, 導致讀不到資料):
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. INDEXEDFILE-DIRECTREAD.
+
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+              SELECT VideoFile ASSIGN TO "IDXVIDEO.DAT"
+                ORGANIZATION IS INDEXED
+                ACCESS MODE IS DYNAMIC
+                RECORD KEY IS VideoCode
+                ALTERNATE RECORD KEY IS VideoTitle
+                  WITH DUPLICATES
+                FILE STATUS IS VideoStatus.
+
+          DATA DIVISION.
+          FILE SECTION.
+          FD  VideoFile.
+          01  VideoRecord.
+              03  VideoCode       PIC 9(5).
+              03  VideoTitle      PIC X(40).
+              03  SupplierCode    PIC 99.
+          
+          WORKING-STORAGE SECTION.
+          01  VideoStatus PIC X(2).
+              88  RECORDFOUND VALUE "00".
+
+          01  RequiredKey           PIC 9.
+              88 VideoCodeKey      VALUE 1.
+              88 VideoTitleKey     VALUE 2.
+
+          01  Prn-VideoRecord.
+              03  Prn-VideoCode       PIC 9(5).
+              03  Prn-VideoTitle      PIC BBBBX(40).
+              03  Prn-SupplierCode    PIC BBBB99.
+              
+          PROCEDURE DIVISION.
+          BEGIN.
+              OPEN INPUT VideoFile.
+
+              DISPLAY "CHOOSE YOUR FAVORITE KEY VIDEOCODE = 1, VIDEOTITLE = 2:"
+                WITH NO ADVANCING.
+              ACCEPT RequiredKey.
+
+              IF VideoCodeKey
+                  DISPLAY "ENTER VIDEO CODE(5 DIGITS) : " WITH NO ADVANCING
+                  ACCEPT VideoCode
+                  READ VideoFile
+                  KEY IS VideoCode
+                  INVALID KEY DISPLAY "(key=CODE)STATUS : " , VideoStatus
+                  END-READ
+              END-IF
+
+              IF VideoTitleKey
+                  DISPLAY "ENTER VIDEO TITLE(40 CHARS) : " WITH NO ADVANCING
+                  ACCEPT VideoTitle
+                  READ VideoFile
+                  KEY IS VideoTitle
+                  INVALID KEY DISPLAY "(key=TITLE)STATUS : " , VideoStatus
+                  END-READ              
+              END-IF
+
+              IF RECORDFOUND
+                  MOVE VideoCode TO Prn-VideoCode
+                  MOVE VideoTitle TO Prn-VideoTitle
+                  MOVE SupplierCode TO Prn-SupplierCode
+                  DISPLAY Prn-VideoRecord
+              ELSE
+                  DISPLAY "..NOTHING FOUND.."
+              END-IF.
+
+              CLOSE VideoFile.
+              STOP RUN.
+
+      # 讀取 Indexed File(sequential access): (核心觀念: Indexed files, READ..NEXT RECORD, START)
+          重點:
+            # 先新增 RECORD KEY BY START COMMAND.
+                MOVE SPACES TO VideoTitle
+                START VideoFile KEY IS GREATER THAN VideoTitle
+                  INVALID KEY DISPLAY "Error Message: ", VideoStatus
+                END-START
+            # READ <FileVariable> NEXT RECORD..
+                READ VideoFile NEXT RECORD
+                  AT END SET EndOfFile TO TRUE
+                END-READ.
+                PERFORM UNTIL EndOfFile
+                  //GET DATA FROM VideoRecord...
+                  READ VideoFile NEXT RECORD
+                    AT END SET EndOfFile TO TRUE
+                  END-READ
+                END-PERFORM.
+
+          程式範例:
+          
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. INDEXEDFILE-SEQUENTIALREAD.
+          *> 示範如何循序讀取 Indexed file
+          *> 在任1個索引鍵上.
+          *> DEFAULT KEY IS VideoCode.(不須另外新增KOR, key of reference.)
+          *> 若選擇VideoTitle, 則須另外新增KOR
+
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+              SELECT VideoFile ASSIGN TO "IDXVIDEO.DAT"
+                ORGANIZATION IS INDEXED
+                ACCESS MODE IS DYNAMIC
+                RECORD KEY IS VideoCode
+                ALTERNATE RECORD KEY IS VideoTitle
+                  WITH DUPLICATES
+                FILE STATUS IS VideoStatus.
+
+          DATA DIVISION.
+          FILE SECTION.
+          FD  VideoFile.
+          01  VideoRecord.
+              88  EndOfFile       VALUE HIGH-VALUE.
+              03  VideoCode       PIC 9(5).
+              03  VideoTitle      PIC X(40).
+              03  SupplierCode    PIC 99.
+          
+          WORKING-STORAGE SECTION.
+          01  VideoStatus PIC X(2).
+
+          01  RequireSequence PIC 9.
+              88  VideoCodeSequence   VALUE 1.
+              88  VideoTitleSequence  VALUE 2.
+          
+          01  Prn-VideoRecord.
+              03  Prn-VideoCode       PIC 9(5).
+              03  Prn-VideoTitle      PIC BBBBX(40).
+              03  Prn-SupplierCode    PIC BBBB99.
+          
+          PROCEDURE DIVISION.
+          BEGIN.
+              OPEN INPUT VideoFile.
+
+              DISPLAY "Enter Key : 1=VideoCode, 2=VideoTitleSequence -> " 
+                WITH NO ADVANCING.
+              ACCEPT RequireSequence.
+
+          *>   Create KOR for VideoTitle(alternate record key)
+              IF VideoTitleSequence
+                  MOVE SPACES TO VideoTitle
+                  START VideoFile KEY IS GREATER THAN VideoTitle
+                      INVALID KEY DISPLAY "(INVALID) STATUS:", VideoStatus
+                  END-START
+              END-IF
+
+          *>   Read Indexed file sequentially by READ..NEXT RECORD
+              READ VideoFile NEXT RECORD
+                  AT END SET EndOfFile TO TRUE
+              END-READ
+              PERFORM UNTIL EndOfFile
+                  MOVE VideoCode TO Prn-VideoCode
+                  MOVE VideoTitle TO Prn-VideoTitle
+                  MOVE SupplierCode TO Prn-SupplierCode
+                  DISPLAY Prn-VideoRecord
+                  READ VideoFile NEXT RECORD
+                      AT END SET EndOfFile TO TRUE
+                  END-READ
+              END-PERFORM
+
+              CLOSE VideoFile.
+              STOP RUN.
+
+      ==先略過 BEGIN ==
+        # 課後練習1: StudFees
+
+        # 課後練習2: Aroma96
+
+        # 課後練習3: BookshopRpt91
+
+        # 課後練習4: LibRoyaltyRpt
+
+        # 課後練習5: TopSuppliersRpt
+      ==先略過 END ==
+
+    [CALLing sub-programs]
+      # 重點: 
+        (主程式-CALLING PROGRAM)
+          1. 使用 CALL 呼叫 外部副程式.
+          2. 副程式可接收, 也可回傳參數.
+          3. 記憶體狀態管理, 利用 IS INITIAL 避免 STATE MEMORY 的發生.
+          4. 指定宣告為 COMP 變數, 是無法被顯示的(DISPLAY), 除非搬到 DISPLAY 變數上.
+          5. (預設)宣告均為 DISPLAY 變數.
+          6. CALL <CALLED PROGRAM-NAME> USING <para1>, <para2>.. 子句用來 傳遞參數 給 外部副程式.
+          7. 參數順序 很重要, COBOL依據順序來決定參數項目.
+          8. USING BY CONTENT, 傳值.
+            要用 USING BY CONTENT 須特別註明.
+          9. USING BY REFERENCE, 傳址(預設值), 內容改變後, 外部副程式(CALLED)修改後, 主程式(CALLING)跟著變.
+            沒有特別註明, 只寫 USING , 預設為 USING BY REFERENCE.
+          10. 主程式 & 外部副程式 是兩支獨立程式.
+          11. 外部副程式 != 內部PARAGRAPH OR SECTION.
+          12. 呼叫 外部副程式 使用, CALL...
+          13. 呼叫 內部PARAGRAPH OR SECTION 使用, PERFORM...
+        
+        (內部副程式-Contained sub-program)
+          1. 內部副程式, 跟主程式寫在同1個檔案內.
+          2. 外部副程式, 則寫在另外一個檔案.
+          5. "END PROGRAM". 
+                要放在程式的最後1行, 所有 PARAGRAPH 都要寫在前面. 
+                寫在 "END PROGRAM". 後面會錯.
+                "END PROGRAM", 用在"內部副程式", 標示出這個副程式到這結束.
+                
+        (外部副程式-External sub-program)
+          1. 參數傳入, 在 LINKAGE SECTION 要有對應項目, 但宣告順序不限.
+          
+          2. (VIP)PROCEDURE DIVSION USING 參數順序, 
+                必須和 (主程式) CALL <SUB-PROGRAM-NAME> USING <para1>, <para2>..相同.
+          
+          3. 沒有 STOP RUN, 而是以 EXIT PROGRAM 取代.
+          
+          4. 不能編譯為 exe執行檔, 
+                編譯指令改為 => "cobc -free <SUB-PROGRAM-NAME>.cbl".
+                記得把, "-x" 選項拿掉, 它會產生執行檔.
+          
+          6. "END PROGRAM" != "EXIT PROGRAM",
+                副程式內, EXIT PROGRAM == 主程式內, STOP RUN
+
+          7. "DATA DIVSION內, SECTION順序依下列規定撰寫, 反過來會錯".
+                1. WORKING-STORAGE SECTION.(前)
+                2. LINKAGE SECTION.(後)
+          
+          8. 若是共用副程式, 習慣都會加上 'IS INITIAL', 避免出現記憶體未清乾淨的問題.
+
+        (清除 STATE MEMORY 的兩種方式)
+          1. 副程式內, 使用 'IS INITIAL' 子句, EX. PROGRAM-ID. <PRO-NAME> IS INITIAL.
+          2. 主程式內, 先取消(CANCEL)副程式, 再呼叫(CALL)副程式.
+
+      # 呼叫 外部副程式
+      (核心觀念: CALLing EXTERNAL SUB-PROGRAMS, CALL..BY REFERENCE, CALL..BY CONTENT, COMP, CANCEL)    
+          主程式範例:
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. SU-MAIN-CALLSUBPROG.
+            
+            *> 示範如何使用 CALL 呼叫副程式.
+            *> 副程式-MultiplyNums, 有5個參數, 前4個是INPUT-PARAMETERS, 最後1個是OUTPUT-PARAMETER.
+            *> 副程式-Fickle, 展示 State Memory 情況.
+            *> 副程式-Steadfast, 使用 IS INITIAL 可避免 State Memory 的發生.
+            
+            ENVIRONMENT DIVISION.
+
+            DATA DIVISION.
+            WORKING-STORAGE SECTION.
+            01  UserNumber PIC 99.
+                88 InputStop VALUE 0.
+
+            *> DEFAULT IS DISPLAY, CAN BE DISPLAYED.
+            01  PrnResult PIC 9(6).
+
+            *> 參數可以是 01 LEVEL OR ELEMENTARY DATA-ITEMS.
+            01  Parameters.
+                03  Number1 PIC 9(3).
+                03  Number2 PIC 9(3).
+                03  FirstString PIC X(19) VALUE "First parameter".
+                03  SecondString PIC X(19) VALUE "Second parameter".
+                03  Result PIC 9(6) COMP.
+            *>     COMP 可作為參數, 但無法用來顯示, 必須搬至 DISPLAY 變數內.
+
+            PROCEDURE DIVISION.
+            BEGIN.
+                PERFORM CallMultiplyNums.
+                PERFORM CallFickle.
+                PERFORM CallSteadfast.
+
+                PERFORM MakeFickleSteadfast.
+
+                STOP RUN.
+
+            MakeFickleSteadfast.
+                DISPLAY SPACE
+                DISPLAY "-----Use 'CANCEL' VERB , Clear 'State memory'.-----".
+                DISPLAY "Input Number(2 digits, 0 TO STOP): " WITH NO ADVANCING.
+                ACCEPT UserNumber.
+                DISPLAY "-----Use 'CANCEL' VERB , Before Clear 'State memory'.-----".
+                CALL "Sub-Fickle" USING BY CONTENT UserNumber.
+                PERFORM UNTIL InputStop
+            *>       USE 'CANCEL' VERB TO clear STATE MEMORY.
+                    CANCEL "Sub-Fickle"
+                    CALL "Sub-Fickle" USING BY CONTENT UserNumber
+                    DISPLAY "Input Number(2 digits, 0 TO STOP): " WITH NO ADVANCING
+                    ACCEPT UserNumber
+                END-PERFORM.
+            
+            CallSteadfast.
+                DISPLAY SPACE
+                DISPLAY "-----Call Third Sub-Program(Steadfast).-----".
+                DISPLAY "Input Number(2 digits, 0 TO STOP): " WITH NO ADVANCING.
+                ACCEPT UserNumber.
+                PERFORM UNTIL InputStop
+            *>       USE 'IS INITIAL' IN "Sub-Steadfast" to clear STATE MEMORY.
+                    CALL "Sub-Steadfast" USING BY CONTENT UserNumber
+                    DISPLAY "Input Number(2 digits, 0 TO STOP): " WITH NO ADVANCING
+                    ACCEPT UserNumber
+                END-PERFORM.
+
+            CallFickle.
+                DISPLAY SPACE
+                DISPLAY "-----Call Second Sub-Program.-----".
+                DISPLAY "Input Number(2 digits, 0 TO STOP): " WITH NO ADVANCING.
+                ACCEPT UserNumber.
+                PERFORM UNTIL InputStop
+                    CALL "Sub-Fickle" USING BY CONTENT UserNumber
+                    DISPLAY "Input Number(2 digits, 0 TO STOP): " WITH NO ADVANCING
+                    ACCEPT UserNumber
+                END-PERFORM.
+
+            CallMultiplyNums.
+                DISPLAY "Input 2 numbers(3 digits each) to be multiplied"
+                DISPLAY "First Number: " WITH NO ADVANCING
+                ACCEPT Number1.
+                DISPLAY "Second Number: " WITH NO ADVANCING
+                ACCEPT Number2.
+                DISPLAY "First Number = ", Number1
+                DISPLAY "Second Number = ", Number2
+                DISPLAY ">>>> Calling sub-program Now...".
+
+                CALL "Sub-MultiplyNums" 
+                  USING BY CONTENT Number1, Number2, FirstString,
+                        BY REFERENCE SecondString, Result.
+            *>     CALL "MultiplyNums" USING
+            *>         BY VALUE IDENTIFER
+            *>         RETURNING RETURN-CODE
+            *>     END-CALL
+                
+                DISPLAY "Back to main-program now <<<<<<<".
+                MOVE Result TO PrnResult.
+                DISPLAY Number1 " multiplied by " Number2 " is = " PrnResult.
+
+                DISPLAY "The first string is  " FirstString.
+                DISPLAY "The second string is " SecondString.
+
+          子程式1: USING BY CONTENT, BY REFERENCE
+
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. Sub-MultiplyNums.
+            *>   This sub-program is CALLed from a Cobol program.
+            *>   it requires 5 parameters.
+            *>       2 to contain the numbers to be multiplied
+            *>       2 to contain strings to be displayed
+            *>       1 to return the result of the multiplication.
+
+            ENVIRONMENT DIVISION.
+            
+            DATA DIVISION.
+            LINKAGE SECTION.
+            *> * Parameters passed to the subprogram must have corresponding 
+            *> * entries in the LINKAGE SECTION of the CALLed subprogram but 
+            *> * they don't have to be declared in any particular order in the
+            *> * LINKAGE SECTION.
+            *>   在LINKAGE SECTION內, 參數順序不重要.
+            
+            01  Num1    PIC 9(3).
+            01  Num2    PIC 9(3).
+            01  Answer  PIC 9(6) COMP.
+            01  StrA    PIC X(20).
+            01  StrB    PIC X(20).
+
+            *>   (VIP)在PROCEDURE DIVISION內, 參數順序必須和 CALL..USING <參數> 相同.
+            PROCEDURE DIVISION USING Num1, Num2, StrA, StrB, Answer.
+            BEGIN.
+                DISPLAY ">>> IN THE SUB-PROGRAM".
+                DISPLAY "num1 = " , num1.
+                DISPLAY "num2 = " , num2.
+                DISPLAY "stra = " , stra.
+                DISPLAY "strb = " , strb.
+
+                MULTIPLY Num1 BY Num2 GIVING Answer.
+
+                MOVE "NEW VALUE 123" TO StrA
+                MOVE "NEW VALUE 456" TO StrB
+                DISPLAY " LEAVING SUB-PROGRAM NOW. <<<".
+
+                END PROGRAM Sub-MultiplyNums.
+      
+          子程式2: KEEP STATE MEMORY(DEFAULT)
+
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. Sub-Fickle.
+            *>   (預設)示範 STATE MEMORY 功能, 它會保留上次呼叫的值      
+            
+            ENVIRONMENT DIVISION.
+
+            DATA DIVISION.
+            WORKING-STORAGE SECTION.
+            01  RunningTotal PIC 9(4) VALUE 150.
+
+            LINKAGE SECTION.
+            01  Num1 PIC 99.
+
+            PROCEDURE DIVISION USING Num1.
+            BEGIN.
+                ADD Num1 TO RunningTotal.
+                DISPLAY "The total (so far) is ", RunningTotal.
+                END PROGRAM Sub-Fickle.
+
+          子程式3: CLEAR STATE MEMORY(BY IS INITIAL)
+
+            IDENTIFICATION DIVISION.
+            program-id. Sub-Steadfast IS INITIAL.       
+            *>   (預設)STATE MEMORY 功能, 它會保留上次呼叫的值
+            *>   示範清除 STATE MEMORY 內容, 利用 IS INITIAL 子句.
+
+            ENVIRONMENT DIVISION.
+
+            DATA DIVISION.
+            WORKING-STORAGE SECTION.
+            01  RunningTotal PIC 9(4) VALUE 150.
+
+            LINKAGE SECTION.
+            01  Num1 PIC 99.
+
+            PROCEDURE DIVISION USING Num1.
+            BEGIN.
+                ADD Num1 TO RunningTotal.
+                DISPLAY "The total (so far) is ", RunningTotal.
+                END PROGRAM Sub-Steadfast.
+
+      # 呼叫 副程式-日期檢查
+      (核心觀念1: EXTERNAL sub-programs, CALL, ACCEPT, DISPLAY, EVALUATE)
+      (核心觀念2: EXTERNAL sub-programs, IS INITIAL, LINKAGE SECTION, EVALUATE, IF..ELSE.., DIVIDE..REMAINDER, SET CONDITION-NAME, EXIT PROGRAM)
+          主程式範例:
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. SuMain-Call-DateValidate.
+
+            ENVIRONMENT DIVISION.
+
+            DATA DIVISION.
+            WORKING-STORAGE SECTION.
+            01  FILLER PIC 9 VALUE 0.
+                88  EndOfInput VALUE 1.
+            
+            01  InputDateIn PIC 9(8).
+
+            01  ValidationResult PIC 9.
+                88  DateIsValid VALUE 0.
+                88  DateNotNumeric VALUE 1.
+                88  YearContainsZeros VALUE 2.
+                88  MonthContainsZeros VALUE 3.
+                88  DayContainsZeros VALUE 4.
+                88  MonthGreaterThan12 VALUE 5.
+                88  DayTooGreatForMonth VALUE 6.
+            
+            PROCEDURE DIVISION.
+            BEGIN.
+                DISPLAY "Input Date as YYYYMMDD:" WITH No Advancing.
+                ACCEPT InputDateIn.
+                
+                DISPLAY "(BEFORE CALL SUB) INPUTDATEIN = ", InputDateIn
+            *>     CALL "Sub-DateValidate-V1"
+            *>       USING InputDateIn, ValidationResult.
+
+                CALL "Sub-DateValidate-V2"
+                  USING InputDateIn, ValidationResult.
+
+                DISPLAY "InputDate : ", InputDateIn
+                DISPLAY "ValidResult : ", ValidationResult
+                EVALUATE TRUE
+                    WHEN DateIsValid    DISPLAY "Date is valid."
+                    WHEN DateNotNumeric DISPLAY "Date is not numeric."
+                    WHEN YearContainsZeros DISPLAY "Year contains all zeros."
+                    WHEN MonthContainsZeros DISPLAY "Month contains all zeros."
+                    WHEN DayContainsZeros   DISPLAY "Day contains all zeros."
+                    WHEN MonthGreaterThan12 DISPLAY "Month too great."
+                    WHEN DayTooGreatForMonth DISPLAY "Day too great for month"
+                    WHEN OTHER DISPLAY "(Error) unable to valid..."
+                END-EVALUATE
+                
+                STOP RUN.
+
+          子程式(陽春版-自行開發 -> Sub-DateValidate-V1):
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. Sub-DateValidate-V1.
+            *> 自行開發版.(不錯了, 但有改善空間.)
+            *>   ValidResult:
+            *>   0 : valid
+            *>   1 : not numeric
+            *>   2 : year(yyyy) all zeros
+            *>   3 : month(mm) all zeros
+            *>   4 : day(dd) all zeros.
+            *>   5 : month greater than 12.
+            *>   6 : max day number not match the month has.
+
+            ENVIRONMENT DIVISION.
+
+            DATA DIVISION.
+            WORKING-STORAGE SECTION.
+            01  DateToValidate.
+                03  YYYY    PIC 9(4).
+                03  MM      PIC 9(2).
+                88  BIG     VALUE 01,03,05,07,08,10,12.
+                88  SMALL   VALUE 04,06,09,11.
+                88  TWO     VALUE 02.
+                03  DD      PIC 9(2).
+            01  Result PIC 9.
+            
+            LINKAGE SECTION.
+            01  In-Date PIC 9(8).
+            01  Out-ValidResult PIC 9.
+
+            PROCEDURE DIVISION USING In-Date, Out-ValidResult.
+            BEGIN.
+                MOVE In-Date TO DateToValidate.
+                PERFORM CheckDate
+                MOVE Result TO Out-ValidResult.
+
+                EXIT PROGRAM.
+
+            CheckDate.
+                EVALUATE TRUE
+                    WHEN In-Date NOT NUMERIC
+                        MOVE 1 TO Result
+                    WHEN YYYY IS ZEROS
+                        MOVE 2 TO Result
+                    WHEN MM IS ZEROS
+                        MOVE 3 TO Result
+                    WHEN DD IS ZEROS
+                        MOVE 4 TO Result
+                    WHEN MM > 12
+                        MOVE 5 TO Result
+                    WHEN (BIG AND DD > 31) 
+                            OR (SMALL AND DD > 30) 
+                            OR (TWO AND DD > 29)
+                        MOVE 6 TO Result
+                    WHEN OTHER
+                        MOVE 0 TO Result
+                END-EVALUATE.
+
+          子程式(範例版 -> Sub-DateValidate-V2):
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. Sub-DateValidate-V2 IS INITIAL.
+            
+            DATA DIVISION.
+            WORKING-STORAGE SECTION.
+            01  MonthDayTable.
+                03  TableValues PIC X(24)
+                        VALUE "312831303130313130313031".
+                03  FILLER REDEFINES TableValues.
+                    05  DaysInMonth
+                        OCCURS 12 TIMES PIC 99.
+
+            01  CurruptDate PIC 9(8).
+
+            01  LeapQuot    PIC 9(4).
+            01  LeapRemain  PIC 9(4).
+
+            01  FILLER  PIC 9 VALUE ZERO.
+                88  LeapYear VALUE 1.
+            
+            LINKAGE SECTION.
+            01  InputDateLK.
+                03  YearLK PIC 9(4).
+                03  MonthLK PIC 99.
+                    88  MonthInvalid VALUE 13 THRU 99.
+                    88  MonthIsFebruary VALUE 2.
+                03  DayLK PIC 99.
+
+            01  ValidationResultLK PIC 9.
+                88  DateIsValid VALUE 0.
+                88  DateNotNumeric VALUE 1.
+                88  YearContainsZeros VALUE 2.
+                88  MonthContainsZeros VALUE 3.
+                88  DayContainsZeros VALUE 4.
+                88  MonthGreaterThan12 VALUE 5.
+                88  DayTooGreatForMonth VALUE 6.
+
+            PROCEDURE DIVISION USING InputDateLK, ValidationResultLK.
+            Begin.
+                EVALUATE TRUE
+                  WHEN NOT InputDateLK NUMERIC SET DateNotNumeric TO TRUE
+                  WHEN YearLK = 0 SET YearContainsZeros TO TRUE
+                  WHEN MonthLK = 0 SET MonthContainsZeros TO TRUE
+                  WHEN DayLK = 0 SET DayContainsZeros TO TRUE
+                  WHEN MonthInvalid SET MonthGreaterThan12 TO TRUE
+                  WHEN OTHER 
+                    PERFORM CheckValidDay
+                END-EVALUATE.
+                
+                EXIT PROGRAM.
+
+            CheckValidDay.
+            *>   閏年, 判斷規則:
+            *>   1. 年份可被400整除 = 閏年
+            *>   2. 年份不被100整除, 但被4整除 = 閏年 
+                DIVIDE YearLK BY 400 GIVING LeapQuot REMAINDER LeapRemain.
+                IF LeapRemain = 0
+                    SET LeapYear TO TRUE
+                ELSE
+                    DIVIDE YearLK BY 100 GIVING LeapQuot REMAINDER LeapRemain
+                    IF LeapRemain NOT = 0
+                    DIVIDE YearLK BY 4 GIVING LeapQuot REMAINDER LeapRemain
+                    IF LeapRemain = 0
+                        SET LeapYear TO TRUE
+                    END-IF
+                    END-IF
+                END-IF.
+
+            *>   閏年, 2月給29天
+                IF LeapYear AND MonthLK = 2
+                    MOVE 29 TO DaysInMonth(2)
+                END-IF.
+
+            *>   判斷合法日期
+                IF DayLK > DaysInMonth(MonthLK)
+                    SET DayTooGreatForMonth TO TRUE
+                ELSE
+                    SET DateIsValid TO TRUE
+                END-IF.
+
+      # 呼叫 副程式-日期檢查 + 日期比較
+      (核心觀念: CONTAINED SUB-PROGRAMS[內部副程式], CALL, LINKAGE SECTION, EXTERNAL SUB-PROGRAMS[外部副程式], 
+      INTRINSIC FUNCTION[內建函式], EXIT PROGRAM[內部副程式-結束用,功能同主程式的STOP RUN.], 
+      END PROGRAM[內部副程式-標示用], FUNCTION INTEGER-OF-DATE)
+
+        主程式 + 內部副程式:
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. Main-Call-DayDiff.
+
+          ENVIRONMENT DIVISION.
+
+          DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01  Dates.
+              03  FirstDate           PIC X(8).
+              03  SecondDate          PIC X(8).
+              03  FirstDate-Prn       PIC XX/XX/XXXX.
+              03  SecondDate-Prn      PIC XX/XX/XXXX.
+
+          01  DayDiffs.
+              03  DayDifference       PIC S9(7).
+              03  DayDifference-Prn   PIC ----,--9.
+          
+          01  ValidationResult        PIC 9.
+              88  DateIsValid         VALUE 0.
+              88  DateIsNotValid      VALUE 1 THRU 6.
+              88  DateNotNumeric      VALUE 1.
+              88  YearContainsZeros   Value 2.
+              88  MonthContainsZeros  Value 3.
+              88  DayContainsZeros    Value 4.
+              88  MonthGreaterThan12  Value 5.
+              88  DayToGreatForMonth  Value 6.
+
+          PROCEDURE DIVISION.
+          Begin.
+              SET DateIsNotValid TO TRUE
+              PERFORM GetValidFirstDate UNTIL DateIsValid
+              DISPLAY "First Date is ", FirstDate.
+
+              SET DateIsNotValid TO TRUE
+              PERFORM GetValidSecondDate UNTIL DateIsValid
+              DISPLAY "Second Date is ", SecondDate.
+
+              CALL "TwDateToEuDate" 
+                USING BY CONTENT FirstDate, 
+                      BY REFERENCE FirstDate.
+              DISPLAY "First Date(ddmmyyyy) = ", FirstDate.
+
+              CALL "EuDateToTwDate"
+                USING BY CONTENT FirstDate,
+                      BY REFERENCE FirstDate.
+              DISPLAY "First Date(yyyyMMdd) = ", FirstDate.
+
+              DISPLAY SPACES.
+              CALL "GetDayDiff"
+                USING BY CONTENT FirstDate, SecondDate
+                      BY REFERENCE DayDifference.
+              MOVE DayDifference TO DayDifference-Prn.
+
+              CALL "TwDateToEuDate"
+                USING BY CONTENT FirstDate,
+                      BY REFERENCE FirstDate.
+              MOVE FirstDate To FirstDate-Prn.
+
+              CALL "TwDateToEuDate"
+                USING BY CONTENT SecondDate,
+                      BY REFERENCE SecondDate.
+              MOVE SecondDate TO SecondDate-Prn.
+
+          *>   Show Result.
+              DISPLAY SPACES
+              DISPLAY "== Result =="
+              DISPLAY "The difference between " FirstDate-Prn " and "
+                SecondDate-Prn " is " DayDifference-Prn.
+
+              STOP RUN.
+
+          GetValidFirstDate.
+              DISPLAY SPACE.
+              DISPLAY "Input First Date: " WITH NO ADVANCING
+              ACCEPT FirstDate.
+              CALL "Sub-DateValidate-V2" 
+                USING BY CONTENT FirstDate, 
+                      BY REFERENCE ValidationResult
+              IF DateIsNotValid
+                PERFORM DisplayErrorMessage
+              END-IF.
+
+          *> 取得第2個日期
+          GetValidSecondDate.
+              DISPLAY SPACE.
+              DISPLAY "Input Second Date: " WITH NO ADVANCING
+              ACCEPT SecondDate.
+              CALL "Sub-DateValidate-V2" 
+                USING BY CONTENT SecondDate, 
+                      BY REFERENCE ValidationResult
+              IF DateIsNotValid
+                PERFORM DisplayErrorMessage
+              END-IF.
+
+          *> 顯示錯誤訊息
+          DisplayErrorMessage.
+              DISPLAY "ValidationResult is ", ValidationResult
+              EVALUATE TRUE
+                  WHEN  DateNotNumeric      DISPLAY "(Error)DateNotNumeric"
+                  WHEN  YearContainsZeros   DISPLAY "(Error)YearContainsZeros"
+                  WHEN  MonthContainsZeros  DISPLAY "(Error)MonthContainsZeros"
+                  WHEN  DayContainsZeros    DISPLAY "(Error)DayContainsZeros"
+                  WHEN  MonthGreaterThan12  DISPLAY "(Error)MonthGreaterThan12"
+                  WHEN  DayToGreatForMonth  DISPLAY "(Error)DayToGreatForMonth"
+                  WHEN OTHER DISPLAY "(Error) Out of 1-6 Error Message"
+              END-EVALUATE.
+          
+          *> =========================================================
+          *> Convert a Date in DDMMYYYY => YYYYMMDD.
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. EuDateToTwDate.
+          ENVIRONMENT DIVISION.
+          DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01  wsTwDate.
+              03  TwYYYY  PIC 9(4).
+              03  TwMM    PIC 99.
+              03  TwDD    PIC 99.
+              
+          LINKAGE SECTION.
+          01  EuDate.
+              03  EuDD    PIC 99.
+              03  EuMM    PIC 99.
+              03  EuYYYY  PIC 9(4).
+          01  outTwDate   PIC 9(8).
+          
+          PROCEDURE DIVISION USING EuDate, outTwDate.
+          BEGIN.
+              MOVE EuDD TO TwDD.
+              MOVE EuMM TO TwMM.
+              MOVE EuYYYY TO TwYYYY.
+              MOVE wsTwDate TO outTwDate.
+              EXIT PROGRAM.
+          END PROGRAM EuDateToTwDate.
+
+          *> =========================================================
+          *> Convert a Date in YYYYMMDD => DDMMYYYY.
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. TwDateToEuDate.
+          ENVIRONMENT DIVISION.
+          DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01  wsEuDate.
+              03  EuDD    PIC 99.
+              03  EuMM    PIC 99.
+              03  EuYYYY  PIC 9(4).
+          
+          LINKAGE SECTION.
+          01  TwDate.
+              03  TwYYYY  PIC 9(4).
+              03  TwMM    PIC 99.
+              03  TwDD    PIC 99.
+          01  outEuDate   PIC 9(8).
+          
+          PROCEDURE DIVISION USING TwDate, outEuDate.
+          Begin.
+              MOVE TwYYYY to EuYYYY.
+              MOVE TwMM to EuMM.
+              MOVE TwDD to EuDD.
+              MOVE wsEuDate to outEuDate.
+              EXIT PROGRAM.           
+          END PROGRAM TwDateToEuDate.
+
+          *> =========================================================
+          *> 計算兩日期間的差異數
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. GetDayDiff.
+          ENVIRONMENT DIVISION.
+          DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          
+          LINKAGE SECTION.
+          01  Date1   PIC 9(8).
+          01  Date2   PIC 9(8).
+          01  Difference  PIC S9(7).
+          
+          PROCEDURE DIVISION USING Date1, Date2, Difference.
+          Begin.
+              COMPUTE Difference = FUNCTION INTEGER-OF-DATE(Date1)
+                  - FUNCTION INTEGER-OF-DATE(Date2)
+              EXIT PROGRAM.           
+          END PROGRAM GetDayDiff.
+
+          END PROGRAM Main-Call-DayDiff.
+
+      ==先略過 BEGIN ==
+        # 課後練習1: ACME99
+
+        # 課後練習2: SFbyMail
+      ==先略過 END ==
+
+    [String handling]
+      # 字串截取 / 字元定位
+      (核心觀念: Reference Modification, Intrinsic Function, INSPECT)
+      1. INSPECT xStr TALLYING StrSize FOR ALL CHARACTERS
+      2. INSPECT xStr TALLYING CharCount FOR ALL SPACES
+      3. INSPECT xStr TALLYING CharCount FOR LEADING SPACES
+      4. INSPECT xStr TALLYING CharCount FOR TRAILING SPACES
+      5. xStr(startPosition : getCharsLength)
+
+        程式範例:
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. STRING-INSPECT.
+
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01  xStr        PIC X(50) VALUE "    Tfis is the first source string".
+        01  xStr2       PIC X(32) VALUE "This is the second source string".
+        01  StrSize     PIC 99 VALUE 32.
+        01  CharCount   PIC 99 VALUE Zeros.
+        01  EndCount    PIC 99 VALUE Zeros.
+        01  yStr        PIC X(4) VALUE spaces.
+        01  CharPos     PIC 99 VALUE Zeros.
+        01  StrLength   PIC 99 VALUE Zeros.
+
+        PROCEDURE DIVISION.
+        BEGIN.
+            DISPLAY "Task1-[startPosition,Length] : " xStr(16:5).
+            DISPLAY "Task2-[startPosition,Length] : " xStr2(1:7).
+            
+            MOVE 13 TO StrLength
+            COMPUTE CharPos = (StrSize - StrLength) + 1
+            DISPLAY "Task3-Get last 13 chars : " xStr2(CharPos : StrLength).
+
+        *>     回傳字串長度
+            MOVE 0 TO StrSize
+            INSPECT xStr TALLYING StrSize FOR ALL CHARACTERS
+        
+        *>     找出所有空白字元(前+字串內+後)
+            MOVE 0 TO CharCount
+            INSPECT xStr TALLYING CharCount FOR ALL SPACES
+            DISPLAY "All Space Char Count = ", CharCount.
+        
+        *>     找出字首(LEADING)空白
+            MOVE 0 TO CharCount
+            INSPECT xStr TALLYING CharCount FOR LEADING SPACES
+            DISPLAY "LEADING Space Char Count = ", CharCount.
+
+        *>     找出字尾(trailing)空白
+            MOVE 0 TO CharCount
+            INSPECT xStr TALLYING CharCount FOR TRAILING SPACES
+            DISPLAY "TRAILING Space Char Count = ", CharCount.
+
+        *>     去除字尾(trailing)空白
+            DISPLAY "(Before)'" xStr "'".
+            COMPUTE StrLength = StrSize - CharCount.
+            DISPLAY "(AFTER)'" xStr(1 : StrLength) "'".
+
+        *>     去除字首(leading)空白
+            DISPLAY "(Before)'" xStr "'".
+            MOVE 0 to CharCount
+            INSPECT xStr TALLYING CharCount FOR LEADING SPACES
+            DISPLAY "(AFTER)'" xStr(CharCount + 1 : ) "'".
+            DISPLAY "(AFTER)'" xStr(CharCount + 1 : StrSize ) "'".
+
+        *>     找出特定字元位置(ex.找出特定字元,第1個出現位置)
+            DISPLAY "Str=" xStr2.
+            MOVE 1 to CharCount
+            INSPECT xStr2 TALLYING CharCount FOR CHARACTERS
+                BEFORE INITIAL "source"
+            DISPLAY "POSITION : " , CharCount.
+            
+        *>     找出"fred"中, 第1個出現的字元及位置
+            MOVE "fred" TO yStr
+            MOVE 51 TO EndCount
+            PERFORM VARYING CharPos FROM 1 BY 1 UNTIL CharPos > 4
+                MOVE 1 TO CharCount
+                INSPECT xStr TALLYING CharCount FOR CHARACTERS
+                    BEFORE INITIAL yStr(CharPos:1)
+                IF CharCount < EndCount
+                    MOVE CharCount TO EndCount
+                END-IF
+            END-PERFORM.
+            DISPLAY "FIRST OCCURRENCE IS IN CHAR POSITION,", EndCount
+            DISPLAY "THE CHAR IS, " xStr(EndCount : 1)
+            
+            STOP RUN.
+
+      # 字串分割:
+      (核心觀念: UNSTRING .. DELIMITED BY "," INTO .. COUNT IN ..)
+
+          程式範例 : 檢查資料內容是否符合規範(VIP:上班後,應該會用到).
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. STRING-UNSTRING.
+          *> 篩選出 "InsertSupplier"
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+              SELECT InputData ASSIGN TO "String-UnstringData.dat"
+                ORGANIZATION IS LINE SEQUENTIAL.
+
+          DATA DIVISION.
+          FILE SECTION.
+          FD  InputData.
+          *> 
+          01  SupplierAndVideoRecord.
+              88  EndOfFile   VALUE HIGH-VALUE.
+              03  TypeCode    PIC XX.
+                  88  DeleteSupplier  VALUE "1,".
+                  88  DeleteVideo     VALUE "2,".
+                  88  InsertVideo     VALUE "3,".
+                  88  InsertSupplier  VALUE "4,".
+                  88  ValidTypeCode   VALUE "1,", "2,", "3,", "4,".
+              03  RemainRec   PIC X(78).
+
+          WORKING-STORAGE SECTION.
+          01  InsertSupplierRec.
+              03  TransType       PIC 9.
+              03  TransDate       PIC X(8).
+              03  SupplierCode    PIC XX.
+              03  SupplierName    PIC X(20).
+              03  SupplierAddress PIC X(50).
+          
+          *> 檢查欄位長度
+          01  InsertSupplierCount.
+              03  DateCount           PIC 99.
+                  88  ValidDate       VALUE 8.
+              03  CodeCount           PIC 99.
+                  88  ValidCode       VALUE 1 THRU 2.
+              03  NameCount           PIC 99.
+                  88  ValidName       VALUE 1 THRU 20.
+              03  AddressCount        PIC 99.
+                  88  ValidAddress    VALUE 1 THRU 50.
+          
+          *> 儲存每列實際長度
+          01  StringEnd   PIC 99.
+              
+          PROCEDURE DIVISION.
+          BEGIN.
+              OPEN INPUT InputData
+              READ InputData
+                  AT END SET EndOfFile TO TRUE
+              END-READ
+              PERFORM UNTIL EndOfFile 
+
+          *>   計算每行實際長度
+                  MOVE ZEROS TO InsertSupplierCount
+                  MOVE 0 to StringEnd
+                  INSPECT RemainRec TALLYING StringEnd FOR TRAILING SPACES
+                  COMPUTE StringEnd = 78 - StringEnd
+                  
+          *>   只抓"InsertSupplier"
+                  IF InsertSupplier
+          *>             DISPLAY SupplierAndVideoRecord
+                      UNSTRING RemainRec(1:StringEnd) DELIMITED BY ","
+                        INTO TransDate COUNT IN DateCount
+                          SupplierCode COUNT IN CodeCount
+                          SupplierName COUNT IN NameCount
+                          SupplierAddress COUNT IN AddressCount
+                      END-UNSTRING
+                      PERFORM ShowErrorMsg
+                  else
+                      IF NOT ValidTypeCode
+                          DISPLAY SPACES
+                          DISPLAY "Record = " RemainRec(1:70)
+                          DISPLAY "Type Code Error(" TypeCode ")"
+                      END-IF
+                  END-IF
+
+                  READ InputData
+                      AT END SET EndOfFile TO TRUE
+                  END-READ
+              END-PERFORM
+
+              CLOSE InputData
+              STOP RUN.
+          
+          ShowErrorMsg.
+              DISPLAY SPACES
+              DISPLAY "Record = " RemainRec(1:70)
+              IF NOT ValidDate DISPLAY "TransDate Size Error(" TransDate ")" END-IF
+              IF NOT ValidCode DISPLAY "SupplierCode Size Error(" SupplierCode ")" END-IF
+              IF NOT ValidName DISPLAY "SupplierName Size Error(" SupplierName ")" END-IF
+              IF NOT ValidAddress DISPLAY "SupplierAddress Size Error(" SupplierAddress ")" END-IF.
+
+    [The COBOL Report Writer]
+      # 自製資料檔:ReportWriter-DataOK.DAT
+
+          100	Zhongzheng District	中正區
+          103	Datong District	大同區
+          104	Zhongshan District	中山區
+          105	Songshan District	松山區
+          106	Daan District	大安區
+          108	Wanhua District	萬華區
+          110	Xinyi District	信義區
+          111	Shilin District	士林區
+          112	Beitou District	北投區
+          114	Neihu District	內湖區
+          115	Nangang District	南港區
+          116	Wenshan District	文山區
+          200	Ren-ai District	仁愛區
+          201	Sinyi District	信義區
+          202	Zhongzheng District	中正區
+          203	Zhongshan District	中山區
+          204	Anle District	安樂區
+          205	Nuannuan District	暖暖區
+          206	Qidu District	七堵區
+          209	Nangan Township	南竿鄉
+          210	Beigan Township	北竿鄉
+          211	Juguang Township	莒光鄉
+          212	Dongyin Township	東引鄉
+          207	Wanli District	萬里區
+          208	Jinshan District	金山區
+          220	Banqiao District	板橋區
+          221	Xizhi District	汐止區
+          222	Shenkeng District	深坑區
+          223	Shiding District	石碇區
+          224	Ruifang District	瑞芳區
+          226	Pingxi District	平溪區
+          227	Shuangxi District	雙溪區
+          228	Gongliao District	貢寮區
+          231	Xindian District	新店區
+          232	Pinglin District	坪林區
+          233	Wulai District	烏來區
+          234	Yonghe District	永和區
+          235	Zhonghe District	中和區
+          236	Tucheng District	土城區
+          237	Sanxia District	三峽區
+          238	Shulin District	樹林區
+          239	Yingge District	鶯歌區
+          241	Sanchong District	三重區
+          242	Xinzhuang District	新莊區
+          243	Taishan District	泰山區
+          244	Linkou District	林口區
+          247	Luzhou District	蘆洲區
+          248	Wugu District	五股區
+          249	Bali District	八里區
+          251	Tamsui District	淡水區
+          252	Sanzhi District	三芝區
+          253	Shimen District	石門區
+          260	Yilan City	宜蘭市
+          261	Toucheng Township	頭城鎮
+          262	Jiaoxi Township	礁溪鄉
+          263	Zhuangwei Township	壯圍鄉
+          264	Yuanshan Township	員山鄉
+          265	Luodong Township	羅東鎮
+          266	Sanxing Township	三星鄉
+          267	Datong Township	大同鄉
+          268	Wujie Township	五結鄉
+          269	Dongshan Township	冬山鄉
+          270	Su'ao Township	蘇澳鎮
+          272	Nan'ao Township	南澳鄉
+          290	Diaoyutai Islands	釣魚台列嶼
+          300	East District	東區
+          300	North District	北區
+          300	Xiangshan District	香山區
+          302	Zhubei City	竹北市
+          303	Hukou Township	湖口鄉
+          304	Xinfeng Township	新豐鄉
+          305	Xinpu Township	新埔鎮
+          306	Guanxi Township	關西鎮
+          307	Qionglin Township	芎林鄉
+          308	Baoshan Township	寶山鄉
+          310	Zhudong Township	竹東鎮
+          311	Wufeng Township	五峰鄉
+          312	Hengshan Township	橫山鄉
+          313	Jianshi Township	尖石鄉
+          314	Beipu Township	北埔鄉
+          315	Emei Township	峨眉鄉
+          320	Zhongli District	中壢區
+          324	Pingzhen District	平鎮區
+          325	Longtan District	龍潭區
+          326	Yangmei District	楊梅區
+          327	Xinwu District	新屋區
+          328	Guanyin District	觀音區
+          330	Taoyuan District	桃園區
+          333	Guishan District	龜山區
+          334	Bade District	八德區
+          335	Daxi District	大溪區
+          336	Fuxing District	復興區
+          337	Dayuan District	大園區
+          338	Luzhu District	蘆竹區
+          350	Zhunan Township	竹南鎮
+          351	Toufen Township	頭份鎮
+          352	Sanwan Township	三灣鄉
+          353	Nanzhuang Township	南庄鄉
+          354	Shitan Township	獅潭鄉
+          356	Houlong Township	後龍鎮
+          357	Tongxiao Township	通霄鎮
+          358	Yuanli Township	苑裡鎮
+          360	Miaoli City	苗栗市
+          361	Zaoqiao Township	造橋鄉
+          362	Touwu Township	頭屋鄉
+          363	Gongguan Township	公館鄉
+          364	Dahu Township	大湖鄉
+          365	Tai'an Township	泰安鄉
+          366	Tongluo Township	銅鑼鄉
+          367	Sanyi Township	三義鄉
+          368	Xihu Township	西湖鄉
+          369	Zhuolan Township	卓蘭鎮
+          400	Central District	中區
+          401	East District	東區
+          402	South District	南區
+          403	West District	西區
+          404	North District	北區
+          406	Beitun District	北屯區
+          407	Xitun District	西屯區
+          408	Nantun District	南屯區
+          411	Taiping District	太平區
+          412	Dali District	大里區
+          413	Wufeng District	霧峰區
+          414	Wuri District	烏日區
+          420	Fengyuan District	豐原區
+          421	Houli District	后里區
+          422	Shigang District	石岡區
+          423	Dongshi District	東勢區
+          424	Heping District	和平區
+          426	Xinshe District	新社區
+          427	Tanzi District	潭子區
+          428	Daya District	大雅區
+          429	Shengang District	神岡區
+          432	Dadu District	大肚區
+          433	Shalu District	沙鹿區
+          434	Longjing District	龍井區
+          435	Wuqi District	梧棲區
+          436	Qingshui District	清水區
+          437	Dajia District	大甲區
+          438	Waipu District	外埔區
+          439	Da'an District	大安區
+          500	Changhua City	彰化市
+          502	Fenyuan Township	芬園鄉
+          503	Huatan Township	花壇鄉
+          504	Xiushui Township	秀水鄉
+          505	Lukang Township	鹿港鎮
+          506	Fuxing Township	福興鄉
+          507	Xianxi Township	線西鄉
+          508	Hemei Township	和美鎮
+          509	Shengang Township	伸港鄉
+          510	Yuanlin Township	員林鎮
+          511	Shetou Township	社頭鄉
+          512	Yongjing Township	永靖鄉
+          513	Puxin Township	埔心鄉
+          514	Xihu Township	溪湖鎮
+          515	Dacun Township	大村鄉
+          516	Puyan Township	埔鹽鄉
+          520	Tianzhong Township	田中鎮
+          521	Beidou Township	北斗鎮
+          522	Tianwei Township	田尾鄉
+          523	Pitou Township	埤頭鄉
+          524	Xizhou Township	溪州鄉
+          525	Zhutang Township	竹塘鄉
+          526	Erlin Township	二林鎮
+          527	Dacheng Township	大城鄉
+          528	Fangyuan Township	芳苑鄉
+          530	Ershui Township	二水鄉
+          540	Nantou City	南投市
+          541	Zhongliao Township	中寮鄉
+          542	Caotun Township	草屯鎮
+          544	Guoxing Township	國姓鄉
+          545	Puli Township	埔里鎮
+          546	Ren'ai Township	仁愛鄉
+          551	Mingjian Township	名間鄉
+          552	Jiji Township	集集鎮
+          553	Shuili Township	水里鄉
+          555	Yuchi Township	魚池鄉
+          556	Xinyi Township	信義鄉
+          557	Zhushan Township	竹山鎮
+          558	Lugu Township	鹿谷鄉
+          600	East District	東區
+          600	West District	西區
+          602	Fanlu Township	番路鄉
+          603	Meishan Township	梅山鄉
+          604	Zhuqi Township	竹崎鄉
+          605	Alishan Township	阿里山鄉
+          606	Zhongpu Township	中埔鄉
+          607	Dapu Township	大埔鄉
+          608	Shuishang Township	水上鄉
+          611	Lucao Township	鹿草鄉
+          612	Taibao City	太保市
+          613	Puzi City	朴子市
+          614	Dongshi Township	東石鄉
+          615	Lioujiao Township	六腳鄉
+          616	Xingang Township	新港鄉
+          621	Minxiong Township	民雄鄉
+          622	Dalin Township	大林鎮
+          623	Xikou Township	溪口鄉
+          624	Yizhu Township	義竹鄉
+          625	Budai Township	布袋鎮
+          630	Dounan Township	斗南鎮
+          631	Dapi Township	大埤鄉
+          632	Huwei Township	虎尾鎮
+          633	Tuku Township	土庫鎮
+          634	Baozhong Township	褒忠鄉
+          635	Dongshi Township	東勢鄉
+          637	Lunbei Township	崙背鄉
+          638	Mailiao Township	麥寮鄉
+          640	Douliu City	斗六市
+          643	Linnei Township	林內鄉
+          654	Sihu Township	四湖鄉
+          636	Taixi Township	臺西鄉
+          646	Gukeng Township	古坑鄉
+          647	Citong Township	莿桐鄉
+          648	Xiluo Township	西螺鎮
+          649	Erlun Township	二崙鄉
+          651	Beigang Township	北港鎮
+          652	Shuilin Township	水林鄉
+          653	Kouhu Township	口湖鄉
+          655	Yuanchang Township	元長鄉
+          700	West Central District	中西區
+          701	East District	東區
+          702	South District	南區
+          704	North District	北區
+          708	Anping District	安平區
+          709	Annan District	安南區
+          710	Yongkang District	永康區
+          711	Gueiren District	歸仁區
+          712	Sinhua District	新化區
+          713	Zuojhen District	左鎮區
+          714	Yujing District	玉井區
+          715	Nansi District	楠西區
+          716	Nanhua District	南化區
+          717	Rende District	仁德區
+          718	Guanmiao District	關廟區
+          719	Longci District	龍崎區
+          720	Guantian District	官田區
+          721	Madou District	麻豆區
+          722	Jiali District	佳里區
+          723	Sigang District	西港區
+          724	Cigu District	七股區
+          725	Jiangjun District	將軍區
+          726	Syuejia District	學甲區
+          727	Beimen District	北門區
+          730	Xinying District	新營區
+          731	Houbi District	後壁區
+          732	Baihe District	白河區
+          733	Dongshan District	東山區
+          734	Lioujia District	六甲區
+          735	Xiaying District	下營區
+          736	Liouying District	柳營區
+          737	Yanshuei District	鹽水區
+          741	Shanhua District	善化區
+          742	Danei District	大內區
+          743	Shanshang District	山上區
+          744	Sinshih District	新市區
+          745	Anding District	安定區
+          800	Sinsing District	新興區
+          801	Cianjin District	前金區
+          802	Lingya District	苓雅區
+          803	Yancheng District	鹽埕區
+          804	Gushan District	鼓山區
+          805	Cijin District	旗津區
+          806	Cianjhen District	前鎮區
+          807	Sanmin District	三民區
+          811	Nanzih District	楠梓區
+          812	Siaogang District	小港區
+          813	Zuoying District	左營區
+          814	Renwu District	仁武區
+          815	Dashe District	大社區
+          817	Pratas Island (Tungsha/Dongsha)	東沙群島
+          819	Nansha Islands	南沙群島
+          820	Gangshan District	岡山區
+          821	Lujhu District	路竹區
+          822	Alian District	阿蓮區
+          823	Tianliao District	田寮區
+          824	Yanchao District	燕巢區
+          825	Ciaotou District	橋頭區
+          826	Ziguan District	梓官區
+          827	Mituo District	彌陀區
+          828	Yongan District	永安區
+          829	Hunei District	湖內區
+          830	Fongshan District	鳳山區
+          831	Daliao District	大寮區
+          832	Linyuan District	林園區
+          833	Niaosong District	鳥松區
+          840	Dashu District	大樹區
+          842	Cishan District	旗山區
+          843	Meinong District	美濃區
+          844	Liouguei District	六龜區
+          845	Neimen District	內門區
+          846	Shanlin District	杉林區
+          847	Jiasian District	甲仙區
+          848	Taoyuan District	桃源區
+          849	Namasia District	那瑪夏區
+          851	Maolin District	茂林區
+          852	Qieding District	茄萣區
+          880	Magong City	馬公市
+          881	Xiyu Township	西嶼鄉
+          882	Wangan Township	望安鄉
+          883	Cimei Township	七美鄉
+          884	Baisha Township	白沙鄉
+          885	Huxi Township	湖西鄉
+          890	Jinsha Township	金沙鎮
+          891	Jinhu Township	金湖鎮
+          892	Jinning Township	金寧鄉
+          893	Jincheng Township	金城鎮
+          894	Lieyu Township	烈嶼鄉
+          896	Wuqiu Township	烏坵鄉
+          900	Pingtung City	屏東市
+          901	Sandimen Township	三地門鄉
+          902	Wutai Township	霧臺鄉
+          903	Majia Township	瑪家鄉
+          904	Jiuru Township	九如鄉
+          905	Ligang Township	里港鄉
+          906	Gaoshu Township	高樹鄉
+          907	Yanpu Township	鹽埔鄉
+          908	Changzhi Township	長治鄉
+          909	Linluo Township	麟洛鄉
+          911	Zhutian Township	竹田鄉
+          912	Neipu Township	內埔鄉
+          913	Wandan Township	萬丹鄉
+          920	Chaozhou Township	潮州鎮
+          921	Taiwu Township	泰武鄉
+          922	Laiyi Township	來義鄉
+          923	Wanluan Township	萬巒鄉
+          924	Kanding Township	崁頂鄉
+          925	Xinpi Township	新埤鄉
+          926	Nanzhou Township	南州鄉
+          927	Linbian Township	林邊鄉
+          928	Donggang Township	東港鎮
+          929	Liuqiu Township	琉球鄉
+          931	Jiadong Township	佳冬鄉
+          932	Xinyuan Township	新園鄉
+          940	Fangliao Township	枋寮鄉
+          941	Fangshan Township	枋山鄉
+          942	Chunri Township	春日鄉
+          943	Shizi Township	獅子鄉
+          944	Checheng Township	車城鄉
+          945	Mudan Township	牡丹鄉
+          946	Hengchun Township	恆春鎮
+          947	Manzhou Township	滿州鄉
+          950	Taitung City	臺東市
+          951	Lüdao Township	綠島鄉
+          952	Lanyu Township	蘭嶼鄉
+          953	Yanping Township	延平鄉
+          954	Beinan Township	卑南鄉
+          955	Luye Township	鹿野鄉
+          956	Guanshan Township	關山鎮
+          957	Haiduan Township	海端鄉
+          958	Chishang Township	池上鄉
+          959	Donghe Township	東河鄉
+          961	Chenggong Township	成功鎮
+          962	Changbin Township	長濱鄉
+          963	Taimali Township	太麻里鄉
+          964	Jinfeng Township	金峰鄉
+          965	Dawu Township	大武鄉
+          966	Daren Township	達仁鄉
+          970	Hualien City	花蓮市
+          971	Xincheng Township	新城鄉
+          972	Xiulin Township	秀林鄉
+          973	Ji'an Township	吉安鄉
+          974	Shoufeng Township	壽豐鄉
+          975	Fenglin Township	鳳林鎮
+          976	Guangfu Township	光復鄉
+          977	Fengbin Township	豐濱鄉
+          978	Ruisui Township	瑞穗鄉
+          979	Wanrong Township	萬榮鄉
+          981	Yuli Township	玉里鎮
+          982	Zhuoxi Township	卓溪鄉
+          983	Fuli Township	富里鄉
+
+      # Using Only one control break.
+        程式範例：
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. REPORTWRITER-A.
+
+        ENVIRONMENT DIVISION.
+        INPUT-OUTPUT SECTION.
+        FILE-CONTROL.
+            SELECT PostCodeFile ASSIGN TO "ReportWriter-DataOK.DAT"
+              ORGANIZATION IS LINE SEQUENTIAL.
+
+            SELECT PrintFile ASSIGN TO "ReportWriter-PostCode.LPT".
+
+        DATA DIVISION.
+        FILE SECTION.
+        FD  PostCodeFile.
+        01  PostCodeRecord.
+            88  EndOfFile VALUE HIGH-VALUE.
+            03  PostCode.
+                05  CityCode        PIC 9(1).
+                05  DistrictCode    PIC 9(2).
+            03  RemainData          PIC X(47).
+        
+        FD  PrintFile
+            REPORT IS PostCodeReport.
+
+        WORKING-STORAGE SECTION.
+        01  GroupItemsCount PIC 99 VALUE 0.
+        01  GroupCityCode   PIC 9 VALUE 0.
+        01  NameTable.
+            03  TableValues.
+                05  FILLER PIC X(20) VALUE "Taipei    ILan      ".
+                05  FILLER PIC X(20) VALUE "Hsinchu   Taitung   ".
+                05  FILLER PIC X(20) VALUE "Changhua  Douliu    ".
+                05  FILLER PIC X(20) VALUE "Tainan    Kaohsiung ".
+                05  FILLER PIC X(20) VALUE "Pingtung            ".
+            03  FILLER REDEFINES TableValues.
+                05  CityName    PIC X(10) OCCURS 10 TIMES.
+        
+        REPORT SECTION.
+        RD  PostCodeReport
+            CONTROLS ARE CityCode
+            PAGE LIMIT IS 60
+            HEADING 1
+            FIRST DETAIL 6
+            LAST DETAIL 55
+            FOOTING 58.
+        
+        01  TYPE IS PAGE HEADING.
+            03  LINE 1.
+                05  COLUMN 12   PIC X(32) VALUE "= EXAMPLE COBOL REPORT PROGRAM =".
+            03  LINE 2.
+                05  COLUMN 6    PIC X(17) VALUE " TAIWAN POSTCODE ".
+                05  COLUMN 23   PIC X(26) VALUE "- CITY AND DISTRICT REPORT".
+            03  LINE 4.
+                05  COLUMN 2    PIC X(4)  VALUE "City".
+                05  COLUMN 12   PIC X(4) VALUE  "Post".
+                05  COLUMN 21   PIC X(10) VALUE "District".
+            03  LINE 5.
+                05  COLUMN 2    PIC X(4)  VALUE "Name".
+                05  COLUMN 12   PIC X(4)  VALUE "Code".
+                05  COLUMN 21   PIC X(10) VALUE "Name".
+        
+        01  DETAILLINE TYPE IS DETAIL.
+            03  LINE IS PLUS 1.
+                05  COLUMN 1    PIC X(10)   SOURCE CityName(CityCode).
+                05  COLUMN 15   PIC 9(3)    SOURCE PostCode.
+                05  COLUMN 20   PIC X(37)   SOURCE RemainData.
+
+        01  SALESPERSONGROUP
+            TYPE IS CONTROL FOOTING CityCode NEXT GROUP PLUS 2.
+            03  LINE IS PLUS 1.
+                05  COLUMN 15   PIC X(20)   VALUE "Districts of CITY".
+                05  COLUMN 39   PIC X(10)   SOURCE CityName(GroupCityCode).
+                05  COLUMN 50   PIC X       VALUE "=".
+                05  COLUMN 53   PIC 99      SOURCE GroupItemsCount.
+
+        01  TYPE IS PAGE FOOTING.
+            03  LINE IS PLUS 2.
+                05  COLUMN 1    PIC X(21)   VALUE "PROGRAMMER - KL.CHENG".
+                05  COLUMN 45   PIC X(7)    VALUE "PAGE : ".
+                05  COLUMN 52   PIC Z9  SOURCE PAGE-COUNTER.
+
+        PROCEDURE DIVISION.
+        BEGIN.
+            OPEN INPUT PostCodeFile.
+            OPEN OUTPUT PrintFile.
+            
+            READ PostCodeFile
+                AT END SET EndOfFile TO TRUE
+            END-READ.
+            INITIATE PostCodeReport.
+            PERFORM PrintReport
+              UNTIL EndOfFile.
+            TERMINATE PostCodeReport.
+            
+            CLOSE PostCodeFile, PrintFile.
+            STOP RUN.
+
+        PrintReport.
+            GENERATE DETAILLINE.
+        
+            IF CityCode = GroupCityCode
+        *>     CITYCODE 相同, 同群資料 => 筆數+1
+                ADD 1 TO GroupItemsCount
+            ELSE
+        *>     CITYCODE 不同, 群組切換 => 筆數重設
+                MOVE 1 TO GroupItemsCount
+            END-IF
+            MOVE CityCode TO GroupCityCode
+            
+            READ PostCodeFile
+                AT END SET EndOfFile TO TRUE
+            END-READ.
+
+      # Containing all the control break but not using Declaratives.
+
+      # (Full Records)Containing all the control break & Using Declaratives.
+
+      # (Summary)Containing all the control break & Using Declaratives.
+
+    [COBOL Tables]
+      # Exercise 1 : Pre-Filled Tables, Sequential files, PERFORM..VARYING, PERFORM..UNTIL
+
+      # Exercise 2 : Pre-Filled Tables, Sequential Files, SORT with Input Procedure, SEARCH, INSPECT
+
+      # Exercise 3 : Sequential files, SORT with Input Procedure, Print Files, Pre-defined tables, Condition Names
+
+    == ↑↑↑↑↑ 2021-04-01前, 目標進度 ↑↑↑↑↑ ==
+
+  0.教材完整學習(觀念複習用)  <= 2022/04/10 等實作完畢後, 再來複習觀念 =>
+    
+    > Introduction to COBOL
+
+    > COBOL Control structures
+
+    > Simple Sequential Files
+
+    > Advanced data declaration
+
+    > Advanced Sequential Files
+
+    > Direct access files
+
+    > COBOL tables
+
+    > Constructing large systems
+
+    > COBOL string handling
+
+    > The COBOL Report Writer
+
+    [Introduction to COBOL]
+      <Introduction 簡介 & What is COBOL>
+        COBOL程式經常處理大量的資料量.
+        COBOL優勢在於程式可閱讀式性.
+        COBOL is Simple, 但進入OO-COBOL時代後, 增加了下列特性.
+          1. 使用者定義函式.
+          2. 物件導向.
+          3. 國際字元- 萬國碼(UNICODE)
+          4. 多個貨幣符號(multiple currency symbols)
+          5. Cultural Adaptability(Locales)
+          6. Dynamic Memory Allocaton (Pointers)
+          7. Data Validation Using New VALIDATE Verb
+          8. Binary and Floating Point Data Types
+          9. User Defined Data Types
+        COBOL是可攜性, 可在多種UNIX主機上運作.
+        COBOL是可維護的, 源自於它的可讀性, 四大結構, 轉換系統時會至ENVIRONMENT DIVISION內進行調整.
+      <Introduction to Programming>
+      <COBOL Basics>
+        * coding rules
+          1-6 7 8-11 12-72
+          行號專用
+              保留
+                Area A: 所有DIVISION名稱, SECTION名稱, PARAGRAPH名稱, FD & 01階層的定義 都必須落在Area A區段內.
+                    Area B: 其他程式語句則必須從Area B開始.
+        
+        * name construction 命名規則
+          1. 至少1個字元, 最多30個字元
+          2. 至少1個英文字
+          3. 開頭及結尾不能用連字號(-)
+          4. 必須由 A-Z, a-z, 0-9, - 所組成
+          5. 不能包含空白字元( )
+          6. 不分大小寫.例: TotalPay = totalpay = Totalpay = TOTALPAY.
+        
+        * structure of COBOL programs COBOL程式結構
+          COBOL Program.
+            Division.
+              Section.
+                Paragraph.
+                  Sentence.
+                    Statement.
+      <Four Division 四大區域(順序固定, 但有些DIVISION可省略)>
+          1. IDENTIFICATION DIVISION. (程式資訊)
+            最基本型態
+              IDENTIFICATION DIVISION.
+              PROGRAM-ID. TESTPROGRAM.
+              AUTHOR. KL-CHENG.
+          
+          2. ENVIRONMENT DIVISION. (環境資訊)
+            所有跟程式執行環境相關的資訊 都定義在這裡.
+            例:主機, 實體檔案名稱, 裝置, collating sequence, the currency symbol and the decimal point symbol也都定義在這.
+
+          3. DATA DIVISION. (資料描述)
+            兩個主要SECTION是: 
+              FILE SECTION(檔案別名) & WORKING-STORAGE SECTION(暫存資料名稱).
+            額外SECTION是: 
+              LINKAGE SECTION(子程式用) & REPORT SECTION(REPORT WRITER用).
+            最基本型態:
+              IDENTIFICATION DIVISION.
+              PROGRAM-ID. TESTPROGRAM.
+              AUTHOR. KL-CHENG.
+
+              DATA DIVSION.
+              WORKING-STORAGE SECTION.
+              01 NUM1 PIC 9 VALUE ZEROS.
+              01 NUM2 PIC 9 VALUE ZEROS.
+              01 RESULT PIC 99 VALUE ZEROS.
+
+          4. PROCEDURE DIVISION. (程式邏輯及演算法)
+            由 SECTION, PARAGRAPH, SENTENCE & STATEMENT所組成.
+            只有 SECTION 是可有可無(OPTIONAL), 其他項目至少要有1個.
+            最基本型態:
+              IDENTIFICATION DIVSION.
+              PROGRAM-ID. TESTPROGRAM.
+              AUTHOR. KL-CHENG.
+
+              DATA DIVISION.
+              WORKING-STORAGE SECTION.
+              01 Num1 PIC 9 VALUE ZEROS.
+              01 Num2 PIC 9 VALUE ZEROS.
+              01 Result PIC 99 VALUE ZEROS.
+
+              PROCEDURE DIVISION.
+              CalcualteResult.
+                Accept Num1.
+                Accpet Num2.
+                Multiply Num1 By Num2 Giving Result.
+                Display "Result is = ", Result.
+                STOP RUN.
+
+            最小程式:
+              IDENTIFICATION DIVISION.
+              PROGRAM-ID. SmallestProgram.
+
+              PROCEDURE DIVISION.
+              DisplayGreeting.
+                DISPLAY "Hello World".
+                STOP RUN.
+
+      <Declaring data in COBOL>
+
+      <Basic Procedure Division commands>
+
+===============================================================================
+資料來源：https://www.tutorialspoint.com/cobol
+
+  [完整學習]
+    1.Program Structure
+      Program -> 
+        Division -> 
+          Sections -> 
+            Paragraphs -> 
+              Sentences(必須以.結尾) -> 
+                Statements -> 
+                  Characters
+      
+      ex.
+      PROCEDURE DIVISION.
+      A0000-FIRST-PARA SECTION.
+      FIRST-PARAGRAPH.
+      ACCEPT WS-ID
+      MOVE '10' TO WS-ID
+      DISPLAY WS-ID.
+
+    1.Introduction to COBOL
+      1.1.The structure of COBOL programs
+        a. COBOL is self-documenting(最大特點,它不用另外寫註解,但有比較冗長的問題)
+        b. COBOL is non-proprietary (portable)
+        c. COBOL is Maintainable
+        d. 程式範例：兩數相加,並顯示結果
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. HELLO.
+
+          DATA DIVISION.
+              WORKING-STORAGE SECTION.
+              01 WS-NUM1 PIC 9(5).
+              01 WS-NUM2 PIC 9(5).
+              01 WS-RESULT pic 9(5).
+            
+          PROCEDURE DIVISION.
+              DISPLAY "INPUT NUM1 : ".
+              ACCEPT WS-NUM1. 
+              DISPLAY "INPUT NUM2 : ".
+              ACCEPT WS-NUM2.
+              MULTIPLY WS-NUM1 BY WS-NUM2 giving WS-RESULT.
+              DISPLAY "RESULT IS : " , WS-RESULT.
+              
+          STOP RUN.
+        e. 撰寫規則：
+          |1-6|7|8-11|12-72|73-80|
+          |行號區(1-6),很多編譯器可忽略
+          |指示區(7) / * 表示註解 , - 表示接續 , / 表示form feed
+          |Area A(8-11) => 所有的段落標示 , 都在這個區域開始 , FD AND 01 Level 數值要寫在這個區域
+          |Area B(12-72) => 所有的程式碼 , 都在這個區域
+        f. 命名原則：
+          1.至少1個字元,最多30個字元
+          2.至少1個英文字
+          3.開頭及結尾不能用連字號(-)
+          4.命名必須由(A-Z) , (0-9) 及 (-) 組成
+          5.不能包含空白字元
+          6.命名不分大小寫, total == Total = tOtAl = TOTAL
+        g. 程式結構：
+          Program > Division > SECTION > PARAGRAPH > Sentences > Statements
+        h. 四個Divisions
+          IDENTIFICATION DIVISION.
+            [程式資訊]:裡面內容主要是寫給程式員看的,會被編譯器視為註解.
+            唯一例外,每個COBOL PROGRAM都要有 <PROGRAM-ID.> , 而且要緊接在 <IDENTIFICATION DIVISION.> 後面.
+            
+          ENVIRONMENT DIVISION.
+            [環境設定]:外部裝置會給定一個別名
+
+          DATA DIVISION.
+            [資料描述]:有兩個主要的Sections, 
+              分別是: <FILE SECTION.> & <WORKING-STORAGE SECTION.>
+              另外還有: <LINKAGE SECTION.> 在子程式(subprograms)內使用
+              還有: <REPORT SECTION.> 在Report Writer based programs內使用
+
+          PROCEDURE DIVISION.
+            [程式邏輯及演算法]:是由 <SECTIONS> , <PARAGRAPHS> , <SENTENCES> , <STATEMENTS> 所組成
+              1. <SECTIONS> 非必要選項,
+              2. 至少要有1個<PARAGRAPHS> , <SENTENCES> , <STATEMENTS>
+              3. <SECTIONS> & <PARAGRAPHS> 須符合命名規則.
+
+              程式範例(最短):
+                IDENTIFICATION DIVISION.
+                PROGRAM-ID. SmallProgram.
+                AUTHOR. kl.cheng
+
+                PROCEDURE DIVISION.
+                DISPLAY "hello world".
+                STOP RUN.
+              
+              程式範例:
+                IDENTIFICATION DIVISION.
+                PROGRAM-ID. TEST-PROGRAM.
+                AUTHOR. KL CHENG.
+
+                DATA DIVISION.
+                WORKING-STORAGE SECTION.
+                01 NUM1 PIC 9 VALUE ZEROS.
+                01 NUM2 PIC 9 VALUE ZEROS.
+                01 RESULT PIC 99 VALUE ZEROS.
+
+                PROCEDURE DIVISION.
+                CalculateResult.
+                  ACCEPT NUM1.
+                  ACCEPT NUM2.
+                  MULTIPLY NUM1 BY NUM2 GIVING RESULT.
+                  DISPLAY "RESULT IS = " , RESULT.
+                  STOP RUN.
+      1.2.Declaring data in COBOL
+        1.2.1.Introduction => Unit aims, objectives, prerequisites and further reading.
+
+        1.2.2.Categories of COBOL data => Variables , Literals , Figurative Constants.
+          1.Variable 資料型態只有三種：numeric (數字) , alphanumeric (text/string 英數字) , alphabetic (字母無數字)
+          2.Variable 用錯 data type , 
+              執行運算會讓程式直接掛掉.
+              或
+              產生讓你匪疑所思的結果(因為搬進去的不是數值, 它就給你預設值 0), 
+                例: 01 DATEIN PIC 9(8).
+                    MOVE 'ABCD1234' TO DATEIN.
+                    DISPLAY DATEIN.
+                    請問, 結果為何? 
+                答: 00000000, 卻不是 'ABCD1234'.
+
+          3.Literals 指的常數(固定值) , 無法指定一個Name.
+          4.Literals 有兩種型態: 
+            > String/Alphanumeric Literals (ex.  "Michael Ryan", "-123", "123.45" )
+            > Numeric Literals (ex. 123, 123.45, -256, +2987 )
+          5.Figurative Constants 指的是具象常數.
+          6.Figurative Constants 類別有:
+            > SPACE or SPACES 	        1個或多個" "空白字元
+            > ZERO or ZEROS or ZEROES   1個或多個0
+            > QUOTE or QUOTES 	        "" Used instead of a quotation mark
+            > HIGH-VALUE or HIGH-VALUES 最大值,ex.99
+            > LOW-VALUE or LOW-VALUES 	最小值,ex.00
+            > ALL literal 	            ex. ALL "a" , ALL 1. Allows a ordinary literal to act as Figurative Constant
+
+        1.2.3.Declaring Data-Items in COBOL => 使用 PIC 宣告變數
+          In this section we show how variables are declared in COBOL using the PICTURE clause.
+        1.2.4.Group and Elementary Data-Items => 如何指定合適的資料階層
+          This section demonstrates how record structures can be specified using an appropriate arrangement of level numbers.
+
+    2.COBOL 是由 <4個DIVISION> 所組成：
+      Identification Division    //(1)
+        PROGRAM-ID 定義程式名稱,長度為1-30
+      
+      Environment Division       //(2)指定INPUT & OUTPUT FILE，並由 <2個SECTION> 所組成，分別是
+        CONFIGURATION SECTION.
+          SOURCE-COMPUTER.       //編譯程式的系統
+          OBJECT-COMPUTER.       //執行程式的系統
+        INPUT-OUTPUT SECTION.
+          FILE-CONTROL.          //外部資料集合(Data Sets)
+          I-O CONTROL.           //檔案
+      
+      Data Division              //(3)定義變數的位置，由 <4個SECTIONS> 所組成,分別是
+        FILE SECTION.            //檔案的資料結構(RECORD STRUCTURE)
+        WORKING-STORAGE SECTION. //定義程式變數
+        LOCAL-STORAGE SECTION.   //定義程式變數,跟WORKING-STORAGE相似,差別在於LOCAL-STORAGE會給初始值,在程式執行時
+        LINKAGE SECTION.         //描述從外部程式接收的資料名稱
+
+      Procedure Division         
+                                //(4)包括程序邏輯 , 它會使用 DATA DIVISION 內的變數名稱
+                                //在PROCEDURE DIVISION 內至少要有 1句 , STOP RUN. OR EXIT PROGRAM.
+                                //STOP RUN. 用於呼叫端
+                                //EXIT PROGRAM. 用於被呼叫端
+                                //在PROCEDURE DIVISION 內的SECTION , 可由 Programmer 自訂
+      (example. for Identification Division)
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. HELLO.
+        PROCEDURE DIVISION.
+        DISPLAY 'Welcome to COBOL Programming World'.
+        STOP RUN.
+
+      (example. for Environment Division)
+        ENVIRONMENT DIVISION.
+        CONFIGURATION SECTION.
+          SOURCE-COMPUTER. XXX-ZOS.
+          OBJECT-COMPUTER. XXX-ZOS.
+        INPUT-OUTPUT SECTIONS.
+          FILE-CONTROL.
+          SELECT FILEN ASSIGN TO DDNAME
+          ORGANIZATION IS SEQUENTIAL.
+
+      (example. for Data Division)
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID HELLO.
+
+        ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION.
+          FILE-CONTROL.
+          SELECT FILEN ASSIGN TO INPUT.
+            ORGANIZATION IS SEQUENTIAL.
+            ACCESS IS SEQUENTIAL.
+
+        DATA DIVISION.
+          FILE SECTION.
+          FD FILEN
+          01 NAME PIC A(25).
+
+          WORKING-STORAGE SECTION.
+          01 WS-STUDENT PIC A(30).
+          01 WS-ID PIC 9(5).
+
+          LOCAL-STORAGE SECTION.
+          01 LS-CLASS PIC 9(3).
+
+          LINKAGE SECTION.
+          01 LS-ID PIC 9(5).
+
+        PROCEDURE DIVISION.
+          DISPLAY 'EXECUTING COBOL PROGRAM USING JCL'.
+        
+        STOP RUN.
+
+      (example. for Procedure Division)
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID HELLO.
+
+        DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01 WS-NAME PIC A(30).
+          01 WS-IS PIC 9(5) VALUE 12345.
+
+        PROCEDURE DIVISION.
+          A000-FIRST-PARA.
+          DISPLAY 'HELLO WORLD.
+          MOVE 'tutorialspoint' TO WS-NAME.
+          DISPLAY 'MY NAME IS 'WS-NAME.
+          DISPLAY 'MY ID IS 'WS-IS.
+
+    3.COBOL - BASIC SYNTAX
+
+      CHARACTER SET(字元集合)
+        1.A-Z
+        2.a-Z
+        3.0-9
+        4.' '//空白
+        5.  +
+        6.  -
+        7.  *
+        8.  /
+        9.  $
+        10. ,
+        11. ;
+        12. .
+        13. "
+        14. (
+        15. )
+        16. > 
+        17. <
+        18. :
+        19. '
+        20. =
+      
+      Coding Sheet(程式碼樣式 , 撰寫定位規定)
+        位置  /欄位名稱 /功能
+        1-6   / 行號   / 保留給行號使用
+        7     / 指示   / * 表示註解 , - 表示接續 , / 表示form feed
+        8-11  / A區域  / 所有的段落標示 , 都在這個區域開始 , FD AND 01 Level 數值要寫在這個區域
+        12-72 / B區域  / 所有的程式碼 , 都在這個區域
+        73-80 / 識別區 / Programmer有需要時 , 可使用
+
+        example:
+        1-----78---12-----------------------------------------------------------73------
+        000100 IDENTIFICATION DIVISION.                                         000100
+        000200 PROGRAM-ID. HELLO.                                               000101
+        000250* THIS IS A COMMIT LINE.                                          000102
+        000300 PROCEDURE DIVISION.                                              000103
+        000350 A000-FIRST-PARA.                                                 000104
+        000400     DISPLAY "CODEING SHEET".                                     000105
+        000500 STOP RUN.
+
+    4.COBOL - Data Types
+      Data NAME
+        Valid:
+          WS-NAME
+          TOTAL-STUDENTS
+          A100
+          100B
+        Invalid:
+          MOVE
+          COMPUTE
+          100
+          100+b
+      
+      Level Number
+        01 RECORD description entry
+        02 to 49  Group and Elementary Items
+        66 Rename Clause Items
+        77 Items which cannot be sub-divided
+        88 Condition name entry
+
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01 WS-NAME PIC X(25).             <--Elementary Item
+        01 WS-CLASS PIC 9(2) VALUE '10'.  <--Elementary Item
+
+        01  WS-ADDRESS.                   <-- GROUP Item
+          05  WS-HOUSE-NUMBER PIC 9(3).   <-- Elementary Item
+          05  WS-STREET PIC X(15).        <-- Elementary Item
+          05  WS-CITY   PIC X(15).        <-- Elementary Item
+          05  WS-COUNTRY PIC X(15) VALUE 'TAIWAN'.  <-- Elementary Item
+      
+      Picture Clause(資料型態)
+        9 數值
+        A 字元,空白
+        X 英數字,特殊字元
+        V implicit decimal(小數點)
+        S 正負號
+        P assumed decimal(假設是小數點)
+
+        DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01 WS-NUM1 PIC S9(3)V9(2).              <-- +000.00
+          01 WS-NUM2 PIC PPP999.                  <-- .000000
+          01 WS-NUM3 PIC S9(3)V9(2) VALUE -123.45 <-- -123.45
+          01 WS-NAME PIC A(6) VALUE 'ABCDEF'.     <-- ABCDEF
+          01 WS-ID PIC X(5) VALUE 'A123$'.        <-- A123$
+      
+      VALUE Clause
+        OPTIONAL Clause , 可用於 GROUP Item AND Elementary Item
+        設定初值用
+
+        DATA DIVISION.
+          WORKING-STORAGE SECTION.
+          01 WS-NUM1 PIC 99V9 VALUE IS 25.9.  <-- 25.9 OR 03.5 OR 00.5
+          01 WS-NAME PIC A(6) VALUE 'TAIWAN'. <-- TAIWAN OR USA OR JAPAN
+          01 WS-ID PIC 99 VALUE ZERO.         <-- 00
+
+    5.BASIC VERBS
+      INPUT/OUTPUT VERBS
+        [ACCEPT] VERBS
+          ACCEPT WS-STUDENT-NAME. <--GET DATA FROM JCL , USER INPUT
+          ACCEPT WS-DATE FROM SYSTEM-DATE.  <-- GET DATA FROM OS , NEED A "FROM" KEYWORD
+        
+        [DISPLAY] VERB
+          DISPLAY WS-STUDENT-NAME.
+          DISPLAY "SYSTEM DATE IS " WS-DATE.
+
+          <SAMPLE CODE>
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. HELLO.
+
+            DATA DIVISION.
+              WORKING-STORAGE SECTION.
+              01 WS-STUDENT-NAME PIC X(25).
+              01 WS-DATE PIC X(10).
+              
+            PROCEDURE DIVISION.
+              ACCEPT WS-STUDENT-NAME. <-- GET FROM JCL INPUT
+              ACCEPT WS-DATE FROM DATE.
+              DISPLAY "NAME : " WS-STUDENT-NAME.
+              DISPLAY "DATE : " WS-DATE.
+
+            STOP RUN.
+        
+        [INITIALIZE] VERB
+          RENAME Clause 不能被初始化
+          NUMERIC DATA Items 初始化後為 ZEROES.
+          ALPHANUMERIC OR ALPHABETIC 初始化後為 SPACES.
+          REPLACING term 以指定值作初始化
+
+          <SAMPLE CODE>
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. HELLO.
+
+            DATA DIVISION.
+              WORKING-STORAGE SECTION.
+              01 WS-NAME PIC A(30) VALUE 'ABCDEF'.
+              01 WS-ID PIC 9(5).
+              01 WS-ADDRESS.
+                05  WS-HOUSE-NUMBER PIC 9(3).
+                05  WS-COUNTRY PIC X(15).
+                05  WS-PINCODE PIC 9(6) VALUE 123456.
+                
+            PROCEDURE DIVISION.
+              A000-FIRST-PARA.
+              INITIALIZE WS-NAME , WS-ADDRESS.  <-- WS-NAME = '30個空白' , WS-ADDRESS = 000'15個空白'000000
+              INITIALIZE WS-ID REPLACING NUBERIC DATA BY 12345. <-- WS-ID = 12345
+
+            STOP RUN.
+        
+        [MOVE] VERB
+          MOVE(X:L) X = 起始位置(COBOL是從1起算) , L = 長度
+            ex. MOVE(3:6) , 第3個位置(含), 往後算6個字元
+          COPY DATA FROM SOURCE TO DESTINATION.
+          CAN BE USED BOTH <GROUP Items> AND <Elementary Items>
+            FOR GROP Items , [MOVE CORRESPONDING/CORR]
+          
+            <SAMPLE CODE>
+              IDENTIFICATION DIVISION.
+              PROGRAM-ID. HELLO.
+
+              DATA DIVISION.
+                WORKING-STORAGE SECTION.
+                01 WS-NUM1 PIC 9(9).
+                01 WS-NUM2 PIC 9(9).
+                01 WS-NUM3 PIC 9(5).
+                01 WS-NUM4 PIC 9(6).
+                01 WS-ADDRESS. 
+                  05 WS-HOUSE-NUMBER PIC 9(3).
+                  05 WS-COUNTRY PIC X(5).
+                  05 WS-PINCODE PIC 9(6).
+                01 WS-ADDRESS1. 
+                  05 WS-HOUSE-NUMBER1 PIC 9(3).
+                  05 WS-COUNTRY1 PIC X(5).
+                  05 WS-PINCODE1 PIC 9(6).
+
+              PROCEDURE DIVISION.
+                A000-FIRST-PARA.
+                MOVE 123456789 TO WS-NUM1.        <-- WS-NUM1 = 123456789
+                MOVE WS-NUM1 TO WS-NUM2 WS-NUM3.  <-- WS-NUM2 = 123456789 , WS-NUM3 = 56789(注意:是前面 1234 被截掉)
+                MOVE WS-NUM1(3:6) TO WS-NUM4.       <-- WS-NUM4 = 345678
+                MOVE 123 TO WS-HOUSE-NUMBER.      <-- WS-HOUSE-NUMBER = 123
+                MOVE 'TAIWAN' TO WS-COUNTRY.      <-- WS-COUNTRY = 'TAIWA' (注意:字元 N 被截掉)
+                MOVE 159753 TO WS-PINCODE.        <-- WS-PINCODE = 159753
+                MOVE WS-ADDRESS TO WS-ADDRESS1.   <-- GROUP ITEM IS OK
+
+              STOP RUN.
+        
+        [ADD] VERB : 加法用
+          
+          SAMPLE-1 : ADD A B TO C D.  <-- C = A+B+C , D = A+B+D
+          SAMPLE-2 : ADD A B C TO D GIVING E. <-- E = A+B+C+D (注意: E 原值被加總值取代 , 不會一起加進去)
+          SAMPLE-3 : ADD CORR WS-GROUP1 TO WS-GROUP2. <-- WS-GROUP2 = WS-GROUP1 + WS-GROUP2
+
+            <SAMPLE CODE>
+              IDENTIFICATION DIVISION.
+              PROGRAM-ID. HELLO.
+
+              DATA DIVISION.
+                WORKING-STORAGE SECTION.
+                01 WS-NUM1 PIC 9(9) VALUE 10 .
+                01 WS-NUM2 PIC 9(9) VALUE 10.
+                01 WS-NUM3 PIC 9(9) VALUE 10.
+                01 WS-NUM4 PIC 9(9) VALUE 10.
+                01 WS-NUMA PIC 9(9) VALUE 10.
+                01 WS-NUMB PIC 9(9) VALUE 10.
+                01 WS-NUMC PIC 9(9) VALUE 10.
+                01 WS-NUMD PIC 9(9) VALUE 10.
+                01 WS-NUME PIC 9(9) VALUE 10.
+
+              PROCEDURE DIVISION.
+                ADD WS-NUM1 WS-NUM2 TO WS-NUM3 WS-NUM4.  <-- WS-NUM3 = 000000030 , WS-NUM4 = 000000030
+                ADD WS-NUMA WS-NUMB WS-NUMC TO WS-NUMD GIVING WS-NUME. <-- WS-NUME = 000000040
+
+              STOP RUN.
+        
+        [SUBTRACT] VERB : 減法用
+          
+          SAMPLE-1 : SUBTRACT A B FROM C D.  <-- C = C-(A+B) , D = D-(A+B)
+          SAMPLE-2 : SUBTRACT A B C FROM D GIVING E. <-- E = D-(A+B+C) (注意: E原值被取代 , 不會一起作運算)
+          SAMPLE-3 : SUBTRACT CORR WS-GROUP1 TO WS-GROUP2. <-- WS-GROUP2 = WS-GROUP2 - WS-GROUP1
+
+            <SAMPLE CODE>
+              IDENTIFICATION DIVISION.
+              PROGRAM-ID. HELLO.
+
+              DATA DIVISION.
+                WORKING-STORAGE SECTION.
+                01 WS-NUM1 PIC 9(9) VALUE 10 .
+                01 WS-NUM2 PIC 9(9) VALUE 10.
+                01 WS-NUM3 PIC 9(9) VALUE 100.
+                01 WS-NUM4 PIC 9(9) VALUE 100.
+                01 WS-NUMA PIC 9(9) VALUE 10.
+                01 WS-NUMB PIC 9(9) VALUE 10.
+                01 WS-NUMC PIC 9(9) VALUE 10.
+                01 WS-NUMD PIC 9(9) VALUE 100.
+                01 WS-NUME PIC 9(9) VALUE 10.
+
+              PROCEDURE DIVISION.
+                SUBTRACT WS-NUM1 WS-NUM2 FROM WS-NUM3 WS-NUM4.  <-- WS-NUM3 = 000000080 , WS-NUM4 = 000000080
+                SUBTRACT WS-NUMA WS-NUMB WS-NUMC FROM WS-NUMD GIVING WS-NUME. <-- WS-NUME = 70 = 100 - (10+10+10)
+
+              STOP RUN.
+
+        [MULTIPLY] VERB : 乘法用
+          
+          MULTIPLY A BY B C.        <-- B = A*B , C = A*C
+          MULTIPLY A BY B GIVING E. <-- E = A*B
+
+            <SAMPLE CODE>
+              IDENTIFICATION DIVISION.
+              PROGRAM-ID. HELLO.
+
+              DATA DIVISION.
+                WORKING-STORAGE SECTION.
+                01 WS-NUM1 PIC 9(9) VALUE 10 .
+                01 WS-NUM2 PIC 9(9) VALUE 10.
+                01 WS-NUM3 PIC 9(9) VALUE 10.
+                01 WS-NUMA PIC 9(9) VALUE 10.
+                01 WS-NUMB PIC 9(9) VALUE 10.
+                01 WS-NUMC PIC 9(9) VALUE 10.
+
+              PROCEDURE DIVISION.
+                MULTIPLY WS-NUM1 BY WS-NUM2 WS-NUM3. <-- WS-NUM2 = 000000100 , WS-NUM3 = 000000100
+                MULTIPLY WS-NUMA BY WS-NUMB GIVING WS-NUMC. <-- WS-NUMC = 10 * 10 = 000000100
+
+        [DIVIDE] VERB : 除法用
+
+          DIVIDE A INTO B. <-- B = B/A.
+          DIVIDE A BY B GIVING C REMAINDER R <-- 注意(和上面的式子不同哦): C = A / B , R = 餘數
+
+            <SAMPLE CODE>
+              IDENTIFICATION DIVISION.
+              PROGRAM-ID. HELLO.
+
+              DATA DIVISION.
+                WORKING-STORAGE SECTION.
+                01 WS-NUM1 PIC 9(9) VALUE 5.
+                01 WS-NUM2 PIC 9(9) VALUE 250.
+                01 WS-NUMA PIC 9(9) VALUE 100.
+                01 WS-NUMB PIC 9(9) VALUE 15.
+                01 WS-NUMC PIC 9(9).
+                01 WS-REM PIC 9(9). 
+
+              PROCEDURE DIVISION.
+                DIVIDE WS-NUM1 INTO WS-NUM2. <-- WS-NUM2 = 250 / 5 = 000000050.
+                DIVIDE WS-NUMA BY WS-NUMB GIVING WS-NUMC REMAINDER WS-REM. <-- WS-NUMC = 100 / 15 = 000000006 | WS-REM = 0000010
+
+              STOP RUN.
+        
+        [COMPUTE] Statements : 四乘運算用, 使用 (+-*/) 符號作運算
+
+          COMPUTE WS-NUMC = (WS-NUM1 * WS-NUM2) - (WS-NUMA / WS-NUMB) + WS-NUM3.
+
+            <SAMPLE CODE>
+              IDENTIFICATION DIVISION.
+              PROGRAM-ID. HELLO.
+
+              DATA DIVISION.
+                WORKING-STORAGE SECTION.
+                01 WS-NUM1 PIC 9(9) VALUE 10 .
+                01 WS-NUM2 PIC 9(9) VALUE 10.
+                01 WS-NUM3 PIC 9(9) VALUE 10.
+                01 WS-NUMA PIC 9(9) VALUE 50.
+                01 WS-NUMB PIC 9(9) VALUE 10.
+                01 WS-NUMC PIC 9(9).
+
+              PROCEDURE DIVISION.
+                COMPUTE WS-NUMC = (WS-NUM1 * WS-NUM2) - (WS-NUMA / WS-NUMB) + WS-NUM3. <-- WS-NUMC = 100 - 5 + 10 = 000000105
+
+              STOP RUN.
+
+    6. Data Layout
+        [REDEFINE] CLAUSE : 原變數 => 參考成 '新資料型態變數'. (兩者值永遠相同)
+          
+          01  WS-OLD PIC X(10).
+          01  WS-NEW1 REDEFINE WS-OLD PIC 9(8).
+          01  WS-NEW2 REDEFINE WS-OLD PIC A(10).
+
+          MOVE '1234567890' TO WS-OLD.
+          *> WS-NEW1 == 12345678
+          *> WS-NEW2 == '1234567890'
+
+          MOVE '5656' TO WS-OLD.
+          *> WS-NEW1 == 12345678
+          *> WS-NEW2 == '1234567890'
+
+          注意事項:
+          # Level numbers of redefined item and redefining item must be the same and it cannot be 66 or 88 level number. 
+          # Do not use VALUE clause with a redefining item. 
+          # In File Section, do not use a redefines clause with 01 level number. 
+          # Redefines definition must be the next data description you want to redefine. 
+          # A redefining item will always have the same value as a redefined item.
+          註: '原變數'改變時, '新資料型態變數'跟著變, 兩者值永遠相同.
+            
+        [RENAME] CLAUSE : 重新組合現有資料, 再命名. (Level 66 => RENAME專用)
+
+          注意事項: 
+          # RENAME 可以跨 GROUP OR Elementary Items 組合.
+          # RENAME 只能用於 same level.
+          # RENAME 必須緊接在 組合資料項目的後面.
+          # 不能針對 01, 77, 66 level number項目作 RENAME.
+          # RENAME 的項目必須依序排序.
+          # RENAME 不能針對 使用 OCCUR clause 的資料項目.
+
+          程式範例:
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. HELLO.
+
+            DATA DIVISION.
+              WORKING-STORAGE SECTION.
+              01 WS-DESCRIPTION.
+              05 WS-NUM.
+              10 WS-NUM1 PIC 9(2) VALUE 20.
+              10 WS-NUM2 PIC 9(2) VALUE 56.
+              05 WS-CHAR.
+              10 WS-CHAR1 PIC X(2) VALUE 'AA'.
+              10 WS-CHAR2 PIC X(2) VALUE 'BB'.
+              66 WS-RENAME RENAMES WS-NUM2 THRU WS-CHAR2.
+
+            PROCEDURE DIVISION.
+              DISPLAY "WS-RENAME : " WS-RENAME.
+            *> 執行結果 => 'WS-RENAME : 56AABB'
+              
+            STOP RUN.
+
+        [USAGE] CLAUSE : 指定資料在os內的儲存大小
+
+          注意事項:
+          # 不能用在 level 66 OR 88.
+          # 若 USAGE CLAUSE指定在 GROUP上, 則下面的 Elementary ITEM 均相同.
+
+          種類:
+          1. DISPLAY: ASCII FORMAT, 每個字元 1 BYTE(預設值)
+            EX.
+              01 WS-NUM PIC S9(5)V9(3) USAGE IS DISPLAY. 
+            *> //需要 8 BYTES, SIGN & DECIMAL 不佔 BYTES.
+
+              01 WS-NUM PIC 9(5) USAGE IS DISPLAY.
+            *> //需要 5 BYTES
+
+          2. COMP: BINARY FORMAT, 算法比較特別.
+            
+            //這裡有加 S (有正負號,所以要2倍空間). 註: 均為 2的倍數, 2, 4, 8,..
+            01 WS-NUM PIC S9(n) USAGE IS COMP. 
+              If 'n' = 1 to 4, it takes 2 bytes.
+              If 'n' = 5 to 9, it takes 4 bytes.
+              If 'n' = 10 to 18, it takes 8 bytes.
+
+            01 WS-NUM PIC 9(n) USAGE IS COMP. //沒有加 S (正數).
+              Number of bytes = n/2 (If n is even)
+              Number of bytes = n/2 + 1(If n is odd, consider only integer part)
+
+            01 WS-NUM PIC 9(4) USAGE IS COMP-3 VALUE 21.
+              It requires 2 bytes of storage as each digit occupies half a byte.
+
+            01 WS-NUM PIC 9(5) USAGE IS COMP-3 VALUE 21.
+              It requires 3 bytes of storage as each digit occupies half a byte.
+
+        [COPYBOOKS] : 資料定義-共用, 可引入不同程式中的 DATA DIVISION.
+
+          程式範例:
+            DATA DIVISION.
+            WORKING-STORAGE SECTION.
+          *> ABC 就是1個COPYBOOKS Name.
+            COPY ABC.
+          
+          *> ABC 定義在這裡
+            01 WS-DESCRIPTION.
+              05 WS-NUM.
+                  10 WS-NUM1 PIC 9(2) VALUE 20.
+                  10 WS-NUM2 PIC 9(2) VALUE 56.
+              05 WS-CHAR.
+                  10 WS-CHAR1 PIC X(2) VALUE 'AA'.
+                  10 WS-CHAR2 PIC X(2) VALUE 'BB'.
+
+    7. Conditional Statements
+
+        [IS], [NOT], [OR]
+
+        [IF] : 是否條件
+          
+          "IF ... THEN ... END-IF."
+
+        [RELATION Condition] : 關係條件
+
+          " = (EQUAL TO) , > (GREATER THAN) , < (LESS THAN) , 
+          >= (GREATER THAN OR EQUAL) , <= (LESS THAN OR EQUAL) "
+
+        [Sign Condition] : 正負數條件
+          
+          " positive, negative, zero "
+
+        [CLASS Condition] : 資料型態條件, 數值 或 字元 或 大寫字元 或 小寫字元
+          
+          " numberic, alphabetic, alphabetic-lower, alphabetic-upper "
+
+          Spaces are considered in ALPHABETIC, ALPHABETIC-LOWER, and ALPHABETIC-UPPER.
+
+        [Condition-name Condition] : 使用者自訂條件.
+
+          注意事項: 
+          # Condition-name, 可看作是 Boolean 變數.
+          # Condition-name, 使用 88 Level 作定義.
+          # Condition-name, 須定義 VALUE 值
+          # Condition-name, 不用加 PIC CLAUSE, 它是跟在 GROUP OR Elementary item 後面, 型態依上階DATA ITEM而定.
+
+          語法:
+          88 [Condition-name] VALUE [IS, ARE] [LITERAL] [THRU LITERAL]
+
+          ex.
+          01 WS-NUM PIC 9(3).
+            88 PASS VALUE ARE 041 THRU 100.
+            88 FAIL VALUE ARE 000 THRU 040.
+        
+        [NEGATIVE Condition] : NOT
+
+          語法:
+          IF NOT [CONDITION] 
+            COBOL Statements
+          END-IF.
+        
+        [COMBINED condition] : AND, OR
+
+          語法:
+          IF [CONDITION] AND [CONDITION]
+            COBOL Statements
+          END-IF.
+
+        [EVALUATE VERB] : 和 SWITCH CASE 功能相同, 多條件判斷, IF-ELSE 的另一選項.
+
+          語法:
+          EVALUATE TRUE
+            WHEN ..
+              ..
+            WHEN ..
+              ..
+            WHEN OTHER
+              ..
+          END-EVALUATE.
+
+    8. Loop Statements
+        [PERFORM THRU]
+          # IN-LINE PERFORM
+            PERFORM 
+              DISPLAY 'HELLO WORLD'
+            END-PERFORM.
+
+          # OUT-LINE PERFORM
+            PERFORM <PARAGRAPH1> THRU <PARAGRAPH4>
+          *> 從 PARAGRAPH1 -> PARAGRAPH2 -> PARAGRAPH3 執行到 PARAGRAPH4 結束.
+
+        [PERFORM UNTIL]
+          注意事項:
+          # WITH TEST BEFORE 是(預設值,先檢查再符合,則停止), 另一選項是 WITH TEST AFTER.
+          # 單純的 [PERFORM WITH TEST BEFORE UNTIL]結果 == [PERFORM WITH TEST AFTER UNTIL]結果
+          # 滿足 UNTIL 後的條件時, 則會停止執行.      
+
+        [PERFORM TIMES]
+          語法:
+            PERFORM paragraph Number? TIMES.
+
+        [PERFORM VARYING]
+          語法:
+            PERFORM paragraph VARYING A FROM 1 BY 1 UNTIL A = 5.
+
+          注意事項:
+            # WITH TEST BEFORE 是(預設值,先檢查再符合,則停止), 另一選項是 WITH TEST AFTER.
+            # 複雜 
+              [PERFORM WITH TEST BEFORE VARYING <variables> FROM 1 BY 1 UNTIL <variables> > 5 ]
+                先比條件,若符合停下來.
+              [PERFORM WITH TEST AFTER VARYING <variables> FROM 1 BY 1 UNTIL <variables> > 5 ]
+                先執行,再比條件.(會多作1次)
+
+        [GO TO]
+          
+          注意事項:
+            # GO TO 和 PERFORM 最大的差異在於 GO TO 不會返回, 而 PERFORM 會.
+            # GO TO 常用於 離開 paragraph.
+
+          語法1: Unconditional GO TO
+            GO TO paragraph.
+
+          語法2: Conditional GO TO
+            GO TO para-1 para-2 para-3 DEPENDING ON x.
+          *> 如果 x = 1, GO TO para-1....
+
+    9. String handling
+
+    10. Table PROCESSING
+
+    11. File handling
+
+    12. File Organization
+
+    13. File Access mode
+
+    14. File Handling VERBS
+
+    15. Subroutines
+
+    16. Database Interface
+
+  [COBOL Interview Questions-面試問題]
+
+    1. COBOL = common business oriented language, 是為了符合企業資料處理而發展的語言.
+
+    2. COBOL 的特性為何? 
+        易於閱讀, 易於偵錯. 可配合企業需求, 處理大量資料. 它是結構化語言.
+
+    3. COBOL 的DIVISION有哪些? 4大division.
+        IDENTIFICATION DIVISION.
+        ENVIRONMENT DIVISION.
+        DATA DIVISION.
+        PROCEDURE DIVSION.
+    
+    4. COBOL 的資料型態?
+        X - 英數字
+        A - 英文字
+        9 - 數值
+
+    5. 'IS NUMERIC' 的意義為何?
+        判斷變數是否為 數值(0 to 9), 數值可以是正或負數.
+
+    6. LEVEL 66 and LEVEL 88 的功能為何?
+        LEVEL 66 For REDEFINE data item, 可重新組合資料項目值並命名使用.
+        LEVEL 88 For Condition Name, 可視為BOOLEAN值, 作為資料判斷的依據.
+
+    7. Subscript 和 Index 的差異為何?
+        Subscript 是在 Array中的呈現(occurrence)
+        Index 是 Array從開始的移位(idsplacement)
+
+    8. SEARCH 和 SEARCH ALL 的差異為何?
+        SEARCH 是 SERIAL SEARCH(直線搜尋).
+        SEARCH ALL 則是 BINARY SEARCH(二分搜尋), 使用前必須先作排序.
+
+    9. PERFORM SECTION & PERFORM PARAGRAPH 的差異為何?
+        PERFORM SECTION 會 執行SECTION內包含的所有PARAGRAPH.
+        PERFORM PARAGRAPH 則只執行特定 PARAGRAPH.
+        結論: PERFORM SECTION 1次可執行多個 PARAGRAPH.
+
+    10. SCOPE TERMINATOR 代表的含意?
+          用來標註 VERB 的結束. 例: IF AND END-IF.
+
+    11. COBOL 的 FILE OPENING MODE有哪些?
+          OPEN INPUT fileVariable.  //讀取
+          OPEN OUTPUT fileVariable. //寫入模式
+          OPEN I-O fileVariable.    //先讀再寫(重寫用, REWRITE)
+          OPEN EXTEND fileVariable. //寫入模式
+
+    12. COBOL NUMERIC數值型態 最大長度?
+          PIC 9(18).
+
+    13. CONTINUE & NEXT SENTENCE 的差異為何?
+          CONTINUE : 將程式流移至VERB結束 的下一個指令.(TO THE NEXT STATEMENT AFTER THE SCOPE TERMINATOR)
+          NEXT SENTENCE : 將程式流移至最近1個句點(.) 的下一個指令. (TO THE STATEMENT AFTER THE FIRST PERIOND IS ENCOUNTERED.)
+
+    14. 為什麼不能在 01 LEVEL 上使用 OCCURS 子句?
+          01 LEVEL 是 紀錄層級(RECORD LEVEL), 我們重複紀錄內的欄位(FIELD), 而非紀錄本身.
+          所以 01 LEVEL 上不能使用 OCCURS 子句.
+
+    15. 開檔寫入要用什麼模式?
+          OPEN OUTPUT fileVariable.
+          OPEN EXTEND fileVariable.
+
+    16. CALL BY CONTENT & CALL BY REFERENCE 的差異為何?
+          CALL BY CONTENT, 保護傳入參數值不被異動.
+          CALL BY REFERENCE, 傳入參數值可被異動.
+    
+    17. LINK SECTION. 用途為何?
+          在被呼叫端程式(CALLED PROGRAM)內定義 
+            用來與 
+          呼叫端程式(CALLING PROGRAM)內的 WORKING-STORAGE SECTIONS. 建立連接使用.
+
+    18. 使用 'GO BACK' 來取代 'STOP RUN' 的結果是?
+          會產生無限迴圈(INFINITE LOOP)
+
+    19. 正負號(SIGN)如何儲存於COMP-3的欄位?
+          它會放在最後1個半位元組(LAST NIBBLE)
+
+    20. COMP & COMP-3間的差異?
+          COMP, 使用 1 個BYTE來儲存(BINARY USAGE).
+          COMP-3, PACKED DECIMAL.
+    
+    21. IDENTIFICATION DIVISION 用途為何?
+          定義程式名稱. PROGRAM-ID. PGNAME.
+          定義開發者. AUTHOR. KL.
+          文件紀錄使用.
+          
+    22. STATIC CALL & DYNAMIC CALL 差異為何?
+          STATIC CALL, THE CALLED PROGRAM 是1個可被獨立呼叫的執行檔.
+          DYNAMIC CALL, THE CALLED PROGRAM 不是可執行檔, 它只能透過 CALLED PROGRAM 被執行.
+
+    23. REDEFINE 子句用途為何?
+          重新組合現有資料項目, 並可命名使用.
+          使用保留的 LEVEL 66 DATA ITEM.
+          允許相同的資料儲存項目, 被不同資料名稱所參考.
+    
+    24. STRING COMMAND中 POINTER PHRASE 的目的?
+          指定 LEFTMOST 位置
+
+    25. LEVEL 77 的用途為何?
+          它是 ELEMENTARY ITEM , 限定不能被分割(SUBdivided).
+
+    26. 什麼是 BINARY SEARCH?
+          二元搜尋, 資料必須先排序, 再與中間值進行比較的搜尋方法.
+
+    27. EVALUATE 用途為何?
+          類似C#的SWITCH的評估語法, 可作為 IF..END-IF.的替代方案.
+          EVALUATE TRUE
+            WHEN ..
+              ..
+            WHEN ..
+              ..
+            WHEN OTHER
+              ..
+
+          END-EVALUATE.
+
+    28. 能否在 X(20) 中 REDEFINE 1個 X(10)?
+          可以
+    
+    29. COMP-1 & COMP-2
+          COMP-1 是單精度浮點數, 使用 4 BYTES儲存.
+          COMP-2 則是雙精度浮點數, 使用 8 BYTES儲存.
+    
+    30. ACCEPT 用途為何?
+          # 接收前端輸入值至變數內.
+          # 取得系統資訊至變數內. EX. ACCEPT WSDATE FROM DATE YYYYMMDD. ACCEPT WSTIME FROM TIME.
+
+    31. COMPUTE 用途為何?
+          進行四則運算使用, 可取代 ADD, MULTIPLY, SUBTRACT, DIVIDE.
+    
+    32. 如何定義檔案 被參考於 SUBROUTINE PROGRAM ?
+          Supply the DD cards in JCL just as you would for files referred to in the main program
+    
+    33. COBOL PROGRAM內, 強制區域有哪些?
+          IDENTIFICATION DIVISION. //REQUIRED
+          PROGRAM-ID. TEST. //REQUIRED
+
+          PROCEDURE DIVISION.
+          BEGIN.
+            STOP RUN.
+
+    34. AREA B 從哪開始?
+          01-06 LINE
+          07    COMMENT
+          08-11 AREA a
+          12-72 AREA b
+    
+    35. FILE-CONTROL 定義在哪裡?
+          定義在 ENVIROMENT DIVISION / INPUT-OUTPUT SECTION. 下面
+
+          IDENTIFICATION DIVISION.
+          PROGRAM-ID. TEST.
+
+          ENVIRONMENT DIVISION.
+          INPUT-OUTPUT SECTION. //別忘了..
+          FILE-CONTROL.
+            SELECT fileVaraible ASSIGN TO "FILE.DAT"
+              ORGANIZATION IS LINE SEQUENTIAL
+              ACCESS MODE IS SEQUENTIAL.
+    
+    36. PERFORM WITH TEST AFTER & PERFORM WITH TEST BEFORE 的差異?
+          WITH TEST AFTER, 先作再檢查
+          WITH TEST BEFORE, 先檢查再作(預設值)
+          差異發生在 加入 VARYING FROM 1 BY 1 ,才會出現.
+    
+    37. LOCAL-STORAGE SECTION. 用途為何?
+          # 每次程式執行時, 都會重新配置空間.
+          # 當程式結束時, 則會釋放空間.
+          # 程式結束方式有, STOP RUN. GOBACK. EXIT PROGRAM.
+          # 定義位置在 WORKING-STORAGE SECTION. 後面
+          # 程式範例:
+            IDENTIFICATION DIVISION.
+            PROGRAM-ID. TEST.
+
+            ENVIRONMENT DIVISION.
+            INPUT-OUTPUT SECTION.
+            FILE CONTROL.
+              SELECT fileVaraible ASSIGN TO "FILE.DAT"
+                ORGANIZATION IS LINE SEQUENTIAL.
+
+            DATA DIVISION.
+            FILE SECTION.
+            FD fileVaraible.
+            01 ...
+
+            WORKING-STORAGE SECTION.
+            01 ...
+
+            LOCAL-STORAGE SECTION. //定義在這裡.
+            01 ...
+
+    38. START STATEMENT 的存取模式(ACCESS MODE)是?
+          SEQUENTIAL OR DYNAMIC for the start Statement.
+
+    39. PIC 9.99 & PIC 9V99 差異是?
+          PIC 9.99, 佔 4 個位置, 小數點也佔1個.
+          PIC 9V99, 只佔 3 個位置, 小數點用在ASSUMED DECIMAL POSITION.
+
+    40. 在 Table 上搜尋, 是否要有 Index (WITH OR without)?
+          Table必須被索引(BE INDEXED)後, 才能被搜尋.
+          所以一定要有INDEX.
+
+    41. 為什麼 OPEN A FILE IN I-O MODE FOR REWRITE?
+          執行 REWRITE 前, 檔案必須先開啟, 然後讀取.
+          所以必須以 I-O MODE開檔後, 才能使用 REWRITE.
+    
+    42. 什麼是 Literals?
+          # 只包含資料本身
+          # 不能被命名定義
+          # 是 CONSTANT 資料項目(持續的)
+
+    43. 更新檔案(UPDATE FILE)用的VERB是?
+          # REWRITE 是更新紀錄用的.
+          # 檔案必須以 I-O MODE開啟.
+          # 讀取成功後, 才能 REWRITE 被執行.
+          # REWRITE 取代最後1筆(LAST)讀取紀錄.
+
+    44. 數值:123 移至 01 wsNum PIC PP999, 得到的值為何?
+          # 結果: .00123
+          # P is assumed decimal scaling position 
+            which is used to specify the location of an assumed decimal point 
+            when the point is not within the number that appears in the data item. .
+            PIC PP999 means that numeric data item is of 3 characters 
+            and there are 5 positions after the decimal point.
+
+          # 實測結果
+          01  wsNum2 PIC P99999.
+          MOVE 256.98 TO wsNum2.
+          DISPLAY wsNum2. // .080000
+
+          # 參考資料:https://www.mainframestechhelp.com/tutorials/cobol/cobol-assumed-decimal-point-data-type.htm
+
+    45. OCCURS 子句 可以用在哪?
+          (o)ELEMENTARY ITEM OR GROUP ITEM.
+          (x)但是 <01 LEVEL RECORD LEVEL> 不能用.
+    
+    46. S9(7), 佔幾個BYTE?
+          9(7) 佔 7 個 + S 佔 1 個 = 8個 BYTES.
+
+    47. COBOL 編譯工具?
+          'IGCRCTL' utility is used to compile a COBOL program.
+
+    48. PHYSICAL RECORD & LOGIC RECORD 間的差異?
+          Physical record is the information that exists on the external device and 
+          Logical record is the information which is used by the program.
+
+    49. THEN & THAN 間的差異?
+          THEN 用於然後, IF...THEN...END-IF.
+          THAN 用於兩者間的比較, GREATER THAN, LESS THAN,...
+
+    50. 9(3) & S9(3) 間的差異為何?
+          9(3) 放正數 => 存正數 ; 放負數 => 存正數(因為它沒有地方放正負號)
+          S9(3) 放入數值, 並正確呈現 +100 , -250.
+    
+    51. 01 DATE-NUM 9(8) & 01 DATE-STR A(8), 使用注意事項
+        MOVE 'ABCD1234' TO DATE-NUM. // 結果(無法轉型,全給0): 00000000
+        MOVE 'ABCD1234' TO DATE-STR. // 結果(全視為文字): 'ABCD1234'

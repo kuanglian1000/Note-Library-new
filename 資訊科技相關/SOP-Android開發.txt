@@ -1,0 +1,1361 @@
+Q0.如何變更專案名稱？(在複製原有專案後,Rename package)
+  https://google-developer-training.github.io/android-developer-fundamentals-course-concepts-v2/appendix/appendix-utilities/appendix-utilities.html#copy_project
+
+  # 這裡要一起改,不然專案開起來,Android Studio最上方標題還是顯示舊名稱
+  Android
+    Gradle Scripts
+      settings.gradle (Project Settings) # file
+        rootProject.name = "P22LifecycleAndState" 
+        # OldName = "P21TwoActivities" , NewName="P22LifecycleAndState"
+        
+  # Grandle File要更新
+  File > Sync Project with Gradle Files.
+
+Q0.✱✱VIP✱✱ (設定有錯,功能一定出不來,...會陷入無助,開始懷疑人生...)
+   引用套件新舊切換步驟，所有的android.support.v4 & android.support.v7的套件
+   都被整合到androidx.XXX裡面了。如果升級步驟有漏, 功能就不會動。
+   [例]：
+      舊：
+        import android.support.design.widget.NavigationView;
+        import android.support.v4.view.GravityCompat;
+        import android.support.v4.widget.DrawerLayout;
+        import android.support.v7.app.ActionBarDrawerToggle;
+        import android.support.v7.app.AppCompatActivity;
+        import android.support.v7.widget.Toolbar;
+      新：
+        import com.google.android.material.navigation.NavigationView;
+        import androidx.core.view.GravityCompat;
+        import androidx.drawerlayout.widget.DrawerLayout;
+        import androidx.appcompat.app.ActionBarDrawerToggle;
+        import androidx.appcompat.app.AppCompatActivity;
+        import androidx.appcompat.widget.Toolbar;
+    [升級步驟]：
+      1.程式碼內調整引用套件名稱, 詳上例
+      2.調整build.grandle(Module: xxx.app)
+          dependencies {
+              api 'androidx.appcompat:appcompat:1.3.0-beta01'
+              api 'com.google.android.material:material:1.3.0'
+              implementation 'com.android.support:design:28.0.0'
+          }
+      3.調整gradle.properties(Project Properties)
+          android.useAndroidX=true
+          android.enableJetifier=true
+
+Q1.CommonAttribute找不到textAlignment(文字定位按鈕)怎麼辦？
+  A1.調整 build.gradle(Module: XXX)內容 , 
+    defaultConfig {
+        applicationId "android.com.myfirstappadvanced"
+        minSdkVersion 17 //16->17,Open textAlignment in Common Attribute
+
+Q2.Layout 觀念
+  1.所有的VIEWS都必須有 layout_width & layout_height 兩個屬性
+  2.match_parent or match_constraint or wrap_content
+  ConstraintLayout 它是這個Fragment的 root View 
+    layout_width = match_parent 
+    layout_height = match_parent
+    =>  表示會依裝置自動調整大小
+
+  match_constraint => 塞滿 ConstraintLayout
+  wrap_content => 長的跟內容一樣大(+padding)
+
+Q3.Task:Add Views and constraints
+  Top == '上'
+  Bottom == '下'
+  Start == '左'
+  End == '右'
+  
+  app:layout_constraintBottom_toBottomOf="parent"
+  app:layout_constraintEnd_toEndOf="parent"
+  app:layout_constraintStart_toStartOf="parent"
+  app:layout_constraintTop_toTopOf="parent" />
+
+Q4.✱開發✱ JAVA or Android 程式如何偵錯呢？
+  A4.★一定要會用LOG進行偵錯，請使用 Log.d("countMe", intCount.toString()); 寫出LOG資訊。
+    再用 6:LogCat 視窗觀察 Log 資訊。
+    AndroidStudio 確實也有 DEBUG功能(Shift + F9)，可以逐步看物件內容及參數值，但是太仔細了，會看到昏倒...都還沒看到你要的結果。
+
+Q5.✱開發✱ 使用 Nav_graph.xml 在Fragment間傳遞參數的重點。
+  A5.> 如果是 FragmentA -> FragmentB , 參數必須定義 FragmentB 裡面 , 不是放在 FragmentA
+     > 設定變更(nav_graph.xml) , 記得重新執行 [Build > Make Project] 指令, 才會自動產生相關類別
+        <?xml version="1.0" encoding="utf-8"?>
+          <navigation xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/nav_graph"
+            app:startDestination="@id/FirstFragment">
+
+            <fragment
+                android:id="@+id/FirstFragment"
+                android:name="android.com.myfirstappadvanced.FirstFragment"
+                android:label="@string/first_fragment_label"
+                tools:layout="@layout/fragment_first">
+                <action
+                    android:id="@+id/action_FirstFragment_to_SecondFragment"
+                    app:destination="@id/SecondFragment"/>
+            </fragment>
+            <fragment
+                android:id="@+id/SecondFragment"
+                android:name="android.com.myfirstappadvanced.SecondFragment"
+                android:label="@string/second_fragment_label"
+                tools:layout="@layout/fragment_second">
+                <!--重點在這裡-->
+                <argument
+                    android:name="myVar"
+                    app:argType="integer" />
+                <action
+                    android:id="@+id/action_SecondFragment_to_FirstFragment"
+                    app:destination="@id/FirstFragment" />
+            </fragment>
+        </navigation>
+     > 塞資料(FirstFragment.java)
+        public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+          super.onViewCreated(view, savedInstanceState);
+
+          view.findViewById(R.id.random_button).setOnClickListener(new View.OnClickListener() {
+              @Override
+              public void onClick(View view) {
+                  int currentCount = Integer.parseInt(showCountTextView.getText().toString());
+                  FirstFragmentDirections.ActionFirstFragmentToSecondFragment action
+                          = FirstFragmentDirections.actionFirstFragmentToSecondFragment(currentCount); //塞資料
+                  NavHostFragment.findNavController(FirstFragment.this).navigate(action);
+              }
+          });
+        }
+     > 接資料(SecondFragment.java)
+        public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+            Integer count = SecondFragmentArgs.fromBundle(getArguments()).getMyVar(); //接資料
+            String countText = getString(R.string.random_heading,count);
+            Log.d("test1",String.valueOf(count));
+            Log.d("test2",countText);
+            showHeaderTextView.setText(countText);
+        }
+
+Q6. 1.3:Text and scrolling views (ProjectName:ScrollingText)
+  (OK)基本觀念
+    View
+      TextView => 文字方塊
+    FrameLayout
+      ScrollView => 可上下左右移動的畫布(十分耗資源,很吃memory,影響其他APP的效能)
+        LinearLayout
+      RecyclerView => 常用於顯示使用者可CRUD長資料串
+  What you'll learn(本章可以學到的內容)
+    V How to use XML code to add multiple TextView elements.
+    V How to use XML code to define a scrolling View.
+    V How to display free-form text with some HTML formatting tags.
+    V How to style the TextView background color and text color.
+    V How to include a web link in the text.
+
+  (OK)Task 1:Add and edit TextView elements
+    > string.xml內字串規則
+      >> As you enter or paste text in the strings.xml file, 
+          the text lines don't wrap around to the next line—they extend beyond the right margin. This is the correct behavior—each new line of text starting at the left margin represents an entire paragraph. If you want the text in strings.xml to be wrapped, you can press Return to enter hard line endings, or format the text first in a text editor with hard line endings.
+      >> Enter \n to represent the end of a line
+          , and another \n to represent a blank line. You need to add end-of-line characters to keep paragraphs from running into each other.
+      >> If you have an apostrophe (') in your text
+          , you must escape it by preceding it with a backslash ('). 
+          If you have a double-quote in your text
+          , you must also escape it ("). 
+          You must also escape any other non-ASCII characters. 
+          See the Formatting and styling section of String resources for more details.
+      >> Enter the HTML <b> and </b> tags around words that should be in bold.
+      >> Enter the HTML <i> and </i> tags around words that should be in italics. If you use curled apostrophes within an italic phrase, replace them with straight apostrophes.
+      >> You can combine bold and italics by combining the tags, as in <b><i>... words...</i></b>. Other HTML tags are ignored.
+      >> Enclose The entire text within <string name="article_text"> </string> in the strings.xml file.
+      Include a web link to test, such as www.google.com. (The example below uses www.rockument.com.) Don't use an HTML tag, because any HTML tags except the bold and italic tags are ignored and presented as text, which is not what you want.
+  (OK)Task 2:Add a ScrollView and an active web link
+  (OK)Task 3:Scroll multiple elements
+    > <ScrollView>裡面只能有一個child View,
+    > 如果<多個elements>要一起捲動,在<多個elements>外面要再包一層<LinearLayout>
+    > <TextView> 裡面可用的HTML標記只有兩個 <b>粗體 & <i>斜體
+    > <TextView> 裡面可用 <\n> 換行符號
+    > <TextView> 加上 <android:autoLink="web"> 屬性,自動將Text內的連結轉為可點選
+    例：<ScrollView>
+          <LinearLayout>
+            <TextView1>
+            <TextView1>
+            <TextView1>
+
+Q7. 1.4:Learn to help yourself
+  What you'll learn(本章可以學到的內容)
+    1.去哪找Android開發資訊和資源
+    2.如何新增APP的啟動按鈕ICON
+    3.如何尋求協助,開發Android App時
+  Task 1:Change the launcher icon(OK)
+    1.要把舊的刪除,才會套用新的 Icon Type = 'Launcher Icons',路徑:res/drawable/ic_launcher_foreground.xml & ic_launcher_background.xml
+  Task 2:Use project templates(OK)
+    2.1 探索Basic Activity架構
+      1.Status bar(由Android系統提供並控制) : 最上面那一條顯示時間、訊息提示、電量、網路訊號
+      2.app bar(又稱為action bar) : 常作為導覽列
+      3.app name(預設為套件名稱,可變更) : AndroidMainfest.xml => android:label="@string/app_name" ; string.xml => app_name = "XXX"
+      4.options-menu overflow button(選單鍵) : MainActivity.java / onOptionsItemSelected()方法內會實作選單邏輯 ; res/menu/menu_main.xml , 只有Setting menu會在此指定
+      5.CoordinatorLayout ViewGroup(主畫面/畫布) : activity_main.xml | content_main.xml => 畫面設計設定都在這裡面
+      6.app's UI elements(顯示項目) : activity_main.xml | content_main.xml => 畫面設計設定都在這裡面
+      7.Floating action button(浮動按鈕) : activity_main.xml 內的 FloatingActionButton指定它的外觀 ; MainActivity.java 內同樣會指定 onCreate() & onClick()事件
+    2.2 App Template 內容客製化
+    2.3 探索如何使用Template新增Activity
+      1.Project > Android , right-click <java> Folder
+      2.Select <New > Activity > Gallery>
+  Task 3:Learn from sample code(OK)
+    3.1 Android code samples(探索現有範例來加速學習進程)
+      1.File > New > Import Sample
+      2.瀏覽你要的範例(範例從初階到進階都有)
+    3.2 Use the SDK Manager to install offline documentation(安裝離線文件)
+      1.Tools > Android > SDK Manager
+      2.click <Android SDK>
+  Task 4:Many more resources(OK)
+    4.1 Search on <Stack Overflow> using tags(使用標籤在Stack Overflow網站上面找答案)
+      1.[android] and [layout] => 用兩個標籤去找
+      2.[android] "hello world" => 用一個標籤 & 指定找 "hello world" 相關問題
+    4.2 Android code samples(探索現有範例來加速學習進程)上面有很多範例，可以好好利用，並加入你的專案中。
+
+Q8. 2.1:Activities and intents
+  重點：
+    1.基本觀念:Activity 可視為一個單一畫面(full screen window),每個畫面都是一個activity
+    2.當1個新activity啟動,前1個activity就會停止.但系統會保留<前1個activity>在stack裡面(又稱為Back Stack)
+    3.(Back Stack)中遵循1個基本邏輯,就是"last in , first out",最晚進的最早送出.
+      例:使用者完成<目前activity>並按下Back Button,則<目前activity>被丟棄,<前1個activity>抓出來繼續
+    
+    4.基本觀念:Intent 可視為activity開始或啟動的觸媒,也可以作為activity間資料傳遞的媒介
+    5.Intent種類
+      5.1 顯性Intent:明確地知道特定activity的完整類別名稱(知道對象是誰)
+      5.2 隱性Intent:不清楚對象是誰,但對動作執行有基本概念
+
+    6.Activity間的關聯性及基本設定,須在 <AndroidMainfest.xml> 檔案內定義, 例:子從關係...
+      6.1 startActivity():此方法啟動另一個Activity時,通常不會期待收到回饋
+      6.2 startActivityForResult():如果你期待收到回饋,必須使用這個方法
+
+    7.Intent物件可以兩種方式傳遞資料給目標Activity:
+      (1)in the data field => 以URI指向特定資料來源
+      (2)in the intent <extras>(Bundle) => 資料來源超過1個,可用intent <extras> == Bundle傳遞,它是key/value(DIC)的資料型態
+      
+  What you'll learn(本章可以學到的內容)
+    1.如何新增 Activity
+    2.如何定義 父 及 子 Activity for Up navigation.
+    3.如何啟動 Activity, 以顯性Intent方式
+    4.如何在 Activity 間傳遞資料, 以顯性Intent方式
+
+  Task 1:Create the TwoActivities project(OK)
+  Task 2:Create and launch the second Activity(OK)
+  Task 3:Send data from the main Activity to second Activity(OK)
+  Task 4:Return data back to the main Activity(OK)
+
+  課後問題：
+    Q1.What changes are made when you add a second Activity to your app by choosing File > New > Activity and an Activity template?
+        新增Activity後,專案會發生什麼改變？
+      A1.新增1個Java Class ,1個XML Layout file, AndroidMainfest.xml內加入新Activity設定
+    Q2.What happens if you remove the android:parentActivityName and the <meta-data> elements from the second Activity declaration in the AndroidManifest.xml file?
+        移除 AndroidMainfest.xml 內SecondActivity的設定值(the android:parentActivityName and the <meta-data>),會發生什麼改變？
+      A2.App bar裡面的回上一頁按鈕會消失,因為MainActivity & SecondActivity間的關聯性被移除了
+    Q3.Which constructor method do you use to create a new explicit Intent?
+        新增一個全新的顯式Intent要用什麼方法呢？
+      A3.Intent intent = new Intent(this , SecondActivity.class); // new Intent(Context context , Class<?> class);
+    Q4.In the HelloToast app homework, how do you add the current value of the count to the Intent?
+        如何利用Intent傳遞多個值呢？(MainActivity)
+      A4.使用Intent的Extra方法
+          , 建立 Intent intent = new Intent(this, SecondActivity.class); //這裡不要忘了..
+          , 塞值 intent.putExtra(key,value);
+          , 啟動另一個Activity startActivityForResult(intent,TEXT_REQUEST);
+      S4.完整程式碼
+        //啟動另一個Activity(1)
+        public void launchSecondActivity(View view) {
+          Intent intent = new Intent(this, SecondActivity.class);
+          String message = mMessageEditText.getText().toString();
+          intent.putExtra(EXTRA_MESSAGE,message);
+          startActivityForResult(intent,TEXT_REQUEST);
+        }
+
+        //接收回傳值(4)
+        @Override
+        protected void onActivityResult(int requestCode
+                , int resultCode, @Nullable Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+
+            if(requestCode == TEXT_REQUEST){
+                if(resultCode == RESULT_OK){
+                    String reply = data.getStringExtra(SecondActivity.EXTRA_REPLY);
+                    String reply2 = data.getStringExtra(SecondActivity.EXTRA_REPLY2);
+                    mReplyHeadTextView.setVisibility(View.VISIBLE);
+                    mReplyTextView.setText(reply + "|" + reply2);
+                    mReplyTextView.setVisibility(View.VISIBLE);
+
+                }
+            }
+        }
+    Q5.In the HelloToast app homework, how do you display the current count in the second "Hello" Activity?
+        如何接收另一個Activity傳來的Intent？(SecondActivity)
+      A5.使用Intent的Extra方法
+          , 建立1 Intent intent = getIntent();
+          , 取值 intent.getStringExtra(key);
+          , 建立2 Intent replyIntent = new Intent();
+          , 塞值 replyIntent.putExtra(key,value);
+          , 設定Activity狀態 setResult(RESULT_OK,replyIntent);
+          , 結束Activity後返回呼叫端 finish();
+      S5.完整程式碼
+        //接收傳入值(2)
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_second);
+            mReply = findViewById(R.id.editText_second);
+
+            Intent intent = getIntent();
+            String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+            TextView textView = findViewById(R.id.text_message);
+            textView.setText(message);
+        }
+
+        //回傳呼叫端(3)
+        public void returnReply(View view) {
+            String reply = mReply.getText().toString();
+            Intent replyIntent = new Intent();
+            replyIntent.putExtra(EXTRA_REPLY,reply);
+            replyIntent.putExtra(EXTRA_REPLY2,"Second Value");
+
+            setResult(RESULT_OK,replyIntent);
+            finish();
+        }
+
+Q9. 2.2:Activity lifecycle and state
+  重點：
+    0.在Activity生命週期中,每個階段都有對應方法,例:onCreate(),onStart(),onPause()...
+    1.To avoid confusing your users, 
+      it's important that you develop your app to prevent unexpected data loss.
+    2.妥善保存Activity狀態 is very important.
+    3.利用logging statements記錄App狀態的變化
+
+  What you'll learn(本章可以學到的內容)
+    1.Activity lifecycle如何運作？
+    2.Activity 何時 starts, pauses, stops, destroyed？
+    3.Activity狀態變更時, 各對應哪些方法？
+    4.動作影響(例:設定改變), 導致Activity lifecycle進入特定事件
+    5.在lifecycle事件之間, 如何保留 Activity 狀態？
+
+  Task 1:Add lifecycle callbacks to TwoActivities
+    事件:Activity啟動
+      onCreate
+      onStart
+      onResume
+    事件:物件點選之類的
+      Button Clicked
+      onPause
+    事件:Activity失去焦點
+      onStop
+    事件:Activity結束
+      onDestroy
+    事件:Activity再次取得焦點
+      onRestart
+      onStart
+      onResume
+  Task 2:Save and restore the Activity instance state
+    1.儘管是旋轉畫面這種小動作,也會導致目前Activity being destroyed.
+      如果未考量周全,畫面可能會返回初始畫面及初始值,<使用者狀態>會全數遺失.
+    2.保留<使用者狀態>,實作 onSaveInstanceState() 方法.
+      系統呼叫上述方法的時點在 onPause() & onStop() 之間
+    3.Bundle物件是用來儲存<使用者狀態>,Bundle物件存續期間為目前App Session.
+      若要在多個App Session間共用<使用者狀態>,須使用<shared preferences> or <database>
+  
+    4.回存<使用者狀態>,實作 onRestoreInstanceState() 方法. <==方便作法==>
+      系統呼叫上述方法的時點在 onCreate() => onStart() 之後
+    5.但是最佳回存<使用者狀態>位置,在 onCreate() 方法內,確保 <UI完成後> 立刻擁有<使用者狀態>
+
+  課後總結：
+    1.The Activity lifecycle is a set of states an Activity migrates through, 
+      beginning when it is first created and ending when the Android system reclaims the resources for that Activity.
+    2.As the user navigates from one Activity to another
+      , and inside and outside of your app
+      , each Activity moves between states in the Activity lifecycle.
+    3.Each state in the Activity lifecycle has a corresponding callback method you can override in your Activity class.
+      => <Activity內每個狀態的變化都有相對應的方法>
+    4.The lifecycle methods are 
+      onCreate()
+      , onStart()
+      , onPause()
+      , onRestart()
+      , onResume()
+      , onStop()
+      , onDestroy().
+    5.Overriding a lifecycle callback method allows you to add behavior 
+      that occurs when your Activity transitions into that state.
+      => <經由覆寫上述方法,加入程式邏輯>
+    6.You can add skeleton override methods to your classes in Android Studio 
+      with Code > Override.
+      => <列出所有你能覆寫的方法>
+    7.Device configuration changes 
+      such as rotation results in the Activity being destroyed 
+      and recreated as if it were new.
+      => <當裝置設定改變時,例:旋轉畫面,會造成目前Activity消失並重新建立>
+    8.A portion of the Activity state is preserved on a configuration change
+      , including the current values of EditText elements. 
+      For all other data, you must explicitly save that data yourself.
+      => <某些物件會自動保留狀態,例:EditText.
+          但其他資料還是必須自行儲存保留>
+    9.Save Activity instance state in the onSaveInstanceState() method.
+      => <時點：在 onSaveInstanceState()方法內 , 保留狀態值>
+    10.Instance state data is stored as simple key/value pairs in a Bundle. 
+       Use the Bundle methods to put data into and get data back out of the Bundle.
+      => outState.putBundle(key,value); //保留狀態值
+      => savedInstanceState.getBoolean(key); //取出狀態值
+    11.Restore the instance state in onCreate()
+       , which is the preferred way, or onRestoreInstanceState().
+      => <時點：在 onCreate() | onRestoreInstanceState()方法內 , 取出狀態值>
+
+  課後問題：
+    Q1.If you run the homework app before implementing onSaveInstanceState()
+       , what happens if you rotate the device? Choose one:
+       A1.<EditText>會自動保留狀態,所以<TextView>內容值會消失,但<EditText>不會
+    Q2.What Activity lifecycle methods are called 
+       when a device-configuration change (such as rotation) occurs? Choose one:
+       A2.當裝置設定變更時(例:旋轉畫面),Android會先刪除現有Activity,再新增一個新的Activity
+    Q3.When in the Activity lifecycle is onSaveInstanceState() called? Choose one:
+       A3.onStop()之前會呼叫 onSaveInstanceState()方法,也就是在 onPause() & onStop()之間
+          onSaveInstanceState() is called before the onStop() method.
+    Q4.Which Activity lifecycle methods are best to use for saving data 
+       before the Activity is finished or destroyed? Choose one:
+       A4.儲存Activity狀態的最佳時機點：onSaveInstanceState() , onPause() & onStop()
+
+Q10. 2.3:Implicit intents (Deep Link or App Link == 開 intent filters接收外部的intent資料)
+  重點：
+    1.Implicit intents用於,Activity啟動時並不知道會由哪個app或activity提供協助(例:照相,寄信或顯示地圖位置)
+      但是Activity須清楚它要哪些服務,並允許其他app或activity提供服務內容.
+      這時,它會在 <AndroidMainfest.xml> 內,
+      宣告 <intent filters> 說明它可以接受哪些 <Implicit intents> 及 <the types of intents>
+    2.Sharing(Sending a piece of information to other people through email or social media) 
+      是App目前熱門功能.
+      Sharing Action 可利用 <ShareCompat.IntentBuilder> 類別,讓程式員可建立<implicit intent>分享資料
+    
+    3.<作到快翻臉了...>
+      Q:為什麼原始範例作的出來,但是根據網頁步驟卻作不出來呢？
+      A:因為<原始範例>使用支援套件
+        (import android.support.v4.app.ShareCompat;
+         import android.support.v7.app.AppCompatActivity;)
+        ,但Android Studios已全部提升至(import androidx.xxx)
+        ,如果沒有跟著切換,功能會作不出來
+    
+    4.使用 explicit intent(顯式intent) 
+        總是能夠啟動 <同APP 或 外部APP> 的 Activity , 透過指定<完整套件名稱>的方式.
+      接收 implicit intent(隱式intent) 
+        必須在<AndroidManifest.xml>內定義<intent filters> , 指定你的activity能接收的intent 種類.
+    5.當裝置上的App送出 implicit intent, 
+        Android系統會拿intent的action & data與可取得的Activity(includes the right Intent filters)比對
+        5.1. 如果只有1個Activity吻合, 則此Activity會接手Intent
+        5.2. 如果有多個Activity吻合, 則會跳出App chooser讓使用者自行選擇由哪個App來執行
+    
+    6.實作implicit Intent 的重點摘要
+      Activity1 : 送出 implicit Intent
+      
+        <MainActivity.java>
+          public void openWebsite(View view) {
+              // Get the URL text.
+              String url = mWebsiteEditText.getText().toString();
+
+              // Parse the URI and create the intent.
+              Uri webpage = Uri.parse(url);
+              Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+
+              // Find an activity to hand the intent and start that activity.
+              if (intent.resolveActivity(getPackageManager()) != null) {
+                  startActivity(intent);
+              } else {
+                  Log.d("ImplicitIntents", "Can't handle this!");
+              }
+          }
+      Activity2 : 接收 implicit Intent
+        <AndroidMainfest.xml> 設定
+          <activity android:name=".MainActivity">
+              <intent-filter>
+                  <action android:name="android.intent.action.MAIN" />
+                  <category android:name="android.intent.category.LAUNCHER" />
+              </intent-filter>
+              
+              <!--新增設定在此 action==View,category==可瀏覽,
+                  data限定為http://developer.android.com ,
+                  如果 http://abc.apple.com 的話,Android就不會丟給這個App處理..-->
+
+              <intent-filter>
+                  <action android:name="android.intent.action.VIEW"/>
+                  <category android:name="android.intent.category.DEFAULT"/>
+                  <category android:name="android.intent.category.BROWSABLE" />
+                  <data
+                      android:scheme="http"
+                      android:host="developer.android.com" />
+              </intent-filter>
+          </activity>
+        <MainActivity.java> 程式邏輯
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+
+              Intent intent = getIntent(); //Get implicit intent
+              Uri uri = intent.getData(); //intent data 一定是 URI 物件.
+              if(uri != null){
+                  String strUri = getString(R.string.uri_label)
+                          + uri.toString();
+                  TextView textView = findViewById(R.id.text_uri_message);
+                  textView.setText(strUri);
+              }
+          }
+
+    7.<ShareCompat.IntentBuilder> 類別讓建立 <implicit intent> 分享資料給 社群軟體或EMAIL更為方便
+
+  目標：
+    1.Open a URL in a web browser.
+    2.Open a location on a map.
+    3.Share text.
+  
+  What you'll learn(本章可以學到的內容)
+    1.如何建立一個 implicit intent, 並使用它的 actions and categories.
+    2.如何使用 ShareCompat.IntentBuilder 類別, 建立一個 implicit intent 來分享資料.
+    3.如何宣傳App可以接收 implicit intent, 藉由在 AndroidMainfest.xml 宣告 Intent filters來完成.
+
+  Task 1:Create the project and layout
+  Task 2:Implement the Open Website button
+  Task 3:Implement the Open Location button
+  Task 4:Implement the Share This Text button
+  Task 5:Receive an implicit Intent(接收外部APP傳來的implicit intent)
+
+  課後挑戰：
+    1.新增拍照按鈕,開啟相機功能,回傳呼叫端 by intent
+    2.顯示回傳照片檔案 by ImageView
+      設定範例：Sample Setting @ AndroidMainfest.xml
+        <manifest...>
+          <uses-feature android:name="android.hardware.camera2"
+          android:required="true"/>
+        </manifest>
+      程式碼範例：
+        public void takePicture(View view) {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if(takePictureIntent.resolveActivity(getPackageManager())!= null){
+                try{
+                    //使用會回傳結果的startActivity
+                    startActivityForResult(takePictureIntent,REQUEST_IMAGE_CAPTURE);
+                }catch (ActivityNotFoundException e){
+                    Log.d("ImplicitIntents", "takePicture Error..");
+                }
+            }
+        }
+        
+        //覆寫onActivityResult事件,接收回傳值
+        @Override
+        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+            if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+                Bundle extras = data.getExtras();
+                Bitmap bitmap = (Bitmap) extras.get("data");
+                mShowPicImageView.setImageBitmap(bitmap);
+            }else{
+                Log.d("ImplicitIntents", "Not in..");
+            }
+        }
+  
+  課後問題：
+    Q1.Which constructor method do you use to create an implicit Intent 
+      to launch a camera app?
+      A1.new Intent(String action) 
+         ex. Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    Q2.<✱✱VIP✱✱> When you create an implicit Intent object, which of the following is true?
+      當你要新增 implicit Intent 物件時,你要注意的點有哪些？
+      A2. (1)不要指定特定Activity或其他元件來啟動
+          (2)增加一個Intent Action or Intent categories
+          (3)在呼叫 startActivity or startActivityForResult前,
+             先解析Intent有沒有對應的Activity可以負責
+             ex.takePictureIntent.resolveActivity(getPackageManager())!= null
+    Q3.Which Intent action do you use to take a picture with a camera app?
+      哪個 Intent action 可用來以Camera App進行拍照呢？
+      A3. Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+Q11. 3.1: The debugger
+  Task. 1 Step through your app's execution
+    1. Step Over (F8) , 逐步執行
+    2. Step In (F7) , 跳進去引用的方式|函式內
+    3. Step Out (Shift+F8) , 跳進去後看完,直接回到跳進入的點(返回) 
+
+  Task. 2 Work with Breakpoints
+    1. 在Breakpoints上面 , 加上 Condition , 條件吻合才會停在偵錯點 , 不吻合則一直往下跑
+    2. Resume (F9) , 繼續執行程式(跳離偵錯模式)
+    3. View Breakpoints (Ctrl+Shift+F8) , 查看所有偵錯點及相關設定
+    4. Mute Breakpoints , 一次關閉所有偵錯點
+
+  Task. 3 Examine and modify variables
+    1. Variable頁籤 , 可動態調整變數值(Set Value F2) , 但保留原輸入參數(原本輸入值不變)
+    2. Evaluate Expressions(Alt+F8) , 動態查看變數當下狀態值或方法 , 例:getText() , getHint()..
+
+  課後問題：
+    Q1. 輸入欄位留空白,會出現什麼錯誤呢？
+      A1. java.lang.NumberFormatException: empty String
+    
+    Q2. Which function do you perform in the Debug pane in order to execute the current line 
+        where the breakpoint is, and then stop at the next line in the code? Choose one:
+      A2. Step Out(Shift+F8) , 跳回偵錯點位置
+    
+    Q3. Which function do you perform in the Debug pane 
+        in order to jump to the execution of a method call from the current line where the breakpoint is? Choose one:
+      A3. Step Into (F7) , 跳進去看呼叫函式
+
+Q12. 3.2: Unit tests(先跳過)，https://developer.android.com/training/testing/fundamentals)
+  重點：
+    1. Local Unit Test
+
+  What you'll learn(本章可以學到的內容)
+    1.如何組織和執行測試
+    2.了解什麼是單元測試(Unit Test)
+    3.為你的程式碼撰寫單元測試(Unit Test)
+  
+  Task 1:Explore and run calculateTest
+    1.
+
+  Task 2:Add more unit tests to calculateTest
+
+Q13. 3.3: Support libraries(直接跳過, Android 11 使用 AndroidX 套件組, 官方建議全新專案用這個)
+  
+  What you'll learn(本章可以學到的內容)
+    1.如何識別 Android Studio 安裝的 Android Support Library版本
+    2.如何指出 Support Library 在APP內的類別
+    3.如何分辨 compileSdkVersion , targetSdkVerion , minSdkVersion 之間的差異
+    4.如何看出 deprecated(不推薦) or unavailable(無法取得) APIs
+
+  Task 1:Set up your project to use support libraries
+  Task 2:Implement the layout and MainActivity
+  Task 3:Implement Button behavior
+
+Q14. 4.1: Clickable images
+  重點：
+    1.UI使用介面都是由 View物件所組成.
+    2.Android專案內的圖檔都放在 drawable 資料夾內.
+    3.imageAsset 在Android Project內 , 圖片檔的稱呼.
+    4.Snackbar 新學到的另一個使用者回饋方式(從畫面最底下冒出來,再縮回去).
+    5.Toast 則是短訊息,再複習1次用法
+      Toast.makeText(getApplicationContext(), "要顯示的訊息",
+            Toast.LENGTH_LONG).show();
+    
+  What you'll learn(本章可以學到的內容)
+    1.如何使用圖片作為互動媒介，執行一個動作
+    2.如何設定 ImageView 的屬性
+    3.如何在 Toast 訊息上加上 onClick() 方法
+
+  Task 1:Add Images to the layout(OK)
+    1.使用 ImageView 元件 , src 指向圖片檔
+    2.圖片檔統一放在 res/drawable 資料夾內
+  
+  Task 2:Add onClick methods for images
+    1.最佳作法：共同函式放在 MainActivity.java 預設方法的最下面(例:displayToast,顯示訊息)
+    2.只要在同一套件下,public方法可以被呼叫到哦.(例:first_fragment.xml可引用 MainActivity.java 內的 public method)
+  
+  Task 3:Change the Floating action button
+    1.<Snackbar> , 從螢幕下方跳出來的訊息 , 常用在提供動作後的回饋
+    2.<FloatingActionButton> , 浮在畫面上的按鈕 , 例:寄信,購物車..
+
+  Task 4:Coding challenges
+    0.Intent intent = new Intent(MainActivity.this , OrderActivity.class); //指定要去哪
+    1.intent.putExtra(key,value); //打包帶過去的行李
+    2.startActivity(intent); //出發
+    ---------------------------------
+    3.Intent intent = getIntent(); //抵達後,取行李
+    4.String strMessage = intent.getStringExtra(key); //拿出行李內容
+
+  程式挑戰：如何作出 <横放版面 Landscape> , 在同一個 Activity上面(預設-垂直版面 Portrait)
+    1. 步驟 => 開啟Layout的 Design畫面 / 點選旋轉圖示(Orientation for Preview(O)) / 點選<Create Landscape Variation>功能一定出不來
+    2. 結果 => 自動產生一個新的 land\xxx.xml (land) 的 Layout檔案 , 原始Layout檔案則會更名為 layout\xxx.xml
+    3. 後續 => 接下來就重新調整<畫面元件>為<横放版面 Landscape>的樣子.
+
+  課後問題：
+    Q1.如何將圖片加入Android Project內？
+      A1.使用新增 ImageAsset 的方式.
+    
+    Q2.如何讓 ImageView 可點選呢？
+      A2.加入 onClick 屬性,利用呼叫 click handler.
+    
+    Q3.click handler 如何在 layout 的屬性內被呼叫呢？
+      A3.這個 click handler 方法必須是 public , return void , 且把 View 作為唯一參數值
+
+Q15. 額外補充: Activity & Fragment 間的差異為何？
+  A15:
+    1.Activity 是應用程式的元件,提供畫面與使用者產生互動,而執行特定任務.
+    1.Activity 是各自獨立的個體 , 須利用 intent 啟動另一個 Activity 並取得回應(如有必要)
+    2.Fragment 則是隸屬於某個 main Acitivy , 表示UI的1種行為.
+    2.Fragment 使用 DialogFragment 來顯示 picker 是最佳作法.
+    3.Fragment 另一個優點是 , 可以實作不同的 layout 設定.(例:手機上配置跟手表上的,就有很大不同)
+    
+Q16. 4.2: Input controls
+  重點：
+    1.EditText可以指定鍵盤出現的類別,例:輸入文字時,出現英數鍵盤;輸入電話時,出現純數字鍵盤
+    2.android:inputType = "phone"
+  
+  What you'll learn(本章可以學到的內容)
+    1.如何改變輸入模式,如啟用建議,自動大寫,密碼隱藏
+    2.如何改變輸入鍵盤,如純數字,英數字混合..
+    3.如何新增僅供單選的 RadioButton
+    4.如何新增僅供單選的 DropDownlist(Drop-down menu)
+
+  Task 1:測試Text Entry屬性(OK)
+    1.android:inputType 可以挑選多種型態,以 | 作分隔,常用於非特定用途欄位 , 例:說明欄
+      android:inputType = "textMultiLine|textCapSentences" //多欄,首字大寫
+    2.android:nextFocusForward 可以決定按下TAB後自動跳往哪個項目
+
+  Task 2:使用 RadioButton(單選)(OK)
+    1.RadioButton要放在RadioGroup裡面
+    2.RadioButton被點選的程式寫法:
+      public void onRadioButtonClicked(View view) {
+        boolean checked = ((RadioButton)view).isChecked(); //這裡很奇怪,竟然可以這麼寫
+        switch (view.getId()){
+            case R.id.sameday:
+                if(checked)
+                    displayToast(getString(R.string.sameday_rdb_text));
+                break;
+            case R.id.nextday:
+                if(checked)
+                    displayToast(getString(R.string.nextday_rdb_text));
+                break;
+            case R.id.pickup:
+                if(checked)
+                    displayToast(getString(R.string.pick_up_rdb_text));
+                break;
+            default:
+                displayToast("Nothing Selected..");
+                break;
+        }
+      }
+  
+  ==2021/02/16進度==
+
+  Task 3:使用 Spinner for user choices(DropDownlist-單選)(OK)
+    1.新增 Spinner 至 layout
+    2.使用 ArrayAdapter 指定 text value陣列, 作為Spinner的Menu items.
+    3.實作 AdapterView.OnItemSelectedListener 介面, 必須新增 
+      onItemSelected() & onNothingSelected() 兩個方法
+    4.使用 onItemSelected() 方法 , 可以利用 getItemAtPosition() 方法取得選取值
+
+    程式碼範例：
+      public class OrderActivity extends AppCompatActivity implements
+              AdapterView.OnItemSelectedListener { //實作介面在這
+
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_order);
+
+              Intent intent = getIntent();
+              String message = "Order :" + intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+              TextView txtOrderlist = findViewById(R.id.order_textview);
+              txtOrderlist.setText(message);
+
+              //Spinner(DropDownList) 初始化
+              Spinner spinner = findViewById(R.id.label_spinner);
+              if(spinner != null){
+                  spinner.setOnItemSelectedListener(this);
+              }
+              //存取資料來源
+              ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                      this,
+                      R.array.labels_array,
+                      android.R.layout.simple_spinner_item);
+              adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+              //綁到spinner上面
+              if(spinner != null){
+                  spinner.setAdapter(adapter);
+              }
+          }
+
+          public void displayToast(String message){
+              Toast.makeText(getApplicationContext(),message , Toast.LENGTH_SHORT).show();
+          }
+
+          @Override
+          public void onItemSelected(AdapterView<?> parent, View view,
+                                    int position, long id) {
+              //有選擇時,抓出選擇項目
+              String spinnerLabel = parent.getItemAtPosition(position).toString();
+              displayToast(spinnerLabel);
+          }
+
+          @Override
+          public void onNothingSelected(AdapterView<?> parent) {
+            //未選擇時,會跳進來
+          }
+      }
+  
+  課後問題：
+    Q1.CheckBoxes & RadioGroup of Radio Buttons 間,最大差異為何?
+      A1.CheckBoxes是多選 ; Radio Button則是單選
+    Q2.哪個 Layout方式 可讓 多個CheckBox項目以垂直編排? 
+      Q2.LinearLayout , 
+        它可以指定 android:Orientation="horizontal" for a row | android:Orientation="vertical" for a column
+    Q3.Which of the following is the method of the Checkable interface to check the state of a radio button 
+      (that is, whether it has been selected or not)?
+      Q3. isChecked 可以識別是否被選取
+
+Q17. 4.3: Menus and pickers(指的是 App Bar | Action Bar , 在畫面上方)
+  重點：
+    1.Menus有下列項目:
+      1.App bar. 內含 App標題, Options menu, 以及 overflow button(右上角的...)
+      2.Options menu action icons. 放在App bar內的功能圖示
+      3.Overflow button. 就是右上角的...,點開可顯示更多功能項目
+      4.Options overflow menu. 點選Overflow button後, 功能項目會放在裡面
+    
+    1.Menu有兩種: Options Menu & Context Menu
+      1.1. Options Menu 常用於開啟另一個 Activity/功能.
+      1.2. Context Menu 則常用於目前 Activity 內,對 View 作修改(Edit , Share , Delete...)
+      1.3. 這兩種Menu的差異在於:
+        1.3.1. Context Menu 必須註冊在 View 上面, 當 Touch & Hold 動作發生在 View 時, 就會跳出 Context View.
+        1.3.2. Context Menu's Code & Menu resources 必須自行新增, 有別於 Basic Activity Template 將 Options Menu 自動加入.
+
+    2.自行新增 Dialog 注意事項:
+      2.1. 一般而言, AlertDialog.Builder 會寫在 onCreate() 事件內 , 讓其他程式能共用.
+        
+    3.pickers是Android提供的對話方塊(Dialog):
+      3.1.會向User要些資訊,例:當地時間|日期
+      3.2.已經作好了,可以直接利用.
+      3.3.最佳作法：picker 會跟 Fragment 一起使用.
+
+    3.畫面設計最佳作法：activity_main.xml 內使用 include方式將 content_main.xml 內容放進來,
+      達到<主功能介面>與<內容介面>分割的效果
+
+      The activity_main.xml layout also uses an include layout statement to include the entire layout defined in content_main.xml. 
+      This separation of layout definitions makes it easier to change the layout's content apart from the layout's toolbar definition and coordinator layout. 
+      This is a best practice for separating your content (which may need to be translated) from the format of your layout.
+  
+  What you'll learn(本章可以學到的內容)
+    1.如何新增 menu items 至 options menu
+    2.如何新增 icons for items 在 options menu中
+    3.如何設定 menu items 在 options menu 內顯示
+    4.如何新增 menu items 的 click handlers
+    5.如何新增 dialog for an alert
+    6.如何新增 date picker
+  
+  Task 1:Add items to the options menu(OK)
+  Task 2:Add icons for menu items(OK)
+  Task 3:Handle the selected menu items(OK)
+  Task 額外挑戰 : How to use Context Menu(OK)
+    程式碼範例：
+      1.新增 Menu resources => 路徑 : res/menu/menu_context.xml
+          <?xml version="1.0" encoding="utf-8"?>
+          <menu xmlns:android="http://schemas.android.com/apk/res/android">
+              <item android:id="@+id/context_edit" android:title="Edit"/>
+              <item android:id="@+id/context_share" android:title="Share"/>
+              <item android:id="@+id/context_delete" android:title="Delete"/>
+          </menu>
+      2.新增 Code => 把 Context Menu 註冊在 View 上面
+          @Override
+          protected void onCreate(Bundle savedInstanceState) {
+              ...
+              TextView textView = findViewById(R.id.article);
+              registerForContextMenu(textView);
+              ...
+          }
+      3.實作必要方法
+          @Override
+          public void onCreateContextMenu(ContextMenu menu
+                  , View v
+                  , ContextMenu.ContextMenuInfo menuInfo) {
+              super.onCreateContextMenu(menu, v, menuInfo);
+              MenuInflater inflater = getMenuInflater();
+              inflater.inflate(R.menu.menu_context,menu);
+          }
+      4.實作ContextMenu被選擇事件(抓值作動作)
+          @Override
+          public boolean onContextItemSelected(@NonNull MenuItem item) {
+              switch (item.getItemId()){
+                  case R.id.context_edit:
+                      displayToast("Edit choice clicked");
+                      return true;
+                  case R.id.context_delete:
+                      displayToast("Delete choice clicked");
+                      return true;
+                  case R.id.context_share:
+                      displayToast("Share choice clicked");
+                      return true;
+                  default:
+                      return super.onContextItemSelected(item);
+              }
+          }
+
+  Task 4:Use a dialog to request a user's choices(OK)
+    程式碼範例：
+      AlertDialog.Builder myAlertBuilder = new
+            AlertDialog.Builder(MainActivity.this); //放在哪個類別裡
+      myAlertBuilder.setTitle("Alert"); //標題
+      myAlertBuilder.setMessage("Click OK to continue , or Cancel to stop."); //顯示訊息
+      
+      //按了OK會發生什麼事
+      myAlertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialogInterface, int i) {
+              displayToast("Pressed OK ^^");
+          }
+      });
+
+      //按了CANCEL會發生什麼事
+      myAlertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialogInterface, int i) {
+              displayToast("Pressed Cancel !!");
+          }
+      });
+      
+      //最重要的是,要SHOW出來.
+      myAlertBuilder.show();
+    
+  Task 5:Use a Date picker for user input(OK) => 
+    程式碼範例：
+    <DatePickerFragment.java> => 我是放 DatePickerDialog 的 Fragment
+
+      // 這裡要調整 extends Fragment 改為 extends DialogFragment
+      // 多實作 implements DatePickerDialog.OnDateSetListener 這個項目
+      public class DatePickerFragment extends DialogFragment
+              implements DatePickerDialog.OnDateSetListener {
+
+      ... //工具自動產生的程式碼(先不理它)//
+
+      // 這段要註解起來,因為這個Fragment不顯示它自己的畫面,只用來顯示DataPicker
+      //    @Override
+      //    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+      //                             Bundle savedInstanceState) {
+      //        // Inflate the layout for this fragment
+      //        return inflater.inflate(R.layout.fragment_date_picker, container, false);
+      //    }
+
+      // 實作 DatePickerDialog.OnDateSetListener 後, 新增事件(1):長出一個 DatePickerDialog, 並設定預設值(當天).
+          @NonNull
+          @Override
+          public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+              final Calendar c = Calendar.getInstance();
+              int year = c.get(Calendar.YEAR);
+              int month = c.get(Calendar.MONTH);
+              int day = c.get(Calendar.DAY_OF_MONTH);
+
+              return new DatePickerDialog(getActivity(),this,year,month,day);
+
+      //        return super.onCreateDialog(savedInstanceState);
+          }
+
+      // 實作 DatePickerDialog.OnDateSetListener 後, 新增事件(2):當 DatePickerDialog 設定後, 把值回傳給哪個 Activity.
+          @Override
+          public void onDateSet(DatePicker datePicker, int year , int month, int day) {
+              OrderActivity orderActivity = (OrderActivity)getActivity();
+              orderActivity.processDatePickerResult(year,month,day);
+          }
+      }
+
+    <OrderActivity.java> => 我是召喚 DatePickerFragment 出來幫忙的 Activity
+      ... 僅節錄重點部分 ...
+      //呼叫 DatePicker(記得要綁在前端元件上面)
+      public void showDatePicker(View view) {
+          DatePickerFragment datePickerFragment = new DatePickerFragment();
+          datePickerFragment.show(getSupportFragmentManager(),"datePicker");
+      }
+
+      //接收 DatePicker 回傳值(注意:此法會被 DatePickerFragment 直接使用哦~~)
+      public void processDatePickerResult(int year, int month, int day) {
+          String strYear = String.valueOf(year);
+          String strMonth = String.valueOf(month);
+          String strDay = String.valueOf(day);
+          displayToast(String.format("You Choose Date : %s/%s/%s",strYear,strMonth,strDay));
+      }
+
+  Task 額外挑戰 : Time picker
+
+  課後總結：
+    1.Provide an options menu and app bar:(加入右上角...options menu 及畫面最上方功能選單)
+      Start your app or Activity with the Basic Activity template to automatically set up the app bar, the options menu, and a floating action button.
+      The template sets up a CoordinatorLayout layout with an embedded AppBarLayout layout. AppBarLayout is like a vertical LinearLayout. It uses the Toolbar class in the support library, instead of the native ActionBar, to implement an app bar.
+      The template modifies the AndroidManifest.xml file so that the .MainActivity Activity is set to use the NoActionBar theme. This theme is defined in the styles.xml file.
+      The template sets MainActivity to extend AppCompatActivity and starts with the onCreate() method, which sets the content view and Toolbar. It then calls setSupportActionBar() and passes toolbar to it, setting the toolbar as the app bar for the Activity.
+      Define menu items in the menu_main.xml file. The android:orderInCategory attribute specifies the order in which the menu items appear in the menu, with the lowest number appearing higher in the menu.
+      Use the onOptionsItemSelected``() method to determine which menu item was tapped.
+
+    2.Add an icon for an options menu item:(加入圖示供功能選單內選項使用)
+      Expand res in the Project > Android pane, and right-click (or Control-click) the drawable folder. Choose New > Image Asset.
+      Choose Action Bar and Tab Items in the drop-down menu, and change the name of the image file.
+      Click the clip art image to select a clip art image as the icon. Choose an icon.
+      Choose HOLO_DARK from the Theme drop-down menu.
+
+    3.Show menu items as icons in the app bar:(選項以圖示顯示在AppBar or 隱藏在 options menu 裡的設定)
+      Use the app:showAsAction attribute in menu_main.xml with the following values.
+      "always": Always appears in the app bar. (If there isn't enough room it may overlap with other menu icons.)
+      "ifRoom": Appears in the app bar if there is room.
+      "never": Never appears in the app bar; its text appears in the overflow menu.
+
+    4.Use an alert dialog:(Alert Dialog使用方式)
+      Use a dialog to request a user's choice, such as an alert that requires users to tap OK or Cancel. Use dialogs sparingly as they interrupt the user's workflow.
+      Use the AlertDialog subclass of the Dialog class to show a standard dialog for an alert.
+      Use AlertDialog.Builder to build a standard alert dialog
+        , with setTitle() to set its title
+        , setMessage() to set its message
+        , and setPositiveButton() and setNegativeButton() to set its buttons.
+
+    5.Use a picker for user input:(Picker使用方式 , 常與 Fragment合併使用 , 程序稍微複雜一點)
+      Use DialogFragment, a subclass of Fragment, to build a picker such as the date picker or time picker.
+      Create a DialogFragment, and implement DatePickerDialog.OnDateSetListener to create a standard date picker with a listener. 
+      Include onDateSet() in this Fragment.
+      Replace the onCreateView() method with onCreateDialog() that returns Dialog. 
+      Initialize the date for the date picker from Calendar, and return the dialog and these values to the Activity.
+      Create an instance of FragmentManager using getSupportFragmentManager() to manage the Fragment and show the date picker.
+  
+  課後問題：
+    Q1.What is the name of the file in which you create options menu items? Choose one:
+      A1.menu_main.xml , 是 options menu items 新增
+    Q2.Which method is called when an options menu item is clicked? Choose one:
+      A2.onOptionsItemSelected(MenuItem item)
+    Q3.Which of the following statements sets the title for an alert dialog? Choose one:
+      A3.myAlertBuilder.setTitle("Alert");
+    Q4.Where do you create a DialogFragment for a date picker? Choose one:
+      A4.In the onCreateDialog() method in the extension of DialogFragment.
+
+Q18. ✱✱VIP,新的✱✱ 4.4: User navigation(使用者導航 , 決定操作程序/步驟 , 在 AppBar 左上角的 <- 回上層圖示(Up Button) , 雖然系統的 ▼ 回前頁鈕(Back Button) 也能作到)
+  重點：
+    1.AppBar(<-)回上層圖示(Up Button) 不等於 系統(▼)回前頁鈕(Back Button)
+    2.AppBar(<-)回上層圖示(Up Button) 是回到階層中的上層畫面(parent screen)
+    3.系統(▼)回前頁鈕(Back Button) 則是回到使用者前次瀏覽畫面(whatever screen the user last viewed)
+    4.Tab navigation 提供在同一畫面切換頁面的功能
+    5.Tab navigation 使用上建議不要超過 {4個頁面} , <= 4個頁面 是最合適數量
+    ======================================================================
+    6.外層：Activity_Main.xml (TabLayout > ViewPager2(Layout Manager)) 
+      中層：> PagerAdapter (FragmentStateAdapter.java) , 無畫面 , 控制 Fragment 用
+      內層：> Fragment_card.xml (頁籤在這裡)
+      
+      常用的 FragmentPagerAdapter 有下列兩種:
+      > FragmentPagerAdapter , 提供給少量且固定頁數的畫面用.
+      > FragmentStatePagerAdapter , 提供未定頁數的畫面用.
+        當切換至另一畫面後, 前一畫面會被丟棄以節省記憶體.
+    
+    7.新增步驟(關聯性) VIP 感覺有點複雜
+      a.新增專案,加入所需套件
+      b.新增Fragment所需資源(例:顏色檔..)
+      c.準備TabLayout & ViewPager2的編排(Layout) @ activity_main.xml
+      d.新增Fragment(有畫面的,並宣告引用相關資源參考)
+      e.新增FragmentStateAdapter(無畫面,決定預設頁數..)
+      f.最後,在ViewPager2上設定FragmentStateAdapter,
+        並利用 TabLayoutMediator 把 TabLayout & ViewPager2 串起來.
+    ======================================================================
+    
+  What you'll learn(本章可以學到的內容)
+    1.如何在 AppBar 內新增 AppBar(<-)回上層圖示(Up Button)
+    2.如何設定 Tab navigation and Swipe views.
+
+  Task 1:Add an Up button for ancestral navigation(OK)
+  Task 2:Use tab navigation with swipe views(教學使用的方法已過時 , 在SDK30上面不適用)
+    (OK)網路範例(可動態產生Fragment,放進)：https://androidwave.com/viewpager2-with-tablayout-android-example/
+    新作法請參考：https://developer.android.com/guide/navigation/navigation-swipe-view-2
+
+Q19. ✱✱VIP,新的✱✱ 4.5: RecyclerView(可滑動列表)
+  重點:
+    1.RecyclerView(可滑動列表)元件間的關聯性.
+      Data:data items(資料項目) 
+        => Adapter:WordListAdapter(轉接器:文字清單) 
+          => LayoutManager:RecyclerView(畫面配置:輪播檢視)
+    2.ViewPager2的實作概念和RecyclerView是相同的
+      Data:Fragment(頁面) 
+        => Adapter:FragmentStateAdapter(轉接器:頁面) 
+          => LayoutManager:ViewPager2(畫面配置:頁籤檢視)
+    
+Q20. 如何手動新增 FloatingActionButton(浮動按鈕) ? 
+
+  [Layout加入按鈕外觀,ex.activity_main.xml]
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+      android:id="@+id/fab"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="bottom|end"
+      android:layout_margin="@dimen/fab_margin"
+      app:srcCompat="@android:drawable/ic_dialog_email" />
+  
+  [程式碼加入點選事件 @ MainActivity.java]
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+      ...
+      FloatingActionButton fab = findViewById(R.id.fab);
+      fab.setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View view) {
+              Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                      .setAction("Action", null).show();
+          }
+      });
+      ...
+    }
+
+Q21. 常用的介面屬性
+  1.Orientation
+  2.layout_margin 元件和外部間隔距離
+  3.layout_padding 元件內部文字與邊的距離
+  4.gravity 元件內部物件對齊方式, 可合併使用. ex. android:gravity=top|left
+  5.layout_gravity 元件與外框間的對齊方式, 可合併使用. 
+  6.layout_weight 元件固定比例寬度
+
+Q22. 介面屬性搭配的長度單位
+  1.px - 螢幕像素
+  2.pt - 傳統印刷用
+  3.dp - 位置大小,距離長度用(*)
+  4.sp - 字體大小用(*)
+  5.mm - 毫米
+  6.in - 英吋
+
+Q23. Spinner用法(DropDownList)
+  [Resource]:準備資料來源
+    <resources>
+        <string name="sex_list_prompt">Please Choose your sex</string>
+        <string-array name="sex_list">
+            <item>Man</item>
+            <item>Woman</item>
+        </string-array>
+    </resources>
+
+  [Layout]:決定Spinner外觀及塞入資料
+    <Spinner
+          android:id="@+id/spSex"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_margin="30dp"
+          android:entries="@array/sex_list" 
+          android:spinnerMode="dialog"
+          android:prompt="@string/sex_list_prompt"
+          app:layout_constraintTop_toBottomOf="@id/tvSex" />
+
+  [Code]:設定Spinner點選事件
+    mSpinnerSex.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            String selectedValue = adapterView.getSelectedItem().toString(); //抓選取值
+            Log.d(TAG_KEY, "onItemSelected: OK " + selectedValue );
+            mTvSex.setText(selectedValue);
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+        }
+    });
+  
+Q24. NumberPicker用法(數字轉輪, minSdkVersion:11以上)
+  1.setMinValue(int value) 最小值
+  2.setMaxValue(int value) 最大值
+  3.setValue(int value) 目前值
+  4.setOnValueChangedListener(OnValueChangedListener onValueChangedListener) 值變更引發事件
+    範例程式:
+      npAge.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+          @Override
+          public void onValueChange(NumberPicker numberPicker, int oldValue, int newValue) {
+              tvAge.setText(String.valueOf(newValue));
+          }
+      });
+  5.getValue() 取得目前值
+
+Q25. ScrollView + LinearLayout( + 多個CheckBoxes + ..)
+  1.LinearLayout 決定 CheckBoxes 的編排(水平或垂直)
+  2.但是如果 CheckBoxes 數量太多 超出手機螢幕範圍, 就需要 ScrollView 的協助, 讓畫面能上下捲動
+
+Q26. 感覺 "Android APP官方教材" 用的概念比較新, 雖然比較複雜, 但長遠來看是比較好的寫法
+  例:檢查某個 CheckBox 有沒有被點選 , 有兩種方式:
+    1.在每個 CheckBox 上綁 onClick 事件函式 , 所有 CheckBox 共用同一個函式即可(較優,即時)
+      程式碼範例：
+      private ArrayList<String> checkedList = new ArrayList<String>();
+      public void onCheckBoxClicked(View view) { //這個函式必須綁在每個 CheckBox 上面
+          boolean checked = ((CheckBox)view).isChecked();
+          if(checked){
+              checkedList.add(((CheckBox) view).getText().toString());
+          }else{
+              checkedList.remove(((CheckBox) view).getText().toString());
+          }
+          //設定已選的值
+          tvSelected.setText(android.text.TextUtils.join(",",checkedList));
+      }
+
+    2.在特定 Button 上綁 onClick 事件函式 , 這個函式必須去找 每個 CheckBox 是否被點選(較差,不即時)
+
+Q27. U17-LinearLayout 介面編排模式
+  1.<LinearLayout> 內可以再加入另一個 <LinearLayout>.
+    例:最外層 <LinearLayout> 決定畫面是 "垂直" 呈現(Orientation=vertical)
+       裡面 <LinearLayout> 再放入個別控制項是 "水平" 呈現(Orientation=horizontal)
+  2.使用多個 <LinearLayout> 時, 只須在第1個 <LinearLayout> 設定 xmlns:android 屬性即可
+  3.範例專案 : AndroidProjects\AD111_FragmentExample1_challenge
+    <LinearLayout 垂直>
+      <LinearLayout 水平> 
+        <TextView /> <RadioButton />
+      </LinearLayout>
+      <LinearLayout 水平> 
+        <TextView /> <RatingBar />
+      </LinearLayout>
+    </LinearLayout>
+
+Q28. U18-TableLayout 介面編排模式
+  1.<TableLayout> & <TableRow> 兩個主要標籤
+  2.失效屬性(元件放入<TableRow>): 
+    2.1. android:layout_width , android:layout_height , 一律使用 match_parent
+  3.可用屬性:
+    3.1. android:background , 設定底色
+    3.2. android:layout_margin , 設定間隔距離
+    3.3. android:gravity , 設定對齊方式
+  4.在 <TableLayout> 標籤內 , 但沒有 <TableRow> 包起來的元件 , 自成一列(row)
+  5.寬度均分: 可在元件內 , 加上 android:layout_weight.
+    例:同一列裡有三元件要均分寬度 , 則每個元件 android:layout_weight="1".
+  6.每列<TableRow>是對齊的 , 無法錯開.
+    例: Row1 有 1|2|3 三個元件 , Row2 也必須有 4|5|6 三個元件.
+  7.產生錯置元件個數作法
+    7.1. 再新增1個 <TableLayout> (X,已過時)
+    7.2. 在同一個 <TableRow> 加入想要的元件數量都行 (O)
+    
+Q29. U19-RelativeLayout 介面編排模式
+  1.每個元件都要有 id 名稱, 對應相應位置用
+  2.須同時指定 "相對位置" layout_oXXOf & "如何對齊" layout_alignXXX
+  3."相對位置" : layout_toLeftOf , layout_toRightOf , layout_toStartOf , layout_toEndOf , layout_above , layout_below
+  4."如何對齊" : layout_alignLeft , layout_alignRight , layout_alignStart , layout_alignEnd , layout_alignTop , layout_alignBottom
+
+Q30. U20-ImageButton & ImageView 介面元件
+  1.ImageButton = 圖片按鈕
+  2.ImageView = 圖片顯示
+  3.TextView (後端)設定值用的是 setText
+  4.ImageView (後端)設定圖片用的則是 setImageResource
+  5.ImageView (前端)設定圖片用的則是 src 
+
+Q31. U21-GridView & ImageSwitcher 介面元件
+  1.GridView 可顯示影像縮圖
+    1.1. numColumn 決定幾個欄位
+    1.2. 新增 ImageAdapter 作為管理 GridView 資料來源的類別 extends(繼承) BaseAdapter
+  2.ImageSwitcher 切換影像用, 有轉場效果(淡出淡入)
+    2.1. 主類別要 implements(實作) ViewSwitcher.ViewFactory , ImageSwitcher 才能用 setFactory(this) 掛給主類別
+
+Q32. U26-Fragment 同Activity內的多個畫面
+  1.Fragment型態程式介面特性如下:
+    1.1. 執行畫面可由多個Fragment組成
+    1.2. 每個Fragment有各自獨立的執行狀態, 並接收各自的處理事件
+    1.3. 執行過程中, Fragment可動態加入或移除
+    1.4. 使用 Fragment 的最低SDK版本 , android:minSdkVersion="11"
+  2.Fragment常用方法:
+    2.1. onCreate():Fragment初始化設定用
+    2.2. onCreateView():用於設定Fragment使用的介面佈局檔 == Activity.onCreate()作的事情
+    2.3. onActivityCreated():取得Fragment介面元件, 設定給對應的介面物件. 
+    2.4. onPause():Fragment從螢幕消失執行的方法. 常用於儲存 User 操作狀態 & Input Data, 下次Fragment顯示時, 還原狀態 & Data, 讓使用者繼續工作.
+  3.Fragment標籤-注意事項:
+    3.1. <fragment> 開頭小寫
+    3.2. <fragment> 要有 android:id 屬性
+    3.3. <fragment> android:name 屬性, 指的是對應 Fragment類別, 須填入完整套件名稱(ex. android:name="android.com.u26_fragment.BlankFragment")
+    3.4. <fragment> android:layout_weight 屬性可用, 設定比例控制每個 Fragment 佔的螢幕寬度. (android:layout_width必須設定為 "0dp")
+    3.5. <FragmentLayout> 可以幫內部<fragment>加上外框,大小和位置等外觀屬性
+
+Q33. U27-FragmentManager 動態改變使用的 Fragment
+  1.如何在Activity內, 動態顯示 Fragment 呢?
+      //Activity內某個與前端元件有連接的函式
+      public void showDatePicker(View view) {
+        DatePickerFragment newFragment = new DatePickerFragment();
+        newFragment.show(getSupportFragmentManager(),"datePicker");
+      }
+
+Q34. ✱✱VIP✱✱ 如何 Activity 加入 固定(statically) Fragment? <= Advanced Android 01.1: Fragments
+  (範例專案 : AndroidProjects\AD111_FragmentExample1_StaticFragment)
+  1.新增 Fragment
+  2.在 Fragment Layout 放入所需元件
+  3.在 Fragment 後端程式的 onCreateView 事件內, 建立元件間的關聯性, 例:RadioBUtton被點選時,TextView會顯示結果.
+    程式碼範例：
+      public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                              Bundle savedInstanceState) {
+          // Inflate the layout for this fragment
+          final View rootView =
+                  inflater.inflate(R.layout.fragment_simple, container,false);
+          final RadioGroup radioGroup = rootView.findViewById(R.id.radio_group);
+          //(改寫放在這裡,程式成功執行)
+          final TextView textView = rootView.findViewById(R.id.fragment_header);
+          
+          radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+              @Override
+              public void onCheckedChanged(RadioGroup group, int checkedId) {
+                  View radioButton = radioGroup.findViewById(checkedId);
+                  int index = radioGroup.indexOfChild(radioButton);
+                  //(這個要寫在外面,因為rootView會消失)TextView textView = rootView.findViewById(R.id.fragment_header);
+                  switch (index){
+                      case YES:
+                          textView.setText(R.string.yes_message);
+                          break;
+                      case NO:
+                          textView.setText(R.string.no_message);
+                          break;
+                      default:
+                          break;
+                  }
+              }
+          });
+          return rootView;
+      }
+  4.#重點在這裡#: 在 activity_main.xml Layout內, 利用 <fragment> 標籤串起 前面新Step1 新增的Fragment.
+    <fragment
+      android:id="@+id/fragment"
+      android:name="com.example.android.fragmentexample.SimpleFragment" 
+        //對應 Fragment類別, 須填入完整套件名稱(ex. android:name="android.com.u26_fragment.BlankFragment")
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      tools:layout="@layout/fragment_simple" /> 
+        //對應 Fragment佈局檔
+
+Q35. ✱✱VIP✱✱ 如何動態(dynamically) 加入 Fragment? <= Advanced Android 01.1: Fragments
+  (範例專案 : AndroidProjects\AD111_FragmentExample2_DynamicAdd) <= 範例寫的不錯,蠻深入的 =>
+  1.要有 FrameLayout 作為 Fragment 的容器(放在佈局檔)
+  2.使用 FragmentManager 管理 Fragment(放在Activity的程式碼)
+  3.利用 FragmentTransaction 執行 Fragment交易(例:新增,移除,取代 Fragment)
+  4.最佳作法：Fragment類別要提供 newInstance() 類別方法(static method), Activity類別再去生1個(實體化)
+    SimpleFragment simpleFragment = SimpleFragment.newInstance();
+  5.操作流程：
+    5.1. 先去 FragmentManager 找所需的 Fragment.
+    5.2. 再用 FragmentTransaction 在 FragmentManager上啟動交易.
+    5.3. 再用 FragmentTransaction 的函式執行 "新增 add() | 移除 remove() | 取代 replace() Fragment" 作業.
+
+
+Q35-1. ✱✱VIP✱✱ Fragment 重點摘要
+  1.To create a blank Fragment, expand app > java in Project: Android view, select the folder containing the Java code for your app, and choose File > New > Fragment > Fragment (Blank).
+  
+  2.The Fragment class uses callback methods that are similar to Activity callbacks, 
+    such as onCreateView(), which provides a LayoutInflater object to inflate the Fragment UI from the layout resource fragment_simple.
+  
+  3.To add a Fragment statically to an Activity so that it is displayed for the entire lifecycle of the Activity, 
+    declare the Fragment inside the layout file for the Activity using the <fragment> tag. 
+    You can specify layout attributes for the Fragment as if it were a View.
+  
+  4.To add a Fragment dynamically to an Activity so that the Activity can add, 
+    replace, or remove it, specify a ViewGroup inside the layout file for the Activity such as a FrameLayout.
+  
+  5.When adding a Fragment dynamically to an Activity, 
+    the best practice for creating the fragment is 
+    to create the instance with a newinstance() method in the Fragment itself. 
+    Call the newinstance() method from the Activity to create a new instance.
+  
+  6.To get an instance of FragmentManager, 
+    use getSupportFragmentManager() in order to instantiate the Fragment class 
+    using the Support Library so your app remains compatible with devices running system versions as low as Android 1.6.
+  
+  7.To start a series of Fragment transactions, 
+    call beginTransaction() onaFragmentTransaction.
+
+  8.With FragmentManager your code can perform the following Fragment transactions while the app runs, 
+    using FragmentTransaction methods:
+      Add a Fragment using add().
+      Remove a Fragment using remove().
+      Replace a Fragment with another Fragment using replace().
+
+
+Q36. UI Component : RatingBar 星星評分
+  (範例專案 : AndroidProjects\AD111_FragmentExample1_challenge_LinearLayout_multiple)
+  1.android:isIndicator="false" 不能修改
+  2.android:rating="3" 預設值
+  3.style="@style/Widget.AppCompat.RatingBar.Indicator" 星星大小
+  4.setOnRatingBarChangeListener 要加這個
+
+Q37. 
+
+
+(Template)QXX. 2.3:Activities and intents
+  重點：
+
+  What you'll learn(本章可以學到的內容)
+    1.
+    2.
+    3.
+    4.
+
+  Task 1:
+  Task 2:
+  Task 3:
+  Task 4:
+
+  課後問題：
+
+

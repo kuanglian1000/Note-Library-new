@@ -1,0 +1,545 @@
+======================
+Unix / Linux Interview Questions
+  1. 什麼是SHELL?
+    SHELL是轉譯器, 負責將指令轉譯並執行.
+  
+  2. 常見的SHELL有哪些?
+    BSH, CSH, KSH AND BASH.
+
+  3. 什麼是 SOFT link/ Symbolic link , 如何新增 Symbolic link?
+    # 捷徑至檔案/資料夾, 就是 Windows 裡的'捷徑'
+    # 'ln' 新增 Symbolic link 指令.
+
+  4. Sun micro systems Unix 叫作什麼?
+    # Solaris.
+
+  5. kernel 的角色或功能
+    # 作業系統, 負責與硬體溝通, 執行大部份工作, 例: 記憶體管理, 工作排程管理, 檔案管理..
+
+  6. 哪個程式負責 bring the login prompt?
+    # login program.
+  
+  7. 變更密碼的指令?
+    # 'passwd' 變更密碼的指令, passwd
+
+  8. ls -l 指令輸出的第2欄位表示?
+    # LINK count
+
+  9. 從 Terminal 登出的方式有?
+    # command: logout, 
+    # command: exit, 
+    # Ctrl+D
+  
+  10. 關機指令?
+    # shutdown
+    # halt
+    # poweroff
+
+  11. Unix/Linux 區分大小寫嗎?
+    Yes.
+  
+  12. 重啟指令?
+    # reboot
+  
+  13. UNIX 是開放原始碼嗎?
+    No, Linux 才是.
+
+  14. 舉出 5 種 Linux?
+    Redhat, Cent OS, Debian, Ubuntu, Fedora.
+
+  15. ls -l 指令輸出的第1欄位中, 哪1碼代表檔案型態(file type)?
+    # 第1碼
+
+  16. 什麼是 隱藏檔(Hidden file)?
+    # 隱藏檔都以 (.) 開頭, 通常用來儲存設定.
+    # 'ls -la' 指令可以列出隱藏檔.
+
+  17. 誰設計出 UNIX OS?
+    KEN Thompson
+  
+  18. UNIX OS用的語言是?
+    C
+  
+  19. UNIX 第1次在哪家公司設計?
+    AT&T BELL LABS.
+
+  20. who 指令輸出的第2欄位表示?
+    與 login 相關的 Terminal
+
+  21. 哪個指令可以 '顯示指令手冊'?
+    help(X)
+    man(O)
+  
+  22. 哪個指令可找出 '指令資料夾路徑'?
+    which
+  
+  23. 特殊字元?
+    * , match all characters.
+    ? , match single character.
+
+  24. 表示 STDIN 的 file descriptor是?
+    0 , STDIN
+    1 , STDOUT
+    2 , STDERR
+
+  25. 絕對路徑 & 相對路徑 的差異?
+    / , 以'/'開頭的是 '絕對路徑', 其餘都是與 pwd 相對的 '相對路徑'
+
+  26. 擁有資料夾執行權限, 代表?
+    Traverse(遍歷) permission, 可以瀏覽資料夾的所有內容.
+
+  27. 可用來改變 primary shell prompt 的環境變數?
+    PS1
+  
+  28. 哪個指令可以 'PRINT A DOCUMENT ON THE LINE PRINTER TYPICALLY'?
+    lp/lpr
+
+  29. 什麼是PROCESS?
+    1個程式執行個體, 叫作PROCESS.
+
+  30. 開啟檔案唯讀模式, 利用 VI EDITOR?
+    vi -R
+  
+  31. 與方向鍵相同功能的字母鍵是?
+    k - 上
+    j - 下
+    h - 左
+    l - 右
+    
+  32. Yanking 在 VI EDITOR代表?
+    剪下,複製,貼上的程序
+    y - copy
+    d - delete
+    p - paste
+
+  33. 如何顯示行號 在 VI EDITOR內?
+    :set nu
+  
+  34. 什麼是 shebang line?
+    SHELL指令碼的標準起始行
+    #!/bin/sh , 以 #! 開頭, 指定這支SHELL指令碼要用哪個SHELL(/bin/sh)來執行.
+    ex.
+      #!/bin/sh—使用sh，即Bourne shell或其它相容shell執行指令碼
+      #!/bin/csh—使用csh，即C shell執行
+      #!/usr/bin/perl -w—使用帶警告的Perl執行
+      #!/usr/bin/python -O—使用具有代碼最佳化的Python執行
+      #!/usr/bin/php—使用PHP的命令行直譯器執行
+
+  35. 哪個指令可以 '變更檔案存取權限 alter the file access permission'
+    chmod
+  
+  36. 如何存取 SHELL VARIABLE 值?
+    $SHELL-VARIABLE, 在SHELL VARIABLE前加上 ($).
+
+  37. 如何刪除 SHELL VARIABLE ? 
+    unset SHELL-VARIABLE
+
+  38. 哪個 SHELL VARIABLE 保留 指令碼名稱?
+    $0
+
+  39. 指令執行成功後, 回傳值是?
+    0
+
+  40. 如何最近執行指令的執行狀態?
+    $?
+
+  41. 哪個指令可以 '執行數學運算'
+    expr
+  
+  42. 哪個選項用在測試表達(test expression), 決定檔案是否為標準檔(regular file)?
+    -f
+  
+  43. 如何將指令輸出結果, 保存在變數中?
+    利用 back QUOTE (`)
+    ex. hope = `date` , hope是變數, 會儲存 date command的輸出結果.
+
+  44. 什麼是 here document?
+    here document 用來重導 輸入 至互動SHELL SCRIPT或程式.
+
+  45. 哪個指令用在 'function 內回傳值'?
+    return 
+  
+  46. 指令碼必須以 (.sh) 結尾是否為強制規定?
+    No, 它只是慣例.
+
+  47. 如何執行SHELL SCRIPT, 在EXECUTE BIT是OFF(關閉)的情況下?
+    sh <file>
+
+  48. grep 代表?
+    規則運算式的全域搜尋(globally SEARCH)
+
+  49. 哪個 filter 可用來分離(extract) 文字行內的 字元集合(a/specific/range character).
+    cut
+  
+  50. 'cat' 指令功能
+    檔案文字的連結(concatenation)
+
+  51. 什麼是 PROCESS ID(PID) ?
+    OS指派給PROCESS的唯一識別碼.
+
+  52. 哪個指令可以 '新增使用者'?
+    useradd
+
+  53. 'telnet' 指令功能
+    client 登入遠端主機用
+
+  54. 哪個指令可以 '停止背景執行中的PROCESS'
+    kill
+
+  55. 'find' 指令功能
+    尋找 file/files
+
+  56. 哪個 filter 可用來顯示 檔案內的前10行?
+    head
+
+  57. 第1個使用高階語言的作業系統是?
+    UNIX
+
+  58. 檔案上 SUID permission bit功能是?
+    讓程式擁有檔案的執行權限.
+
+  59. 什麼是ZOMBIE Process.
+    a dead process, 但尚未從 process table 中移除.
+
+  60. SHELL SCRIPT內是否支援 Array?
+    Yes
+
+  61. book Block?
+    內有MBR程式(MASTER boot record), 開機時負責載入OS
+  
+  62. 哪個指令可以 '新增指令別名'?
+    alias
+
+  63. 如何 使用 echo command後, 維持在原行?
+    echo -e "test"
+    # -e 指定將游標放在同一行內.
+
+  64. cmp & diff 指令的差異
+    進行檔案比對時(預設兩檔存在),
+    diff , 列出所有差異項目.
+    cmp , 列出第1個出現的差異.
+
+  65. 如何將指令輸出, 重導至另一個指令?
+    在 指令間加上 pipes (|)
+  
+  66. 'cd..' 結果是? 若 pwd = root(/)
+    無改變, 仍留在 root(/)
+    'cd..', 切換至上階目錄的指令
+
+  67. mount point?
+    directory throught which date I/O happen on to/from a device.
+
+  68. 保留HOME目錄資訊的環境變數是? 
+    HOME
+  
+  69. 如何顯示隱藏檔?
+    'ls -a'
+
+  70. 哪個指令可以 '查詢剩餘的硬碟空間'?
+    df
+  
+  71. 'at' 指令功能
+    設定排程用, 在特定時間執行command.
+
+  72. 如果未登入, 排程中指令已輸入結果, 要如何查看結果?
+    Will receive the mail of the same.
+
+  73. LILO 是 Linux的?
+    LILO = LINUX LOADER, 將OS載入記憶體並啟動OS.
+
+  74. OS安裝時, 建議的SWAP空間大小?
+    兩倍 RAM SIZE
+
+  75. 如何列出所有的資料夾項目?
+    ls -l|grep "^d"
+
+  76. 哪個指令可以 '顯示SERVER的基本資訊'
+    uname
+
+  77. 如何統計檔案內特定樣式<pattern>的次數?
+    grep -c "pattern" <file>
+
+  78. nohup 指令功能
+    保持指令持續執行, 儘管 送出指令的使用者 已登出.
+
+  79. device 如何在UNIX/LINUX內呈現?
+    每個 device 都是1個file , 通常會放在 directory內 /dev.
+
+  80. inode
+    A file is given a unique number by OS and is called as inode.
+
+  81. 依排程執行指令的工具
+    Crontab
+
+  82. 變更檔案存取權限bit的指令
+    chmod
+  
+  83. 檔案/資料夾更名指令
+    mv
+  
+  84. 權限bit中, r, w, x 含意
+    r - read(4)
+    w - write(2)
+    x - execute(1)
+  
+  85. 將process丟至背景執行用的operator
+    &
+
+  86. 如何列出所有 背景執行process?
+    ps -e
+
+  87. Which command can be used to know the terminal type?
+    tty
+
+  88. What is an internal command?
+    SHELL內建的指令
+
+  89. Which command can be used by the administrator to bring the system 
+      into single user mode?
+    init s
+
+  90. Which command can be used to 
+      write onto other currently logged in user’s console output terminal.
+    write
+
+  91. What is UMASK?
+    UMASK is a Unix environment variable, which automatically sets file permissions created files.
+
+  92. What is the default value of UMASK?
+    022
+
+  93. Expand UFS in context of file system?
+    UNIX FILE SYSTEM
+  
+  94. Expand JFS in context of file system?
+    Journal FILE SYSTEM
+
+  95. Who designed linux OS?
+    Linus Torvalds
+
+  96. How can you display nth line of a file?
+    head -<n> file.txt|tail -1
+
+  97. Name three looping constructs provided by shell.
+    while, until & for.
+
+  98. In which directory by default user home directories are created?
+    /home
+
+  99. What is the default working directory of administrator?
+    /root
+
+  100. What is the login name of the administrator?
+    root
+
+======================
+= Unix / Linux - Quick Guide (https://www.tutorialspoint.com/unix/unix-quick-guide.htm) = 
+  # What is Unix ?
+    => Operating system = kernel.
+    => shell = command line interpreter
+    => Linux is free, but Unix isn't.
+    => Unix = 多使用者系統, 多工系統
+
+  # Unix架構(由4大部份所組成)
+    1. kernel
+    2. Shell, ex. C Shell, Bourne Shell, Korn Shell
+    3. Commands and Utilities, ex. cp, mv, cat, grep.
+    4. Files and Directories, filesystem -> Directory -> File.
+
+  # System Bootup(啟動)
+
+  # Login Unix(登入)
+    1. type (id , password). -> all case-sensitive.
+    2. $ == command prompt or $ prompt, 看到 $ <your command> 就能在後面輸入指令.
+
+  # Common Commands(常用指令)
+    1. $ cal    -> 呼叫日曆程式
+    2. $ passwd -> 變更密碼
+    3. $ ls -l  -> 列出檔案及目錄, d.....代表是目錄
+    4. $ whoami -> 檢查目前登入ID
+    5. $ users  -> 查詢所有登入者ID
+    6. $ who    -> 查詢所有登入者ID & 類型 & 時間..等詳細資訊
+    7. $ w      -> 查詢所有登入者ID or 特定登入者 超詳細資訊(ID, Terminal, From IP,...)
+    8. $ logout -> 登出
+    =關機=
+    9. $ halt     -> 系統下線
+    10.$ init 0   -> 關機前, 先執行預存指令, 清理系統後, 再關機
+    11.$ init 6   -> 關機 + 重啟
+    12.$ poweroff -> 關機(by 電源)
+    13.$ reboot   -> 重啟
+    14.$ shutdown -> 關機(通知使用者, 再關閉服務, 再關閉系統, 較安全)
+
+  # File Management(檔案管理)
+
+    # Listing Files
+      1. ls     -> 列出檔案及目錄
+      2. ls -l  -> 列出檔案及目錄(詳細), 第1行顯示 filetype[第1碼] + 檔案存取權限, 以下列出filetype[第1碼]類型.
+        d..... 目錄
+        -..... 一般檔案
+        b..... Block special file.
+        c..... Character special file.
+        l..... Symbolic link file. 捷徑.
+        p..... Named pipe. 內部程序通訊的機制, 不須另存實體檔作為程序間傳遞資料的媒介.
+        s..... Socket. 利用Socket傳遞.
+      
+      3. ls -a  -> 列出隱藏檔
+
+    # Metacharacters(特殊字元)
+      1. * 萬用字元 = 0個或多個字元
+      2. ? 單一字元 = 1個字元
+      3. (.)       = 目前所在目錄
+      4. (..)      = 上階目錄
+
+    # Hidden Files
+      1. 隱藏檔都是以 (.) 開頭的, ex. .profile, .cshrc...
+    
+    # Creating Files(新增檔案)
+      1. $ vi <filename> , 新增檔案 <filename>.
+      2. $ i , 進入編輯模式(insert).
+      3. Press 'ESC', 離開編輯模式.
+      4. Press 'Shift+ZZ', 完全離開檔案.
+    
+    # Editing Files(編輯檔案)
+      1. $ vi <filename> , 開啟檔案 <filename>.
+      2. $ i , 進入編輯模式(insert), 開始編輯檔案內容.
+      3. 如果要移動游標位置, 須先離開編輯模式(Press 'ESC'), 再利用下列字元移動.
+        -> 'l', 移至最右側(low).
+        -> 'h', 移至最左側(high).
+        -> 'k', 往上移.
+        -> 'j', 往下移.
+        -> 選好位置後, 再輸入 'i' , 開始編輯檔案內容.
+      
+      4. Press 'ESC', 離開編輯模式.
+      5. Press 'Shift+ZZ', 完全離開檔案.
+
+    # Display Content of a File(顯示檔案內容 cat)
+      1. $ cat <filename> , 顯示檔案內容
+      2. $ cat -b <filename> , 顯示檔案內容 + 行號
+    
+    # Counting Words in a File(顯示行數, 字數, 檔案大小, 檔案名稱 wc)
+      1. $ wc <filename> , wc = Word Count的簡寫.
+        ex.$ wc filename
+          2 19 103 filename
+      2. $ wc <filename1> <filename2> <filename3>.., 可1次顯示多檔.
+
+    # Copying Files(複製檔案 cp)
+      1. $ cp <source file> <destination file>
+        ex. $ cp filename CopyFile
+
+    # Renaming Files(更名檔案 mv)
+      1. $ mv <old file> <new file>
+        ex. $ mv filename newFileName
+        註. filename檔更名為 newFileName檔, filename會消失.
+
+    # Deleting Files(刪除檔案 rm)
+      1. $ rm <filename>
+        ex. rm filename, 直接刪除檔案
+      2. $ rm -i <filename>
+        註. 建議作法, 會再次確認是否刪除.
+
+    # Standard Unix Streams(標準資料流)
+      1. stdin/STDIN, standard input, 0
+      2. stdout/STDOUT, standard output, 1
+      3. stderr/STDERR, standard error, 2
+
+  # Directory Management(資料夾管理)
+    # Home Directory
+      1. single root node, (/), 其他資料夾都是在(/)下面.
+      2. '$ cd ~' , 回到 Home Directory.
+      3. '$ cd ~username' , 回到 指定 username 的 Home Directory.
+      4. '$ cd -' , 回到 最近的Directory.
+
+    # Absolute/Relative Pathnames(絕對/相對路徑)
+      1. Absolute Pathname(絕對路徑), 是以 '/' 開頭.
+        ex. /etc/passwd, /users/sjones/chem/notes, /dev/rdsk/0s3..
+      
+      2. Relative Pathnames(相對路徑), 不能以 '/' 開頭. 與 user's home Directory 產生相對應關係.
+        ex. chem/notes, personal/res..
+      
+      3. pwd(目前工作目錄, Current Working Directory)
+        ex. $ pwd
+            /user0/home/klcheng
+            $
+            
+    # Listing Directory(列出資料夾內的檔案 ls)
+      1. '$ls <dirname>' -> 列出資料夾內的檔案
+        ex. $ ls /usr/local , 列出資料夾(/usr/local)內的檔案
+    
+    # Creating Directories(新增資料夾 mkdir)
+      1. '$mkdir <dirname>' -> 新增資料夾
+        ex. $ mkdir mydir         -> 在目前工作目錄下, 新增資料夾(/<pwd>/mydir)
+        ex. $ mkdir /tmp/test-dir -> 新增[絕對路徑]-資料夾(/tmp/test-dir)
+        ex. $ mkdir docs pub      -> 在目前工作目錄下, 新增多個資料夾(/<pwd>/docs , /<pwd>/pub)
+    
+    # Creating Parent Directory(新增父階資料夾 mkdir -p)
+      1. '$ mkdir /tmp/kl/test' -> 預設不會自動新增父階資料夾
+        ex. $ mkdir /tmp/kl/test -> 若/tmp/kl目錄不存在, 會報錯.
+      
+      2. '$ mkdir -p /tmp/kl/test', 加上選項 '-p', 則系統自動新增 /tmp/kl 父階資料夾, 加上要的 test.
+
+    # Removing Directory(刪除資料夾 rmdir)
+      1. '$ rmdir <dirname>'
+        註: 刪除資料夾前, 須確認資料夾內是空的(無檔案 & 無子資料夾), 否則會報錯.
+
+      2. '$ rmdir dirname1 dirname2 dirname3' -> 1次刪除多資料夾.
+        註: 刪除資料夾前, 須確認資料夾內是空的(無檔案 & 無子資料夾), 否則會報錯.
+
+    # Changing Directories(切換資料夾, 可指定 絕對/相對路徑 cd)
+      1. '$ cd dirname'
+        註: 切換至 dirname
+        ex. $cd /usr/local/bin, 切換至 /usr/local/bin(絕對路徑)
+        ex. $cd ../../home/kl, 切換至 /usr/home/kl(相對路徑), pwd(目前工作目錄) = /usr/local/bin
+
+    # Renaming Directories(資料夾更名, mv)
+      1. '$cd olddir newdir'
+        ex. $cd olddir newdir
+
+    # .(dot) and ..(dot dot)代表的含意
+      1. .(dot) 目前工作目錄
+      2. ..(dot dot) 上階目錄
+        
+        ex. $ls -la
+        drwxrwxr-x    4    teacher   class   2048  Jul 16 17.56 .
+        drwxr-xr-x    60   root              1536  Jul 13 14:18 ..
+        ----------    1    teacher   class   4210  May 1 08:27 .profile
+        -rwxr-xr-x    1    teacher   class   1948  May 12 13:42 memo
+
+    --2021-03-20(未完待續)--
+
+======================
+Questions & Answers
+  # Print Current Working Directory 
+    => cwd (x)
+    => pwd (TRUE) = present working Directory
+
+  # 可應用在調整 '文字行' 排序(DESC or ASC)的指令 
+    => sort
+
+  # 將游標(Cursor)移至行尾, 可按下鍵盤的 
+    => $
+
+  # 將所有 pattern1 以 pattern2 取代(replace)的指令選項 
+    => :%s/pattern1/pattern2/g , 'g' 指的是全域取代(replace globally)    
+
+  # 切換至上階目錄的指令
+    => cd.. (x)
+    => cd .. (TRUE, cd 和 .. 中間有1個空格)
+
+  # 新增檔案/目錄連接的指令
+    => lk (x)
+    => ln (TRUE, 用來新增 hard/soft link for a file, and hard link for a Directory)
+
+  # 可執行複雜數學運算的工具程式(utility program)
+    => cal (x)
+    => bc (TRUE, 指的是 basic Calculator, or 數學指令語言 or 數學殼層)
+
+  # 新增時, 改變檔案 & 目錄預設權限的指令
+    => chmod (x)
+    => umask (TRUE, 用於設定 mask value)
+
+  # 一般而言, 使用者根目錄(the working Directory of the user root)是
+    => / (x)
+    => /root (TRUE, 此路徑在安裝後仍可調整)
+
+  # BLOCK Special File類型是 ? 
+    => DVD-ROM

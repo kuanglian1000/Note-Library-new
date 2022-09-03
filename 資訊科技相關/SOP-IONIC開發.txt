@@ -1,0 +1,553 @@
+==== <Developing> ====
+[Start an App] 新增專案
+  "ionic start myApp tabs"
+
+  說明(執行完畢):
+    Your Ionic app is ready! Follow these next steps:
+    - Go to your new project: cd .\testApp
+    - Run "ionic serve" within the app directory to see your app in the browser
+    - Run ionic capacitor add to add a native iOS or Android project using Capacitor
+    - Generate your app icon and splash screens using cordova-res --skip-config --copy
+    - Explore the Ionic docs for components, tutorials, and more: https://ion.link/docs
+
+[Run the App] 執行APP 
+  @ 瀏覽器
+    ionic serve => 開啟網頁作為APP畫面, ex. http://localhost:8100
+  @ Android
+
+[Changing Mode] 以網頁模擬特定平台畫面
+  方法1. http://localhost:8100/?ionic:mode=ios <= 直接模擬IOS畫面
+  方法2. <Ctrl+Shift+I> , 開啟Chrome偵錯工具 , 也能切換至特定平台畫面
+
+[Scaffolding] 專案結構
+  1.主要放在 src/app 目錄下
+    src/
+      app/  <= 放程式碼, pages , components, services,...
+      assets/  <= 放APP用圖檔
+      environment/
+      theme/
+      global.scss
+      index.html
+      main.ts
+      polyfills.ts
+      test.ts
+      zone-flags.ts
+
+[Generating New Features] 
+  0.新增APP物件指令command : "ionic generate" 
+  1.APP物件:
+    page , component , service , module , 
+    guard , class , directive , pipe
+  2.可擴展任何階層, 例: portfolio/intro
+  3.簡捷指令command : 
+      ionic g component "portfolio/intro/AboutMe"
+      ionic g page "User Detail"
+  4.ionic cli 在新增物件後, 會一併更新 <router configuration>
+
+[Developing for iOS] ionic 開發 iOS APP初始設定
+  1.XCODE Setup
+    1.1. "xcode-select --install" 確認command-line工具可使用
+    1.2. 準備 Apple ID(Xcode » Preferences » Accounts), 設定開發團隊資訊
+    1.3. 新增iOS模擬器(Window » Devices and Simulators)
+  
+  2.Cordova Setup(略過,因為對 Capacitor 而言, 不需要)
+  
+  3.Project Setup(APP佈署至iOS模擬器前的設定, @XCODE)
+    3.1. "ionic capacitor add ios" (Generate the native project, if it does not already exist)
+    3.2. 開啟 capacitor.config.json 檔, 修改 appId 屬性(Set the Package ID.)
+    3.3. "ionic capacitor open ios" (Open the project in Xcode.)
+    3.4. In Project navigator, select the project root to open the project editor. 
+         Under the Identity section, verify that the Package ID that was set matches the Bundle Identifier.
+    3.5. In the same project editor, under the Signing section, 
+         ensure Automatically manage signing is enabled.
+         選擇 Development Team , XCODE自動準備 provisioning and signing
+  
+  4.Running with XCODE(XCODE自動修正一般的 compilation and signing 問題)
+    4.1. "ionic capacitor copy ios" (將IONIC APP同步至 NATIVE專案中)
+    4.2. 在XCODE中, 選擇目標模擬器, 並按下執行鈕(Play Button)
+  
+  5.Running with the ionic CLI(此方式會自動載入最新版程式碼 Live reload)
+    5.1. "ionic capacitor run ios -l --external" (模擬器執行外部程式)
+    5.2. 在XCODE中, 選擇目標模擬器, 並按下執行鈕(Play Button)
+
+  6.Debugging iOS Apps(可用 Safari 瀏覽器偵錯)
+    6.1. 使用 Safari Web Inspector 進行偵錯
+      => (開啟Develop選單) Safari » Preferences » Advanced » Show Develop menu in menu bar.
+      => (如果APP沒列出來) Settings » Safari » Advanced » Web Inspector.
+    6.2. Viewing Native Logs (檢視本地端紀錄, 查看 XCODE 的 Console)
+      => (開啟Console畫面) View » Debug Area » Activate Console.
+
+[Developing for Android] ionic 開發 Android APP初始設定
+  1.Android Studio
+    1.1. 保持 Android 模擬器啟動, 是比較好的方式
+    1.2. 設定 Android Command Line Tools
+      => 新增 %ANDROID_SDK_ROOT% 環境變數 = D:\KL_Data\Projects\AndroidSDK_Documents
+      => 增加環境變數內容
+        # avdmanager, sdkmanager
+          %ANDROID_SDK_ROOT%\tools\bin
+        # adb, logcat
+          %ANDROID_SDK_ROOT%\platform-tools
+        # emulator
+          %ANDROID_SDK_ROOT%\emulator
+          ex.以指令方式啟動模擬器 "emulator -avd Pixel_API_30_"
+        # apksigner and zipalign
+          %ANDROID_SDK_ROOT%\build-tools
+    1.3. 新增AVD
+    1.4. 設定實體 Android裝置
+      => 開啟開發人員權限
+      => 啟用USB debugging
+      "adb devices" 列出所有可偵錯裝置
+
+  2.Project Setup (APP佈署至 android 模擬器前的設定)
+    2.1. "ionic capacitor add android" (產生原生專案)
+    2.2. 開啟 capacitor.config.json 檔, 修改 appId 屬性(Set the Package ID.)
+
+  3.Running with Capacitor
+    3.1. "ionic capacitor copy android" (每次重大變更時,如新增圖片,就必須將檔案複製至原生專案中)
+    3.2. 在 Android Studio 中, 選擇目標模擬器, 並按下執行鈕(Run Button)
+    ====
+    3.3. "ionic capacitor run android -l --host=YOUR_ID_ADDRESS" (啟動 live-reload server 即時載入 Live reload)
+    3.4. 注意事項: 執行裝置 & 開發電腦 , 必須在同網路內.
+
+  4.Debugging Android Apps
+    4.1. 利用 Chrome DevTools 進行偵錯
+      chrome://inspect/#devices , 在開發電腦上輸入
+    4.2. Viewing Native Logs 瀏覽原生紀錄
+      a.在 Android Studio 的 LogCat 頁籤可以看到紀錄
+      b."adb logcat" 也能使用指令工具, 叫出LOGCAT工具
+
+[Development Tips] 開發小提示
+  1.解決權限異常or錯誤(Resolving Permission Errors)
+    1.1. 最佳作法：使用 node version manager 重新安裝 NodeJS and npm
+      a. install nvm
+      b. command -v nvm , 確認nvm是否安裝成功
+      c. nvm install --lst , 下載並重裝最新版 NodeJS
+      d. nvm alias default lts/* , 設定最新版 NodeJS 為預設環境
+      e. node -v , 檢查 NodeJS 版本(OK , 可執行)
+      
+  2.更新套件(Updating dependencies)
+    2.1. npm install <package-name>@<version|latest> --save , 更新套件指令
+    2.2. 例: npm install @ionic/angular@latest --save
+    2.3. 最佳作法：利用 CLI(command line)更新套件, 因為它會先讀取 "package-lock.json" 檔作檢查
+    
+  3.開發編輯器(Code Editors)
+    3.1. Visual Studio Code(OK)
+
+  4.使用偵錯器(Using a Debugger)
+    4.1. 利用多數瀏覽器內的 debugger 指令, 將程式流程暫停
+    例:
+      function myBrokenFunction(){
+        debugger;
+        // do other stuff
+      }
+
+  5.改變瀏覽模式(Changing Mode , iOS or Android畫面)
+    5.1. 預設, APP以瀏覽器檢視的話, Ionic 會套用 "md" mode
+    5.2. 注意, IONIC會自動切換至對應版本畫面
+    5.3. 限定, 若要指定以iOS畫面呈現, 網址加上 "?ionic:mode=ios" 即可
+      例: http://localhost:8100/?ionic:mode=ios
+    5.4. 手動切換, 
+      "Ctrl+Shift+I" 開啟 Chrome DevTools, 就能切換至各種系統畫面
+      "Ctrl+Shift+M" 開關 Chrome DevTools內的 上方切換BAR
+
+  6.使用 iOS 模擬器(Using the iOS Simulators)
+    6.1. "ionic cordova emulate ios -lc", 利用 Ionic CLI 呼叫 XCODE內建模擬器
+
+  7.使用 Android 模擬器(Using the Genymotion Android Simulators)
+    7.1. 相較於Android Studio 內建模擬器, Genymotion是另一個模擬器替代方案(較快,且擁有存取原生功能權限, 例:GPS or camera)
+
+[Hardware Back Button] IONIC Back鍵 客製化設計
+  ✱ Android上硬體 (<) Back鍵設計, 注意事項
+  ✱ iOS不適用, 因為它們沒有這個鈕
+  ✱ 預設, "Hardware Back Button" 被點選, 目前畫面會從瀏覽堆疊中丟棄, 交由前一畫面接手
+    ; 如果沒有前一畫面, 則什麼事都沒發生.
+  ✱ 注意, "Hardware Back Button" != 瀏覽器的返回鈕 or ion-back-button.
+
+  1.Hardware Back Button in Capacitor and Cordova
+    1.1. "Hardware Back Button" 被點選時, IONIC會觸發 ionBackButton 事件.
+    1.2. 事件處理函式, 要設定 priority 值決定該呼叫哪一個函式.
+
+  2.Hardware Back Button in browser(手機瀏覽器)
+    2.1. 當APP在手機瀏覽器上執行時, "Hardware Back Button" 客製化是受限的, 因為瀏覽器不支援.
+    2.2. 換句話說, APP在手機瀏覽器上執行時, 無法觸發 ionBackButton 事件.
+    
+  3.Basic USAGE(依 priority 決定函式 "執行與否" 和 "執行順序")
+    程式碼範例：
+      import { Platform } from '@ionic/angular';
+      ...
+      constructor(private platform: Platform){
+        this.platform.backButton.subscribeWithPriority(10, () => {
+          console.log('Handler was called!');
+        });
+      }
+
+    註0：前提, 事件內已有1個priority = 10 的事件處理函式(如上列程式碼).
+    註1：事件內, priority < 10 的事件處理函式, 將不會被呼叫.
+    註2：事件內, priority > 10 的事件處理函式, 將會先被呼叫.
+    註3：事件內, 如有多個 priority = 10 事件處理函式, 將會先呼叫最後1個.
+
+  4.同事件內, 呼叫多個事件處理函式(Calling multiple handlers)
+    4.1. 呼叫 擁有 "processNextHandler" 參數的事件處理函式時, 能持續呼叫 Hardware Back Button 事件處理函式.
+    
+    程式碼範例(ANGULAR)：
+      import { Platform } from '@ionic/angular';
+      ...
+      constructor(private platform: Platform){
+        //再次執行這個
+        this.platform.backButton.subscribeWithPriority(5, () => {
+          console.log('another handler was called.');
+        });
+
+        //先執行這個
+        this.platform.backButton.subscribeWithPriority(10, (processNextHandler) => {
+          console.log('Handler was called');
+
+          processNextHandler();
+        });
+      }
+
+  5.同優先性之多事件處理(handlers with the same priorites)
+    5.1. 事件內, 如有多個 priority = 10 事件處理函式, 將會先呼叫最後1個.
+    
+    程式碼範例(JAVASCRIPT)：
+      document.addEventListener('ionBackButton',(ev) => {
+        //Handler A
+        ev.detail.register(10,(processNextHandler) => {
+          console.log('Handler A was called.');
+
+          processNextHandler();
+        });
+
+        //Handler B
+        ev.detail.register(10,(processNextHandler) => {
+          console.log('Handler B was called.');
+
+          processNextHandler();
+        });
+      });
+
+    註1:先執行Handler B, 因為它最後放入QUEUE, 所以最先送出來執行.
+    註2:再執行Handler A, 因為Handler B使用 "processNextHandler" 參數, 再次呼叫 Hardware Back Button 事件處理函式.
+
+  6.結束APP(Exiting the App)
+    6.1. 某些情況, 在"Hardware Back Button" 被點選時, 會要求結束APP, 例:銀行APP.
+      這時, 就能在 ionBackButton 事件內 + Capacitor方法, 結束APP.
+    
+    程式碼範例(ANGULAR)：
+      import { IonRouterOutlet, Platform } from '@ionic/angular';
+      import { Plugins } from '@ionic/core';
+      const { App } = Plugins;
+      ...
+      constructor(
+        private platform: Platform,
+        private routerOutlet: IonRouterOutlet
+      ) {
+        this.platform.backButton.subscribeWithPriority(-1, () => {
+          if (!this.routerOutlet.canGoBack()){
+            //NOTICE:這裡可以放個確認視窗,在結束APP前.
+            App.exitApp();
+          }
+        });
+      }
+
+    最佳作法：檢查User是否在主頁面, 程式員可利用 IonRouterOutlet 內的 canGoBack 方法作檢查.
+
+  7.內部架構的事件處理(Internal Framework handlers)
+    7.1. 能否 "持續呼叫 Hardware Back Button 事件處理函式" 檢查表
+      Handler	    Priority	Propagates	Description
+      Overlays	  100	      No	        Applies to overlay components ion-action-sheet
+                                        , ion-alert
+                                        , ion-loading
+                                        , ion-modal
+                                        , ion-popover
+                                        , ion-picker
+                                        , and ion-toast.
+      Menu	      99	      No	        Applies to ion-menu.
+      Navigation	0	        Yes	        Applies to routing navigation 
+                                        (i.e. Angular Routing).
+      
+      註1:看來只有瀏覽事件(Navigation), 可以 "持續呼叫 Hardware Back Button 事件處理函式".
+      註2:Overlays(例:警告訊息,載入中,選日期..), 不能 "持續呼叫 Hardware Back Button 事件處理函式".
+      註3.Menu(右上角的...選單), , 不能 "持續呼叫 Hardware Back Button 事件處理函式".
+
+[Keyboard]
+  1.inputmode 鍵盤模式
+    1.1. inputmode: 指定輸入類別 for Keyboard對應用.
+      例: inputmode="email", 則Keyboard會自動show @符號.
+    1.2. ionic component有對應元件.
+      例: ion-input , ion-textarea
+    1.3. type: 指定/限定資料型態.
+      例: 如果欄位要求輸入 Email, 則用 type="email" 比較好.
+      例: 如果欄位可接受 UserName or Email, 則用 inputmode="email" 比較好.(這樣UserName也能輸入,則KeyBoard自動出現@符號)
+    
+    程式碼範例：
+      <ion-item>
+        <ion-label>User or Email</ion-label>
+        <ion-input inputmode="email"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Enter a number</ion-label>
+        <ion-input inputmode="numeric"></ion-input>
+      </ion-item>
+
+  2.enterkeyhint 輸入提示
+    2.1. enterkeyhint: 給使用者輸入用提示
+    
+    程式碼範例：
+      <ion-item>
+        <ion-label>Enter search query</ion-label>
+        <ion-input enterkeyhint="search" type="search"></ion-input>
+      </ion-item>
+
+  3.Dark Mode
+    3.1. 預設, 鍵盤樣式是由 OS 決定.
+    3.2. 若APP跑在 mobile web browser or as a PWA 上, "無法" 改變鍵盤樣式.
+    3.3. 若APP跑在 Capacitor or Cordova 上, "可以" 改變鍵盤樣式.
+
+  4.Hiding the Accessory Bar
+    4.1. Accessory Bar: 指的是鍵盤自動跳出提示列.
+    4.2. 若APP跑在 mobile web browser or as a PWA 上, "無法" 隱藏鍵盤自動跳出提示列.
+    4.3. 若APP跑在 Capacitor or Cordova 上, "可以" 隱藏鍵盤自動跳出提示列.
+  
+  5.Keyboard lifecycle Events
+    5.1. 目的: 偵測 Keyboard 顯示與否, 調整 "輸入欄位" 位置. 
+      不然, 可能出現 "輸入欄位" 被 Keyboard 蓋住的問題.
+    5.2. Capacitor and Cordova apps,
+      可利用 原生的 Keyboard plugins, listen Keyboard 事件作調整.
+    5.3. For apps running in a mobile browser or as a PWA,
+      可利用 Visual Viewport APIs 作調整.
+    5.4. IONIC 架構將上述整合, 
+      提供 window 兩個事件供使用 "ionKeyboardDidShow" & "ionKeyboardDidHide".
+      另外, "ionKeyboardDidShow" 覆載參數, 可決定 Keyboard高度.
+
+    程式碼範例(ANGULAR)：
+      import { Platform } from '@ionic/angular';
+      ...
+      constructor(private platform: Platform){
+        this.platform.keyboardDidShow.subscribe(ev => {
+          const { keyboardHeight } = ev;
+          // Do something with the keyboard height such as translating an input above the keyboard.
+        });
+
+        this.platform.keyboardDidHide.subscribe(() => {
+          // Move input back to original location
+        });
+      }
+
+==== <Layout> ====
+[Layout]
+  1.Structure(主要版面-佈局結構)
+    1.1. Header(ion-header) and Footer(ion-footer) Layout(頁首,內容,頁尾)
+         Content(ion-content)
+         
+         程式碼範例：
+         <ion-app>
+          <ion-header>
+            <ion-toolbar>
+              <ion-title>Header</ion-title>
+            </ion-toolbar>
+          </ion-header>
+
+          <ion-content>
+            <h1>Main Content</h1>
+          </ion-content>
+
+          <ion-footer>
+            <ion-toolbar>
+              <ion-title>Footer</ion-title>
+            </ion-toolbar>
+          </ion-footer>
+         </ion-app>
+    
+    1.2. Tabs Layout(多頁籤)
+
+         程式碼範例：
+         <ion-app>
+          <ion-tabs>
+            <ion-tab tab="home">
+              <h1>Home Content</h1>
+            </ion-tab>
+            <ion-tab tab="settings">
+              <h1>Settings Content</h1>
+            </ion-tab>
+
+            <ion-tab-bar slot="bottom">
+              <ion-tab-button tab="home">
+                <ion-label>Home</ion-label>
+                <ion-icon name="home"></ion-icon>
+              </ion-tab-button>
+              <ion-tab-button tab="settings">
+                <ion-label>Settings</ion-label>
+                <ion-icon name="settings"></ion-icon>
+              </ion-tab-button>
+            </ion-tab-bar>
+          </ion-tabs>
+        </ion-app>
+
+    1.3. Menu Layout(側邊清單)
+      a. 有收合功能
+      b. 常用於功能導覽用,列出所有功能選項連接
+
+    1.4. Split Pane Layout(內含Menu Layout,自動收合)
+      a. 依螢幕大小自動隱藏/顯示Split Pane側邊欄
+      b. 預設, > 768px or md breakpoint, 會顯示Split Pane側邊欄.
+      c. 客製, when 屬性可取代預設值.
+          例:下列範例 when="sm", 當 > 576px or sm breakpoint, 會顯示Split Pane側邊欄.
+      d. ✱✱VIP✱✱, 注意, 擁有和 <ion-split-pane> 內的 content-id 值相同的id的元素, 將是主要內容, 會一直顯示.
+          
+          例: <ion-split-pane when="sm" content-id="main-content"> content-id 值 = "main-content",
+              其他 id值 = "main-content"的元素有 2 個, 會是主要內容.
+              <ion-menu content-id="main-content">
+              <div class="ion-page" id="main-content">
+
+            程式碼範例(重點在 when="sm")：
+              <ion-app>
+                <ion-split-pane when="sm" content-id="main-content">
+                  <ion-menu content-id="main-content">
+                    <ion-header>
+                      <ion-toolbar color="primary">
+                        <ion-title>Menu</ion-title>
+                      </ion-toolbar>
+                    </ion-header>
+
+                    <ion-content>
+                      <ion-list>
+                        <ion-list-header>
+                          Navigate
+                        </ion-list-header>
+                        <ion-menu-toggle auto-hide="false">
+                          <ion-item button>
+                            <ion-icon slot="start" name='home'></ion-icon>
+                            <ion-label>
+                              Home
+                            </ion-label>
+                          </ion-item>
+                        </ion-menu-toggle>
+                      </ion-list>
+                    </ion-content>
+                  </ion-menu>
+
+                  <div class="ion-page" id="main-content">
+                    <ion-header>
+                      <ion-toolbar>
+                        <ion-buttons slot="start">
+                          <ion-menu-toggle>
+                            <ion-button>
+                              <ion-icon slot="icon-only" name="menu"></ion-icon>
+                            </ion-button>
+                          </ion-menu-toggle>
+                        </ion-buttons>
+                        <ion-title>Header</ion-title>
+                      </ion-toolbar>
+                    </ion-header>
+                    <ion-content class="ion-padding">
+                      <h1>Main Content</h1>
+                    </ion-content>
+                  </div>
+
+                </ion-split-pane>
+              </ion-app>
+
+  2.Responsive Grid(客製化版面設計)
+    2.1. Grid(Container) > Row(行) > Column(列)
+    2.2. 預設, 1 Row 有 12 Columns with different breakpoint.
+    2.3. 客製, Column(列)數量能利用 CSS 作調整.
+    2.4. 運作方式, 
+      a. Grids在最外層
+      b. Rows是水平群組, 將Columns包起來
+      c. Content應該放在Columns內, 只有Columns可以放在Row內的第1層.
+      d. size-{breakpoint}屬性, 可以調整欄位個數(basedOn=12columns), 例:size=4, 會拆為4/12=3列.
+      e. Column未設定 size-{breakpoint}屬性 時, 依Column個數均分.
+      f. Column widths屬性設定比例% 時, 自動縮放.
+      g. Column 間 padding距離 是預設的, 可以在 Grid加上 "ion-no-padding" class 移除間距.
+      h. 有五個 Grid tiers 決定Grid寬度, 
+        分別是: xs(100%)-extra small , sm(540px)-small , md(720px)-medium , lg(960px)-large , xl(1140px)-extra large
+      i. Grid tiers 以最小寬度為分隔, 表示 設定值以上都適用.
+        例: size-sm="4", sm以上(sm,md,lg,xl)的都會拆為 3行.
+    
+    ...(未完)
+
+  3.Global Stylesheets(全域樣式表)
+    3.1.(必備) 
+      core.css <= ionic Components 專用
+    3.2.(建議) 
+      structure.css <= for <html> & scrolling 正常
+      typography.css <= for 字型樣式
+      normalize.css <= for 元件一致性
+    3.3.(選項,無使用可移除,都跟 CSS Utilities 相關)
+      padding.css <= 調整元件 padding , marging使用.
+      float-elements.css <= 浮動
+      text-alignment.css <= 對齊
+      text-transformation.css <= 字型轉換
+      flex-utils.css <= 彈性盒子
+      display.css <= 依 breakpoint, 隱藏元件用.
+
+  4.CSS Utilities(細部樣式設定)
+    4.1. Text Modification
+    4.2. Element Placement
+    4.3. Element Display
+    4.4. Content Space
+    4.5. Flex Properties
+    4.6. Border Display
+    4.7. Ionic Breakpoints
+    ...(有用到再補)
+    
+==== <Theming> ====
+[Theming]
+  1.Theming
+    1.1.md => 指的是 Android System用或其他無對應平台使用佈景主題
+    1.2.ios => 指的是 Apple iOS專用佈景主題
+  2.Basics
+  3.Platform Styles
+  4.CSS Variables
+  5.CSS Shadow Parts
+  6.Colors
+  7.Themes
+  8.Dark Mode
+  9.Advanced
+  10.Color Generator
+  ...(有用到再補)
+
+==== <Angular> ====
+[Overview]
+  1. "@ionic/angular"
+  2. Angular Version Support, 支援 Angular 6.0.0 and up.
+  3. "@ionic/angular-toolkit", ionic 提供的Angular Tooling, 整合 Angular 官方CLI並針對 "@ionic/angular" 提供的工具箱.
+
+[Build Your First App]
+  1.製作 "相片簿APP".
+  2.前置作業
+    2.1.下載所需工具:Node.js, Code editor, Cmd.
+    2.2.安裝 IONIC Tooling. 
+      
+      cmd: "npm install -g @ionic/cli native-run cordova-res"
+      註: @ionic/cli <= IONIC Tooling
+      註: native-run <= used to run native binaries on devices and simulators/emulators
+      註: cordova-res <= used to generate native app icons and splash screens
+
+    2.3.新增App專案
+      
+      cmd: "ionic start photo-gallary tabs --type=angular --capacitor"
+      註: "ionic start <App名稱> <AppLayot Template> --type=<程式語言別> --<for native functionality>"
+
+      cmd: "npm install @ionic/pwa-elements" <= 安裝網頁版API
+      
+
+
+[Lifecycle]
+
+[Navigation/Routing]
+
+[Config]
+
+[Platform]
+
+[Testing]
+
+[Storage]
+
+[Performance]
+
+[Progressive Web Apps/PWA]
+

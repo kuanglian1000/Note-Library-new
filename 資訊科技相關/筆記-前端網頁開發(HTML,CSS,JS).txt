@@ -1,0 +1,1554 @@
+Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting_started_with_the_web)
+  
+  HTML - 用來建構網頁內容, 並給予其含意和用途
+  CSS - 用來造網站的特殊風格
+  JavaScript - 用來增加網站的互動功能
+
+  準備開發環境(靜態)
+    設定本機測試伺服器(https://developer.mozilla.org/en-US/docs/Learn/Common_questions/set_up_a_local_testing_server)
+    1. 安裝python 3
+    2. cd 至HTML檔案目錄 (範例專案路徑: C:\Projects\Projects_HTML\bread)
+    3. 開啟http服務 "python -m http.server" , 預設會 listen port 8000
+      若 port 8000 已被佔用, 也可以指其他port, 例: 7800 "python -m http.server 7800"
+    4. 測試連接 http://localhost:8000
+
+  準備開發環境(動態)
+    (TODO:註: 有點偏離主題, 先不作這個)
+    例: Python 使用 Django, JavaScript 使用 Node.js, PHP 使用內建的SERVER
+    https://developer.mozilla.org/en-US/docs/Learn/Common_questions/set_up_a_local_testing_server#running_server-side_languages_locally
+
+  你的網站看起來會是什麼樣子?
+    規劃:
+    1. 主題 => 烘焙 or (海景旅遊 / 山景旅遊)
+    2. 資訊深度 => 如何製作 or 如何前往
+    3. 網站外觀 => 米黃色 or 淡藍色; 粗體偏卡通 or 藝術放鬆感
+
+    從頭設計: 利用紙筆畫出簡圖
+
+    選擇網頁風格
+    1. 文字內容 => 術科準備過程 or 景點特色
+    2. 主題色彩 => #EAD289 or #89C5EA
+    3. 圖片 => 山形吐司 or 富貴角燈塔
+    4. 字型 => 到Google Fonts挑選你要的字型, 
+      Google Fonts使用範例: https://developers.google.com/fonts/docs/css2
+        <head>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Pro">
+        <style>
+          body {
+            font-family: 'Crimson Pro', serif;
+            font-size: 48px;
+          }
+        </style>
+      </head>
+
+
+    注意網站檔案結構
+    1. 放在好找的地方且命名清楚
+    2. 留意大小與空格, WebServer區分大小寫, 千萬不要用空格來命名
+        官方建議, 請用小寫且不要用空格命名
+
+  與各式各樣檔案打交道
+    一般的網站架構
+    1. index.html 首頁
+    2. images 資料夾: 放置圖片
+    3. styles 資料夾: 放置CSS碼(例: 設定文字與背景顏色)
+    4. scripts 資料夾: 放置JS碼(例: 可與使用者端互動的程式碼)
+
+    路徑的規則
+    1. 要連結一個目標檔案到在同一個目錄下的 HTML 檔案，只需要檔案名稱就可以了。
+      例: my-image.jpg
+    
+    2. 為了要參照到在子目錄下的檔案，在路徑前面加上該目錄的名稱，並接著加上一個斜線(/)。
+      例: subdirectory/my-image.jpg. or ./subdirectory/my-image.jpg
+    
+    3. 為了要連結到一個在 HTML file 的(上層目錄)的檔案，你需要使用兩個點點(..)
+      例: index.html 是在 test-site 這個目錄的一個子目錄下，而 my-image.png 是在 test-site 這個目錄下，HTML file 要參照 my-image.png 必須使用 ../my-image.png。
+    
+    4. 你可以混和著使用以上的規則
+      例: ../subdirectory/another-subdirectory/my-image.png
+    
+    5. 在Windows檔案系統內, 傾向於使用反斜線(\)
+      例: C:\windows, 但是在HTML檔案內, 還是要用正斜線(/)
+
+  HTML 基礎
+    HTML 到底是什麼？
+    1. HTML 包含了一系列的元素（elements），
+        而元素包含了標籤（tags (en-US)）與內容（content），
+        我們用標籤來控制內容的呈現樣貌，
+        例如字體大小、斜體粗體、在文字或圖片設置超連結等。
+        My house is in ILan.
+        <p>My house is in ILan.</p> /*自成一個段落*/
+
+    HTML 元素(element)的組成
+    <p>My house is in ILan.</p> 
+    這就是一個完整的element, 從起始標籤到結束標籤+內容
+
+    <p class="editor-note">My house is in ILan.</p> 
+    屬性包含了屬性名稱與值，你可以利用屬性設定這個元素的色彩、對齊方式、圖表的格線等等
+
+    屬性的組成包含：
+    1. 在元素名稱和屬性之間有一個空格（如果有多個屬性，屬性之間也需要有空格）
+    2. 屬性名稱後面接著等於符號「=」
+    3. 屬性包在起始標籤裡面，如上範例所示
+
+    巢狀元素
+    元素裡面可以在放進元素，我們稱之為「巢狀元素（nesting element）」。
+    <p>My cat is <strong>very</strong> grumpy.</p>
+
+    空元素
+    有些元素沒有內容，我們稱為「空元素（empty elements）」。 
+    例: 圖片就是空元素, <img src="images/firefox-icon.png" alt="My test image">
+
+    清單 (list)
+      <ul>
+        <li>無順序</li>
+        <li>的清單</li>
+      </ul>
+
+      <ol>
+        <li>有順序</li>
+        <li>的清單</li>
+      </ol>
+
+    連結 (link) 
+      <a href="https://www.nsysu.edu.tw">中山大學首頁</a>
+
+  CSS 基礎
+    CSS 是 風格頁面語言（style sheet language）  
+    
+    新增CSS檔案放置 styles 目錄內.
+    在CSS檔案中加入 針對特定元素的格式化描述.
+    在HTML檔案的 <head></head> 標籤中, 加入 CSS檔案連接 
+      <link rel="stylesheet" href="styles/style.css" type="text/css"> //type="text/css"可省略了..
+      <link rel="stylesheet" href="./styles/style.css">
+      註: 路徑要正確, 不然效果跑不出來.
+
+    解析 CSS ruleset(規則集 or 規則)
+      p{
+        color: red
+      } 
+
+      選擇器 => p
+      宣告 => color: red
+      屬性 => color
+      屬性值 => red
+
+    注意CSS ruleset語法其他重要的部分：  
+      1. 每一個規則當中，除了選擇器名稱以外，其他都必須被大括號（{}）給包住.
+      2. 在每一個宣告裡面，屬性跟屬性值之間必須用冒號(:) 做區分。
+      3. 在每一個規則裡面可以包含有許多宣告，但不同的宣告之間必須使用分號 (;) 來區分。
+
+    CSS ruleset(規則集) 範例
+      p{
+        color: red;
+        width: 500px;
+        border: 1px solid black;
+      }
+
+    選擇多個元素
+      p, li, h1{
+        color: red;
+      }
+
+    選擇器的不同類型(多種方式挑出想要的項目)
+      (註1: 單一HTML頁面中，每個ID只能綁定一個元素, 每個ID都是唯一的, 不得重覆)
+      (註2: 單一HTML頁面中，class 屬性可以被多個元素使用, class可以共用)
+      
+      選擇器名 	                                   => 選取/控制什麼 	                      => 範例
+      =========================================================================================
+      元素選擇器，有時也稱作標籤或類型選擇器
+      （Element selector、tag or type selector) 	=> 指定所有 HTML 元素中的特定元素                 => p 選取 <p>
+      ID 選擇器（ID selector） 	                  => 指定頁面上的特定 ID 元素
+                                                  （單一HTML頁面中，每個ID只能綁定一個元素）         => #my-id 控制 <p id="my-id"> 或 <a id="my-id">
+      Class 選擇器（Class selector） 	            => 指定頁面上的特定 class 元素
+                                                  （單一 HTML 頁面中，class 屬性可以被多個元素使用） => .my-class 控制 <p class="my-class"> 與 <a class="my-class">
+      屬性選擇器（Attribute selector） 	          => 指定頁面上的特定屬性元素 	                     => img[src] 控制 <img src="myimage.png"> 但不控制 <img>
+      虛擬 class 選擇器（Pseudo-class selector） 	=> 在特定的情況下，指定頁面的元素，例如懸停時。 	   => a:hover 控制 <a>, 但只有在滑鼠游標停留在連結上時. 
+
+    CSS: 和塊(BOX)密不可分
+      CSS 佈局主要基於 BOX模型, 在頁面空間的每個 box 都有下列屬性：
+      1. padding: 內容(content)周圍的空格 <= 內縮
+      2. border: 位於矩形內容(content)外部的實線
+      3. margin: 元素(element)外部的空間 => 外擴
+
+      另外還有:  
+      4. width:（元素的寬度）
+      5. background-color:元素內容和矩形內容後面的顏色(姑且稱為背景..)
+      6. color: 元素內容的顏色（通常是文字）
+      7. text-shadow:在元素內的文字上設置陰影
+      8. display: 設置元素的顯示模式（後面會詳細介紹）
+
+    改變頁面顏色
+      html{
+        /* 放入先前決定好的主題色 */
+        background-color: #EAD289;
+        
+      }
+
+    CSS未生效的問題??
+      Web server可能會出現304的ERROR, 表示狀態未變更.
+      主要原因在於瀏覽器快取未清除, 強制清除再重載即可生效.
+      例: firefox的強制清除快取, (Ctrl+F5)
+      資料來源: https://en.wikipedia.org/wiki/Wikipedia:Bypass_your_cache
+
+    設定 body 的風格(styling)
+      /* 針對 margin, padding屬性, 
+        1. 設定兩個屬性值時, 第1值為上下, 第2值為左右.
+        2. auto 是個特殊值, 在可用的空間中平均分配.
+        3. 屬性值可以放入1個, 2個, 3個 或 4個. */
+      body{
+        width: 600px;
+        margin: 0 auto; /*外擴*/
+        background-color: lightblue;
+        padding: 0 20px 20px 20px; /*內縮*/
+        border: 5px solid black; /*外框*/
+      }
+
+    設定主頁面標題的位置(Positioning)和風格(styling)
+      h1{
+        /*DynaPuff is open source font from Google Fonts*/
+        font-family:'DynaPuff', 'Arial Narrow', Arial, sans-serif;
+        font-size: 40px;
+        /* text-align: center; */
+        margin: 0;
+        padding: 20px 0;
+        color: black;
+        text-shadow: 3px 3px 1px  white;
+      }
+      /* 針對 text-shadow屬性,
+        1. 第1個值, 為陰影水平位置, 正值在右側, 負值在左側
+        2. 第2個值, 為陰影垂直位置, 正值在下側, 負值在上側
+        3. 第3個值, 為陰影模糊程度, 小值表示陰影清楚, 大值表示陰影模糊(幾乎看不見=沒有陰影)
+        4. 第3個值, 為陰影顏色 */
+
+    關於主頁標題(h1), 瀏覽器預設會給定不小的margin, 在未設定任何CSS情況下.
+      所以上面的CSS, 直接就把 h1 和 body 的 margin 給去除
+      h1{
+        margin: 0;
+      }
+      
+    設定圖像置中 
+    (註: 圖像是 inline element, 不是 body element = block level, 無法套用body的屬性值)
+    (設: 因此, 如果想要<圖像>具備<block>屬性[例: margin, border, padding], 必須轉換為<block>)
+
+      img{
+        display: block;
+        margin: 0 auto;
+      }
+
+    異常排除: 出現 "GET /favicon.ico HTTP/1.1" 404 - 怎麼辦??
+      ::ffff:127.0.0.1 - - [24/Aug/2022 10:35:23] code 404, message File not found
+      ::ffff:127.0.0.1 - - [24/Aug/2022 10:35:23] "GET /favicon.ico HTTP/1.1" 404 -
+      解決方案: 因為找不到網站小圖示
+      https://blog.miniasp.com/post/2007/12/17/Introduce-faviconico-and-important-concept
+      http://www.favicon.cc/ <= 到這個網站自己生一個, 放在網站根目錄下.
+
+  JavaScript 基礎
+    JavaScript 是一個成熟的動態程式語言，應用於 HTML 文件（document）上時，就可以為網頁提供動態的互動功能。
+
+    JavaScript 提供的工具包括:
+    1. 內建在瀏覽器內的應用程式介面（Application Programming Interfaces，APIs）
+      提供了多樣化的功能，像是動態產生 HTML 以及設定 CSS 樣式、擷取以及處理從使用者的網路攝影機錄下的影像、製作立體圖形或是聲音樣本。
+    2. 第三方 API 允許開發者將他們的網頁與其他如 Twitter 或 Facebook 提供的內容合併在一起。
+    3. 第三方框架和函式庫允許您將這些元件套用在您的 HTML 文件內，
+      讓您可以迅速地建立網頁或應用程式。
+
+    HelloWorld應用程式
+    1. 在 scripts 資料夾內, 新增 main.js 檔案.
+    2. 在 主頁面內, 在 </body>結束標籤前 引用 scripts/main.js 連接.
+      <script scr="scripts/main.js"></script>
+    3. 在 main.js 檔案內, 加入下列程式碼變更元素內容.
+      var myHeading = document.querySelector('h2');
+      myHeading.textContent = 'Hello World';
+
+    備註： 我們選擇將 <script> 元素放在接近 HTML 檔案底部的原因，
+      是因為瀏覽器是依照程式碼存在檔案中的順序來讀取 HTML 檔案的。
+      如果 JavaScript 先被瀏覽器讀取了，那她應該要去影響她之後的 HTML 程式碼，
+      但有時候卻行不通，因為她比應該產生改變的 HTML 還要早被讀取到。
+      因此，把她放在接近檔案底部的位置，通常都會是一個不錯的策略。
+
+    什麼是瀏覽器開發工具(What are browser developer tools?)
+    1. 按F12可以叫出來
+    2. 可以在 DOM Inspector 打開所有的元素
+    3. 你可以作任何變更, 但無法儲存
+
+    Exploring the CSS editor(探索CSS編輯器, 超好用的, 可以立刻看出變更前後的結果)
+
+    JavaScript 偵錯器(F12 => 除錯器Tab)
+    1. 瀏覽器必須要打開來, 來源與大綱窗格 = JS程式碼 = 中斷點窗格.
+    2. 可以設中斷點逐步偵錯.
+
+    宣告變數
+    1. let 宣告區域變數, 在一定範圍內, 如同一{..內}.
+    2. var 宣告全域變數, 在同一Function內.
+    3. 變數名稱有分大小寫.
+
+    let myVariable; //宣告變數
+    myVariable = 'Bob'; //指定變數值
+    myVariable; //呼叫取變數值
+    let myVar2 = 'Bill'; //一次作完
+
+    變數型態, 隱藏起來, 但實際存在.
+    1. let varStr = 'Jill';
+    2. let varNum = 10;
+    3. let varBol = true;
+    4. let varArray = [1, 'Judy', 2, 'Kevin']; varArray[0];
+    
+    注意(VIP): 在JavaScript內所有東西都可以是個<物件>, 
+      而且可以被放在<變數>裡.
+    let h2Heading = document.querySelector('h2');
+
+    /* 多行註解 */ 
+    // 單行註解
+
+    函式（Functions）
+      函式（Functions (en-US)）是一種將需要重複使用的功能打包裝起來的方法，所以當要再次執行這些功能的時候，
+      就可以呼叫這個函式來達成，而不是一再的重新撰寫程式碼。
+
+      利用F12 => 主控台 進行測試
+
+      function multiply(num1,num2) {
+        let result = num1 * num2;
+        return result;
+      }
+
+      multiply(2,3);
+      multiply(20,20);
+
+    事件（Events）
+      如果要在網頁上創造真正的互動功能，您將會需要事件（Events） — 
+      這是一種可以監聽瀏覽器發生了什麼事情的程式碼結構，
+      接著她會允許您執行其他程式碼以回應這些事件。
+      例: onclick 事件（Events）
+
+      利用F12 => 主控台 進行測試
+
+      document.querySelector('html').onclick = 
+      function(){ alert('Ouch! Stop poking me.'); };
+      
+      注意: 上面寫法(快速)跟下面(正規)是一樣的.
+      var varHTML = document.querySelector('html');
+      varHTML.onclick = function(){};
+
+      範例1: 動態切換圖片檔
+        <img id="lighthouse" src="./images/richCornerLightHouse.jpg" alt="這是一張富貴角燈塔圖片">  
+        <!-- document.querySelector('#lighthouse'); 注意挑選方式是直接使用 #id 挑. -->
+        
+        var imgLighthouse = document.querySelector('#lighthouse');
+        imgLighthouse.onclick = 
+          function () {
+            let src = imgLighthouse.getAttribute('src');
+            if (src == './images/richCornerLightHouse.jpg') {
+              imgLighthouse.setAttribute('src', './images/Brier_Island_Lighthouse.jpg');
+            } else {
+              imgLighthouse.setAttribute('src', './images/richCornerLightHouse.jpg');
+            }
+          };
+
+      範例2: 添加個客製化的歡迎訊息(使用者瀏覽網頁時, 更改標題; 離開時, 也更改標題)
+        <button>Change User</button> <!-- 記得加一個Button, 變更名稱用. -->
+        
+        var btnChangeUser = document.querySelector('button');
+        var heading = document.querySelector('h2');
+
+        /*
+        這個函式包含了一個會產生一個對話視窗的 prompt() (en-US) 函式，
+        有點像 alert()，只是 prompt() 會要求使用者輸入一些資料，
+        並在使用者點選確認之後，將內容儲存在一個變數裡面。
+
+        接著，我們呼叫一個名稱為 localStorage 的 API，
+        這個 API 可以讓使用者先將一些資料儲存在瀏覽器裡面，
+        之後有需要的話再取出來使用。
+
+        我們使用 localStorage 的 setItem() 函式來建立並且把資料儲存到一個名稱為 'name' 的變數裡，再把包含者用者名字的 myName 的值指定給她。
+
+        最後，我們將一個字串跟使用者的名字指定給標題的 innerHTML 特性： 
+        */
+        function setUserName() {
+          let name = prompt('Please enter your name.');
+          if (!name || name == null || name == '') {
+            setUserName()
+          } else {
+            localStorage.setItem('name', name);
+            heading.innerHTML = 'ILan is hot, ' + name;  
+          }
+        }
+
+        if (!localStorage.getItem('name')) {
+          setUserName();
+        } else {
+          let name = localStorage.getItem('name');
+          heading.innerHTML = 'ILan is hot, ' + name;
+        }
+
+        btnChangeUser.onclick = function(){
+          setUserName();
+        }
+
+Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作業具有挑戰性, 看完免費的前7章, 接下來要付錢) 
+資料來源: https://learnjavascript.online/ 完成免費課程(OK, 2022/09/02完成)
+
+  1. Basic functions
+    
+    function sum(x, y){
+      return x + y;
+      console.log('hello world'); //這裡永遠不會執行.
+    }
+
+    return 會回傳計算結果, 也會終止函式執行.
+    在JavaScript內, 你必須一定回傳 某個東西, 不然函式會回傳 'undefined'.
+
+  2. Strings
+  
+    a. 字串可以夾在雙引號或單引號間 "字串A" or '字串B', 含義完全相同.
+    b. .length 屬性可回傳字串長度, 例: "apple".length; //5
+      let variable = "Hello World!";
+      console.log(variable.length); //12
+    c. .toLowerCase() 函式可回傳小寫字串, 例: "BLUE".toLowerCase(); // "blue"
+    d. .toUpperCase() 函式可回傳大寫字串, 例: "kl".toUpperCase(); // "KL"
+    e. console.log(...); 常用於DEBUG, 若放在函式內, 該函式仍須以 return ...; 結尾.
+    f. 屬性後面無(), 而函式後面須接(), 最大原因在於屬性已預先計算完畢(pre-computed), 因此它不需要().
+
+  3. Character 存取字串中的字元.
+
+    每個字串其實是字元陣列, 可用[]存取字串中的字元.
+    例: const language = "JavaScript";
+      console.log(language[0]); //"J"
+      console.log(language[4]); //"S"
+    
+    可以結合字串長度取字元(Combining it with length)
+      console.log(language[language.length -1]); //"t" 
+
+      注意: console.log(language[-1]); //"undefined", 因為array不允許負值. 
+      So, whenever you want to use a negative index, you should use the .at() method.
+    
+    .at(index) <= 2022年, JavaScript新增取單個字元函式.
+      允許輸入負數, 更方便.
+      
+      例: const language = "JavaScript";
+          console.log(language[0]); //"J"
+          console.log(language[1]); //"a"
+          console.log(language[-1]); //"t"
+          console.log(language[-2]); //"p"
+
+    JSDoc
+      These comments are used to improve your coding experience. 
+      They let the code editor know what methods to suggest to you while you're typing.
+
+      /**
+       * @param {string} name
+       */
+    
+    What is the "Sample usage"?
+      The goal of the sample usage is to show you the various ways we expect to call the function. 
+      Sometimes, we show you the expected output next to it in a comment.
+
+      // Sample usage - do not modify
+      console.log(getCharCount("Sam")); // 3
+      console.log(getCharCount("Alex 123")); // 8
+      console.log(getCharCount("Charley is here")); // 15
+
+
+    實作範例: 選取文字, 自動跳出選單
+    Mobile FlashCard
+
+  4. Substrings 截取部分字串 someString.substring(indexStart含-必填, indexEnd不含-可選)
+
+    例: const language = "JavaScript";
+      console.log(language.substring(4, 7)); //"Scr"
+      console.log(language.substring(4));    //"Script"
+
+    過時寫法(不要再用, 而且有不同意涵): .substr(4);
+    新式寫法(請用這種): .substring(x, y);
+
+    摘要:
+    a. A substring is a part or a portion of a string.
+    b. string.substring(indexStart, indexEnd) is used to return a portion of the string.
+    c. indexStart: the position of the first character you'd like to include.
+    d. indexEnd: the position of the first character you'd like to ignore.
+    e. the indexEnd argument is optional which means you can leave it out.
+
+  5. Plus operator 加號運算子(+)
+
+    加號運算子(+), 會依兩側資料型態的不同, 而產出不同結果.
+
+    number + number = number
+    string + number = stringnumber
+    string + string = stringstring
+
+    let name = "Hello ";
+    name += "KL"; // Hello KL //另外一種加總寫法.
+
+  6. Template strings(JS的字串插補), 必須先加註 `` 符號, `{variable name}` , 同C#的字串插補 $"I am a {variable name}."
+
+    `This is a template string.`
+
+    a. Template strings(JS的字串插補), 允許多行或換行. (註: 使用 '' or "", 則不允許多行或換行)
+      let text = `this is a multiline 
+        string that 
+        just works.`;
+
+    b. Template strings(JS的字串插補), 允許放入 ${變數名稱}. 
+      let language = "JavaScript";
+      `I am learning ${language}`;
+    
+    摘要:    
+    1. A template string is a string created with the backtick character: `
+    2. Template strings can span multiple lines
+    3. Template strings support interpolation with the ${variableName} syntax
+
+    實例1: 利用 JS Template strings(JS的字串插補) 輸出 HTML + Value結果.
+      //File1: nutrition.js
+        export function renderTableRow(label, value) {
+            console.log(label, value);
+            return `<tr>
+                        <td>${label}</td>
+                        <td>${value}</td>
+                    </tr>`;
+        }
+
+      //File2: index.js
+        import {renderTableRow} from "./nutrition.js";
+
+        let htmlForCarbs = renderTableRow("Carbs", "17g");
+        let htmlForProtein = renderTableRow("Protein", "19g");
+        let htmlForFat = renderTableRow("Fat", "5g");
+
+        const tbody = document.querySelector("#nutrition-table tbody");
+        tbody.insertAdjacentHTML("beforeend", htmlForCarbs);
+        tbody.insertAdjacentHTML("beforeend", htmlForProtein);
+        tbody.insertAdjacentHTML("beforeend", htmlForFat);
+
+      //File3: index.html
+        <nav class="navbar">
+            <h1 class="nav-brand">Nutrition table</h1>
+        </nav>
+
+        <main class="container">
+            <table class="table" id="nutrition-table">
+                <thead>
+                    <tr>
+                        <th>Nutrition</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>...資料會塞進這裡...</tbody>
+            </table>
+        </main>
+
+    實例2: 自製首字大寫功能 toLowerCase()
+      function capitalize(word) {
+        return `${lowerletter.substring(0,1).toUpperCase() + lowerletter.substring(1)}`;
+      }
+
+    實例3: 複習所有字串常用函式, 字元個數, 第1個字元, 最後1個字元, 全小寫, 全大寫, 首字大寫
+      /** @param {string} name */
+      export function getNumberOfChars(name) {
+          // number of characters in: name
+          return name.length;
+      }
+
+      /** @param {string} name */
+      export function getFirstChar(name) {
+          // first character of: name
+          return name.at(0);
+      }
+
+      /** @param {string} name */
+      export function getLastChar(name) {
+          // last character of: name
+          return name.at(-1);
+      }
+
+      /** @param {string} name */
+      export function getLower(name) {
+          // name all in lower case (example: "ABC" becomes "abc")
+          return name.toLowerCase();
+      }
+
+      /** @param {string} name */
+      export function getUpper(name) {
+          // name all in upper case (example: "abc" becomes "ABC")
+          return name.toUpperCase();
+      }
+
+      /** @param {string} name */
+      export function getCapitalized(name) {
+          // capitalized version of name (example: "alEX" becomes "Alex")
+          return `${name.at(0).toUpperCase()+name.substring(1).toLowerCase()}`;
+      }
+
+  ==第一階段總複習== :
+    1. You can create strings with " or '.
+    2. .length is a property that gives you the length of a string.
+    3. .toUpperCase() is a function that converts the string to upper case.
+    4. .toLowerCase() is a function that converts the string to lower case.
+    5. parentheses () on function calls are required. .length is a property that is already pre-computed; therefore, it does not need parentheses.
+    6. console.log(...) is used for debugging and is NOT a replacement for return.
+    7. Square brackets [index] are used to access a specific index from a string.
+    8. The index starts at 0. So the first character is index 0.
+    9. You can combine it with the length of a string to get another character in another position.
+    10. The .at() method allows you to read a character at an index (which can also be negative).
+    11. A substring is a part or a portion of a string.
+    12. string.substring(indexStart, indexEnd) is used to return a portion of the string.
+    13. indexStart: the position of the first character you'd like to include.
+    14. indexEnd: the position of the first character you'd like to ignore.
+    15. the indexEnd argument is optional which means you can leave it out.
+    16. The + operator is used to add 2 numbers
+    17. The + operator is used to concatenate 2 strings
+    18. A template string is a string created with the backtick character: `
+    19. Template strings can span multiple lines
+    20. Template strings support interpolation with the ${variableName} syntax
+
+  7. Numbers 數值
+
+    所有的正負數值在JS內, 都歸類為 numbers.
+      例: 1, 2, -5, 3.5, 2000, 2021, -23.51
+
+    Numberic separator(_) 數值分隔符號: 讓程式員便於識別長數值, JS計算時會移除.
+      例: 1_000 == 1000, 1_000_000 = 1000000, 10_00 = 1000
+
+    Documentation on the Web (註: MDN官方文件比較艱澀, 例: String.prototype.something(), 表示你呼叫String原型函式.)
+      If you take a look at online documentation, you will often see String.prototype.toString(). 
+      Why is there a prototype? This is covered in-depth later in this course. 
+      For now, every time you see String.prototype.something(), 
+      it means there is a method something() that you can call on a String.
+
+    NaN = Not a Number
+      例: "abc" * 4; // NaN
+      (註1: 通常是出現異常時, 常發生於忘記將 字串 轉為 數值時.)
+      (註2: 另一個情況是, 物件屬性未初始化還在undefined時, 被視為 數值使用也會出現.)
+
+      摘要:      
+      a. Convert from a number to string: value.toString()
+      b. NaN stands for Not a Number
+      c. NaN is often a sign of a bug.
+
+  數值轉字串專用函式, .toString(), 不常用. 例: let answer = 42; answer.toString(); //"42"
+
+  8. 字串轉數值 Number.parseInt(string, radix) 
+  Number.parseInt("要轉換的字串值", 進位類別: 10進位, 2進位, 建議要寫不要用預設值10, 不然可能出現意料之外的錯誤)
+
+    let str = "42";
+    Number.parseInt(str, 10); // 42
+
+    可以省略 radix 不輸入嗎? 可以, 但建議要寫不要用預設值10, 不然可能出現意料之外的錯誤.
+
+    過時寫法: parseInt(string, radix) 不要用.
+
+    使用案例: 字串轉數值 Number.parseInt(string, radix) 
+      a. 使用者在文字方塊輸入數值時, 要記得用 Number.parseInt(string, radix)
+      b. 數值是從DOM中讀取而來時, 要記得用 Number.parseInt(string, radix)
+
+      c. 如果忘記使用 Number.parseInt(string, radix)
+        let a = 10; let b = "20"; a + b; //1020, 而不是30
+      
+      d. 記得使用 Number.parseInt(string, radix)的好處時, 它會試著將字串轉為數值, 並保留可轉換為數值部分.
+        Number.parseInt("123abc", 10); // 123
+        Number.parseInt("5 meters", 10); // 5
+        Number.parseInt("abc 123", 10); // NaN, #注意# , 如果字串放前面會出現NaN
+
+    摘要:    
+      1. Convert from string to number Number.parseInt(value, 10).
+      2. Number.parseInt() is the name of the function you're calling.
+      3. 10 is the radix which you should specify.
+      4. Make sure to always specify the radix to avoid unpleasant surprises.
+
+  9. Operator 
+
+    求餘數 Division remainder(%)
+      8 % 2; //0 Division remainder is 2
+      7 % 2; //1 Division remainder is 1 
+
+    求除數
+      8 / 2; //4 
+      7 / 2; //3.5
+
+    數學函數
+      Math.round(); // Math.round(7 / 2); //result is 4.
+      Math.min(); // 取最小值
+      Math.max(); // 取最大值
+
+  ==第二階段總複習(Numbers)== :
+
+    1. Convert from a number to string: value.toString() (註: 數值轉字串專用函式, value.toString())
+    2. NaN stands for Not a Number (註: NaN 表示 不是一個數值)
+    3. NaN is often a sign of a bug. (註: NaN 通常 是BUG的象徵)
+    4. Convert from string to number Number.parseInt(value, 10). (註: 數值轉字串專用函式, value.toString())
+    5. Number.parseInt() is the name of the function you're calling.
+    6. 10 is the radix which you should specify. (註: 使用 Number.parseInt() 時, radix基數應該要指定為 10)
+    7. Make sure to always specify the radix to avoid unpleasant surprises. (註: 使用 Number.parseInt() 時, radix基數應該要指定, 避免出現異常)
+    8. The remainder operator (%) returns the division remainder between 2 numbers. (註: % 回傳 兩數值相除的餘數.)
+
+  10. Variables 變數
+
+    let(區域變數, 指定後, 內容可再變更) & const(不算是常數?? 確定指定後, 內容值再不可變更)
+
+      let language = "C++"; 
+      language = "JavaScript"; //OK, reassign OK.
+
+      const language = "C++"; // assign only once
+      language = "Python"; // Error
+
+    #注意: 關於 const 變數內的元素是可變更的, 不能變更的是 const 變數#
+      An important note about const is that it does not create a Constant or an Immutable value. 
+      This will be thoroughly explained once we learn about arrays & objects. 
+      What you need to know, for now, is that you can only use the equal sign once, 
+      but you can still change elements inside an array or object.
+
+    #注意: let vs const, 何時要用let宣告, 何時要用const宣告呢?#
+      1. 原則上, 優先使用 const 進行宣告.
+      2. 除非, 明確清楚變數值可能改變, 則使用 let 進行宣告.
+      3. 再來, 在 array 型態上以 const 進行宣告, 可以放心 variable 一定是個 array, 而使用 array 相關函式.
+         The benefit of using const is that once a variable is an array, 
+         it will always be an array (but as you will see later on, the elements inside the array might change). 
+         This allows you to confidently use array methods on that variable because you know it will always be of type array.
+
+    #注意: 可以使用 var 宣告變數嗎? 強烈建議以 let & const 取代, 不要再用 var 了.#
+      A thorough explanation of why you should avoid var is available towards the end of the course. 
+      We follow a unique approach in this course where we teach you modern JavaScript 
+        before uncovering the legacy and it has worked quite well for most of our students!
+
+    # 本節摘要    
+      1. When you use a variable for the first time in JavaScript, you need to declare it with either let or const.
+      2. Use let for variables that you will need to re-assign later on (as in changing their value)
+      3. Use const for variables that you won't need to re-assign later on.
+      4. Variables declared with const are not constant. (註: 變數以 const 宣告, 該變數並不是 常數 哦.. #)
+        We will see why later in this course.
+      5. Variables declared with const cannot be re-assigned (註: 變數以 const 宣告, 內容值初始化再不可變更哦.. #)
+        so you cannot have the = next to that variable name after declaring it.
+      6. If you see var, it's from the old version of JavaScript. 
+        You can convert it to let (sometimes const if the variable is not re-assigned).
+        (註: 如果看到以 var 宣告變數, 請避免再使用寫法, 改用 let or const 宣告變數.)
+      7. Variables defined with let and const are "block scoped". 
+        This will be explained the first time we encounter a block inside a function.
+        (註: 變數以 let or const 宣告, 表示它是區域變數, 可用範圍侷限在特定區塊內. "block scoped")
+
+  11. Condition 條件判斷 >=, <=, === or !==(嚴格比較, 先比型別, 再比值), == or != (一般比較, 自動轉型), Object.is (Object.is 會和嚴格相等做同樣的事，但會將 NaN、-0 和 +0 獨立處理)
+
+    簡單來說，比較有三種.
+    1. 一般比較(==)會將型別一致化後比較；
+    2. 嚴格比較(===)則不會（也就是說若型別不同，就會回傳 fasle）；
+    3. Object.is 會和嚴格相等做同樣的事，但會將 NaN、-0 和 +0 獨立處理，因此這三個不會相等，而 Object.is(NaN, NaN) 則會回傳 true 。
+    （用一般相等或嚴格相等比較兩個 NaN 時會回傳 false ，因為 IEEE 754 如此規範。） 
+    
+    切記，這三種判斷必須考慮原型，因為他們在設計上不被考慮為相等。
+    對於任何非原型物件 x、y，即使他們有著相同結構，但如果是不同物件，比較就會是 false。
+
+    (嚴格比較)適合在絕大多數情況下使用。
+    對於所有非數字的值，嚴格比較就如字面：一個值只相等於自己。
+    而數字則使用稍微不同的方式：
+      第一種情況是浮點數 0 同時為正和負，在解決某些數學問題時，+0 和 -0 是不同的，
+      但在大部分情況下我們不需要考慮這種情境，因此(嚴格比較)將他們視為相同的。
+    
+      第二種情況是非數字，NaN，用來表示某些定義不明確的數學問題的解， 
+      例如：負無窮加正無窮，嚴格比較認為 NaN 不等於任何值，包含他本身。（(x !== x)只有在 x 是 NaN時會是 true。）
+
+    例: 
+      NaN == NaN;          // false;
+      NaN === NaN;         // false;
+      Object.is(NaN, NaN); // true
+    
+    本節摘要:
+      1. Using an if condition, you can run a piece of code when the condition evaluates to true
+      2. The syntax is if (condition) and then curly braces {} wrap the lines of code that correspond to this condition
+      3. The else keyword can be used to perform some other code based on all the other conditions not satisfied with the if.
+
+    # Early return(小技巧) #
+      
+      function canVote(age) //寫法1: 一般寫法
+      {
+        if (age >= 18){
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+      function canVote(age) //寫法2: early return (註: 與寫法1相同, 但聽說比較優..)
+      {
+        if (age >= 18){
+          return true;
+        }
+        return false;
+      }
+
+      We will take advantage of this tip later in this course to learn about a common pattern called early return.
+
+      function canVote(age) //寫法3: early return (註: 與寫法1 & 2相同, 更優寫法..)
+      {
+        return age >= 18;
+      }
+
+    # 過時寫法(==), 建議取代為嚴格比較(===) #
+
+    本節摘要:    
+      1. When you have an if/else condition that returns two different results, 
+        it is possible to drop the else keyword. # Early return(小技巧) #
+      2. Always use triple equals (===) when comparing 2 values in JavaScript.
+        (註: 總是使用嚴格比較===, 當比較兩個值時.)
+
+    綜合範例: 輸入值可能為空值、文字或數字, 若為'空值、文字'則回傳0, 若為'數字'則回傳輸入值+1.
+      function getNextAge(age) {
+        let a = Number.parseInt(age); //先將輸入值試著轉為數值. 若為文字, 則 a is NaN.
+        if (Object.is(a, NaN)){
+            return 0;
+        }else{
+            return a + 1;
+        }
+      }
+
+  12. Returning booleans 回傳布林值. 單純回傳布林值(true/false), 直接 return 判斷式即可. 不須再用 if(判斷式) {return true;} else {return false;}
+
+    實例(糟糕):
+      function isPassing(grade){
+        if(grade >= 10){
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+      isPassing(12); //true
+
+    實例(重構後): //更簡潔, 沒有冗餘, 也不用 if/else
+      function isPassing(grade){
+        return grade >= 10;
+      }
+
+      isPassing(12); //true
+
+  13. Even & Odd 偶數及奇數(%), 偶數 % 後, 餘數為0, 奇數 % 後, 餘數為1.
+  
+  ==第三階段總複習(Conditions)== :    
+    1. Using an if condition, you can run a piece of code when the condition evaluates to true
+    2. The syntax is if (condition) and then curly braces {} wrap the lines of code that correspond to this condition
+    3. The else keyword can be used to perform some other code based on all the other conditions not satisfied with the if.
+    4. When you have an if/else condition that returns two different results, it is possible to drop the else keyword.
+    5. Always use triple equals (===) when comparing 2 values in JavaScript.
+
+  14. Array 初階
+
+    a. Array 允許存放多個元素在相同變數內. 例: numbers, strings, booleans, arrays, objects & more.
+      更特別的是, 在同一個array中可存入不同型態的元素.
+
+      const users = []; //empty array
+      const grades = [10, 8, 13, 15]; // array of numbers
+      const students = ["Sam", "Alex"]; // array of strings
+      const values = [10, false, "John"]; // mixed 超特別..
+
+    b. .length 屬性, 此屬性與字串相同, 可取得元素個數.
+
+      [].length; //0
+      const grades = [10, 8, 13, 15]; // array of numbers
+      grades.length; // 4
+
+    c. [index] 屬性, 此屬性與字串相同, 可取出元素項目, index 可輸入值從 0 開始, 不允許負值.
+
+      const students = ["Sam", "Alex"]; // array of strings
+      students[1]; // "Alex"
+
+    d. .at(index) 函式, 此屬性與字串相同, 可取出元素項目, index 可輸入正負值.
+
+      const students = ["Sam", "Alex"]; // array of strings
+      students.at(0); // "Sam"
+      students.at(-1); // "Alex"
+
+    e. push(element) 函式, 在Array加入新元素 adding an element. JS的Array元素項目是可變動的.
+
+      const numbers = [10, 8, 13, 15]; // array of numbers
+      numbers.push(20); // return 5 (新array的長度)
+      console.log(numbers);
+
+    # 注意:超有趣的地方 # Array.push() returns the new length of the array.
+
+    f. Arrays & const , 重點再次提醒.
+
+      What's the benefit of declaring it as a const you ask? 
+      The benefit is that once you define it as an array, 
+      it will always stay as an array which means you can safely call array methods on it. 
+      
+      However, the array content can change.
+
+      (註1: arrays 以 const 闗鍵字宣告的好處在於, 確定 array 變數永遠是 array, 可以放心地使用 array 函式或屬性)
+      (註2: 儘管 arrays 以 const 闗鍵字宣告, array 內容可再變更..)
+
+      const numbers = []; 
+      number.push(10); //returns 1
+      console.log(numbers); //[10]
+
+      numbers.push(20); // returns 2
+      console.log(numbers); //[10, 20]
+
+    本節摘要:    
+      1. const data = [1, 2, 3] is an array containing 3 numbers.
+      2. array.length returns the number of elements inside the array.
+      3. array.push(x) allows you to add the variable x to the end of the array.
+      4. array.push(x) returns the new length of the array (after the push has been made).
+      5. Arrays defined with const are not constants because you can change the elements inside of it. 
+        However, you cannot re-assign them to another value thus they will always be an array.
+
+        (註1: arrays 以 const 闗鍵字宣告後, 它並不是常數, 因為你還是可以改變它的元素內容)
+        (註2: 然而, 你無法重新指定另一個值[例: 數值, 字串, 布林]給這個 array 變數, 因為它將永遠是個 array 物件)
+
+  15. Array .forEach(callback_function) 迭代
+
+    a. Array iteration(迭代/迴圈) 是 JS中最重要的概念之一.
+
+      const grades = [10, 8, 13];
+      grades.forEach(function(grade){
+        console.log(grade);
+      });
+
+      # 注意 # .forEach內, 記得放入 console.log(), 方便將array元素視覺化呈現.
+
+        callback(回呼函式)
+        The .forEach(callback) method allows you to run the callback function for every item in that array. 
+        Callbacks will be explained in more depth in the following chapter. 
+        For now, let's start with a basic definition.
+
+          
+          function(grade){ //無 function name
+            // do something with individual grade
+            console.log(grade);
+          }
+
+        This callback function receives a grade and then logs it to the console. 
+        This is a function definition because it's not being executed. 
+        It only defines the behavior of the function. 
+        However, this function definition is passed as an argument to the .forEach() method:
+
+          grades.forEach(insert_callback_here);
+
+        最後, 將 Array.forEach(callback_function(input_parameter)) 結合在一起.
+        JS自動會將 Array 迭代內容丟進callback_function, 作為輸入項.
+
+      # 注意: 被回呼用函式, 可以有 function name 也可以沒有 function name. #
+      # 注意: 常見問題, JS怎麼知道 grades 變成 callback function 的 grade 參數呢?? #
+
+        答: JS不會知道, JS也不在乎 callback function 的輸入變數名稱.
+          以 .forEach而言, 它總是找出 callback function 第1個參數, 並傳入正確值進入.
+
+        const grades = [10, 8, 13];
+        grades.forEach(function(grade){
+          console.log(grade);
+        });
+
+      摘要:      
+      1. .forEach(callback) iterates over every item in an array.
+      2. A callback is a function definition passed as an argument to another function.
+      3. Always start with a console.log() inside the .forEach() to visualize the shift from array to array item (you can skip that when you become used to it).
+      4. The .forEach() method will take your function definition and call it for every item of the array. 
+        Every time the callback is called, the first parameter will represent the corresponding array item.
+
+  16. Return confusion 回呼函式回傳時困惑 或 迷失.
+
+    a. 回呼函式-變數命名-慣例
+      Naming variables with a clear name makes it much easier for you and others to understand the code. 
+      This is especially true with iteration.(註: 尤其是迭代時, 清晰地命名更重要)
+      
+      Thus, it's always a good idea to use the plural for the array(矩陣用複數) and singular for the item of the array(矩陣項目用單數).
+      Here are some examples:
+
+        grades => item is grade
+        people => item is person
+
+      const grades = [10,14,15];
+      grades.forEach(function(grade){
+        console.log(grade);
+      });
+
+      const people = ["KL", "Sam"];
+      people.forEach(function(person){
+        console.log(person);
+      });
+
+    b. 迴圈的回傳
+      這是一個經常出現的錯誤, 發生在使用 .forEach 的函式內須 return value.
+      這是因為同時出現了兩個function:
+        
+        function logUserIds(userIds){
+          userIds.forEach(function(userId){
+            console.log(userId);
+          });
+        }
+
+        問題1: 如果要讓 function logUserIds , 可以 return true;
+        return true; 的擺放位置在哪是正確的呢??
+
+        答案是:
+          function logUserIds(userIds){
+            userIds.forEach(function(userId){
+              console.log(userId);
+            });
+            return true; // ...放在這裡...
+          }
+
+        問題2: 下列函式最後回傳值是 10 or 20??
+
+          function logGrades(grades) {
+              grades.forEach(function(grade) {
+                  console.log(grade);
+                  return 10;
+              });
+              return 20;
+          }
+
+        答案是: 20
+
+    c. arrow function (像是C# lambda function, 更簡潔, 寫的CODE更少)
+
+      hello = () => "Hello World"; //相同含意 hello() {console.log("Hello World");}
+
+    d. 摘要
+      1. Name your arrays in plural 
+        and the array item (inside the .forEach()) in singular.
+      2. Make sure to correctly place the return inside a function 
+        that contains a .forEach().
+
+    e. 實作範例-1
+
+      /**
+      * @param {number[]} grades
+      */
+      function sumGrades(grades) {
+          let sum = 0;
+          grades.forEach(function(grade){
+              sum += grade;
+          });
+          return sum;
+      }
+
+      // Sample usage - do not modify
+      console.log(sumGrades([15, 5, 10])); // 30
+      console.log(sumGrades([12, 10, 13, 19])); // 54
+
+    f. 實作範例-2 (只加總正數)
+
+      /**
+      * @param {number[]} numbers
+      */
+      function sumPositiveNumbers(numbers) {
+          let sum = 0;
+          numbers.forEach(function(number){
+              if(number % 2 >=0) sum += number;
+          });
+          return sum;
+      }
+
+      // Sample usage - do not modify
+      console.log(sumPositiveNumbers([15, -5, 10])); // 25
+      console.log(sumPositiveNumbers([-3, 4, -2, 1])); // 5
+
+    g. 實作範例-3 (只加總奇數, 正負數均可.)
+
+      /**
+      * @param {number[]} numbers
+      */
+      function sumOddNumbers(numbers) {
+          let sum = 0;
+          numbers.forEach(function(number){
+              if(number % 2 === 1 || number % 2 === -1) 
+                  sum += number;
+          });
+          return sum;
+      }
+
+      // Sample usage - do not modify
+      console.log(sumOddNumbers([15, 5, 10])); // 20
+      console.log(sumOddNumbers([2, 3, 4, 5, 6])); // 8
+      console.log(sumOddNumbers([-2, -3, 4, 5, 6])); // 2
+
+    h. 實作範例-4 (回傳HTML字串值, 下拉式選單, 而且第1個選項必須為請選擇.)
+
+      /**
+      * @param {string[]} countries
+      * ex. let countries = ["Taiwan", "Japan", "Korea"];
+      */
+      export function getDropdown(countries) {
+          console.log(countries);
+          let htmlDD = "<option value =''>Please select</option>";
+          countries.forEach(function(country){
+              htmlDD += `<option value ='${country.toLowerCase()}'>${country}</option>`;
+          });
+          return htmlDD;
+      }
+
+    i. 實作範例-5 (回傳HTML字串值, 抓出多重矩陣放入表格的<TR>.)
+
+      /**
+      * @param {array[][]} rows
+      */
+      export function renderTableRows(rows) {
+          console.log(rows);
+          let htmlTR = "";
+          rows.forEach(function(row){
+              htmlTR += `<tr>
+                          <td>${row.at(0)}</td>
+                          <td>${row.at(1)}</td>
+                        </tr>`;
+          });
+          return htmlTR;
+      }
+
+  ==第四階段總複習(Arrays I)==
+    1. const data = [1, 2, 3] is an array containing 3 numbers.
+    2. array.length returns the number of elements inside the array.
+    3. array.push(x) allows you to add the variable x to the end of the array.
+    4. array.push(x) returns the new length of the array (after the push has been made).
+    5. Arrays defined with const are not constants because you can change the elements inside of it. 
+      However, you cannot re-assign them to another value thus they will always be an array.
+    6. .forEach(callback) iterates over every item in an array.
+    7. A callback is a function definition passed as an argument to another function.
+    8. Always start with a console.log() inside the .forEach() to visualize the shift from array to array item (you can skip that when you become used to it).
+    9. The .forEach() method will take your function definition and call it for every item of the array. 
+      Every time the callback is called, the first parameter will represent the corresponding array item.
+    10. Name your arrays in plural and the array item (inside the .forEach()) in singular.
+    11. Make sure to correctly place the return inside a function that contains a .forEach().
+
+  17. Array .filter(callback_function) 回傳篩選後的Array結果, 一樣可以用 callback function
+
+    a.實作範例
+      let numbers = [9, 5,1,4,3,11];
+
+      let numbersAboveTen = 
+        numbers.filter(
+          function(number){
+            return number > 10;
+          });
+      console.log(numbersAboveTen);
+
+      # 注意 # Don't forget the return keyword inside the callback function.
+        (註1: array.filter() 不要忘記在 callback function 內, 加入 return 關鍵字.)      
+        (註2: array.forEach() 通常不會在 callback function 內, 加入 return 關鍵字.)
+
+    b. Array.filter(callback) .filter 與 arrow function 寫法的結合
+      從上例中, callback_function is 
+        function(number){
+          return number > 10;
+        }
+      
+      不過, 每個 array function 有不同的行為模式, 
+        像 array.filter() 會回傳篩選後的array給你, 必須放入return.
+          如同
+          numbers.filter(function(number){
+            return true;
+          });
+        像 array.forEach() 只會迭代array內容供你使用, 放入return很怪.
+
+    c. 摘要
+      1. The .filter() method returns a new array that contains some of the items from the original array, 
+        based on the condition you specify.
+      2. JavaScript will take your callback function and call it for every single item in the array.
+      3. For the .filter() method, the result of the callback function matters. 
+        When it's true, the item will be included in the resulting array. 
+        Otherwise, it won't.
+      4. JavaScript cannot make a smart guess that the numbers array becomes the number parameter in your callback function. 
+        What it does is that it calls your callback function while giving a value for the first parameter that you specified.
+      5. Use the plural -> singular naming convention when using the .filter() method.
+    
+  18. Array .find(callback_function) 回傳第一個符合條件的結果, 否則回傳 undefined
+
+    When you call the .find(callback) method on an array, 
+    you will get back the first item that matches the condition that you specify. 
+    If no items were found, you will get back undefined.
+
+    a. 實作範例
+
+      let names = ["Sam", "Alex", "KL", "Bill"];
+      let result = names.find(function(name){
+        return name === "KL";
+      });
+      console.log(result);
+
+      // .find(callback) 會逐一比對, 直到 callbacks 回傳 true.
+      // Step1: name = "Sam", 因為 name === "KL", return false;
+      // Step2: name = "Alex", 因為 name === "KL", return false;
+      // Step3: name = "KL", 因為 name === "KL", return true; 接著, 停止往下尋找而把 "KL" 回傳給你.
+
+    b. .filter() 與 .find() 的差異: 
+      .filter() 總是回傳1個矩陣(所有符合條件項目 or []), 儘管符合項目只有1個, 例: [14].
+      .find() 總是回傳第1個符合條件項目 or undefined, 例: 14.
+
+      #實作範例#
+        let numbers = [9,5,1,5,23];
+
+        // .filter() 總是回傳1個矩陣(所有符合條件項目 or [])
+        numbers.filter(function(number){
+          return number >= 12;
+        }); //[23]
+
+        // .find() 總是回傳第1個符合條件項目 or undefined
+        numbers.find(function(number){
+          return number >= 12;
+        }); //23
+
+      #注意#: 因為 .find(callback) can return 'undefined', 你必須要納入考量或判斷, 避免出現異常.
+
+    c. 摘要    
+      1. The .find() method returns 'the first item' which matches the condition that you specify. 
+        If no items were found, you will get back 'undefined'.
+      2. The .filter() method always returns an 'array'. 
+        Even if it's empty. []
+
+    d. 實作範例-搜尋年份
+
+      /**
+      * @param {number[]} years
+      * @param {number} searchYear
+      */
+      function getYear(years, searchYear) {
+          return years.find(function(year){
+              return year === searchYear;
+          });
+      }
+
+      // Sample usage - do not modify
+      console.log(getYear([2019, 2020, 2021], 2020)); // 2020
+      console.log(getYear([2019, 2020, 2021], 1990)); // undefined
+
+    e. 實作範例-搜尋奇數年份
+
+      /**
+      * @param {number[]} years
+      */
+      function getOddYears(years) {
+          return years.filter(function(year){
+              return year % 2 === 1;
+          });
+      }
+
+      // Sample usage - do not modify
+      console.log(getOddYears([2019, 2020, 2021])); // [2019, 2021]
+      console.log(getOddYears([2000, 2015, 2018, 2020])); // [2015]
+
+  19. More array methods 
+  {.map(callback): 對array項目作某種類型的轉換; 
+  .include(item): 檢查item是否存在於array中, 回傳true or false; 
+  .join(glue): 常用於將array元素轉為字串時, glue可自訂將array轉為字串時的中介字元, 例: ";"}
+
+    a. .map(callback)
+
+      實作範例-1
+        const numbers = [9, 5, 1, 5, 23];
+        const double = numbers.map(function(number){
+          return number * 2;
+        });
+        console.log(double); // [18, 10, 2, 10, 46];
+
+      實作範例-2
+        const names = ["Sam", "Alex", "KL", "Bill"];
+        const upperNames = names.map(function(name){
+          return name.toUpperCase();
+        });
+        console.log(upperNames); //["SAM", "ALEX", "KL", "BILL"]
+
+    b. .includes(item)
+
+      實作範例-3
+        const fruits = ["Apple", "Banana", "Tomato"];
+        fruits.includes("Apple"); //true
+        fruits.includes("PineApple"); //false
+
+    c. .join(glue)
+
+      實作範例-4
+        const fruits = ["Apple", "Banana", "Tomato"];
+        fruits.toString(); //預設轉換 => "Apple,Banana,Tomato"
+
+      實作範例-5
+        const fruits = ["Apple", "Banana", "Tomato"];
+        fruits.join("; "); //自訂轉換 => "Apple; Banana; Tomato"
+        fruits.join(" . "); //自訂轉換 => "Apple . Banana . Tomato"
+
+    d. 摘要    
+      1. The array .map(callback) method allows you to transform an array into another one.
+      2. The array .includes(item) method takes an item and returns true when that item exists in the array and false otherwise.
+      3. The array .join(glue) method returns a string of the array elements separated by the glue.
+
+    e. 實作範例-6 This means, for the array ["abc", "d"] it should return [3, 1] 
+      /**
+      * @param {string[]} strings
+      */
+      function getStringSizes(strings) {
+          return strings.map(function(string){
+              return string.length;
+          });
+      }
+
+      // Sample usage - do not modify
+      console.log(getStringSizes(["a", "abc"])); // [1, 3]
+      console.log(getStringSizes(["Sam", "Alex", "Charlie"])); // [3, 4, 7]
+      console.log(getStringSizes(["Hello", "Blue"])); // [5, 4]
+
+    f. 綜合範例-7
+
+      /** @param {number[]} grades */
+      export function getNumberOfGrades(grades) {
+          // GOAL: return the number of grades
+          return grades.length;
+      }
+
+      /** @param {number[]} grades */
+      export function getSumGrades(grades) {
+          // GOAL: return the sum of all the grades
+          let sum = 0;
+          grades.forEach(function(grade){
+              sum += grade;
+          });
+          return sum;
+      }
+
+      /** @param {number[]} grades */
+      export function getAverageValue(grades) {
+          // GOAL: return the average value of all grades (sum of all grades divided by the total number of grades)
+          let size = grades.length;
+          let sum = 0;
+          grades.forEach(function(grade){
+              sum += grade;
+          });
+          return (sum / size);
+      }
+
+      /** @param {number[]} grades */
+      export function getPassingGrades(grades) {
+          // GOAL: return all passing grades (10 and above)
+          return grades.filter(function(grade){
+              return grade >= 10;
+          });
+      }
+
+      /** @param {number[]} grades */
+      export function getFailingGrades(grades) {
+          // GOAL: return all failing grades (9 and below)
+          return grades.filter(function(grade){
+              return grade < 10;
+          });
+      }
+
+      /** @param {number[]} grades */
+      export function getRaisedGrades(grades) {
+          // GOAL: return all the grades raised by 1 (no grade should exceed 20)
+          return grades.map(function(grade){
+              if(grade>=20)
+                  return grade;
+              return grade + 1;
+          });
+      }
+
+    g. 綜合範例-8, 統計可投票人數
+
+      /**
+      * @param {number[]} ages
+      */
+      export function getVotersCount(ages) {
+          console.log(ages);
+          const above18 = ages.filter(function(age){
+              return age >= 18;
+          });
+          return above18.length;
+      }
+
+  ==第五階段總複習(Arrays II & callbacks)==    
+    1. The .filter() method returns a new array that contains some of the items from the original array, 
+      based on the condition you specify.
+    2. JavaScript will take your callback function and call it for every single item in the array.
+    3. For the .filter() method, the result of the callback function matters. 
+      When it's true, the item will be included in the resulting array. Otherwise, it won't.
+    4. JavaScript cannot make a smart guess that the numbers array becomes the number parameter in your callback function. 
+      What it does is that it calls your callback function while giving a value for the first parameter that you specified.
+    5. Use the plural -> singular naming convention when using the .filter() method.
+    6. The .find() method returns the first item which matches the condition that you specify. 
+      If no items were found, you will get back undefined.
+    7. The .filter() method always returns an array. Even if it's empty.
+    8. The array .map(callback) method allows you to transform an array into another one.
+    9. The array .includes(item) method takes an item and returns true when that item exists in the array and false otherwise.
+    10. The array .join(glue) method returns a string of the array elements separated by the glue.
+
+  2022/09/02 15:00 完成免費課程, 接下來要 US75美金, 約2千多元, 先考慮一下吧~~~
+
+(2022/09前兩週目標 09/06~09/16)
+
+TODO: https://www.w3schools.com/js/default.asp
+
+TODO: 進階新目標 => 不一樣的 Node.js 用JavaScript打造高效能的前後台網頁程式 
+(2022/09/03 看了前幾章發現, 後面內容有點艱澀, 先暫停一下, 至少先把 nodejs 環境完成, 可以執行 JS檔)
+
+  CH2 - 一切從 JavaScript 開始
+
+    # 函數定義及呼叫 # 
+      1. 有六種定義方法
+
+        # 注意 # 函數陳述式(最常見) 與 函數運算式 的差異有兩點.
+          1. 一旦定義 函數陳述式(最常見), 在'函數陳述式前'或'後'都能呼叫.
+          2. 必須定義 函數運算式 後, 在'函數運算式後'才能被呼叫.
+        
+        # 注意 # 為什麼 函數陳述式(最常見) 與 函數運算式 會有這種差異呢 ?
+          A: 關鍵點在於記憶體的使用方式不同.
+            1. 函數陳述式(最常見) => 一旦被定義, 就無法從記憶體中刪除及回收.
+            2. 函數運算式 => 定義完使用1次後, 就被回收.
+            3. 函數運算式(暫存變數內) => 只要參考還在, 就不會被回收; 除非 fnprint = null; 後, 就會被回收.
+
+
+        // 最常見的作法: 函數陳述式; 其他五種作法, 稱為函數運算式.
+        function fnprint(val){
+          console.log(val);
+        }
+        fnprint('OK');
+
+        //我是函數運算式(暫存變數內)
+        const fnprint = new Function('val', 'console.log(\'the value is : \' + val);');
+        fnprint('OK');
+
+        // 下列四種都是匿名函式(都是函數運算式)
+        let fnprint = function(val){console.log('the value is ' + val);};
+        fnprint('OK');
+
+        (function(val){console.log('the value is ' + val);})('OK');
+
+        (function(val){console.log('the value is ' + val);}('OK'));
+
+        void function(val){console.log('the value is ' + val);}('OK');
+
+    # 閉包(closure) = 函數定義域(Domain), 讓使用同名函數間的變數不會相互影響(隔離性) or 函數外與函數內的同名變數不會相互影響 #
+
+      1. 閉包(closure) => 在JavaScript內, 函數擁有自己獨立定義域(Domain), 可以宣告函數內專屬變數, 即使函數外有同名變數亦不受影響.
+      2. 閉包(closure)函數有兩個特點 =>
+        a. 閉包(closure)函數在執行過程中, 閉包(closure)函數內的區域變數都可以被存取.
+        b. 閉包(closure)函數在執行結束後, 仍維持最後區域變數的值.
+
+      簡單範例: 函數外與函數內的同名變數不會相互影響
+        let x = 50;
+        function closureFunc(){
+          let x = 100;
+          return x;
+        }
+        console.log(x); // 50
+        console.log(closureFunc()); // 100
+
+      進階範例: 使用同名函數間的變數不會相互影響(隔離性). Wow, Function in function.
+
+        function BMI(name){
+          let BMIresult = 0;
+          function count_BMI(weight, height){
+            let mass = Number.parseInt(weight, 10);
+            let counter = Number.parseInt(height, 10) / 100;
+            BMIresult = mass / (counter * counter);
+            console.log(`${name}, your BMI is ${BMIresult}.`);
+            return BMIresult;
+          }
+          return count_BMI;
+        }
+
+        //建立閉包函數
+        let klBMI = BMI("KL");
+
+        //使用閉包函數
+        klBMI(75, 182);
+
+    # 事件驅動機制 - JS最大的特色, JS Engine 是以事件為單位在執行程式, 當事件工作完成後(可能非當下執行完畢), 會找下個事件去執行. 一旦沒有事件可執行, 整個程式就會結束 #
+
+      1. 實作範例-1
+        console.log("start");
+        setTimeout(function(){console.log("Trigger");}, 1000); //等待1秒鐘後再執行
+        console.log("end");
+
+        //output: start, end, Trigger.
+
+      2. 實作範例-2
+        console.log("start");
+        setTimeout(function(){console.log("Trigger");}, 0); //不等待, 直接執行
+        console.log("end");
+
+        //output: start, end, Trigger.
+
+      3. # 注意 #: 為什麼 {實作範例-1} & {實作範例-2} 的結果相同呢?
+          關鍵在於 setTimeout 向JS Engine註冊1個事件, 準備被觸發.
+          接著返回 執行 console.log("end"); 程式碼.
+          當JS Engine執行完每一行程式碼, 表示該事件執行完畢.
+          接著去找下一個可被處理的事件, 也就是 setTimeout 向 JS Engine 註冊的事件.
+      
+      4. 非同步(Asynchronous)
+        => 事件驅動機制(Event-driven) & 非同步(Asynchronous)的觀念其實很相似.
+        非同步(Asynchronous) 會將無法即時完成的工作, 丟到背景等待.
+        事件驅動機制(Event-driven) 可以先註冊一個事件, 等待滿足工作執行條件時再觸發.
+
+    # 原型(Prototype) - JavaScript沒有類別(Class), 但它提供原型(Prototype)的功能來包裝物件, 類似類別(Class)功能 #
+
+      1. JavaScript沒有類別(Class), 但它提供原型(Prototype)的功能來包裝物件, 類似類別(Class)功能.
+        例: Array陣列物件, String字串物件等...
+
+      2. 實作範例
+
+        In a "MyObject.js" 檔案內
+
+          "use strict"; //使用嚴格模式, 避免記憶體洩漏.
+
+          //定義1個可被參考的原型物件 MyObject
+          let MyObject = function(){
+            //定義成員
+            this.count = 0;
+          };
+
+          //定義方法
+          MyObject.prototype.touch = function(){
+            this.count++;
+          };
+
+        //==使用方式==
+        let myObj = new MyObject();
+        myObj.touch();
+        myObj.touch();
+        myObj.touch();
+
+        console.log(myObj.count);
+
+    # 記憶體回收機制(GC garbage collection) - 物件參考計數為0時, 記憶體可被回收; delete可以移除變數, 並減少物件參考計數, 但無法用來釋放記憶體, 除非移除變數後, 物件參考計數為0 #
+
+      1. JS沒有直接釋放記憶體空間的方法, 而是使用垃圾回收機制(GC).
+      2. 在JS內, 所有東西都是物件, 變數內儲存的是物件參考, 而非值本身.
+
+        let container = new String("KL");
+        console.log(`length is ${container.length}`); // length is 2
+
+        container = [2,3,4,5,6,7];
+        console.log(`length is ${container.length}`); // length is 6
+
+        let new_box = container;
+        console.log(`length is ${new_box.length}`); // length is 6
+
+      3. 回收物件記憶體, 只要物件參考計數為0, 物件記憶體即可被回收
+
+        let var1 = new Object();
+        let var2 = var1; //此物件參考計數為2
+
+        var1 = null; //此物件參考計數為1
+        var2 = null; //此物件參考計數為0 (可被回收)
+
+      4. 變數回收 delete
+
+        let myvar = null;
+        delete myvar; //變數回收
+
+        # 注意 #: 
+          a. delete 關鍵字 "不能用來釋放記憶體"
+          b. delete 關鍵字 "可以移除變數, 並減少物件參考計數", 但是只要物件參考計數不為0, 物件記憶體就不會被GC回收.
+
+  CH3 - Node.js 起手式 
+
+    # 安裝 Node.js #  
+      
+      安裝檔路徑: C:\Users\p10154383\Documents\個人資料夾\Node.JS 可安裝在WIN7上的版本(已安裝)
+      預設安裝路徑: C:\Program Files\nodejs
+      檢查安裝版本: 在cmd下, 輸入 node -v 指令即可.
+      測試安裝成功: 在cmd下, 輸入node指令即可.
+
+    # 注意/異常排除 #:  Visual Code 的第一個Node.js與 Node一開始系統無法執行的解決辦法 
+      1. 很奇怪的是, 直接開 cmd , 輸入 node 都能正常啟動, 但第1次在VSCode內的cmd卻不正常.
+      2. 解法: [VSCode 執行檔] -> [右鍵] -> [內容] -> [相容性], 請勾選 [以管理員的身分執行程式] -> [確認], 重啟VSCode後即解決.
+
+
+
+
+
+

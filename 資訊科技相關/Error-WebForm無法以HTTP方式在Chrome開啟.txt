@@ -1,0 +1,9 @@
+[異常排除]
+  (問題)Chrome有異常；IE卻沒有。
+  localhost sent an invalid response.
+  Try running Windows Network Diagnostics.
+  ERR_SSL_PROTOCOL_ERROR
+  (原因):Chrome將HTTPS設為預設
+  (解法步驟):
+    1.chrome://net-internals/#hsts
+    2.在 Delete domain security policies 將 localhost刪除

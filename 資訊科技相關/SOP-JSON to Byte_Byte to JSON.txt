@@ -1,0 +1,31 @@
+==正向：文字轉byte，byte放入json，json 序列化轉字串==
+string originalString = "Sample External Report";
+byte[] originalArray = System.Text.Encoding.UTF8.GetBytes( originalString );
+
+JObject document = new JObject(
+	new JProperty( "VarA", "Var A Value" ),
+		new JProperty( "VarB", "Var B Value" ),
+			new JProperty( "FileData", originalArray ) );
+string serialized = document.ToString();
+
+==反向：JSON字串反序列化，再轉回byte，再轉回文字==
+JObject returnDocument = JObject.Parse( serialized );
+
+byte[] returnedArray = Convert.FromBase64String( returnDocument["FileData"].Value<string>() );
+string returnedData = System.Text.Encoding.UTF8.GetString( returnedArray );
+
+==正向：PDF檔案轉為byte[]，byte[]再轉為string==
+
+string path = @"C:\MyFile.pdf";
+
+byte [ ] a = File.ReadAllBytes( path );
+
+string s = Convert.ToBase64String( a );
+
+==反向：字串轉回byte[]，再由byte[]轉回PDF檔==
+
+//And  save back - System.IO.File.WriteAll* makes sure all bytes are written properly.
+
+byte[] returnedArray = Convert.FromBase64String（a);
+
+ System.IO.File.WriteAllBytes("myfile.pdf", bytes);

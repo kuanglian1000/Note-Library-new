@@ -1,0 +1,779 @@
+0.APP版面瀏覽: 在Chrome網頁下, 按下 "F12", 切換至APP版面
+0.常用指令:
+  新增 Project   => ng new <project-name> --strict
+  新增 Component => ng generate compoent <compoent-name>
+  新增 Service   => ng generate service <service-name>
+  啟動 App       => ng serve -o
+  
+==Create a Project==
+  1.設定環境
+    1.1. install Node.js, 確認安裝成功, "node -v" (OK)
+    1.2. install npm package manager, 確認安裝成功, "npm -v" (OK)
+    1.3. install Angular CLI, 安裝Angular CLI, "npm install -g @angular/cli" (OK)
+
+  2.新增工作區及初始APP專案
+    2.1. 新增工作區及初始APP專案, 加上嚴格註解(開啟TypeScript嚴格模式), 
+      "ng new [project-name] --strict"
+      ex. "ng new my-app --strict" 
+    2.2. 在非嚴格工作區內, 以嚴格模式新增 application, 
+      "ng generate application [project-name] --strict"
+
+  3.啟動APP
+    3.1. 啟動APP, 切換至專案目錄, 
+      "ng serve --open" || "ng serve -o"
+      預設, 跑在 http://localhost:4200/ 上面.
+
+  4.Angular Components (元件是 Angular application最基礎架構)
+    4.1. AppComponent 實作內容分佈在下列三個檔.
+      a. app.component.ts <= TypeScript程式碼, 程式邏輯.
+      b. app.component.html <= HTML程式碼
+      c. app.component.css <= CSS樣式
+
+    4.2. 功能: 在螢幕上顯示資料, 接收使用者輸入, 依輸入值執行資料處理.
+    4.3. 路徑: src/app
+
+==Hero Editor==
+  5.新增 Components
+    5.1. 新增 Component, "ng generate component heroes".
+        在 src/app路徑下, 會新增1個 heroes 的Component
+    
+    5.2. xx.component.ts內的 @Component設定, 決定Component的屬性.
+      @Component({
+        selector: 'app-heroes', //決定主頁HTML內的嵌入標籤(它會放入Component網頁)
+        templateUrl: './heroes.component.html', //指向Component網頁檔
+        styleUrls: ['./heroes.component.css'] //指向Component樣式檔
+      })
+    
+    5.3. xx.component.ts內放入(類別屬性)時, 會先另外新增1個TS檔, 放 Interface.
+      再匯入 xx.component.ts內, 作初始化.
+      
+      //filePath:'../hero'
+      export interface Hero{
+        id: number;
+        name: string;
+      }
+
+      //filePath:x.component.ts
+      import { Hero } from '../hero';
+      hero: Hero = {
+        id: 1,
+        name: 'A英雄'
+      };
+    
+    5.4. xx.component.html內, 固定(單向)顯示 xx.component.ts的值, 使用 {{ ts內的屬性 }}
+      {{ hero.id }}
+
+    5.5. xx.component.html內, 動態(雙向)顯示/儲存 xx.component.ts 的值, 使用 [(ngModel)] = "hero.name",
+      1. app.module.ts 最上方匯入 import { FormsModule } from '@angular/forms';
+      2. app.module.ts 在 @NgModule 區段再匯入1次.
+          
+          import { FormsModule } from '@angular/forms'; //(1)
+          
+          @NgModule({ // @NgModule 整個Application中只會有1個
+            declarations: [
+              AppComponent,
+              HeroesComponent
+            ],
+            imports: [
+              BrowserModule,
+              FormsModule //(2)
+            ],
+            providers: [],
+            bootstrap: [AppComponent]
+          })
+
+    5.6. 每個 Component 都必須在 唯1的 NgModule 內被宣告, 在 app.module.ts 檔內
+      1. app.module.ts 匯入 Component
+      2. app.module.ts 在 @NgModule 區段 進行宣告.
+
+          import { HeroesComponent } from './heroes/heroes.component'; //(1)
+
+          @NgModule({ // @NgModule 整個Application中只會有1個
+            declarations: [
+              AppComponent,
+              HeroesComponent //(2)
+            ],
+            imports: [
+              BrowserModule,
+              FormsModule
+            ],
+            providers: [],
+            bootstrap: [AppComponent]
+          })
+
+==Display a List==
+  6.存取資料來源, 以清單(List)顯示.
+    6.1. 新增固定/動態資料來源
+      1. 新增資料來源檔, src/app/heroes-mock.ts
+          import { Hero } from './hero'; //引用Hero資料型態(介面)
+          export const HEROES: Hero[] = [ //使用Hero型態,新增固定陣列
+            { id: 11, name: 'Dr Nice' },
+            { id: 12, name: 'Narco' },
+            { id: 13, name: 'Bombasto' },
+            { id: 14, name: 'Celeritas' },
+            { id: 15, name: 'Magneta' },
+            { id: 16, name: 'RubberMan' },
+            { id: 17, name: 'Dynama' },
+            { id: 18, name: 'Dr IQ' },
+            { id: 19, name: 'Magma' },
+            { id: 20, name: 'Tornado' }
+          ];
+
+    6.2. 顯示清單(*ngFor , *ngIf)
+      1. 匯入 HEROES 資料檔, src/app/heroes/heroes.component.ts
+      2. 公開 HEROES 資料檔給前端存取
+      3. 利用 *ngFor 將資料檔逐筆顯示
+      4. 加入 Component 專屬樣式
+      5. 新增 Component 點選事件
+      6. 利用 *ngIf 判斷變數是否存在(決定是否顯示明細)
+      7. 新增 html 物件動態樣式, 語法: [class.some-css-class]="some-condition"
+          例: <li [class.selected]="hero === selectedHero"> ABC </li>
+          註: 這種寫法真特別. 如果 點選物件==這個物件, 套用 selected 樣式, 否則移除
+          
+          "src/app/heroes/heroes.component.ts"
+
+            @Component({
+              selector: 'app-heroes',                 //引入 Component 使用的標籤 <app-heroes></app-heroes>
+              templateUrl: './heroes.component.html', //Component 專屬樣版
+              styleUrls: ['./heroes.component.css']   //Component 專屬樣式(4)
+            })
+            
+            import { HEROES } from '../heroes-mock'; //(1)
+            export class HeroesComponent implements OnInit{
+              heroes = HEROES; //(2)
+
+              selectedHero?: Hero; //(5)
+              onSelect(hero: Hero): void{
+                this.selectedHero = hero;
+              }
+            }
+
+          "src/app/heroes/heroes.component.html"
+
+            <h2>My Heroes</h2>
+              <ul class="heroes">
+                <li *ngFor="let hero of heroes" //(3)
+                    (click)="onSelect(hero)" //(5)
+                    [class.selected]="hero === selectedHero" //(6)
+                    > 
+                  <span class="badge">{{hero.id}}</span> {{hero.name}}
+                </li>
+              </ul>
+            
+            <div *ngIf="selectedHero"> //(6)
+              <h2>{{selectedHero.name | uppercase}} Details</h2>
+              <div><span>id: </span>{{selectedHero.id}}</div>
+              <div>
+                <label for="hero-name">Hero name: </label>
+                <input id="hero-name" [(ngModel)]="selectedHero.name" placeholder="name">
+              </div>
+            </div>
+            
+==Create a feature Component==
+  7.再新增一個明細專用Component(把 列表 & 明細 兩個功能作分割)
+    註: 將大Component拆成多個小Component, 使得各個Component功能各自獨立, 也更好維護.
+
+    7.1. 新增Component, "ng generate component hero-detail"
+      1. 新增後, 會產生四個檔(xx.css 樣式 , xx.html 樣版 , xx.spec.ts 測試用 , xx.ts 程式邏輯)
+      2. 新增後, 在app.module.ts內會加入 Component 參考.
+          
+          import { HeroDetailComponent } from './hero-detail/hero-detail.component';
+
+          @NgModule({
+            declarations: [
+              AppComponent,
+              HeroesComponent,
+              HeroDetailComponent //新增的Component.
+            ],
+            ...
+      3. 新增後, 在xx.html 樣版檔加入顯示內容, 注意: hero 在 xx.ts 內必須定義
+
+          <div *ngIf="hero">
+            
+            <h2>{{hero.name | uppercase}} Details</h2>
+            <div><span>id: </span>{{hero.id}}</div>
+            <div>
+              <label for="hero-name">Hero name: </label>
+              <input id="hero-name" [(ngModel)]="hero.name" placeholder="name">
+            </div>
+          </div>
+
+    7.2. 加入 @Input() 屬性功能, 建立與外部 Component 繫結之介面. (@Input decorator)
+      1. 新增後, 在xx.ts 引用Hero資料型態(import Hero)
+      2. 新增後, 在xx.ts 要新增 Input property, 給外部Component傳值用.
+
+          import { Component, OnInit, Input } from '@angular/core';
+          import { Hero } from '../hero'; //(1)
+
+          @Component({
+            selector: 'app-hero-detail',
+            templateUrl: './hero-detail.component.html',
+            styleUrls: ['./hero-detail.component.css']
+          })
+
+          export class HeroDetailComponent implements OnInit {
+            //(2), 因為外部Component傳入值是 selectedHero?, 可能會出現 undefined.
+            @Input() hero: Hero | undefined; //所以必須加上 undefined, 否則會錯.
+            constructor() { }
+
+            ngOnInit(): void {
+            }
+          }
+
+    7.3. 完成 Component 間的物件傳遞. (property binding)
+      1. 新增Component後, 在外部Component 加入 新Component's selector & Input property & Input value.
+
+          <app-hero-detail [hero]="selectedHero" ></app-hero-detail>
+          註: [hero]="selectedHero" 是 Angular 屬性繫結. (property binding)
+
+==Add services==
+  8.服務 能讓程式功能更獨立, 需要服務時, 再將服務注入依賴(dependency injection)即可.
+    服務 也是類別間分享資訊的好作法.
+    8.1. 新增 "資料提供用" 服務, ng generate service heroes
+    8.2. 新增 "訊息顯示用" 服務, ng generate service messages
+    8.3. 如何開發非同步化服務(例:資料存取), 使用 Observable & RxJS Observable 套件.
+      1. (服務端)利用 RxJS of() 回傳 Observable 的資料型態.
+          
+          import { Observable, of } from 'rxjs'; // 匯入非同步功能
+          
+          getHeroes(): Observable<Hero[]> { // 非同步版
+            const heroes = of(HEROES);
+            this.messageService.add('HeroService: 抓取資料');
+            return heroes;
+          }
+      
+      2. (注入端)由 "指定" 改為 "向服務訂閱".
+
+          import { HeroService } from '../hero.service'; // 注入服務(1:匯入)
+
+          heroes: Hero[] = [];
+          constructor(private heroService: HeroService) { } // 注入服務(2:實體化)
+          
+          ngOnInit(): void {
+            this.getHeroes(); // 注入服務(4.使用服務, 屬性初始化是最佳時間點 = 在ngOnInit(), 而不是在 constructor內)
+          }
+
+          getHeroes(): void {
+            this.heroService.getHeroes()
+                .subscribe(heroes => this.heroes = heroes); // 注入服務(3.非同步版,向服務訂閱,因為不確定什麼時候來)
+          }
+
+    8.4. 如何注入服務, 
+      1. 匯入參考, import { MessageService } from '../message.service'; // 注入服務(1:匯入)
+      2. 實體化, 在Constructor建構子, 宣告服務為傳入參數, 預設是private內部用 ; 若須供 Template存取, 則用public.
+          
+          // messageService 參數只供內部存取,所以要改為 private
+          constructor(private heroService: HeroService
+              , private messageService: MessageService) { } // 注入服務(2:實體化)
+          
+          // messageService 參數可供外部存取,所以要改為 public
+          constructor(public messageService: MessageService) { }
+
+==Add Navigation(加入路徑瀏覽功能, 2021-03-08 進度)==
+  9. Add the AppRoutingModule(路徑套件)
+    
+    "ng generate module app-routing --flat --module=app"
+
+  10. Add RouterOutlet(加入瀏覽顯示元件)
+
+    @ app-routing.module.ts 必須先完成
+      1. 匯入參考
+      2. 定義路徑
+      3. 決定路徑階層, 
+      4. 開放使用, 
+
+  11. Add a navigation link (加入瀏覽連結 <a routerLink="path"></a> , 點選後 <router-outlet> 內容會跟著切換)
+
+    @ app.component.html 
+      5. 才能使用上面公開的路徑, 利用 router-outlet 元件, 顯示path對應的Compoenent.
+      6. 加入瀏覽連結, 指向公開路徑的path.
+      7. 程式碼範例：      
+        
+        <h1 id="main-content-header">{{title}}</h1>
+        <!-- <app-heroes></app-heroes> -->
+        <nav>
+          <!--導覽連結-->
+          <a routerLink="/dashboard">Dashboard</a>
+          <a routerLink="/heroes">Heroes</a>
+        </nav>
+        <router-outlet></router-outlet> <!--顯示區域-->
+        <app-messages></app-messages>
+
+  12. 重整APP畫面流程
+    12.1. Add a Dashboard View(Compoent)
+      1. Add the Dashboard route(總覽路徑)
+      2. Add a default route(預設路徑)
+      3. Add Dashboard link to the shell(最外層)
+
+        "ng generate component dashboard"
+
+    12.2. Navigating to hero Details(Component)
+
+        重新定義顯示 HeroDetailComponent 的情境.
+        
+      1. Delete "hero detail" from HeroesComponent
+      2. Add a "hero detail" route
+      3. DashboardComponent hero links
+      4. HeroesComponent hero links
+
+    12.3. Routable HeroDetailComponent
+      1. Extract the id route parameter(增加瀏覽用的參數值)
+      2. Add HeroService.getHero() function(新增函式, 回傳單筆資料)
+      3. Find the way back(返回鍵)
+
+==Get Data From Server(改由伺服器取得資料,原為Stable Data, 2021-03-09 進度)==
+  13. Enable HTTP services(啟用 HTTP 服務, 才能對外存取伺服器資料)
+    在 Angular內, 使用 HTTP 兩步驟:
+      1. import { HttpClientModule } from '@angular/common/http'; // @app.module.ts 加入參考
+      2. imports: [ HttpClientModule ], // @app.module.ts 匯入參考
+      3. 程式碼範例：
+        
+        import { HttpClientModule } from '@angular/common/http';
+        @NgModule({
+          imports: [
+            HttpClientModule,
+          ],
+        })
+
+  14. Simulate a data server(模擬資料伺服器,實際上沒有送出去, 常用於測試開發; 改為存取資料伺服器時, 這段碼就無法使用了)
+
+    14.1. 模擬WebApi, 先安裝 angular-in-memory-web-api 套件.
+      
+      "npm install angular-in-memory-web-api --save"
+    
+    14.2. @app.module.ts 加入 & 匯入參考
+
+      import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
+      import { InMemoryDataService } from './in-memory-data.service'; //這是自行開發的資料提供服務
+    
+      @NgModule({
+        declarations: [
+          AppComponent,
+          HeroesComponent,
+          HeroDetailComponent,
+          MessagesComponent,
+          DashboardComponent,
+          HeroSearchComponent
+        ],
+        imports: [
+          BrowserModule,
+          FormsModule, // 使用 [(ngModel)] 功能, import { FormsModule } from '@angular/forms';
+          AppRoutingModule, // 使用 routing 功能, import { AppRoutingModule } from './app-routing.module';
+          HttpClientModule, // 使用 HTTP 功能, import { HttpClientModule } from '@angular/common/http';
+          
+          //改為存取資料伺服器時, 下列這段就不用匯入了
+          HttpClientInMemoryWebApiModule
+            .forRoot(InMemoryDataService, {dataEncapsulation: false}), // 使用 HTTP WEBAPI 模擬功能;
+        ],
+
+    14.3. 新增資料提供服務(模擬外部資料來源, WebApi) : InMemoryDataService
+      
+      "ng generate service InMemoryData"
+
+      1. 宣告為可注入
+      2. 實作 createDb() & getId() 方法
+      3. 程式碼範例(src/app/in-memory-data.service.ts)：
+      
+        import { Injectable } from '@angular/core';
+        import { InMemoryDbService } from 'angular-in-memory-web-api';
+        import { Hero } from './hero';
+
+        @Injectable({
+          providedIn: 'root',
+        })
+        export class InMemoryDataService implements InMemoryDbService {
+          createDb() {
+            const heroes = [
+              { id: 11, name: 'Dr Nice' },
+              { id: 12, name: 'Narco' },
+              { id: 13, name: 'Bombasto' },
+              { id: 14, name: 'Celeritas' },
+              { id: 15, name: 'Magneta' },
+              { id: 16, name: 'RubberMan' },
+              { id: 17, name: 'Dynama' },
+              { id: 18, name: 'Dr IQ' },
+              { id: 19, name: 'Magma' },
+              { id: 20, name: 'Tornado' }
+            ];
+            return {heroes};
+          }
+
+          // Overrides the genId method to ensure that a hero always has an id.
+          // If the heroes array is empty,
+          // the method below returns the initial number (11).
+          // if the heroes array is not empty, the method below returns the highest
+          // hero id + 1.
+          genId(heroes: Hero[]): number {
+            return heroes.length > 0 ? Math.max(...heroes.map(hero => hero.id)) + 1 : 11;
+          }
+        }
+
+  15. Heroes(內部資料提供服務) and HTTP(資料物件與 HTTP 服務間的關係) : HeroService
+    15.0. 資料存取服務(get/select, post/create, put/update, delete/delete), 都由這裡提供.
+      1. :base/:collectionName 是 WebApi URL格式.
+        ex. private heroesUrl = 'api/heroes';
+
+    15.1. 使用 "HttpClient" 取得 Heroes(資料物件)
+      1. 原則(1), Observable from HttpClient 只會回傳1次, 值可以是單值或單陣列.
+      2. 原則(2), HttpClient.get() 預設回傳無型態JSON物件(untyped JSON object),
+          但可指定型別來減少錯誤發生, 下列就是指定 <Hero[]> 作為回傳型別.
+      3. 重點(3), 通常回傳JSON格式是由Server端決定的, 還需要用 RxJS 的 map() 作對應才行.
+          詳程式碼範例3.
+        
+        程式碼範例1：使用httpClient去抓資料(外部), 都能回傳 Observable 物件
+          getHeroes(): Observable<Hero[]> {
+            return this.http.get<Hero[]>(this.heroesUrl);
+          }
+        程式碼範例2：使用RxJS的of()去抓資料(內部), 都能回傳 Observable 物件
+          getHeroes(): Observable<Hero[]> {
+            const heroes = of(HEROES);
+            return heroes;
+          }
+        程式碼範例3：對應外部API的JSON物件, 使用 map() 方法
+          getHeroNo404<Data>(id: number): Observable<Hero> {
+            const url = `${this.heroesUrl}/${id}`;
+            return this.http.get<Hero[]>(url)
+            .pipe(
+              map(heroes => heroes[0]), // * 使用 map() 方法
+              tap(h => {
+                const outcome = h ? `fetched` : `did not find`;
+                this.log(`${outcome} hero id=${id}`);
+              }),
+              catchError(this.handleError<Hero>(`getHero id=${id}`))
+            );
+          }
+
+    15.2. 異常處理
+      1. 先從 rxjs/operators 匯入會用到的函式 catchError , map , tap.
+      2. 在 pipe 時, 利用 catchError 建立與 異常處理函式 間的連接.
+    
+    15.3. 看看可觀察的資料(tap into the Observable)
+      1. 在 pipe 時, 利用 tap 觀察回傳結果, 並留下必要記錄.
+      2. 在 pipe 時, 利用 map 對應JSON格式是否正確.(VIP: 讀取外部 WebApi 必用)
+
+    15.4. 利用 id 值, 取得所需的 Heroes(資料物件)
+
+  16. 更新 Heroes(資料物件)
+
+  17. 新增 Heroes(資料物件)
+
+  18. 刪除 Heroes(資料物件)
+
+  19. 搜尋 Heroes(資料物件) by name
+    19.1. 瀏覽頁加入 新增功能
+    19.2. 新增 "HeroSearchComponent"
+    19.3. AsyncPipe
+      1. The $ is a convention that indicates heroes$ is an Observable, not an array.
+        註: 加上 $ 的變數, 表示它是 Observable(可被觀察的)
+
+    19.4. 調整 "HeroSearchComponent"
+    19.5. 使用 "RxJS" 套件的 "searchItem"
+    19.6. Chaining RxJS 運算子
+
+--以上是範例指南教的內容------------------------------------------------------------
+
+
+--以上是 Developer Guides的內容 (https://angular.io/guide/router) --
+
+== Routing & Navigation ==
+
+  注意事項: 
+    1.有 '/' 前綴詞, 指的是 '絕對路徑', 例: '/first-component', 
+    2.沒有 '/' 前綴詞, 指的是 '相對路徑', 例: 'first-component', 指的是
+    3.path: 從哪來 ; redirectTo: 去哪裡 ; pathMatch: 比對模式 'full | prefix(預設,未設定full就是prefix)'
+    4.pathMatch='full', 指的是URL整串比.
+    5.pathMatch='prefix', 指的是去掉之前吻合部份, 留下剩餘URL再去比
+
+  參考資訊:
+    1.https://angular.io/guide/router-tutorial-toh#pathmatch
+    2.(多看幾次)https://vsavkin.tumblr.com/post/146722301646/angular-router-empty-paths-componentless-routes
+
+  A.重要[路由]基本觀念
+    1. 新增1個可ROUTING ANGULAR APP  
+      cmd: "ng new <project-name> --routing"
+      重點: 可ROUTING ANGULAR APP會加入 AppRoutingModule, 可利用它來設定管理你的 routes.
+      重點: 在 index.html 檔的<head>標籤內, 要加入 <base href="/" />, 
+            表示 app 資料夾是整個應用程式的最上層(root).
+
+        程式碼範例(index.html)：
+          <head>
+            <meta charset="utf-8" />
+            <title>Ionic App</title>
+
+            <!-- This assumes that the app folder is the application root, and uses "/" -->
+            <base href="/" />
+
+            <meta name="color-scheme" content="light dark" />
+            <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <meta name="format-detection" content="telephone=no" />
+            <meta name="msapplication-tap-highlight" content="no" />
+
+            <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
+
+            <!-- add to homescreen for ios -->
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+            <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+          </head>
+    
+    2. 新增2個Routing用的 Component.
+      cmd: "ng generate component first", "ng generate component second"
+
+        程式碼範例(app.module.ts)：系統會自動加入 Component 參考
+          import { NgModule } from '@angular/core';
+          import { BrowserModule } from '@angular/platform-browser';
+
+          import { AppRoutingModule } from './app-routing.module'; //註:系統自動加入, 新增專案加上 "--routing"
+          import { AppComponent } from './app.component';
+          import { FirstComponent } from './first/first.component'; //註:系統自動加入
+          import { SecondComponent } from './second/second.component'; //註:系統自動加入
+
+          @NgModule({
+            declarations: [
+              AppComponent,
+              FirstComponent, //註:系統自動加入
+              SecondComponent //註:系統自動加入
+            ],
+            imports: [
+              BrowserModule,
+              AppRoutingModule //註:系統自動加入, 新增專案加上 "--routing"
+            ],
+            providers: [],
+            bootstrap: [AppComponent]
+          })
+          export class AppModule { }
+
+    3. 匯入新增的 Compoent, 才能被ROUTE.
+
+        程式碼範例(app-routing.module.ts)：程式員必須手動加入並定義路徑.
+          import { FirstComponent } from './first/first.component';
+          import { SecondComponent } from './second/second.component';
+
+    4. 定義1個基本路徑(route).
+      4.1. 新增路徑3步驟.
+        0. 加入參考 & 匯入參考(AppRoutingModule), 在(app.moudle.ts)內. [新增專案時, 加上 "--routing", 系統自動加入參考]
+        1. 加入參考 & 匯入參考(RouterModule,Routes), 在(app-routing.module.ts)內. [新增專案時, 加上 "--routing", 系統自動加入參考]
+        2. 在 Routes 陣列內, 定義你的 路徑(route).
+
+          const routes: Route = [
+            {path: 'first-component', component: FirstComponent},
+            {path: 'second-component', component: SecondComponent},
+          ];
+
+        3. 將 路徑(route)連接 加入你的 程式.(routerLink & routerLinkActive & router-outlet)
+          <a routerLink = '/first-component'
+          routerLinkActive = 'active'/>
+          <router-outlet></router-outlet> <= 顯示 Component Template 的區域
+
+    5. Route order(路徑順序)
+      5.1. 路徑順序很重要, Router 使用 first-match wins 策略, 比對路徑時.
+      5.2. 因此, 確定路徑 應該放在 不確定路徑 前面.
+      5.3. (1)靜態路由 => (2)空路由[預設路徑] => (3)萬用路由放最後[因為它與所有URL相符 或 前面路由都不符合時, 會跑來這裡]
+
+  B.取得[路由]資訊
+    1. 利用 [路由]+[id:資訊], 可以在 Component 間傳遞參數(:id)
+    2. 在 Component 程式碼內, 匯入 Router, ActivatedRoute, ParamMap 套件.
+    
+    程式碼範例(Component程式碼):
+      import { Component, OnInit } from '@angular/core';
+      import { Router, ActivatedRoute, ParamMap } from '@angular/router';
+
+      @Component({
+        selector: 'app-first',
+        templateUrl: './first.component.html',
+        styleUrls: ['./first.component.css']
+      })
+      export class FirstComponent implements OnInit {
+        public name: string | undefined;
+
+        constructor(private activatedRoute: ActivatedRoute) { }
+
+        ngOnInit(): void {
+          this.activatedRoute.queryParams.subscribe(params => {
+            this.name = params['name'];
+          });
+        }    
+      }
+
+  C.設定萬用[路由]
+
+    程式碼範例(app-routing.module.ts)：
+      import { NgModule } from '@angular/core';
+      import { RouterModule, Routes } from '@angular/router';
+      import { FirstComponent } from './first/first.component';
+      import { SecondComponent } from './second/second.component';
+      import { PageNotFoundComponentComponent } from './page-not-found-component/page-not-found-component.component';
+
+      const routes: Routes = [
+        {path: 'first-component', component: FirstComponent},
+        {path: 'second-component', component: SecondComponent},
+        {path: '', redirectTo: '/first-component', pathMatch: 'full'},
+        {path: '**', component: PageNotFoundComponentComponent}, //設定萬用[路由]
+      ];
+
+      @NgModule({
+        imports: [RouterModule.forRoot(routes)],
+        exports: [RouterModule]
+      })
+      export class AppRoutingModule { }
+
+  D.顯示404頁面
+
+    程式碼範例：
+      const routes: Routes = [
+        { path: 'first-component', component: FirstComponent },
+        { path: 'second-component', component: SecondComponent },
+        { path: '**', component: PageNotFoundComponent },  // Wildcard route for a 404 page
+      ];
+
+  E.設定重導(Setting up redirects)[路由]
+
+    重點在 => path: 從哪來 ; redirectTo: 去哪裡 ; pathMatch: 比對模式 'full | prefix(預設,未設定full就是prefix)'
+
+  F.巢狀路徑/父子路徑(Nesting Routes)  
+
+    父階Component 連接子階Component 並顯示(前端)
+      => 在父階Component HTML內, 加上 routerLink = 'childComponent' 即可, 作為子階Component連接用.
+      => 在父階Component HTML內, 加上 另一個 <router-outlet></router-outlet> 標籤, 作為子階Component顯示用.
+      => 在父階Component Route的children屬性內, 定義 子階Component Route.
+         
+         程式碼範例：設定子階路徑
+          const routes: Routes = [
+            {path: 'first-component', component: FirstComponent, //父階
+              children:[
+                  {path: 'child-a', component: ChildAComponent}, //子階
+                  {path: 'child-b', component: ChildBComponent},
+                ], },
+            {path: 'second-component', component: SecondComponent},
+            {path: '', redirectTo: '/first-component', pathMatch: 'full'},
+            {path: '**', component: PageNotFoundComponentComponent},
+          ];
+  
+  F.使用相對路徑(Using Relative paths)
+    
+    連接同階Component(前端) => routerLink = '../同階Component'
+    '../', 表示往上一階
+
+    指定相對路徑(後端), 須使用 NavigationExtras 套件的 relativeTo 屬性.
+      1.在Component後端, import { NavigationExtras }  from '@angular/router';
+      2.使用 relativeTo 屬性, 指定指定相對路徑
+
+      程式碼範例(1/3)：先設定路由規則
+        import { NgModule } from '@angular/core';
+        import { RouterModule, Routes } from '@angular/router';
+        import { FirstComponent } from './first/first.component';
+        import { SecondComponent } from './second/second.component';
+        import { PageNotFoundComponentComponent } from './page-not-found-component/page-not-found-component.component';
+        import { ChildAComponent } from './child-a/child-a.component';
+        import { ChildBComponent } from './child-b/child-b.component';
+        import { ChildCComponent } from './child-c/child-c.component';
+
+        const routes: Routes = [
+          {path: 'first-component', component: FirstComponent,
+            children:[
+                {path: 'child-a', component: ChildAComponent},
+                {path: 'child-b', component: ChildBComponent},
+                {path: 'child-c', component: ChildCComponent}, //新加入
+              ], },
+          {path: 'second-component', component: SecondComponent},
+          {path: '', redirectTo: '/first-component', pathMatch: 'full'},
+          {path: '**', component: PageNotFoundComponentComponent},
+        ];
+
+        @NgModule({
+          imports: [RouterModule.forRoot(routes)],
+          exports: [RouterModule]
+        })
+        export class AppRoutingModule { }
+
+      程式碼範例(2/3)：再於後端程式內指定路由
+        import { Component, OnInit } from '@angular/core';
+        import { Router, ActivatedRoute, ParamMap } from '@angular/router';
+        import { NavigationExtras } from '@angular/router';
+
+        @Component({
+          selector: 'app-first',
+          templateUrl: './first.component.html',
+          styleUrls: ['./first.component.css']
+        })
+        export class FirstComponent implements OnInit {
+          public name: string | undefined;
+          constructor(private activatedRoute: ActivatedRoute, 
+                      private router: Router) { }
+
+          ngOnInit(): void {
+            this.activatedRoute.queryParams.subscribe(params => {
+              this.name = params['name'];
+            });
+          }
+
+          //範例1: FirstComponent後端程式, 要前往同階 SecondComponent
+          goToItems(): void {
+            this.router.navigate(['../second-component'], { relativeTo: this.activatedRoute });
+          }
+
+          //範例2: FirstComponent後端程式, 要前往子階 ChildCComponent
+          goToChildC(): void {
+            this.router.navigate(['child-c'],{ relativeTo: this.activatedRoute });
+          }
+        }
+      
+      程式碼範例(3/3)：最後,前端物件再指向後端函式
+        <h2>First Component</h2>
+        <nav>
+          <ul>
+            <li><a routerLink='../second-component'>連接SecondComponent(前端)</a></li>
+            <li><a (click)="goToItems()">連接SecondComponent(後端)</a></li>
+            <li><a routerLink='child-a'>Child A</a></li>
+            <li><a routerLink='child-b'>Child B</a></li>
+            <li><a (click)="goToChildC()">Child C(後端)</a></li>
+          </ul>
+        </nav>
+        <router-outlet></router-outlet>
+
+  G.存取URL查詢參數(query parameters)和段落(Fragments)
+
+    重點1: 存取URL查詢參數(query parameters)須使用 'ActivatedRoute'
+    重點2: 路徑轉移或導覽(navigate)須使用 'Router'
+    程式碼範例：
+      import { Router, ActivatedRoute, ParamMap } from '@angular/router';
+      import { Observable } from 'rxjs';
+
+      hero$: Observable;
+
+      constructor(
+        private route: ActivatedRoute,
+        private router: Router  ) {}
+
+      ngOnInit() {
+        const heroId = this.route.snapshot.paramMap.get('id'); // 存取URL查詢參數(query parameters)
+        this.hero$ = this.service.getHero(heroId);
+      }
+
+      gotoItems(hero: Hero) {
+        const heroId = hero ? hero.id : null;
+        // Pass along the hero id if available
+        // so that the HeroList component can select that item.
+        this.router.navigate(['/heroes', { id: heroId }]); // 路徑轉移或導覽(navigate)
+      }
+
+  H.使用時載入(Lazy loading)
+      RouterModule.forChild(routes)
+    全部載入(預設)
+      RouterModule.forRoot(routes)
+    使用前先載入(Preload loading, 可改善UX使用者體驗)
+      
+      # 預載 module
+      import { PreloadAllModules } from '@angular/router';
+      RouterModule.forRoot(
+        appRoutes,
+        {
+          preloadStrategy: PreloadAllModules
+        }
+      )
+
+      # 預載 資料(component data) 
+      https://angular.io/guide/lazy-loading-ngmodules#preloading-component-data
+
+  I.預防未授權存取(Preventing unauthorized access)
+    
+--2021-03-18 內容更新--

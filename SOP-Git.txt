@@ -1,0 +1,17 @@
+﻿如何移除本機端responsity 的版控 
+
+1. 先備份檔案至別的資料夾
+2. 刪除該資料夾的檔案, .git會刪不掉
+3. git commit -a
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch master
+# Changes to be committed:
+#	deleted:    AFile.txt.txt
+#
+
+4. 最後, 就能把 .git 刪掉了
+
+就會將版本控制的檔案清除，這樣就回到最原始的乾淨的資料夾
