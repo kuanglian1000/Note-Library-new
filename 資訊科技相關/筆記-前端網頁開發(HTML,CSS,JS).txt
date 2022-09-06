@@ -385,7 +385,7 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
           setUserName();
         }
 
-Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作業具有挑戰性, 看完免費的前7章, 接下來要付錢) 
+Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作業具有挑戰性, 看完免費的前7章, 接下來的40章要付錢2000元台幣) 
 資料來源: https://learnjavascript.online/ 完成免費課程(OK, 2022/09/02完成)
 
   1. Basic functions
@@ -1367,9 +1367,225 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
 
   2022/09/02 15:00 完成免費課程, 接下來要 US75美金, 約2千多元, 先考慮一下吧~~~
 
+(學習中)JavaScript — 動態的客戶端指令(初階)
+資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript
+
+  JavaScript 初探
+  https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/First_steps
+
+    JavaScript是什麼?
+      JavaScript 是一種'腳本語言'，也能稱它為程式語言，可以讓你在網頁中實現出複雜的功能。
+      它是標準網頁技術蛋糕的第三層，而其他兩層（HTML-'標記語言' 和 CSS-'樣式規則語言'）我們在其他學習單元中有更多詳細的介紹。
+
+      實作範例:
+        <HTML>
+          <p>Player 1: KL</p>
+        <CSS>
+          p {
+            font-family: 'helvetica neue', helvetica, sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-align: center;
+            border: 2px solid rgba(0,0,200,0.6);
+            background: rgba(0,0,200,0.3);
+            color: rgba(0,0,200,0.6);
+            box-shadow: 1px 1px 2px rgba(0,0,200,0.4);
+            border-radius: 10px;
+            padding: 3px 10px;
+            display: inline-block;
+            cursor:pointer;
+          }
+        <JS>
+          const para = document.querySelector('p');
+          para.addEventListener('click', updateName);
+
+          function updateName(){
+            let name = prompt('Input your name?');
+            para.textContent = 'Player 1: ${name}';
+          }
+
+      JavaScript 還能利用API(應用程式介面), 提供JS額外的能力.
+      JS可用的API大致上分兩類:
+        1. **瀏覽器 API（Browser APIs）**內建在你的瀏覽器中，能夠依本地的電腦環境輸出資料或實現複雜的功能.
+          ex. DOM(文件物件模型) API, GEO(地理位置) API, Canvas(畫布) API, Audio & Video API.
+        2. 第三方 API 預設不內建在瀏覽器裡，你通常由網路上取得他們的程式碼與資訊。
+          ex. Twitter API => 顯示最新Twitter貼文在網站上, Google Maps API => 嵌入訂製地圖或其他功能..
+
+    JavaScript到底作了什麼事?
+      透過 DOM API （上面提到的）動態調整 HTML 與 CSS 進行改變網頁呈現，在 JavaScript 是很常見的使用方式。
+      #要注意的是#，檔案中的程式碼通常會以出現在頁面上的順序來執行。
+      如果 JavaScript 比準備操作的 HTML 、 CSS 更早被載入，就可能會發生錯誤。
+      你將會在這個章節的後段學到一些解決問題的方法，它在腳本載入策略的部分。
+      (註: 例如把JS放在最後面才載入 <= 腳本載入策略)
+
+    browser的安全性
+      原則上, 每個分頁間有獨立執行環境, 不會相互影響.
+      例外時, 還是可以在頁面間作資料存取或傳遞, 進階功能.
+
+    JavaScript的執行順序
+      原則上, 由上往下執行.
+      因此, 你需要特別注意 #程式碼擺放位置#.
+
+      例: 下列第1行跟第2行, 若順序相反. 
+          在出現 browser console 會出現[TypeError: para is undefined]
+          (註: 表示找不到para物件.)
+          const para = document.querySelector('p');
+          para.addEventListener('click', updateName);
+    
+    直譯式與編譯式程式語言
+      直譯式 - JavaScript以技術的角度來看，大多數現代的 JavaScript 直譯器實際上會使用一種稱為**即時編譯（just-in-time compiling）**的技術來提升執行表現。 
+               JavaScript 被使用時，原始程式會被編譯成更快的二進位格式，讓它們能更有效率的運行。
+
+      編譯式 - C/C++ 在被電腦執行之前要編譯為組合語言。
+               被執行的程式是一種二進位的格式，由程式原始碼產生出來
+
+    伺服器端與用戶端程式
+      用戶端程式 - 當瀏覽網頁的時候，頁面中的客戶端程式被下載，接著被瀏覽器執行與顯示結果。
+      伺服器端程式 - 伺服器端的程式在伺服器上執行，接著產出的結果被瀏覽器下載後顯示。
+
+    動態與靜態程式
+      <動態>
+        一詞被用於描述用戶端 JavaScript 和伺服器端程式語言，用來描述具有在不同的狀況下更新網頁／網頁應用程式來顯示不同東西，
+        依需要來產生新內容的能力, 是根據要求生成新內容的能力。
+        伺服器端程式在伺服器上動態產生的新內容，
+        可能是來自資料庫中取出的數據，
+        而用戶端 JavaScript 在收到由伺服器端要回來的資料，
+        在瀏覽器內動態產生新的內容（如 HTML 表格）後加入頁面中呈現出來。
+
+      <靜態>
+        一個沒有動態更新內容能力的網頁被稱為靜態，它在任何時候都只顯示一樣的內容。
+
+    如何在網頁中增加JavaScript?
+      1. 內部JS (註: 在DOM載入事件, 註冊JS函式)
+          <script>
+            //JS放在這
+            //# 內部JS寫法 和  外部JS寫法 有點不同.#
+             document.addEventListener('DOMContentLoaded', function(){
+               function createParagraph(){
+                 let para = document.createElement('p');
+                 para.textContent = 'You clicked the button';
+                 document.body.appendChild(para);
+               }
+
+               const buttons = document.querySelectorAll('button');
+
+               for (const button of buttons) {
+                 button.addEventListener('click', createParagraph);
+               }
+             });
+          </script>
+        </head>
+
+      2. 外部JS (註: 單純加入JS程式檔連接 & async)
+        <script src="script.js" async></script>
+        {在 script.js 內}
+
+          function createParagraph(){
+            let para = document.createElement('p');
+            para.textContent = 'You clicked the button';
+            document.body.appendChild(para);
+          }
+
+          const buttons = document.querySelectorAll('button');
+
+          for (const button of buttons) {
+            button.addEventListener('click', createParagraph);
+          }
+
+      3. 行內(Inline)JS (X 千萬不要這麼寫 X)
+
+        function createParagraph(){
+          let para = document.createElement('p');
+          para.textContent = 'You Clicked.';
+          document.body.appendChild(para);
+        }
+
+        <button onclick='createParagraph()'>Click me!</button>
+
+        **然而，請不要這樣做。
+        **用 JavaScript 汙染你的 HTML 是一種不好的作法，
+          而且沒有效率，因為你必須在每個你希望 JavaScript 作用的地方加入 onclick="createParagraph()" 屬性。
+
+      4. 腳本載入策略(Script loading strategies)
+
+        # 常見的問題是，所有的 HTML 是根據出現順序載入。
+            假如你使用 JavaScript 操作頁面中的元素（精確地來說是 DOM 元素），
+            如果 JavaScript 在這些 HTML 操作對象前被讀取及解析，
+            你的程式將無法運作。
+        # 上述內部JS和外部JS例子中的程式碼, 都放在HTML的HEAD區域, 在 body 區被載入前就先被解析。這樣會造成一些問題.
+            # 內部JS 的解決方式: 事件偵聽器, , defer 只適用於外部腳本
+                它偵聽瀏覽器的「DOMContentLoaded」事件，
+                它是在 HTML body 部分已經完全載入與解析發出。
+                區塊內（... 的部分）的 JavaScript 直到事件被發出後才會執行，
+                這樣子問題就被避開了。
+                
+                document.addEventListener('DOMContentLoaded', function(){...});
+
+            # 外部JS 的解決方式: 較現代的JS defer 屬性, defer 只適用於外部腳本
+                它告訴瀏覽器碰到這種 <script> 標籤時，繼續下載後面其他的 HTML 內容。
+
+                <script scr="..." defer></script>
+
+            # (註: 在'外部程式'的範例裡，我們不需要使用 DOMContentLoaded 事件.
+                  因為 defer 為我們解決問題了。
+                   在'內部程式'的範例裡，我們沒用 defer 屬性，
+                  是因為 defer 屬性只能用於外部的腳本。)
+
+            # 舊解法: 放在</body>前再載入, 但效能極差. (X 不建議再使用 X)
+                將 script 元素放在 body 元素的底部（剛好在 </body> 的前面），
+                如此它就會在所有 HTML 被解析完之後才被載入。
+                (這個方法的問題在於腳本的載入與解析工作會被完成擋住)，
+                一直到所有 HTML 載入完成。
+                在擁有許多 JavaScript 的大型網站中，這樣會導致(嚴重的效能問題)，拖慢你的網站
+
+        # 解決外部JS載入問題的方式(defer or async)及差異
+          0. defer & async 都能閃過(避開) Script 被擋住的問題.
+          1. <script defer> or <script async>兩個屬性都是用來告訴browser使用獨立Process來下載Script,
+            同時間頁面的其他部分(如DOM)也在下載, 因此頁面載入不會受腳本影響.
+          2. <script async> 
+            若你的Script不相互依賴(例: script1.js 不依賴 jquery.js, 沒有使用到jquery內的函式), 
+            且應該立即執行 或 希望儘快被載入, 請用 async.
+          3. <script defer>
+            若你的Script須依賴其他Script或DOM載入完成.
+            請用 defer, 並依據想要browser執行順序來安排 <script> 元素的順序.
+
+            <script defer scr="js/vendor/jquery.js"></script>
+            <script defer scr="js/script2.js"></script>
+            <script defer scr="js/script3.js"></script>
+            
+    註解
+      1. 單行註解 //
+      2. 多行註解 /*...*/
+      3. 建議 => 多寫註解比少寫來得好。
+        但是要注意，
+        如果發現註解在說明變數用途（那變數命名可能需要更直觀，更帶有意義），
+        或是解釋非常簡單的操作（也許你的程式碼太過於複雜）。
+
+  JavaScript 構成元素
+  https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/Building_blocks
+
+  JavaScript 物件介紹
+  https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/Objects
+
+  非同步的 JavaScript
+  https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/Asynchronous
+
+  用戶端的 web API
+  https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/Client-side_web_APIs
+
+  透過 JavaScript 解決常見的問題
+  https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/Howto
+
+JavaScript 指南(中階)
+資料來源: https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Guide
+
+JavaScript 參考文件(高階, 查閱用)
+資料來源: https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference
+
 (2022/09前兩週目標 09/06~09/16)
 
-TODO: https://www.w3schools.com/js/default.asp
+JavaScript Tutorial(感覺內容好像沒有很OK??)
+資料來源: https://www.w3schools.com/js/default.asp
 
 TODO: 進階新目標 => 不一樣的 Node.js 用JavaScript打造高效能的前後台網頁程式 
 (2022/09/03 看了前幾章發現, 後面內容有點艱澀, 先暫停一下, 至少先把 nodejs 環境完成, 可以執行 JS檔)
@@ -1546,9 +1762,5 @@ TODO: 進階新目標 => 不一樣的 Node.js 用JavaScript打造高效能的前
     # 注意/異常排除 #:  Visual Code 的第一個Node.js與 Node一開始系統無法執行的解決辦法 
       1. 很奇怪的是, 直接開 cmd , 輸入 node 都能正常啟動, 但第1次在VSCode內的cmd卻不正常.
       2. 解法: [VSCode 執行檔] -> [右鍵] -> [內容] -> [相容性], 請勾選 [以管理員的身分執行程式] -> [確認], 重啟VSCode後即解決.
-
-
-
-
 
 
