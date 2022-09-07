@@ -1373,7 +1373,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
   JavaScript 初探
   https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/First_steps
 
-    JavaScript是什麼?
+    JavaScript是什麼?(OK)
       JavaScript 是一種'腳本語言'，也能稱它為程式語言，可以讓你在網頁中實現出複雜的功能。
       它是標準網頁技術蛋糕的第三層，而其他兩層（HTML-'標記語言' 和 CSS-'樣式規則語言'）我們在其他學習單元中有更多詳細的介紹。
 
@@ -1411,155 +1411,314 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
         2. 第三方 API 預設不內建在瀏覽器裡，你通常由網路上取得他們的程式碼與資訊。
           ex. Twitter API => 顯示最新Twitter貼文在網站上, Google Maps API => 嵌入訂製地圖或其他功能..
 
-    JavaScript到底作了什麼事?
-      透過 DOM API （上面提到的）動態調整 HTML 與 CSS 進行改變網頁呈現，在 JavaScript 是很常見的使用方式。
-      #要注意的是#，檔案中的程式碼通常會以出現在頁面上的順序來執行。
-      如果 JavaScript 比準備操作的 HTML 、 CSS 更早被載入，就可能會發生錯誤。
-      你將會在這個章節的後段學到一些解決問題的方法，它在腳本載入策略的部分。
-      (註: 例如把JS放在最後面才載入 <= 腳本載入策略)
+      JavaScript到底作了什麼事?
+        透過 DOM API （上面提到的）動態調整 HTML 與 CSS 進行改變網頁呈現，在 JavaScript 是很常見的使用方式。
+        #要注意的是#，檔案中的程式碼通常會以出現在頁面上的順序來執行。
+        如果 JavaScript 比準備操作的 HTML 、 CSS 更早被載入，就可能會發生錯誤。
+        你將會在這個章節的後段學到一些解決問題的方法，它在腳本載入策略的部分。
+        (註: 例如把JS放在最後面才載入 <= 腳本載入策略)
 
-    browser的安全性
-      原則上, 每個分頁間有獨立執行環境, 不會相互影響.
-      例外時, 還是可以在頁面間作資料存取或傳遞, 進階功能.
+      browser的安全性
+        原則上, 每個分頁間有獨立執行環境, 不會相互影響.
+        例外時, 還是可以在頁面間作資料存取或傳遞, 進階功能.
 
-    JavaScript的執行順序
-      原則上, 由上往下執行.
-      因此, 你需要特別注意 #程式碼擺放位置#.
+      JavaScript的執行順序
+        原則上, 由上往下執行.
+        因此, 你需要特別注意 #程式碼擺放位置#.
 
-      例: 下列第1行跟第2行, 若順序相反. 
-          在出現 browser console 會出現[TypeError: para is undefined]
-          (註: 表示找不到para物件.)
-          const para = document.querySelector('p');
-          para.addEventListener('click', updateName);
-    
-    直譯式與編譯式程式語言
-      直譯式 - JavaScript以技術的角度來看，大多數現代的 JavaScript 直譯器實際上會使用一種稱為**即時編譯（just-in-time compiling）**的技術來提升執行表現。 
-               JavaScript 被使用時，原始程式會被編譯成更快的二進位格式，讓它們能更有效率的運行。
+        例: 下列第1行跟第2行, 若順序相反. 
+            在出現 browser console 會出現[TypeError: para is undefined]
+            (註: 表示找不到para物件.)
+            const para = document.querySelector('p');
+            para.addEventListener('click', updateName);
+      
+      直譯式與編譯式程式語言
+        直譯式 - JavaScript以技術的角度來看，大多數現代的 JavaScript 直譯器實際上會使用一種稱為**即時編譯（just-in-time compiling）**的技術來提升執行表現。 
+                JavaScript 被使用時，原始程式會被編譯成更快的二進位格式，讓它們能更有效率的運行。
 
-      編譯式 - C/C++ 在被電腦執行之前要編譯為組合語言。
-               被執行的程式是一種二進位的格式，由程式原始碼產生出來
+        編譯式 - C/C++ 在被電腦執行之前要編譯為組合語言。
+                被執行的程式是一種二進位的格式，由程式原始碼產生出來
 
-    伺服器端與用戶端程式
-      用戶端程式 - 當瀏覽網頁的時候，頁面中的客戶端程式被下載，接著被瀏覽器執行與顯示結果。
-      伺服器端程式 - 伺服器端的程式在伺服器上執行，接著產出的結果被瀏覽器下載後顯示。
+      伺服器端與用戶端程式
+        用戶端程式 - 當瀏覽網頁的時候，頁面中的客戶端程式被下載，接著被瀏覽器執行與顯示結果。
+        伺服器端程式 - 伺服器端的程式在伺服器上執行，接著產出的結果被瀏覽器下載後顯示。
 
-    動態與靜態程式
-      <動態>
-        一詞被用於描述用戶端 JavaScript 和伺服器端程式語言，用來描述具有在不同的狀況下更新網頁／網頁應用程式來顯示不同東西，
-        依需要來產生新內容的能力, 是根據要求生成新內容的能力。
-        伺服器端程式在伺服器上動態產生的新內容，
-        可能是來自資料庫中取出的數據，
-        而用戶端 JavaScript 在收到由伺服器端要回來的資料，
-        在瀏覽器內動態產生新的內容（如 HTML 表格）後加入頁面中呈現出來。
+      動態與靜態程式
+        <動態>
+          一詞被用於描述用戶端 JavaScript 和伺服器端程式語言，用來描述具有在不同的狀況下更新網頁／網頁應用程式來顯示不同東西，
+          依需要來產生新內容的能力, 是根據要求生成新內容的能力。
+          伺服器端程式在伺服器上動態產生的新內容，
+          可能是來自資料庫中取出的數據，
+          而用戶端 JavaScript 在收到由伺服器端要回來的資料，
+          在瀏覽器內動態產生新的內容（如 HTML 表格）後加入頁面中呈現出來。
 
-      <靜態>
-        一個沒有動態更新內容能力的網頁被稱為靜態，它在任何時候都只顯示一樣的內容。
+        <靜態>
+          一個沒有動態更新內容能力的網頁被稱為靜態，它在任何時候都只顯示一樣的內容。
 
-    如何在網頁中增加JavaScript?
-      1. 內部JS (註: 在DOM載入事件, 註冊JS函式)
-          <script>
-            //JS放在這
-            //# 內部JS寫法 和  外部JS寫法 有點不同.#
-             document.addEventListener('DOMContentLoaded', function(){
-               function createParagraph(){
-                 let para = document.createElement('p');
-                 para.textContent = 'You clicked the button';
-                 document.body.appendChild(para);
-               }
+      如何在網頁中增加JavaScript?
+        1. 內部JS (註: 在DOM載入事件, 註冊JS函式)
+            <script>
+              //JS放在這
+              //# 內部JS寫法 和  外部JS寫法 有點不同.#
+              document.addEventListener('DOMContentLoaded', function(){
+                function createParagraph(){
+                  let para = document.createElement('p');
+                  para.textContent = 'You clicked the button';
+                  document.body.appendChild(para);
+                }
 
-               const buttons = document.querySelectorAll('button');
+                const buttons = document.querySelectorAll('button');
 
-               for (const button of buttons) {
-                 button.addEventListener('click', createParagraph);
-               }
-             });
-          </script>
-        </head>
+                for (const button of buttons) {
+                  button.addEventListener('click', createParagraph);
+                }
+              });
+            </script>
+          </head>
 
-      2. 外部JS (註: 單純加入JS程式檔連接 & async)
-        <script src="script.js" async></script>
-        {在 script.js 內}
+        2. 外部JS (註: 單純加入JS程式檔連接 & async)
+          <script src="script.js" async></script>
+          {在 script.js 內}
+
+            function createParagraph(){
+              let para = document.createElement('p');
+              para.textContent = 'You clicked the button';
+              document.body.appendChild(para);
+            }
+
+            const buttons = document.querySelectorAll('button');
+
+            for (const button of buttons) {
+              button.addEventListener('click', createParagraph);
+            }
+
+        3. 行內(Inline)JS (X 千萬不要這麼寫 X)
 
           function createParagraph(){
             let para = document.createElement('p');
-            para.textContent = 'You clicked the button';
+            para.textContent = 'You Clicked.';
             document.body.appendChild(para);
           }
 
-          const buttons = document.querySelectorAll('button');
+          <button onclick='createParagraph()'>Click me!</button>
 
-          for (const button of buttons) {
-            button.addEventListener('click', createParagraph);
-          }
+          **然而，請不要這樣做。
+          **用 JavaScript 汙染你的 HTML 是一種不好的作法，
+            而且沒有效率，因為你必須在每個你希望 JavaScript 作用的地方加入 onclick="createParagraph()" 屬性。
 
-      3. 行內(Inline)JS (X 千萬不要這麼寫 X)
+        4. 腳本載入策略(Script loading strategies)
 
-        function createParagraph(){
-          let para = document.createElement('p');
-          para.textContent = 'You Clicked.';
-          document.body.appendChild(para);
-        }
+          # 常見的問題是，所有的 HTML 是根據出現順序載入。
+              假如你使用 JavaScript 操作頁面中的元素（精確地來說是 DOM 元素），
+              如果 JavaScript 在這些 HTML 操作對象前被讀取及解析，
+              你的程式將無法運作。
+          # 上述內部JS和外部JS例子中的程式碼, 都放在HTML的HEAD區域, 在 body 區被載入前就先被解析。這樣會造成一些問題.
+              # 內部JS 的解決方式: 事件偵聽器, , defer 只適用於外部腳本
+                  它偵聽瀏覽器的「DOMContentLoaded」事件，
+                  它是在 HTML body 部分已經完全載入與解析發出。
+                  區塊內（... 的部分）的 JavaScript 直到事件被發出後才會執行，
+                  這樣子問題就被避開了。
+                  
+                  document.addEventListener('DOMContentLoaded', function(){...});
 
-        <button onclick='createParagraph()'>Click me!</button>
+              # 外部JS 的解決方式: 較現代的JS defer 屬性, defer 只適用於外部腳本
+                  它告訴瀏覽器碰到這種 <script> 標籤時，繼續下載後面其他的 HTML 內容。
 
-        **然而，請不要這樣做。
-        **用 JavaScript 汙染你的 HTML 是一種不好的作法，
-          而且沒有效率，因為你必須在每個你希望 JavaScript 作用的地方加入 onclick="createParagraph()" 屬性。
+                  <script scr="..." defer></script>
 
-      4. 腳本載入策略(Script loading strategies)
+              # (註: 在'外部程式'的範例裡，我們不需要使用 DOMContentLoaded 事件.
+                    因為 defer 為我們解決問題了。
+                    在'內部程式'的範例裡，我們沒用 defer 屬性，
+                    是因為 defer 屬性只能用於外部的腳本。)
 
-        # 常見的問題是，所有的 HTML 是根據出現順序載入。
-            假如你使用 JavaScript 操作頁面中的元素（精確地來說是 DOM 元素），
-            如果 JavaScript 在這些 HTML 操作對象前被讀取及解析，
-            你的程式將無法運作。
-        # 上述內部JS和外部JS例子中的程式碼, 都放在HTML的HEAD區域, 在 body 區被載入前就先被解析。這樣會造成一些問題.
-            # 內部JS 的解決方式: 事件偵聽器, , defer 只適用於外部腳本
-                它偵聽瀏覽器的「DOMContentLoaded」事件，
-                它是在 HTML body 部分已經完全載入與解析發出。
-                區塊內（... 的部分）的 JavaScript 直到事件被發出後才會執行，
-                這樣子問題就被避開了。
-                
-                document.addEventListener('DOMContentLoaded', function(){...});
+              # 舊解法: 放在</body>前再載入, 但效能極差. (X 不建議再使用 X)
+                  將 script 元素放在 body 元素的底部（剛好在 </body> 的前面），
+                  如此它就會在所有 HTML 被解析完之後才被載入。
+                  (這個方法的問題在於腳本的載入與解析工作會被完成擋住)，
+                  一直到所有 HTML 載入完成。
+                  在擁有許多 JavaScript 的大型網站中，這樣會導致(嚴重的效能問題)，拖慢你的網站
 
-            # 外部JS 的解決方式: 較現代的JS defer 屬性, defer 只適用於外部腳本
-                它告訴瀏覽器碰到這種 <script> 標籤時，繼續下載後面其他的 HTML 內容。
+          # 解決外部JS載入問題的方式(defer or async)及差異
+            0. defer & async 都能閃過(避開) Script 被擋住的問題.
+            1. <script defer> or <script async>兩個屬性都是用來告訴browser使用獨立Process來下載Script,
+              同時間頁面的其他部分(如DOM)也在下載, 因此頁面載入不會受腳本影響.
+            2. <script async> 
+              若你的Script不相互依賴(例: script1.js 不依賴 jquery.js, 沒有使用到jquery內的函式), 
+              且應該立即執行 或 希望儘快被載入, 請用 async.
+            3. <script defer>
+              若你的Script須依賴其他Script或DOM載入完成.
+              請用 defer, 並依據想要browser執行順序來安排 <script> 元素的順序.
 
-                <script scr="..." defer></script>
+              <script defer scr="js/vendor/jquery.js"></script>
+              <script defer scr="js/script2.js"></script>
+              <script defer scr="js/script3.js"></script>
+              
+      註解
+        1. 單行註解 //
+        2. 多行註解 /*...*/
+        3. 建議 => 多寫註解比少寫來得好。
+          但是要注意，
+          如果發現註解在說明變數用途（那變數命名可能需要更直觀，更帶有意義），
+          或是解釋非常簡單的操作（也許你的程式碼太過於複雜）。
 
-            # (註: 在'外部程式'的範例裡，我們不需要使用 DOMContentLoaded 事件.
-                  因為 defer 為我們解決問題了。
-                   在'內部程式'的範例裡，我們沒用 defer 屬性，
-                  是因為 defer 屬性只能用於外部的腳本。)
+    初次接觸Javascript(OK)
 
-            # 舊解法: 放在</body>前再載入, 但效能極差. (X 不建議再使用 X)
-                將 script 元素放在 body 元素的底部（剛好在 </body> 的前面），
-                如此它就會在所有 HTML 被解析完之後才被載入。
-                (這個方法的問題在於腳本的載入與解析工作會被完成擋住)，
-                一直到所有 HTML 載入完成。
-                在擁有許多 JavaScript 的大型網站中，這樣會導致(嚴重的效能問題)，拖慢你的網站
+      功能簡介:
+        1. 撰寫猜數字遊戲
+        2. 猜10次
+        3. 數字範圍: 1-100
+        4. 猜完, 回傳答對或答錯, 若答錯要告訴玩家太小或太大
+        5. 結束條件1: 答對
+        6. 結束條件2: 猜滿10次
+        7. 結束後, 顯示Game Over, 關閉輸入欄位, 啟用'再玩'按鈕.
 
-        # 解決外部JS載入問題的方式(defer or async)及差異
-          0. defer & async 都能閃過(避開) Script 被擋住的問題.
-          1. <script defer> or <script async>兩個屬性都是用來告訴browser使用獨立Process來下載Script,
-            同時間頁面的其他部分(如DOM)也在下載, 因此頁面載入不會受腳本影響.
-          2. <script async> 
-            若你的Script不相互依賴(例: script1.js 不依賴 jquery.js, 沒有使用到jquery內的函式), 
-            且應該立即執行 或 希望儘快被載入, 請用 async.
-          3. <script defer>
-            若你的Script須依賴其他Script或DOM載入完成.
-            請用 defer, 並依據想要browser執行順序來安排 <script> 元素的順序.
+      邏輯:
+        0. 新遊戲開始, 要求玩家輸入數值, 存入 userInput
+        1. 新增變數 times, 統計目前玩幾次
+        2. 新增變數 answer, 記錄正確答案
+        3. 新增變數 userInput, 記錄玩家輸入
+        4. 比較結果, compare userInput & answer, show result to 玩家
+          4.1 答對 => 遊戲結束(顯示Game Over, 關閉輸入欄位, 啟用'再玩'按鈕.)
+          4.2 (答錯 & time == 10) => 遊戲結束(顯示Game Over, 關閉輸入欄位, 啟用'再玩'按鈕.)
+          4.2 (答錯 & time < 10) => 新遊戲開始, 顯示剩餘回合
+          
+      作業完成(JS Code也在裡面): 
+        C:\Projects\Projects_HTML\MDN_guessNumberGame\number-guessing-game-hasJSCode.html
 
-            <script defer scr="js/vendor/jquery.js"></script>
-            <script defer scr="js/script2.js"></script>
-            <script defer scr="js/script3.js"></script>
+    JavaScript 的疑難排解（除錯）什麼出錯了？(OK) 
+
+      檔案路徑: C:\Projects\Projects_HTML\MDN_howToDebug\number-game-errors.html
+
+      1. [F12] 可以開啟程式開發工具
+      2. [主控台] 可以顯示錯誤項目, 點下紅色錯誤後, 它會切換到[除錯器]
+      3. [除錯器] 可以明確地帶你到錯誤的位置.
+
+      錯誤類別:
+      1. 語法錯誤
+      2. 邏輯錯誤
+      3. ...
+
+    儲存你需要的資訊 — 變數(OK)
+
+      1. 如果您使用的是網頁瀏覽器，最適合輸入代碼的地方便是 JavaScript 主控台
+      2. 變數的功能
+        # 變數可以 => 減少重複程式撰寫.
+            [不良寫法]
+              let name = prompt('What is your name?');
+
+              if (name === 'Adam') {
+                alert('Hello Adam, nice to see you!');
+              } else if (name === 'Alan') {
+                alert('Hello Alan, nice to see you!');
+              } else if (name === 'Bella') {
+                alert('Hello Bella, nice to see you!');
+              } else if (name === 'Bianca') {
+                alert('Hello Bianca, nice to see you!');
+              } else if (name === 'Chris') {
+                alert('Hello Chris, nice to see you!');
+              }
+            [較佳寫法]
+              let btn = document.querySelector('button');
+              btn.addEventListener('click', function(){
+                let name = prompt('What is your name?')
+                alert(`Hello ${name}, nice to see you!`);
+              });
+        # 變數可以 => 儲存任何東西.
+            例: 字串,數值,物件,函數
+
+      3. 定義變數
+        let myName;
+        let myAge;
+
+      4. 變數未指派/未初始化
+        myName; // undefined(未定義的值)
+        myAge; // undefined
+
+      5. 變數不存在 != 變數未指派
+        banana;
+        變數不存在(連盒子都沒有) => 會得到 uncaught Reference Error: banana is not defined.
+
+        let orange;
+        orange;
+        變數未指派(有盒子, 但裡面沒有東西) => 會得到 undefined
+
+      6. [重要] var 和 let 有什麼不同??
+        a. 有效範圍: 
+           let 可以宣告只能在目前區塊、階段或表達式中作用的變數。
+           var 則是定義了一個全域變數，
+            或是在整個 function 而不管該區塊範圍。
+        
+        b. 作用範圍規則:
+           let 作用範圍侷限在它被定義的區塊, 以該區塊的子區塊.
+           var 作用範圍則是 「涵蓋整個 function, 不管讓區塊範圍」
+
+        c. 強烈建議以後用 let 取代 var 定義變數, 除非你的JS必須在舊IE上跑.(IE 11後就能用 let 了)
             
-    註解
-      1. 單行註解 //
-      2. 多行註解 /*...*/
-      3. 建議 => 多寫註解比少寫來得好。
-        但是要注意，
-        如果發現註解在說明變數用途（那變數命名可能需要更直觀，更帶有意義），
-        或是解釋非常簡單的操作（也許你的程式碼太過於複雜）。
+            //可怕範例(var hoisting): 舊時代JS的遺毒, 允許定義相同名稱的變數.//
+              myName = 'Chris';
+              function logName(){
+                console.log(myName);
+              }
+              logName();
+              var myName;
+
+            hoisting 已不在 let 中發生.
+
+      7. 更新變數值 (=)
+
+      8. 變數命名規則
+        a. (0-9, a-z, A-Z, _)
+        b. 除了上述字元外, 不要用
+        c. 首字元, 不要用_, 會和JS建構子衝突
+        d. 首字元, 不要用0-9, 會出錯
+        e. 慣例, 首字元小寫接著駱駝
+        f. 變數名稱, 直覺命名
+        g. 變數名稱, 區分大小寫
+        h. 避免使用JS保留字, 例: var, function, let , for...
+
+      9. 變數型態
+        let number = 17;
+        let price = 2.54;
+        
+        // 如果沒用 "", '' 將字串包起,  JavaScript will try to interpret it as another variable name.
+        let word = "KL";
+        let word2 = 'ILan'; 
+        
+        let todayIsSunny = true;
+        let test = 6 < 3; //false;
+
+        let aryName = ['KL', 'Sam']; //Arrays 陣列
+        let aryNumber = [10,29,98];
+
+        let car = {brand: "skoda", price:80}; //Objects 物件初始化
+        car.brand; //"skoda", 取值
+
+      10. 動態型別, 可利用 typeof xx, 得知xx目前型別.
+
+        let car = {brand: "skoda", price:80}; //物件初始化
+        typeof car; //"object"
+
+        let myName = "KL";
+        typeof myName;
+
+      11. JS的常數, const.
+        1. 它的宣告方式和 let 相同
+        2. const 與 let 唯一的差異在於宣告後無法再改變.
+
+           const daysInWeek = 7;
+           daysInWeek = 8; // Throws Error.
+
+        3. <#注意#>若const用在 [Arrays 陣列], 指的是變數永遠都是 [Arrays 陣列], 但陣列內容及項目是可以改變的哦~~~
+
+    JavaScript 的基本運算 - 數字 與 運算子
+    
+    JavaScript 的字串 - 處理文字
+    
+    有用的字串方法
+    
+    陣列
+    
+    附錄：笑話產生器
 
   JavaScript 構成元素
   https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/Building_blocks
