@@ -1512,8 +1512,18 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
               假如你使用 JavaScript 操作頁面中的元素（精確地來說是 DOM 元素），
               如果 JavaScript 在這些 HTML 操作對象前被讀取及解析，
               你的程式將無法運作。
+          
+          # 注意: 再次強調 #
+            1. 內部JS => (1)請將 <script></script> 放在 <body> 後面,
+                      或 (2)利用 document.addEventListener('DOMContentLoaded', function(){ // JSCode放這裡 //});
+                      (X, 內部JS不適用) <script async></script>
+                      (X, 內部JS不適用) <script defer></script>
+            2. 外部JS => (1)<script src="..." async></script>
+                         (2)<script src="..." defer></script>
+
           # 上述內部JS和外部JS例子中的程式碼, 都放在HTML的HEAD區域, 在 body 區被載入前就先被解析。這樣會造成一些問題.
-              # 內部JS 的解決方式: 事件偵聽器, , defer 只適用於外部腳本
+
+              # 內部JS 的解決方式: 事件偵聽器, defer 只適用於外部腳本
                   它偵聽瀏覽器的「DOMContentLoaded」事件，
                   它是在 HTML body 部分已經完全載入與解析發出。
                   區塊內（... 的部分）的 JavaScript 直到事件被發出後才會執行，
@@ -1710,9 +1720,157 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
 
         3. <#注意#>若const用在 [Arrays 陣列], 指的是變數永遠都是 [Arrays 陣列], 但陣列內容及項目是可以改變的哦~~~
 
-    JavaScript 的基本運算 - 數字 與 運算子
+    JavaScript 的基本運算 - 數字(Number & BigInt) 與 運算子(OK)
+
+      1. JS只有兩種數值型態, Number & BigInt.
+        const myInt = 5;
+        const myFloat = 6.667;
+        myInt;
+        myFloat;
+
+        typeof myInt; // "number"
+        typeof myFloat; // "number"
+
+      2. Number 物件內, 涵蓋所有數值函式.
+
+      3. 常用數學函式
+        a. 取小數點下四捨五入至第幾位 number.toFixed(?);
+        b. 字串轉數值 Number(input.value);
+
+          let myNumber = "74";
+          myNumber += 3; // "743", JS會自動幫你轉為字串
+
+          myNumber = Number(myNumber) + 3; // 77
+        
+        c. 7**3 === Math.pow(7,3); //7的3次方
+
+      4. 運算子優先序(Operator precedence)
+        a. 先乘除, 後加減.
+        b. 順序由左至右.
+        c. 如果要改變優先序, 請加上()
+
+      5. 遞增遞減運算子(Increment and decrement operators)
+        a. ++ , --, 只能在變數上使用
+          3++ (X); myInt++ (O)
+        b. myInt++ => 先回傳值, 再加1
+        c. ++myInt => 先加1, 再回傳值
+
+      6. 比較運算子(Comparison operators)
+        === 嚴格比較, 型態及值均須相等 (強烈建議以後用)
+        !== 嚴格不相等, 型態及值有1項不符, 即不相等 (強烈建議以後用)
+        <
+        >
+        <=
+        >=
+
+      7. toggle 一開一關的範例(很常用)
+        a. 
     
+    Number() & Number.parseInt(string, radix)的差異??
+    https://www.geeksforgeeks.org/what-is-the-difference-between-parseint-and-number/
+      1. 個人感覺最大差異在於 
+        => Number() 會嘗試將'整個字串'轉為'數字', 轉型失敗回傳 NaN.
+        => Number.parseInt(string, radix) 會嘗試將'部分字串'轉為'數字', 並回傳部分轉型成功的數字, 連部分轉型失敗才回傳 NaN.
+        例: let myNum = "123abc";
+        Number(myNum); //NaN
+        Number.parseInt(myNum); //123
+
+
     JavaScript 的字串 - 處理文字
+
+      1. 建立字串, let strName = "...";
+
+      2. 單引號與雙引號, 使用單引號與雙引號來包住字串, 兩種方式都相同.
+
+      3. 字串中的跳脫字元（\Escaping characters）, 例: 要加入 " 字元時, 要加入 \"
+
+      4. 連接字串(+), 
+        例: 字串 + 字串 = 字串 
+        例: 字串 + 數字(JS會自動幫你轉為字串) = 字串 <= 請小心使用
+        例: 字串 + 變數 + 字串 = 字串
+
+      5. 數值轉字串專用函式 (Number.toString()).
+        let myNum = 123;
+        let myString = myNum.toString();
+        typeof myString; //string
+
+      6. 字串轉數值專用函式 (Number(), 常用於處理使用輸入文字轉為數字處理時, 若無法轉為數字會回傳 NaN)
+        let myString = "123";
+        let myNum = Number(myString);
+        typeof myNum;
+
+      7. 模版字符串(Template String)
+        使用 `` 包住字串, 利用${xx}加入變數、函式或計算式.
+        <= 強烈建議以後用 =>
+        優點: 
+          # 直覺
+          # 保留程式碼中的斷行方式, 不須另加斷行符號
+          # 可直接放入 ${變數、函式或計算式}
+        缺點:
+          # IE可能不支援.
+
+      測驗: https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps/Test_your_skills:_Strings
+        解答方式: https://github.com/mdn/learning-area/blob/main/javascript/introduction-to-js-1/tasks/strings/marking.md
+
+        測驗2: 必須使用的字串函式 search() & substring(index, lastindex).
+          Definition and Usage
+          The search() method matches a string against a regular expression **
+          The search() method returns the index (position) of the first match. (註: 它只能找出第一個符合, 回傳position, 否則回傳 -1)
+          The search() method returns -1 if no match is found.
+          The search() method is case sensitive.
+
+        測驗3: 
+          方式一 
+            => 使用的字串函式 replace('oldValue','newValue');
+            Definition and Usage
+            The replace() method searches a string for a value or a regular expression.
+            The replace() method returns a new string with the value(s) replaced.
+            The replace() method does not change the original string.
+            注意1: 預設只會取代第1個值.
+            注意2: 若要取代所有值, 請使用 g modifier 設定
+              例: /School/gi <= g 指所有值; i 指'不區分大小寫'
+
+          方式二
+            => 使用的字串函式 String.prototype.matchAll(regexp);
+            
+            注意1: regexp值, 必須加上 g, 否則會報錯. 
+              正確範例: /foo[a-z]*/g 
+              錯誤範例: /foo[a-z]*/
+
+            注意2: String.prototype.matchAll(regexp) 回傳一個 Array
+          
+          方式三
+            => 使用的字串函式 String.prototype.split(); 拆成字元組成的Array
+
+            const str = 'The quick brown fox jumps over the lazy dog.';
+            const words = str.split(' '); //給單空白, 就用空白分割
+            console.log(words[3]);
+            // expected output: "fox"
+
+            const chars = str.split(''); //給空字串, 拆成字元組成的Array
+            console.log(chars[8]);
+            // expected output: "k"
+
+            const strCopy = str.split(); //什麼都沒給, 就把整個字串塞進Array
+            console.log(strCopy);
+            // expected output: Array ["The quick brown fox jumps over the lazy dog."]
+
+        測驗4: 𝑐平方 = 𝑎平方(**) + 𝑏平方(**) 代表的就是「直角三角形中，斜邊平方等於兩股平方和」
+          求平方, 用 Math.pow(number, 2).
+          求平方根, 用 Math.sqrt(number).
+          方式1(自己思考的). const myString 內容無法變更, 可以改為 let myString後, 即可修改 + replace
+          方式2(github上的). const myString 內使用 template string, 將結果嵌進去.
+
+      補充教材(Regular Expression/正則運算式), 可放在 replace() 及 search() 內使用.
+        語法: /pattern/modifiers; (註: pattern=比對格式; modifiers=區分大小寫[i])
+        範例: /school/i; 
+          1. /school/i <= 不分大小寫
+          2. /school/ <= 區分大小寫(預設)
+        
+        注意: 使用 (Regular Expression/正則運算式)時, 
+              在 pattern=比對格式 的前後都要加上'/', 但是不需像字串一樣用""包起來.
+          例: let position = text.search(/blue/i); //放入 /正則運算式/
+          例: let position = text.search("blue"); //放入 "字串"
     
     有用的字串方法
     
