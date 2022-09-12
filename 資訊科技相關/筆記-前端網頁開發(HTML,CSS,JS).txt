@@ -1370,7 +1370,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
 (學習中)JavaScript — 動態的客戶端指令(初階)
 資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript
 
-  JavaScript 初探
+  JavaScript 初探(第一步)
   https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/First_steps
 
     JavaScript是什麼?(OK)
@@ -1767,7 +1767,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
         a. 
     
     Number() & Number.parseInt(string, radix)的差異??
-    https://www.geeksforgeeks.org/what-is-the-difference-between-parseint-and-number/
+      https://www.geeksforgeeks.org/what-is-the-difference-between-parseint-and-number/
       1. 個人感覺最大差異在於 
         => Number() 會嘗試將'整個字串'轉為'數字', 轉型失敗回傳 NaN.
         => Number.parseInt(string, radix) 會嘗試將'部分字串'轉為'數字', 並回傳部分轉型成功的數字, 連部分轉型失敗才回傳 NaN.
@@ -1775,8 +1775,8 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
         Number(myNum); //NaN
         Number.parseInt(myNum); //123
 
-
     JavaScript 的字串 - 處理文字
+      https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/First_steps/Strings
 
       1. 建立字串, let strName = "...";
 
@@ -1822,18 +1822,12 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
         測驗3: 
           方式一 
             => 使用的字串函式 replace('oldValue','newValue');
-            Definition and Usage
-            The replace() method searches a string for a value or a regular expression.
-            The replace() method returns a new string with the value(s) replaced.
-            The replace() method does not change the original string.
-            注意1: 預設只會取代第1個值.
-            注意2: 若要取代所有值, 請使用 g modifier 設定
-              例: /School/gi <= g 指所有值; i 指'不區分大小寫'
+            
 
           方式二
             => 使用的字串函式 String.prototype.matchAll(regexp);
             
-            注意1: regexp值, 必須加上 g, 否則會報錯. 
+            注意1: String.prototype.matchAll使用regexp值時, 必須加上 g, 否則會報錯(TypeError). 
               正確範例: /foo[a-z]*/g 
               錯誤範例: /foo[a-z]*/
 
@@ -1867,16 +1861,180 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
           1. /school/i <= 不分大小寫
           2. /school/ <= 區分大小寫(預設)
         
-        注意: 使用 (Regular Expression/正則運算式)時, 
-              在 pattern=比對格式 的前後都要加上'/', 但是不需像字串一樣用""包起來.
-          例: let position = text.search(/blue/i); //放入 /正則運算式/
-          例: let position = text.search("blue"); //放入 "字串"
+      注意: 使用 (Regular Expression/正則運算式)時, 在 pattern=比對格式 的前後都要加上'/', 但不需像字串一樣用""包起來.
+        例: let position = text.search(/blue/i); //放入 /正則運算式/
+        例: let position = text.search("blue"); //放入 "字串"
     
     有用的字串方法
-    
+      https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/First_steps/Useful_string_methods
+
+      1. 取得字串長度(string.length屬性, return number)
+
+        let browserType = "mozilla";
+        browserType.length;
+
+      2. 取得字串中特定位置字元(string character, return string)
+
+        let browserType = "mozilla";
+        browserType[2]; // z
+        browserType[browserType.length -1]; //a
+
+      3. 測試子字串是否存在於字串中
+      includes('子字串放這裡'), 存在 return ture, 不存在 return false
+
+        let browserType = "mozilla";
+
+        if(browserType.includes('zilla')){
+          console.log('found');
+        } else {
+          console.log('not found');
+        }
+
+      4. 測試子字串是否存在於字串字首或字尾
+      startsWith('子字串放這裡') or endsWith('子字串放這裡'), 存在 return ture, 不存在 return false
+
+        let browserType = "mozilla";
+
+        if(browserType.startsWith('zilla')){
+          console.log('found');
+        } else {
+          console.log('not found'); // Not found
+        }
+
+        if(browserType.endsWith('zilla')){
+          console.log('found'); // found
+        } else {
+          console.log('not found');
+        }
+
+      5. 尋找子字串在字串中的[位置, position]
+      indexOf('子字串放這裡', 可選參數: 字串開始尋找位置[預設0]), return found position or -1
+
+        // 找出第1個 developers
+        const tagline = 'MDN - Resources for developers, by developers';
+        console.log(tagline.indexOf('developers')); // 20
+
+        console.log(tagline.indexOf('x')); // -1 === not found
+
+        // 找出第2個 developers
+        const firstOccrrence = tagline.indexOf('developers'); // 20
+        const secondOccrrence = tagline.indexOf('developers', firstOccrrence + 1); // 35
+
+      6. 擷取子字串, 從主字串中
+      slice(startIndex, stopIndex); startIndex 包括在子字串內; stopIndex[選擇性參數] 不含在子字串內; 
+        * startIndex or stopIndex[選擇性參數] 都可以使用負數, 倒過來數
+
+        const browserType = 'mozilla';
+        console.log(browserType.slice(1,4)); // ozi
+        console.log(browserType.slice(2)); // zilla
+
+        const str = 'The quick brown fox jumps over the lazy dog.';
+        console.log(str.slice(-4)); // expected output: "dog."
+        console.log(str.slice(-9, -5)); // expected output: "lazy"
+        
+        # 注意: 若是 startIndex > stopIndex, 則回傳值為''(空字串) typeof(string)
+        console.log('1' + str.slice(-5, -9) + '2'); // expected output: "12"
+
+      7. 取代主字串中的子字串
+      replace('oldValue', 'newValue');
+        * The replace() method searches a string for a value(字串值) or a regular expression(正則運算式).
+        * The replace() method returns a new string with the value(s) replaced.
+          註: 回傳1個取代後的新字串.
+        * The replace() method does not change the original string.
+          1. 不會改變原有字串.
+          2. 若要取代原有字串, 須重新指派
+
+            let browserType = 'mozilla';
+            browserType = browserType.replace('moz','van');
+            console.log(browserType);  // "vanilla"
+        
+        * replace()使用regular expression(正則運算式)的注意事項:
+          1: 預設只會取代第1個值.
+          2. 若要取代所有值, 請使用 g modifier 設定. (建議如果要取代所有子字串, 請使用 replaceAll, 不要用 replace)
+            ex: let myString = 'There is a new ScHOOl opened next to my Child SCHOOL';
+              console.log(myString.replace(/School/gi, 'Market')); // g 指所有值; i 指'不區分大小寫'
+      
+      8. 取代主字串中的所有子字串
+      replaceAll(pattern, replacement)
+        * pattern 可以是字串或regular expression(正則運算式), 如果沒有加上/regexp/, 都會被視為 字串.
+           若 pattern 是 regular expression(正則運算式), 必須加上 /g, 否則會出現 TypeError
+        
+        * replacement 可以是一個替代字串或一個函式.
+        
+        * 回傳1個取代後的新字串, 不會改變原有字串.
+
+        * 程式範例-1
+          const p = 'The quick brown fox jumps over the lazy dog. If the dog reacted, was it really lazy?';
+
+          console.log(p.replaceAll('dog', 'monkey'));
+          // expected output: "The quick brown fox jumps over the lazy monkey. If the monkey reacted, was it really lazy?"
+
+          // global flag required when calling replaceAll with regex
+          const regex = /Dog/ig;
+          console.log(p.replaceAll(regex, 'ferret'));
+          // expected output: "The quick brown fox jumps over the lazy ferret. If the ferret reacted, was it really lazy?"
+
+        * 程式範例-2
+          'aabbcc'.replaceAll('b', '.');
+          // 'aa..cc'
+
+          'aabbcc'.replaceAll(/b/, '.'); // 使用 regexp 必須加上 /g
+          // TypeError: replaceAll must be called with a global RegExp
+
+          'aabbcc'.replaceAll(/b/g, '.'); // 使用 regexp 必須加上 /g
+          // aa..cc
+
+        * replaceAll(pattern, replacement) 與 replace(/regex/g, replacement) 的主要差異
+          replaceAll特別有用於當 [pattern 語意似有未確定]的字串時, 例: Ha.*er, 要找的真的就是"Ha.*er"
+          若將上述 pattern 放入replace + RegExp(pattern) + 未使用跳脫字元 => 會產生語意改變的錯誤結果.
+          # 結論 #: 遇到這類 ([pattern 語意似有未確定]的字串 & replaceAll) 時, 請使用 replaceAll 函式
+
+            程式範例
+              function unsafeRedactName(text, name) {
+                return text.replace(new RegExp(name, 'g'), '[REDACTED]');
+              }
+              function safeRedactName(text, name) {
+                return text.replaceAll(name, '[REDACTED]');
+              }
+
+              const report = "A hacker called ha.*er used special characters in their name to breach the system.";
+
+              console.log(unsafeRedactName(report, "ha.*er")); // "A [REDACTED]s in their name to breach the system."
+              console.log(safeRedactName(report, "ha.*er")); // "A hacker called [REDACTED] used special characters in their name to breach the system."
+              
+              //加上跳脫字元, 才讓 replace & replaceAll 結果一致.
+              console.log(unsafeRedactName(report, "ha\\.\\*er")); // "A hacker called [REDACTED] used special characters in their name to breach the system."
+
+      測驗網址: https://developer.mozilla.org/en-US/docs/Learn/JavaScript/First_steps/Useful_string_methods#active_learning_examples
+
+        Test1: Filtering greeting messages
+          解答: 使用 String.prototype.includes('Christmas'), return trur or false;
+        
+        Test2: Fixing capitalization
+          解答2_1: 使用 String.prototype.toLowerCase() + String.prototype.toUpperCase() + String.prototype.slice()
+            let City = city.toUpperCase().slice(0,1) + city.toLowerCase().slice(1);
+          解答2_2: 使用 String.prototype.toLowerCase() + String.prototype.toUpperCase() + String.prototype.slice() + String.prototype.replace() //第1個值
+            let lower = city.toLowerCase();
+            let City = lower.replace(lower.slice(0,1), lower.slice(0,1).toUpperCase());
+
+        Test3: Making new strings from old parts
+          解答3: let filtered = `${station.slice(0,3)}: ${station.slice(station.indexOf(";") + 1)}`;
+
     陣列
+      https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/First_steps/Arrays
     
+      1. 建立陣列: 陣列用方括弧包起來，每個單位會用逗號分隔起來。
+        let shopping = ['bread', 'milk', 'soy milk'];
+
+      2. 陣列內可以儲存任何東西: 字串, 數字, 物件, 另一個陣列..
+        let mixed = [1, "2", new RegExp("stop", 'g'), [0,1,3]];
+
+
     附錄：笑話產生器
+      https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/First_steps/Silly_story_generator
+
+
+
 
   JavaScript 構成元素
   https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/Building_blocks
