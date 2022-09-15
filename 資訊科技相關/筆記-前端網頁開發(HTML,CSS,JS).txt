@@ -1548,7 +1548,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
                   一直到所有 HTML 載入完成。
                   在擁有許多 JavaScript 的大型網站中，這樣會導致(嚴重的效能問題)，拖慢你的網站
 
-          # 解決外部JS載入問題的方式(defer or async)及差異
+          # 利用 (defer or async) 解決外部JS載入問題及之間差異
             0. defer & async 都能閃過(避開) Script 被擋住的問題.
             1. <script defer> or <script async>兩個屬性都是用來告訴browser使用獨立Process來下載Script,
               同時間頁面的其他部分(如DOM)也在下載, 因此頁面載入不會受腳本影響.
@@ -1775,7 +1775,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
         Number(myNum); //NaN
         Number.parseInt(myNum); //123
 
-    JavaScript 的字串 - 處理文字
+    JavaScript 的字串 - 處理文字(OK)
       https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/First_steps/Strings
 
       1. 建立字串, let strName = "...";
@@ -1865,7 +1865,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
         例: let position = text.search(/blue/i); //放入 /正則運算式/
         例: let position = text.search("blue"); //放入 "字串"
     
-    有用的字串方法
+    有用的字串方法(OK)
       https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/First_steps/Useful_string_methods
 
       1. 取得字串長度(string.length屬性, return number)
@@ -2020,7 +2020,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
         Test3: Making new strings from old parts
           解答3: let filtered = `${station.slice(0,3)}: ${station.slice(station.indexOf(";") + 1)}`;
 
-    陣列
+    陣列(OK)
       https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/First_steps/Arrays
     
       1. 建立陣列: 陣列用方括弧包起來，每個單位會用逗號分隔起來。
@@ -2029,12 +2029,153 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
       2. 陣列內可以儲存任何東西: 字串, 數字, 物件, 另一個陣列..
         let mixed = [1, "2", new RegExp("stop", 'g'), [0,1,3]];
 
+      3. 存取並修改陣列內容
+        shopping[0]; // bread
+        shopping[0] = 'toast'; // toast
+        shopping; // ['toast', 'milk', 'soy milk'];
+        mixed[1][2]; // 3
+      
+      4. 找出陣列長度 Array.length
+        shopping.length; // 3
 
-    附錄：笑話產生器
+      5. 在字串與陣列之間轉換
+        (將字串轉為陣列, String => Array, 函式: String.prototype.split(''))
+          let myData = 'Manchester,London,Liverpool,Birmingham,Leeds,Carlisle';
+          let myArray = myData.split(',');
+          myArray; // ['Manchester','London','Liverpool','Birmingham','Leeds','Carlisle'];
+
+        (將陣列轉為字串, Array => String, 函式1: Array.prototype.join('可自選間隔'), 函式2: Array.toString() 簡潔快速限使用','作分隔)
+          let myNewString = myArray.join(',');
+          myNewString; // 'Manchester,London,Liverpool,Birmingham,Leeds,Carlisle'
+
+      6. 新增與移除陣列項目
+        (push 從<末端> 增加1個或多個項目, 並回傳 '新陣列長度')
+        (pop  從<末端> 移除1個         , 並回傳 '被移除項目')
+        (unshift 從<前端> 增加 1個或多個項目, 並回傳 '新陣列長度')
+        (shift   從<前端> 移除1個          , 並回傳 '被移除項目')
+
+      7.0 <Howto>: 如何利用 JavaScript 加入新列表清單 (註: 習題結果顯示用..)
+        
+        <ul class="output">
+          <li>098</li>
+        </ul>
+        
+        <script>
+          const cities = ['lonDon', 'ManCHESTer', 'BiRmiNGHAM', 'liVERpoOL'];
+          const ul = document.querySelector('.output');
+          for (const city of cities) {
+            const li = document.createElement('li');
+            li.appendChild(document.createTextNode(city));
+            ul.appendChild(li);
+          }
+        </script>
+      
+      7. 習題一: 列印產品名稱、售價(逐筆)及加總(最下方)
+        a. 答案是 => 
+          <body>
+            <ul class="output"></ul>
+            <p class="result"></p>
+          </body>
+          <script>
+            let number1 = "'Underpants:6.99','Socks:5.99','T-shirt:14.99','Trousers:31.99','Shoes:23.99'";
+            let products = number1.split(',');
+            let total = 0;
+
+            const ul = document.querySelector('.output');
+            const pResult = document.querySelector('.result');
+            for (const product of products) {
+              let productWithOutSingle = product.replaceAll("'","");
+              // console.log(productWithOutSingle);
+              // console.log(productWithOutSingle.split(':')[0]);
+              // console.log(productWithOutSingle.split(':')[1]);
+              let name = productWithOutSingle.split(':')[0];
+              let price = Number(productWithOutSingle.split(':')[1]);
+              total += price;
+              let itemText = `${name}—$${price}`;
+
+              const li = document.createElement('li');
+              li.appendChild(document.createTextNode(itemText));
+              ul.appendChild(li);
+            }
+            pResult.textContent = `Summary is ${total.toFixed(2)}`;
+
+          </script>
+
+      8. 習題二: 動態學習, 前5大搜尋, 使用 push() & pop()
+        a. 作一個假的搜尋網站, 有一個搜尋文字框
+        b. 前5次搜尋項目, 會顯示在列表中.
+        c. 當搜尋項目超過5次時, 最新的放在最上面 push(), 最舊的被移除 shift()
+        d. 列表中仍然顯示最近5次搜尋項目
+        ==
+        程式要求
+        1. 將輸入值放入Array
+        2. 將輸入值自Array中移除
+        ==
+        答案是
+
+          <body>
+            
+            <section class="output">
+              <input type="text" name="" id="input">
+              <button value="Search" >Search</button>
+              <ul></ul>
+              <p class="result"></p>
+            </section>
+          <script>
+
+        const searchInput = document.querySelector('.output input');
+        const searchBtn = document.querySelector('.output button');
+        const ul = document.querySelector('.output ul');
+        const myHistory = [];
+
+        searchBtn.addEventListener('click', function(){
+          if (searchInput.value !== '') {
+            if (myHistory.length === 5) {
+              myHistory.shift();
+            }
+            myHistory.push(searchInput.value);
+          
+            ReCreateList(myHistory);
+          }else{
+            alert('Please input something ^-^'); 
+          }
+
+          searchInput.value = '';
+          searchInput.focus();
+
+        });
+
+        function ReCreateList(aryHistory) {
+
+          ul.innerHTML = ''; //清除UL內的LI
+          
+          //加入新的LI
+          aryHistory.forEach( function(ele){
+            //console.log(ele);
+            let li = document.createElement('li');
+            li.appendChild(document.createTextNode(ele));
+            ul.appendChild(li);
+          });  
+        }
+
+      補充教材(HTML input element ID & Name 的主要差異)
+        參考來源: https://stackoverflow.com/questions/1397592/difference-between-id-and-name-attributes-in-html
+        1. id => 用在前端(DOM)
+           id is used to identify the HTML element through the Document Object Model (via JavaScript or styled with CSS). 
+           id is expected to be unique within the page.
+        2. name => 有回傳後端伺服器需求時
+           name corresponds to the form element and identifies what is posted back to the server.
+
+    附錄：笑話產生器(OK-2022/09/15)
       https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/First_steps/Silly_story_generator
+      專案路徑: C:\Projects\Projects_HTML\MDN_createSillyStory
 
-
-
+      =======
+      程式要求
+      1. 當 "Generate random story" (產生隨機故事)的按鈕被點擊，請產出一則傻故事
+      2. 若在點擊產生故事按鈕前, 將自定義名字輸入於輸入框"Enter custom name" (譯：輸入自定義名字），則將故事中預設的名字 "Bob" 代換為自定義名字
+      3. 若在點擊產生故事按鈕前，也點擊 UK 的單選按鈕，則將預設的美制重量、溫度單位轉換為英制單位
+      4. 每點擊一次產生故事的按鈕，即產生新一則隨機傻故事（不限次數）
 
   JavaScript 構成元素
   https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/Building_blocks
