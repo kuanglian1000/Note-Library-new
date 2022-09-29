@@ -1,3 +1,25 @@
+/*== 將 ASP.NET Identity 新增至空的或現有的 Web Form 專案(先利用EF把儲存Token的DB生出來, 使用 Identity & OAUth套件) ==*/
+https://learn.microsoft.com/zh-tw/aspnet/identity/overview/getting-started/adding-aspnet-identity-to-an-empty-or-existing-web-forms-project?source=recommendations
+  專案位置: C:\Projects\Projects_ASP.NET\WebFormsIdentity
+
+  (VIP): 若為 Visual Studio 2015 或更高版本，請在"連接字串"中將 取代 (localdb)\v11.0 改為 (localdb)\MSSQLLocalDB
+  (VIP): identity DefaultConnection 的位置 => 會放在專案的 App_Data 資料夾內
+  (VIP): 範例程式碼是舊版(authenticationManager.SignOut();) / 新版(authenticationManager.Authentication.SignOut();)
+
+  關於<權限管理>的必裝套件: (for web form, mvc , web api.)
+  Microsoft.AspNet.Identity.EntityFramework <= 身分識別套件
+  Microsoft.AspNet.Identity.Owin <= 驗證用套件. 包含一組 OWIN 擴充類別，可管理和設定 ASP.NET Identity Core 套件所取用的 OWIN 驗證中介軟體.
+  Microsoft.Owin.Host.SystemWeb <= 包含 OWIN 伺服器. 可讓以 OWIN 為基礎的應用程式使用 ASP.NET 要求管線在 IIS 上執行。 如需詳細資訊，請參閱 IIS 整合管線中的 OWIN 中介軟體.
+
+/*== ASP.NET Web API中的安全性、驗證和授權(OAuth2, JWT, 外部驗證) 專案實作(儲存Token的DB生出來後, 再套用至Web API. 因為這裡DB生不出來, 嘻~~)==*/
+https://learn.microsoft.com/zh-tw/aspnet/web-api/overview/security/
+  專案位置: C:\Projects\Projects_ASP.NET\WebAPI_Identity
+  
+  (VIP): 若為 Visual Studio 2015 或更高版本，
+    請在"連接字串"中將 取代 (localdb)\v11.0 改為 (localdb)\MSSQLLocalDB
+
+  自行實作(難度太高): https://github.com/VeronicaWasson/LocalAccountsApp
+
 /*== C# 撰寫良好程式碼的50個具體作法 ==*/
   
   <CH01- C#語言慣用語法>

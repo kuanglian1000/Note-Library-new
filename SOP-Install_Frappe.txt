@@ -1,0 +1,450 @@
+=基本環境設定(大部分的安裝作業,都在 root 下作) 2021/10/27=
+
+  <VIP> 把 一般使用者(klcheng) 加入 sudoer 群組內, 以執行 root 安裝作業 <VIP>
+    修改 vi "/etc/sudoers" 檔案 https://devsday.ru/blog/details/21572
+    在 root 下方 root ALL=(ALL:ALL) ALL
+    加入 klcheng ALL=(ALL) ALL
+
+    檢查是否成功加入sudoer
+      方法1: group klcheng
+      方法2: su klcheng
+             sudo # 直接輸入指令檢查
+
+  <安裝git, python and redis> (under klcheng)
+    sudo apt-get install git
+    sudo apt-get install redis-server
+    sudo apt-get install python-dev # 可先輸入 python, 確認是否已安裝
+    sudo apt-get update
+    sudo apt-get install software-properties-common
+    sudo apt-get update
+    sudo apt-get install mariadb-server
+    sudo apt-get autoremove mariadb-server # 移除 mariadb-server
+
+      <資料庫設定程序>
+        --設定 mysql 的 root密碼
+          $ su root
+          $ mysql
+          USE MYSQL;
+          SET PASSWORD FOR 'root'@'localhost' = PASSWORD('123');
+        
+          --基本設定(under root)安裝過程中, 須提示設定MySQL root 密碼.
+            若無, 須輸入 "mysql_secure_installation"
+            MySQL root 密碼: '123'
+
+            Enter current password for root (enter for none):123
+            Switch to unix_socket authentication [Y/n]: n
+            Change the root password? [Y/n]: n
+            Remove anonymous users? [Y/n]: n
+            Disallow root login remotely? [Y/n]: n
+            Remove test database and access to it? [Y/n]: n
+            Reload privilege tables now? [Y/n]: Y
+
+        --檢查密碼更新結果
+          use mysql;
+          SELECT USER, HOST, PASSWORD
+          FROM user;
+
+        --(VIP, 若沒有測試成功, 修改root密碼的終端機千萬不能關)
+        --開啟另一個Terminal, 測試root帳號登入mysql
+          $ mysql -u root -p123 -p<緊接密碼>
+
+        --檢查mariadb server 及相關指令
+          sudo service mariadb stop
+          sudo service mariadb start 
+          sudo service mariadb status
+          sudo service mariadb restart # 資料庫重啟 #
+          ls /etc/init.d # 列出執行中服務 #
+        
+        --服務啟動時, 才會產生內容(/etc/mysql/my.cnf) # 2021/10/31 #
+
+        --mariadb掛掉,起不來...
+          ERROR 2002 (HY000): 
+            Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2)
+          解決辦法:
+            您已啟動MariaDB，但未監聽/var/lib/mysql/mysql.sock. 
+            請修改/etc/my.cnf的[mysqld]和[client]的socket, 
+            將它指向/var/run/mysqld/mysqld.sock，重啟MariaDB.
+
+    apt-get install libmariadb-dev (O, 正確指令)
+  
+  <編輯MariaDB設定檔> (under root) # 2021/10/31 先把DB服務下來, 不改DB設定 #
+    vi /etc/mysql/my.cnf
+    
+      [mysqld]
+      character-set-client-handshake = FALSE
+      character-set-server = utf8mb4
+      collation-server = utf8mb4_unicode_ci
+
+      [mysql]
+      default-character-set = utf8mb4
+
+    VI編輯器說明 參考資料:http://linux.vbird.org/linux_basic/0310vi/0310vi.php
+      :wq! #強制寫入唯讀檔
+      i    #輸入模式
+      o    #加入新行模式
+      x    #刪除模式
+
+  <安裝curl服務-利用網路協定, 對指定URL進行網路傳輸用的工具> 
+    (under sudoers Group user, ex: klcheng)
+    sudo apt-get install curl # (7.74.0-1.3+b1) #
+    
+  <移除nvm服務-NVM> # 2021/10/31 nvm 未安裝, 所以不用移除 #
+    rm -rf ~/.nvm # 刪除資料夾, 要加上 -rf 
+    rm -rf /root/.nvm
+
+    ls -a     # 顯示隱藏檔
+    ls ~/.nvm # 檢查是否刪除成功
+    nvm ls # 列出安裝版本
+
+    mkdir ~/.nvm
+    mkdir /root/.nvm/
+  
+  <安裝nvm服務-NVM = Node-版本管理工具 & Node.js> 
+    (under sudoers Group user, ex: klcheng)
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash (O, 可用指令)
+    curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash (O, 可用指令)
+
+    "source ~/.bashrc"
+      The above script makes all the required environment settings 
+      to the login script of the currently logged-in user. 
+      To apply the settings log out and log in again to your account 
+      or just execute the below command to do the same.
+    
+    <檢查nvm版本> (用同一個user, 開新增Terminal)
+      nvm -v # 0.39.0
+    
+    <安裝Node.js, 安裝nvm服務完成後, 重啟1個終端機>
+      nvm install 14 (註: Node.js版本必須 > 14 , 才能安裝 Frappe)
+    
+    <檢查Node.js版本>
+      node -v # 檢查版本, 是否安裝成功 ex. v14.18.1
+
+  <安裝npm服務-NPM = Node-套件管理工具> (under klcheng, 已加入 sudoer)
+    sudo apt-get install npm
+    
+    <安裝yarn, 利用npm工具> (under klcheng, 已加入 sudoer)
+      sudo npm install -g yarn (註: user klcheng下, 不然後面 'bench init frappe-bench' 使用yarn時會因無存取權限卡住 )
+
+  <安裝wkhtmltopdf工具, 可將HTML轉為PDF> (under klcheng, 已加入 sudoer)
+    sudo apt-get install xvfb libfontconfig wkhtmltopdf
+
+  <安裝Pip3工具> (under klcheng, 已加入 sudoer)
+    sudo apt-get install python3-pip
+    pip3 --version # 檢查是否安裝成功 ex. pip 20.3.4
+  
+    <安裝Bench工具, 利用Pip3工具> (under klcheng, 已加入 sudoer)
+      sudo pip3 install frappe-bench
+      bench --version # 檢查是否安裝成功 (WARN: Command not being executed in bench directory)
+      5.6.0
+    
+  <設定Bench工具> (under klcheng)
+      cd ~
+      bench init frappe-bench # 新增工作資料夾 & 安裝Bench工具
+
+        2021/10/29 出現硬碟容量不夠....
+        2021/10/30 重新安裝LINUX OS, 擴增硬碟空間
+          Getting frappe
+          Installing frappe (10/29, 10/30兩天都卡在這裡出現問題....)
+            yarn install v1.22.17
+            ....
+            一堆waring...
+            ....
+            進入全黑面
+      
+      cd frappe-bench #切換至工作資料夾
+      bench start #啟動Bench Server
+
+  <定期維護>
+    1. $ node esbuild --production --apps frappe --run-build-command
+      clean: postcss.plugin was deprecated. 
+      Migration guide: https://evilmartians.com/chronicies/postcss-8-plugin-migration
+
+    2. Browserslist: caniuse-lite is outdated. 
+      Please run: 
+       $ npx browserslist@latest --update-db
+
+    3. Why you should do it regularly:
+      https://github.com/browserslist/browserslist#browsers-data-updating
+
+=實作案例(圖書館系統)=
+  * 使用的Models:
+    1. article -> 可被租借的物品
+    2. member -> 會員資料
+    3. transaction -> 借還紀錄
+    4. membership -> 使用中的會員資料(active membership of a library member)
+    5. settings -> 基本借閱期限, 借閱上限數..基本值.
+  * 圖書館員登入的介面稱為「Desk」(註: 主功能頁, 依角色而有不同功能權限)
+  * 另外, 還有公開讀者介面, 可查詢館藏.
+
+  == 1. Create a Bench(OK) ==
+    > Bench 是個命令列工具, 用來管理 Frappe apps and sites
+    
+    <檢查Bench是否安裝>
+      $ bench --version
+
+    <新增Bench工作目錄 = working directory>
+      $ bench init frappe-bench (註: frappe-bench 是工作目錄名稱, 可自訂)
+
+      上述指令執行下列工作
+      1. Create a python virtual environment under "env" directory.
+      2. Fetch and install the "frappe" app as a python package.
+      3. Install node modules of "frappe".
+      4. Build static assets
+      
+    <Bench-工作目錄結構>
+      env: 
+        Python 虛擬環境
+      config: 
+        Config files for Redis and Nginx
+      logs: 
+        Log files for every process (web, worker)
+      sites: Sites 目錄
+        > assets: Static assests that served via Nginx in production
+        > apps.txt: List of installed frappe apps
+        > common_site_config.json: Site config that is available in all sites
+      apps: Apps 目錄
+        > frappe: The Frappe app 目錄
+      Procfile: 
+        List of processes that run in development
+
+    <啟動Bench伺服器>
+      $ cd frappe-bench
+      $ bench start
+
+  == 2. Create an App(OK) ==
+
+    <新增 app>
+      $ bench find . # 先確定在bench working directory內
+      $ bench new-app <app_name>
+        ex. bench new-app library_management
+        (註: 如果出現node>=14, 版本不符的錯誤, 重啟1個終端機再試試..)
+
+    <App-工作目錄結構>
+      apps/library_management # 所有app相關code都在裡面
+        public: 
+          Store static files that will be served from Nginx in production
+        templates: 
+          Jinja templates used to render web views
+        www: 
+          Web pages that are served based on their directory path
+        library_management: 
+          Default Module bootstrapped with app
+        modules.txt: 
+          List of modules defined in the app
+        patches.txt: 
+          Patch entries for database migration
+        hooks.py: 
+          Hooks used to extend or intercept standard functionality provided by the framework
+
+  == 3. Create a Site(OK) ==
+
+    <刪除網站(drop a site)>
+      $ cd frappe-bench //切換至frappe-bench工作資料夾
+      $ bench drop-site <site-name> 
+        ex. bench drop-site library # 須輸入DB root 密碼 #
+        ex. bench drop-site library.test --force  # 當時新增網站時, DB新增失敗 #
+    
+    <新增網站(new a site)>
+      $ cd frappe-bench # 要先切換到bench working directory內 #
+      $ bench new-site <site_name> # 這個指令要在bench working directory內, 才有效 #
+        ex. bench new-site library.test
+        註: 新增網站, 會一併新增資料庫 
+            (2021/10/29 在這裡卡很多天...因為MySql新增DB時, root權限搞不定..)
+        註: 網站目錄, sites/<site_name>
+
+        註: 新增時, 出現錯誤, 因為這次<Mariadb設定檔>還沒有改
+            For key collation_server. Expected value utf8mb4_unicode_ci, found value utf8mb4_general_ci
+            
+            # 如何修改<Mariadb設定檔>, 請參考 <編輯MariaDB設定檔> #
+
+            # 修改<Mariadb設定檔>後, 重啟 mariadb service #
+              sudo service mariadb restart
+              sudo service mariadb status
+
+            # 再新增1次 new-site, 改個名稱, 因為 library.test新增失敗 #
+              bench new-site library
+              MySQL root password: 123
+              Installing frappe...
+              Updating DocTypes for frappe:...
+              Updating country info
+              Set Administrator password: 123
+              Re-enter Administrator password: 123
+              *** Scheduler is disabled ***
+              Current Site set to library.test
+
+        註: 網站環境設定值(/frappe-bench/sites/<site-name>/site_config.json)
+            {
+              "db_name": "_7d289f34f53c62df",
+              "db_password": "7M2NFvOUlHiVQqo9",
+              "db_type": "mariadb"
+            }
+
+      $ sudo mysql # 檢查DB是否存在 #
+        show databases;
+
+    <使用瀏覽器存取網站(Access site in your browser)>
+
+      $ cd frappe-bench # 先切換至Working directory #
+      $ bench start # 啟動網站後, 再測試連接 #
+
+      http://localhost:8000 # 即能存取 library.test 這個網站, 本機開發可以直接可localhost #
+      http://192.168.43.101:8000 # 放在VM內開發, 使用localhost會找不到, 要先打通GUEST & HOST間的網路 #
+
+      連接測試成功 (2021/10/31)
+
+    <VM, 先不要試..開啟多網站功能 on same port = multi-tenancy support in bench>
+
+      (預設)新增網站時, 如果有看到 "Current Site set to library.test"
+        frappe會自動產生檔案,  ~/<working folder>/sites/currentsite.txt 
+        內容: (註: 只有1行)
+          library.test
+
+      (設定方式)
+        Step1: 關閉預設網站(current site)
+          $ rm sites/currentsite.txt (註: 它像是 ip <--> hostname 對應檔)
+            ex. rm frappe_bench/sites/currentsite.txt, 
+                刪除後就不能用 http://localhost:8000 存取網站了..
+            
+        Step2: 指向特定網站(localhost -> library.test)
+          將字串 "127.0.0.1 library.test" 加入 檔案 "/etc/hosts" 內.
+          $ sudo vi /etc/hosts
+
+          (註: bench 提供另一個方法, 可達到相同效果)
+          $ bench --site library.test add-to-hosts # 要求root密碼, 才能寫入 #
+
+      (結果)
+        http://library.test:8000 可存取網站
+
+    <安裝App至網站(install app on site)>
+      $ bench --site library.test install-app library_management
+
+      Installing library_management... # 出現安裝中的訊息 #
+
+      $ bench --site library.test list-apps # 確認APP是否安裝成功 #
+
+      frappe # 預設安裝 #
+      library_management # 上一指令安裝 #
+
+    <登入DESK(login to Desk)>
+      1. 新增 DocType, 必須先登入至Desk.
+      2. 先使用 Administrator/123 帳密登入. (註: 不用加上 @example.com)
+      3. Your Language: English
+      4. Your Country: Taiwan, Time Zone: Taiwan Time, Currency: New Taiwan Dollar
+      5. Full Name: klcheng
+      6. Email Address(login id): klcheng@example.com
+      7. Password: 5487
+
+      基本網站設定成功, 主功能頁已開啟 (2021/10/31)
+
+    <Site Command 相關指令 --site>
+      $ bench --site library.test console # 可存取Python console #
+      $ bench --site library.test mariadb # 可存取Mariadb console #
+      $ bench --site library.test backup # 可以執行資料庫備份 #
+      $ bench --site library.test --help # 列出相關指令 #
+
+  == 4. Create a DocType(OK) ==
+    <說明>
+      a. DocType類似Model, 除了定義Model"屬性"外, 亦定義Model"行為".
+      b. 每一個DocType可以把它視為DB內的 "Table"
+      c. 新增 Record, 必須先連入DocType, 再點選右上角 "..." 內 "Go to <DocType Name> List". ex. "Go to Article List"
+
+    <開啟開發者模式(Enable Developer Mode)>
+      1. 新增 DocTypes前, 必須先開啟開發者模式.
+      2. 開啟開發者模式前, 必須先關閉bench網站.(Ctrl+C)
+      3. 輸入下列指令
+        $ bench set-config -g developer_mode true # 開啟開發者模式 #
+        $ bench start # 重啟bench網站 #
+
+    <新增 DocType(Creating a DocType)> 
+      (註:klcheng@example.com權限未開, 新增失敗; 改用administrator, 新增成功)
+      0. 可利用 Awesomebar 瀏覽 "DocType List" (註:實際上, 找不到..)
+      1. 新增第1個 DocType "Article"
+        * Name = Article
+        * Module = Library Management
+        * Fields (Add Row)
+            Label           Type            Name  Mandatory Options
+          > [Article_Name]  [Data]                V
+          > [Image]         [Attach Image]  
+          > [Author]        [Data]
+          > [Description]   [Text Editor]
+          > [ISBN]          [Data]
+          > [Status]        [Select]                        Two Options:Issued & Available
+          > [Publisher]     [Data]
+      2. 新增記錄前, 須先清除(Desk cache), Settings -> Reload.
+      3. 點選 "New" 按鈕, 輸入記錄所需資料
+      4. 點選 "Save" 按鈕, 完成新增作業.
+
+    <DocType新增成功的相關異動作業>
+      1. 新增對應 '資料表'
+        * column name是PK
+        * tab<DocType Name>是資料表名稱, ex: DocType Name is Article, then table name is 'tabArticle';
+          select * from tabArticle; //可查詢資料內容
+      2. 新增對應 'Desk Views'
+        * List View or Form View
+      3. Form Layout
+        * 欄位編排會根據資料表欄位順序
+      4. 自動產生樣版程式碼(Boilerplate code)
+        * 查閱未加入git的程式碼
+          $ cd apps/library_management
+          $ git status -u
+        * 以 'Article' DocType為例
+          ** article.json - 定義doctype屬性
+          ** article.js - 客戶端控制器 for Form View
+          ** article.py - Python控制器 for Article
+          ** test_article.py - Python單元測試用的樣版程式碼
+
+  == 5. DocType Features(OK) ==
+
+    <Naming = 指定欄位值自動輸入功能>
+      a. 利用search bar, 輸入<DocType name>, 進入設定頁面.
+      b. Scroll to 'Naming Section'. 使用<Auto Name>屬性設定 = field:[columnName], 
+        (例: field:article_name)
+        (註: 輸入時, 若系統預設欄位[name]未輸入, 系統會自動給亂數值)
+      c. 系統預設欄位[name], 每個DocType(Table)都有這個欄位, 而且它是PK, Not null.
+
+    <Form Layout = 畫面編排設計>
+      a. 利用Column Break and Section Break, 分割頁面
+      b. 利用Tab Break, 切出頁籤
+
+    <Form Setting = 畫面進階設定>
+      a. Scroll to 'Form Settings'
+
+    <Permissions = 人員-資料CRWD權限設定>
+      a. Scroll to 'Permission Rules'
+      b. ex.新增兩個角色 
+        1. 'Librarian' has <CRWD> Permission of DocType 'Article'.
+        2. 'Library Member' has <R> Permission of DocType 'Article'.
+
+  == 6. Controller Methods(OK) ==
+
+    <說明>
+      a. Controller Methods 允許寫入企業流程(business logic), 在整個文件生命週期中.
+      b. 邏輯寫在 Python控制器內.
+
+    <範例說明: 自動組合全名, 再存入DB欄位 by DocType: 'Library_Member'>
+      a. 先新增另一個DocType: 'Library_Member'
+        First_Name(data, Mandatory),
+        Last_Name(data),
+        Full_Name(data, read only), # Read only欄位空時, 不會顯示; 有值時, 就會顯示在Form裡面 #
+        Email_Address(data),
+        Phone(data)
+      b. DocType新增後, 記得先清快取(Settings > Reload), 再新增1筆資料(Library Member)
+      c. Python控制器 for 'LibraryMember'內(ex. library_member.py), 寫入邏輯
+        查看檔案位置: cd frappe-bench/apps/library_management/
+        查詢新增未控管檔案: git status -u
+        
+        class LibraryMember(Document):
+          # this method will run every time a document is saved
+          def before_save(self):
+            self.full_name = f'{self.first_name} {self.last_name or ""}'
+            # 自動組合全名, 再存入DB欄位 #
+
+  == 7. Types of DocType ==
+    
+    <Library_Membership Doc>
+
+  == 8. Form Scripts ==
+
+  == 9. Portal Pages ==
+
+  == 10. What's Next ==

@@ -1,0 +1,197 @@
+SOP-Install LinuxOS(Debian/Ubuntu) on Oracle VM
+
+<安裝-Debian OS on Oracle VM[很快裝起來, 但Terminal卻無法開兩個]> 2021/10/27
+  1. download debian iso from web.
+  2. install Oracle VM
+  3. create a new VM
+  3. 記憶體大小: 4096MB
+  3. 硬碟檔類型: VHD, 動態分配, 16GB
+  4. 選擇啟動磁碟, 挑選ISO檔, 才能安裝OS (註: 不要選實體光碟機, 它是空的)
+  5. 進入圖形化安裝畫面.
+  5. Select a language: English
+  5. Select your location: other/Asia/Taiwan
+  5. Configure the keyboard: American English
+  6. 輸入hostname: kl546|kl5488
+  7. 輸入domain name: .com
+  8. 輸入root password: 54878916
+  9. 新增使用者帳號(有別於root): klcheng
+  10. 新增使用者名稱: klcheng
+  11. 設定使用者密碼: 54878916
+  12. 磁碟分割: 導引-使用整顆磁碟並設定LVM (SCSI3 17.2GB ATA VBOX HARDDISK)
+  12. 磁碟分割: 將 /home, /var 及 /tmp分割區獨立出來
+  13. 設定套件管理程式(apt): 否
+  14. 設定套件管理程式(apt): Debian檔案鏡像站所在國家 - Taiwan
+  15. 設定套件管理程式(apt): Debian檔案鏡像站 - deb.debian.org
+      > 如何修改Debian檔案鏡像站
+        vi /etc/apt/sources.list    
+        :wq 存檔離開
+
+  16. 選擇軟體: Debian desktop environment, GNOME, ssh server, 標準系統工具 (註: 未安裝圖形化介面[GNOME]快很多..)
+  17. 安裝GRUB開機程式: 將GRUB開機程式安裝至主要硬碟 - 是
+  18. 安裝GRUB開機程式: /dev/sda
+  19. 安裝成功
+
+<安裝-視窗環境GNOME[一直裝不起來...真討厭]> 2021/10/28 
+  https://wiki.debian.org/Gnome
+  $ apt update
+  $ apt-get install task-gnome-desktop
+  $ apt --fix-broken install
+  $ dpkg --configure -a #修正問題
+
+  /usr/bin/dpkg returned an error code (1)
+
+  apt clean --dry-run #列出即將刪除的項目
+  apt clean #刪除
+
+  註1: 儘管gnome-desktop安裝後, 啟動後仍以文字模式優先
+  註2: 設定以圖形介面優先
+    $ systemctl set-default graphical.target #設定圖形模式優先
+    $ reboot #重開機
+  註3: 開啟視窗右上方的最大、最小鈕
+    Activities -> tweaks -> Windows Titlebars -> Maximize & Minimize (Turn on)
+
+  <移除-視窗環境GNOME>
+    $ tasksel remove desktop gnome-desktop
+    $ systemctl set-default multi-user.target #切回文字模式優先
+    $ reboot #重開機
+
+<安裝-Ubuntu OS on Oracle VM[很快裝起來, 但是DB無法寫入]> 2021/10/28
+  1. username: klcheng
+  2. hostname: klcheng-VirtualBox
+  3. Install 介面友善許多. (註: 安裝後, 直接進入視窗畫面)
+
+  <設定Ubuntu root 密碼> (註: 預設Ubuntu root 密碼是空的)
+    The procedure to change the root user password on Ubuntu Linux:
+
+      1. Type the following command to become root user and issue passwd:
+        sudo -i
+        passwd
+      2. OR set a password for root user in a single go:
+        sudo passwd root
+      3. Test it your root password by typing the following command:
+        su -
+
+  <列出可刪除的服務/軟連結>
+    ls /etc/init.d #列出執行中服務
+    systemctl restart mariadb.service
+    systemctl restart mysql.service
+  
+  <Ubuntu內, 移除mysql>
+    1. sudo apt-get remove --purge mysql*
+    2. sudo apt-get purge mysql*
+    3. sudo apt-get autoremove
+    4. sudo apt-get autoclean
+    5. sudo apt-get remove dbconfig-mysql
+    6. sudo apt-get dist-upgrade
+    7. sudo apt-get install mysql-server # 如果要重新安裝, 再執行
+
+  <Ubuntu內, 重新安裝mysql>
+    systemctl stop mariadb.service
+    sudo apt-get autoremove mariadb-server
+    
+    X sudo apt-get update
+    X sudo apt-get install mysql-server
+
+    X sudo mysql_secure_installation utility
+  
+  <設定Ubuntu內, mysql root密碼>
+    1. sudo vim /etc/mysql/my.cnf
+    2. Add the following lines at the end:
+      [mysqld]
+      skip-grant-tables
+
+    3. sudo service mysql restart
+    4. mysql -u root
+    5. use mysql
+    6. select * from mysql.user where user = 'root'; - Look at the top to determine whether the password column is called password or authentication_string
+    7. UPDATE mysql.user set *password_field from above* = PASSWORD('your_new_password') where user = 'root' and host = 'localhost'; - Use the proper password column from above
+       實際範例:
+        update mysql.user set Password = PASSWORD('54878916')
+        where user = 'root' and host = 'localhost';
+    8. FLUSH PRIVILEGES;
+    9. exit
+    10. sudo vim /etc/mysql/my.cnf
+    11. Remove the lines added in step 2 if you want to keep your security standards.
+    12. sudo service mysql restart
+
+    For reference : https://dev.mysql.com/doc/refman/5.7/en/resetting-permissions.html
+
+<安裝-Debian OS desktop on Oracle VM> 2021/10/29
+  hostname: debian-vm
+  domain name: .com
+  root passwd: 54878916
+  new user: klcheng
+  user passwd: 5487
+
+  Finish the installation
+  神奇似地, 完裝完成...
+
+  2021/10/30 安裝版本: debian-live-11.1.0-amd64-xfce.iso
+    1. RAM:1024MB
+    2. HD:16GB(不然會容量不足, 之後).
+    3. 不分割硬碟, 全部塞進去.
+    4. 電腦不要開瀏覽器, 有可能會出現記憶體不足.
+
+<Linux 額外補充>
+  1. <VIP> 把 一般使用者 加入 sudoer 群組內, 以執行 root 安裝作業 <VIP>
+    修改 vi "/etc/sudoers" 檔案 https://devsday.ru/blog/details/21572
+    在 root 下方 root ALL=(ALL:ALL) ALL
+    加入 klcheng ALL=(ALL) ALL
+
+    檢查是否成功加入sudoer
+      group klcheng
+
+    su root
+    sudo usermod -aG sudo <username>
+    
+  2. [VI]
+    i - 輸入
+    o - 插入空白行
+    :wq - 儲存後關閉
+    :wq! - 儲存後關閉,強制寫入唯讀檔
+
+  3. rm
+    rm -r folder_name
+
+  4. 利用 cmd 登入 mysql
+    mysql -u root -p<New Password>
+    mysql -u root -p1234567
+
+  5. 安裝後, 第1次設定 mysql root密碼
+    mysqladmin -u root password <New Password>
+
+  6. 啟動mysql server 
+    sudo service mysql start
+
+  7. 確認Debian本機端的IP位址(3 ways to find your local ip address in debian 10)
+    sudo apt-get install net-tools
+    sudo ifconfig
+      <under NAT>
+        10.0.2.15
+        127.0.0.1
+      <under 僅限主機介面卡>
+        192.168.56.101(guest) -> 192.168.56.1(host)
+        127.0.0.1
+
+  10. VirtualBox & Host Computer的基本認識 (很受用)
+    參考來源: https://www.796t.com/article.php?id=127613
+    
+    1. NAT - VM須透過HOST連出外網
+    2. Bridged Adapter(橋接) - VM & Host可以互連, VM & Host都能獨立對外部網路
+    3. Host(內網, VM-VM間) - 只有VM間可以互連
+    4. Host-only Adapter(主機模式) - 只有Host可以連VM
+  
+  8. VM 與 Host Computer連線 
+    參考來源:https://out-of-memo.blogspot.com/2017/10/virtualbox-access-guest-localhost-from.html
+    
+    VirtualBox上, 該VM的網路設定
+      僅限主機介面卡
+      名稱:只有1個可以選
+
+      進階
+      混合模式:允許VM
+      (註: 可以VM就無法連到外網, 只能與 HOST COMPUTER對連)
+
+  9. VM 與 外部網路連線
+    NAT
+    (註: 下載軟體或套件用)
