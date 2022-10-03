@@ -2314,6 +2314,12 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
 
     # 函式 — 可重複使用的程式碼區塊
 
+      1. JavaScript 有內建許多函式.
+      2. 瀏覽器也內建許多函式, 並非由 JavaScript 所寫的, 這些由 瀏覽器API所提供.
+      3. 函式(functions) 與 方法(methods) 的差異
+        a. 方法(methods) 是定義在物件(objects)內的 函式(functions)
+        
+
     # 建立自己的函式
 
     # 函式回傳值
