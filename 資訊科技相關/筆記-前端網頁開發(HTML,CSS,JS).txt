@@ -1766,7 +1766,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
       7. toggle 一開一關的範例(很常用)
         a. 
     
-    Number() & Number.parseInt(string, radix)的差異??
+    Number() & Number.parseInt(string, radix)的差異?? => 建議使用 Number()
       https://www.geeksforgeeks.org/what-is-the-difference-between-parseint-and-number/
       1. 個人感覺最大差異在於 
         => Number() 會嘗試將'整個字串'轉為'數字', 轉型失敗回傳 NaN.
@@ -2179,6 +2179,121 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
 
   JavaScript 構成元素
   https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/Building_blocks
+
+    # 在代碼中做出決定 - 條件 if , else {} , else if {}
+
+      1. else {} 是非必要的.
+
+        ex. 
+        if (condition){
+          code to run if condition is true
+        }
+
+        // run some code here. (OK, 但是請注意無論條件式回傳的是 true 或是 false，它都會執行。)
+
+      2. if...else 敘述可以不加大括弧的. (註: 不建議使用, 可讀性不佳)
+
+        ex.
+        if (condition) code to run if condition is true
+        else run some other code instead
+
+      3. else if {} 如果有第二種以上選擇時使用
+
+      4. 比較運算子        
+        === and !== — (註: 比較兩個值是否完全相同, 型別 & 值)test if one value is identical to, or not identical to, another.
+        < and > — test if one value is less than or greater than another.
+        <= and >= — test if one value is less than or equal to, or greater than or equal to, another.
+
+      VIP: 重點觀念再次提醒
+        任何值只要不是 false , undefined , null , 0 , NaN 或是 字串空值(''), 比較時, 都會回傳 true.
+        
+        因此, 可以宣告一個變數名稱, 測試它是否為 true. 
+        若給值, 則回傳值為 true; 
+        若未初始化(undefined), 則回傳值為 false; 
+
+        let myAge = 33;
+        if(myAge){
+          console.log(myAge); //有給值, 所以為true.
+        }else{
+          console.log(myAge);
+        }
+
+        let shoppingDone = false;
+        if(shoppingDone)
+        {
+          let childAllowance = 10;
+        }
+        else
+        {
+          let childAllowance = 5; //false, 所以進來這
+        }
+
+      5. 邏輯運算子, && (and) , || (or) , ! (not)
+
+      6. 多元運算子, switch, (註: case 內只能放入一值, 不能用 case "" || "1"...)
+        switch(expression)
+        {
+          case choice-1:
+            // run the code.
+            break;
+
+          case choice-2:
+            // run the code.
+            break;
+
+          case choice-3:
+            // run the code.
+            break;
+
+          default: // default, 如果有無法判斷時, 必須加處理的情況才加.
+            // run the code.
+            // break; // default不用加上break;
+        }
+
+      7. 三元運算子, (condition)? run the code; : run this code instead;
+
+        let greeting = (isBirthday)? "生日快樂!" : "早安";
+
+        // 程式範例
+        function update(bgColor, textColor) {
+          html.style.backgroundColor = bgColor;
+          html.style.color = textColor;
+        }
+        select.onchange = function(){
+          (select.value === 'black')? 
+            update('black', 'white'): 
+            update('white', 'black');
+        }
+
+        // 另外, 關於 html.style的屬性
+        1. backgroundColor: 背景顏色
+        2. color: 文字顏色
+        3. font-family: 文字字型
+        4. font-size: 文字大小
+        5. text-align: 文字對齊
+
+      8. 實作範例: 簡單的日曆
+        a. <select></select> //讓使用者選擇不同的月份.
+        b. 在<select> onchange 事件上, 偵測選到的值.
+        c. 新增函式 createCalendar(), 負責繪製日曆並顯示正確月份在 <h1> 元素內.
+
+        專案路徑: C:\Projects\Projects_HTML\MDN_Conditon_SimpleCalendar.html
+      
+    # 程式碼迴圈
+
+    # 函式 — 可重複使用的程式碼區塊
+
+    # 建立自己的函式
+
+    # 函式回傳值
+
+    # 事件介紹
+
+    # 評量(測驗你的知識) - 打造一個圖庫應用程式
+
+    
+
+
 
   JavaScript 物件介紹
   https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/Objects
