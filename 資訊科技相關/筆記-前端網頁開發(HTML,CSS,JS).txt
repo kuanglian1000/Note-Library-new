@@ -1922,6 +1922,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
 
       6. 擷取子字串, 從主字串中
       slice(startIndex, stopIndex); startIndex 包括在子字串內; stopIndex[選擇性參數] 不含在子字串內; 
+      slice 與 substring 的主要差異: 在於 slice 參數可以用正負數, 但 substring 參數只能用正數.
         * startIndex or stopIndex[選擇性參數] 都可以使用負數, 倒過來數
 
         const browserType = 'mozilla';
@@ -2279,7 +2280,37 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
 
         專案路徑: C:\Projects\Projects_HTML\MDN_Conditon_SimpleCalendar.html
       
-    # 程式碼迴圈
+    # 程式碼迴圈 (OK, 2022-10-03)
+
+      1. 迭代 for(let i = 0; i < array.length; i++)
+      2. 注意: 要確定每個LOOP要有結束條件, 否則是無窮LOOP
+      3. 中途退出LOOP, 請用 break;
+      4. 跳過這次迭代, 請用 continue;
+      5. 迭代方式二: while
+        let i = 0;
+        while(i < array.length)
+        {
+          // code to run...
+
+          i++;
+        }
+      6. 迭代方式三: do...while
+        let i = 0;
+        do
+        {
+          // code to run
+
+          i++
+        }
+        while (i < array.length)
+      7. 練習題: 倒數計時器
+        專案路徑: C:\Projects\Projects_HTML\MDN_ActiveLearning_Loop_LaunchCountDown.html
+      8. 練習題: 篩選賓客清單
+        專案路徑: C:\Projects\Projects_HTML\MDN_ActiveLearning_Loop_FillingGuestList.html
+      
+      9. for...in 陣列索引值的循環
+      10. for...of 及 
+          array.forEach(element => {}); 陣列物件的循環
 
     # 函式 — 可重複使用的程式碼區塊
 
