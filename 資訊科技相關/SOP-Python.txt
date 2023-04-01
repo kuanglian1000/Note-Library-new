@@ -1,0 +1,399 @@
+SOP-Python學習筆記.txt
+
+================================
+Django Tutorial Part 6: Generic list and detail views
+	1.Overview(總覽)
+		* <generic class-based list and detail views>. => 和之前 totally different View
+			These can significantly reduce the amount of view code needed, 
+			making them easier to write and maintain.
+		* 加上自動換頁功能
+	2.Book list page : catalog/books/
+		> URL mapping
+		> View(class-based) => ListView (asp.net也有這種東西)
+				
+================================
+Django Tutorial Part 5: Creating our home page
+	1.Overview(總覽)
+		* (urls.py) URL mappers to 指定對應的 views == controllers
+		* (views.py) View 負責從 models抓出資料 , 新增 HTML Page with data , 然後回傳給 User
+		* (templates/home_page.html) Templates to use when rendering data in the views.
+	2.Defining the resource URLs
+		首先定義有哪些URL pattern == 提供哪些功能給使用者
+		* catalog/ => 首頁
+		* catalog/books/ => 列出所有書籍
+		* catalog/authors/ => 列出所有作者
+		* catalog/book/<id> => 列出書本明細資訊
+		* catalog/author/<id> => 列出作者明細
+	3.Creating the index page (catalog/ => 首頁) <= 多看幾次
+		> URL mapping
+			## 這裡指定的name參數,是針對這個URL mapping的唯一識別子. 可以利用this name to "reverse" the mapper ##
+			urlpatterns = [
+					path('',views.index , name='index'),
+				]
+
+			<a href='{% url 'index' %}'>Home</a> <!--(較佳作法)加上左側語法,可以直接連結至 views.index -->
+			<a href='/catalog/'>Home</a> <!--同樣可以達到目的,但是path pattern改為 /catalog/index , 就掛了-->
+
+		> View
+			## 
+		> Template
+			## Notice:如果找不到指定的 Template , 檢查 setting.py 內 <INSTALLED_APPS> 有沒有你的 APP名稱
+			## 如果已加入<INSTALLED_APPS>，還是出現找不到的ERROR
+				## 解法1：試著先註解起來，再打開1次 <==氣死我了，突然又好了...
+				## 解法2：py manage.py runserver , 重啟SERVER
+			
+			{% template tags %}
+				ex. {% extends "base_generic.html" %}
+				ex. {% block <block_name> %} {% endblock %}
+
+			{{ template variable }} # receive from View.py
+		
+		> Referencing static files in templates
+			## 預設的 STATIC_URL => '/static/'
+
+				<!-- Add additional CSS in static file /catalog/static/css/styles.css -->
+				{% load static %}
+				<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+				{% load static %}
+  			<img src="{% static 'images/basic-django.png' %}" alt="Django Core Structure">
+
+================================
+Django Tutorial Part 4: Django admin site
+	1.Registering models
+		#open admin.py in your app folder ex./locallibrary/catalog/admin.py
+		from django.contrib import admin
+		from .models import Author, Genre, Book, BookInstance, Language
+
+		admin.site.register(Book)
+		admin.site.register(Author)
+		admin.site.register(Genre)
+		admin.site.register(BookInstance)
+		admin.site.register(Language)
+	
+	2.Creating a superuser
+		#create a superuser by manage.py
+		py manage.py createsuperuser
+
+		#superuser id:kl.cheng
+		#superuser mail:kuanglian1000@gmail.com
+		#superuser pws:0809蘋果
+	
+	3.Logging in and using the admin site
+		py manage.py runserver #啟動WEBSITE
+		http://localhost:8000/admin
+
+	4.Advanced configuration
+		> List views 畫面調整
+		> Detail views 畫面調整
+		> Register a <ModelAdmin> class
+			1.(admin.py) ## 共 Author, Book, BookInstance 3個Models
+				# admin.site.register(Author)
+				# Define the admin class
+				class AuthorAdmin(admin.ModelAdmin):
+					pass
+				# register the admin class with the associated model
+				admin.site.register(Author,AuthorAdmin)
+
+				# Register the Admin classes for Book using the decorator
+				@admin.register(Book)
+				class BookAdmin(admin.ModelAdmin):
+					pass
+
+				# Register the Admin classes for BookInstance using the decorator
+				@admin.register(BookInstance)
+				class BookInstanceAdmin(admin.ModelAdmin)
+					pass
+		> Configure list views(自訂顯示) => list_display
+			1.(admin.py) 自訂顯示欄位
+				## => (同資料表 or ForeignKey)
+					class AuthorAdmin(admin.ModelAdmin):
+						list_display = ('last_name','first_name','date_of_birth','date_of_death')
+			2.(admin.py) 自訂顯示欄位 
+				## => ManyToManyField
+					class BookAdmin(admin.ModelAdmin):
+						list_display = ('title','author','display_genre') #關鍵在這#
+				(models.py) Model內新增 function 給 list_display 使用
+					class Book(models.Model):
+						...
+						def display_genre(self):
+							return ', '.join(genre.name for genre in self.genre.all()[:3]) #關鍵在這#
+						display_genre.short_description = 'Genre'
+		> Add list filters(自訂篩選) => list_filter
+			1.(admin.py) 自訂篩選
+				list_display = ('status' , 'due_back')
+
+	5.Organise detail view layout(自訂畫面組合)
+		> Controlling which fields are displayed and laid out => fields & exclude
+				class AuthorAdmin(admin.ModelAdmin):
+					list_display = ('last_name','first_name','date_of_birth','date_of_death')
+					fields = ['first_name','last_name',('date_of_birth','date_of_death')]
+					exclude = ['first_name']
+					# fields 設定顯示欄位 及 配置
+					# exclude 設定不顯示欄位 , Model其餘欄位都會SHOW
+					# 但 fields & exclude 發生衝突時會報錯 (例:排除 exclude 'first_name' , 卻要求顯示 'first_name' )
+
+		> Sectioning the detail view(劃分區塊) => fieldsets
+				class BookInstanceAdmin(admin.ModelAdmin):
+					list_display = ('id','book','due_back','status','display_status')
+					list_filter = ('status','due_back')
+					fieldsets = (
+						(None , {
+							'fields':('book','imprint','id')
+						}),
+						('Availability',{
+							'fields':('status','due_back')
+						}),
+					)
+	
+	6.Inline editing of associated records(直接在資料欄上面編輯後,存檔)
+		> 再宣告一個類別繼承 (admin.TabularInline) , 這裡舉的例子是 Book & BookInstance
+				class BooksInstanceInline(admin.TabularInline):
+					model = BookInstance
+				
+				@admin.register(Book)
+				class BookAdmin(models.ModelAdmin):
+					list_display = ('title','author','display_genre')
+					inlines = [BooksInstanceInline] # KeyPoint is here
+
+================================
+Django Tutorial Part 3: Using models
+	1.Designing the LocalLibrary models
+	2.Model primer
+		> Model definition
+			1.Fields(Common field arguments, Common field types, )
+			2.Metadata
+				class Meta:
+					ordering = ['-my_field_name' , 'second_field']
+			3.Method
+				# 至少,每個Model class內要有這個方法,它會回傳人類看的懂字串for每個物件
+				def __str__(self):
+					return self.field_name
+		> Model management
+			1.Creating and modifying records
+				# Create a new record using the model's constructor
+				record = MyModelName(my_field_name='Instance #1')
+
+				# Save the object into the database
+				record.save()
+
+				# Access model field values using Python attribute
+				print(record.id)
+				print(record.my_field_name) #print 'Instance #1'
+
+				# Change record by modifying the fields, then calling save()
+				record.my_field_name = 'New name'
+				record.save()
+			2.Searching for records
+				## 利用 model's <objects> attribute
+				# 存取所有資料
+				all_books = Book.objects.all()
+
+				## 利用 <filter()> 方法作查詢
+				# 查詢標題欄位(title)包含'wild'的書籍
+				wild_books = Book.objects.filter(title__contains='wild')
+				num_wild_books = wild_books.count()
+
+				# 查詢參考欄位值(genre表name欄位)包含'fiction'的書籍(不區大小寫 ex. Fiction, Science fiction, non-fiction etc.)
+				books_containing_genre = Book.objects.filter(genre__name__icontains='fiction')
+	3.Defining the LocalLibrary models
+		> Genre model
+		> Book model
+		> BookInstance model
+		> Author model
+		> Language model
+	4.Re-run the database migrations
+		py manage.py makemigrations
+		py manage.py migrate
+
+================================
+Django Tutorial Part 2: Creating a skeleton website
+	1.註冊APP @setting.py INSTALLED_APPS
+	2.Testing the website framework
+		> Running database migrations
+
+				Django會追蹤model定義,並新增db migration scripts in (/<project>/<app>/migrations/)
+				==<scripts>===============
+					# 當MODEL變更時,每次記得執行下列指令
+					py manage.py makemigrations #記錄
+					py manage.py migrate #執行到DB
+				==========================
+
+		> Running the website
+				==<scripts>===============
+					# 啟動開發用Web Server
+					py manage.py runserver 
+				==========================
+
+================================
+Django開發環境設定
+	1.安裝Python
+		py --verison #檢查python版本
+		pip list #檢查已安裝的python套件
+	2.安裝Python虛擬環境
+		pip install virtualenvwrapper-win #安裝Python虛擬環境套件(virtualenvwrapper)
+
+		mkvirtualenv <env_name> ex. mkvirtualenv my_django_env #新增虛擬環境
+		deactivate # 關閉虛擬環境
+		workon # 列出可用虛擬環境
+		workon <env_name> # 啟動指定的虛擬環境
+		rmvirtualenv <env_name> # 移除指定的虛擬環境
+	3.新增django專案
+		mkdir <project folder> ex. mkdir django_test
+		cd <project folder> ex. cd django_test
+		django-admin startproject <project name> ex. django-admin startproject mytestsite
+		cd <project name folder> ex. cd mytestsite
+	4.啟動django web site
+		#切換到專案路徑內
+		py manage.py runserver
+		
+================================
+Django基本概念
+	1.(url.py)將要求<requests>送到正確的view <同controllr功能>
+		urlpatterns = [
+			path('admin/', admin.site.urls),
+			path('book/<int:id>/' , views.book_detail , name = 'book_detail'),
+			path('catalog/' , include('catalog.urls')),
+			re_path(r'^([0-9]+)/$' , views.best),
+		]
+	
+	2.(views.py)負責 recevie HTTPRequest , 並return HTTPResponse , 是 WEBAPP的核心
+		example:
+			## filename : views.py
+
+			from django.http import HttpResponse
+
+			def index(request):
+				return HttpResponse('Hello from Django!')
+		
+	3.(models.py)定義資料模式 , 不限定特定資料來源 , 須另外設定資料庫連接資訊
+		example:
+			## filename : models.py
+			
+			from django.db import models
+
+			class Team(models.Model): #繼承自 models.Model
+				team_name = models.CharField(max_length=40)
+
+				TEAM_LEVEL = (
+					('U09','Under 09s'),
+					('U10','Under 10s'),
+					('U11','Under 11s'),
+					...
+				)
+
+				team_level = models.CharField(max_length=3,choices = TEAM_LEVEL , default = 'U11')
+	
+	4.(views.py)示範如何查詢資料 , 使用Django內的QueryAPI => filter
+		example:
+			## filename : views.py
+
+			from django.shortcuts import render
+			from .models import Team
+
+			def index(request):
+				# filter語法:<columnName>__<matchType> , 
+				# ex.team_level__exact='U09' 等於 where team_level == 'U09'
+				
+				list_items = Team.objects.filter(team_level__exact='U09') 
+				context = {'yougest_teams' , list_items}
+				return render(request , '/best/index.html' , context) #回傳HttpResponse , 結合 '/best/index.html' & context資料
+
+	5.(HTML templates)Rendering data , templates 常用來產生HTML or 其他類別檔案. 
+		## Django支援原生 templating & Jinja2
+		example :
+			## filename : best/templates/best/index.html
+
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset = "utf-8">
+				<title>Home Page</title>
+			</head>
+			<body>
+				{% if yougest_teams %}
+					<ul>
+						{% for team in yougest_teams %}
+							<li>{{ team.team_name }}</li>
+						{% endfor %}
+					</ul>
+				{% else %}
+					<p>No teams are available.</p>
+				{% endif %}
+			</body>
+			</html>
+
+================================
+CH5-保存使用者資料
+	py manage.py makemigrations
+
+	py manage.py migrate --no-input
+
+	使用Python內建的unittest , 有時候怪怪的 , Firefox會開不起來
+	而且還要另外執行 "py manage.py runserver" 把網站開起來
+	
+	如果改用 Django LiveServerTestCase , 
+	from django.test import LiveServerTestCase
+	> 指令:"py manage.py test" => 執行網站所有APP內的"test.py" (FT or UT都有可能)
+	> 指令:"py manage.py test lists" => lists是個真APP , 所以裡面的 "test.py" 放的都是 UnitTest
+	> 指令:"py manage.py test function_tests" => function_tests是個假APP , 故意新增 __init__.py & test.py , 假裝是APP , 但test.py裡面裝的是 FunctionTest(並利用Selenium模擬User操作)
+
+================================
+CH4-我們用這些測試作什麼
+	# 回顧 : TDD流程，在實務上
+		> 功能測試(FT) => 確認程式行為是正確的 ==> 判斷程式能否正常運作的工具
+		> 單元測試(UT) => 作為實際程式修改 ==> 視為協助Programmer寫好程式的工具
+		> 單元測試(UT)/Coding(單元測試循環)
+		> 重構,修改程式碼,但不變更程式功能
+	# 這種 FT + UT 作法 , 又稱為 "雙迴圈TDD"
+	
+	# Django內的APP , 新增後 , 必須還要到setting.py , 加入 "INSTALLED_APPS"
+	
+	# 單元測試
+		> 規則1:不要測試常數
+			ex. 
+				wibble = 3
+				assert wibble == 3
+		> 規則2:UnitTest通常在測試邏輯、控制流程和設定
+			ex.
+				self.assertTrue(response.content.startswith(b'<html>'))
+				像是這種字元測試的意義不大
+		> 規則3:利用現有框架進行測試 , 是個不錯的方法
+
+	# 重構
+		> 所謂的重構(refactor) : 改善程式碼 , 但不變更程式功能
+		> 規則1:不可以在沒有測試的情況下 , 進行重構
+
+================================
+CH3-使用單元測試(UnitTest)，來測試簡單的首頁
+
+	> 啟動 Django Web Server
+		py manage.py runserver
+
+	> 執行單元測試(UT)
+		py manage.py test 
+			# Django會執行test.py內的TestCase
+			# 單元測試(UT),以 [程式員角度] 開發程式,以最少且正確指令完成功能
+	
+	> 執行功能測試(FT)
+		py function_tests.py
+			# 這裡用的是selenium套件 => from selenium import webdriver
+			# 功能測試(FT),以 [使用者角度] 驗證功能,確保使用程序及邏輯是正確的
+
+	> UnitTest/Coding Cycle
+		1.run UnitTest at Terminal (在終端機執行單元測試)
+		2.use Editor to modify the least code(使用編輯器修改最少量的程式碼)
+		3.repeat step 1 & 2(不斷地重複上述步驟)
+
+================================
+基本語法
+	print(format(<variable>,'format style'))
+	format style
+		'5d'    length = 5 , type is digit , default 靠右
+		'10.2f' length = 10 including 2 小數點 , type is float
+		'10s'   length = 10 , type is character
+		'>5d'   靠右
+		'^10.2f'置中
+		'<10s'  靠左
+	ex.
+			print(format(10,'>10s'))

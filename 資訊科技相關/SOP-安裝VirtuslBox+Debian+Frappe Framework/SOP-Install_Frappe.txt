@@ -1,0 +1,53 @@
+=VirtualBox & Debian 路徑=
+  C:\Users\p10154383\Documents\個人資料夾\VirtualBox+Debian-安裝檔
+
+=安裝VirtualBox & Debian=
+  1. 安裝VirtualBox
+  2. 安裝Debian
+    > 下載Debian11 ISO檔
+    > 新增VirtualBox, 掛載ISO檔後啟動
+    > 輸入Debian安裝畫面所需資訊(root密碼, 一般使用者klcheng, 磁碟分割, )
+  
+=Linux內軟體安裝作業,都要 su root 下作=
+
+apt install git python-dev redis-server
+apt-get update
+apt-get install mariadb-server-10.5
+apt-get install libmariadb-dev
+nano /etc/mysql/my.cnf
+  [mysqld]
+  character-set-client-handshake = FALSE
+  character-set-server = utf8mb4
+  collation-server = utf8mb4_unicode_ci
+
+  [mysql]
+  default-character-set = utf8mb4
+
+ls /etc/init.d
+sudo systemctl restart mariadb
+
+sudo apt install curl 
+curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash 
+
+
+==關閉終端機, 再開1個新的==
+nvm install 12
+
+node -v
+
+npm install -g yarn
+
+apt-get install xvfb libfontconfig wkhtmltopdf
+
+=install Bench CLI=
+sudo apt install python3-venv python3-pip
+
+pip3 install frappe-bench
+
+
+bench --version (切為一般使用者再執行)
+
+cd ~
+bench init frappe-bench
+
+bench start

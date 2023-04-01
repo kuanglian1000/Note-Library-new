@@ -1,0 +1,10 @@
+import 匯入模組 (參考資料: https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements/import)
+
+  import Chart from 'chart.js/auto'
+    Chart 沒有加上 {}, 表示它是 chart.js/auto 預設(default)的 export
+
+
+  import { CubejsApi } from '@cubejs-client/core';
+
+  '@cubejs-client/core'
+    @用法 => 指定從找出 "cubejs-client/core" 資料夾中, 找出 "CubejsApi" module, 然後匯入.

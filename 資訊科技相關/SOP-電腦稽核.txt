@@ -1,0 +1,1337 @@
+
+==書名：<電腦稽核>(BEGIN)==============
+
+    (CH4)-電腦輔助稽核軟體的應用
+        Section1-電腦輔助稽核軟體與技術
+            1.電腦輔助稽核軟體與技術(CAAT)-資料分析工具,能讀取儲取在不同作業系統環境下之不同型態格式的資料。
+                沒有檔案大小限制、能快速處理及分析資料，提供決策所需的資訊
+            2.內控，控制風險的發生，如何控制呢？增加控制點。
+            3.利用CAAT可作到：持續性稽核、全面性稽核及風險管理
+            4.CAAT可運用範圍：直接實行控制、證實測試、稽核管理自動化
+            5.CAAT的功能包括：
+                對交易及帳戶餘額進行測試、
+                進行分析性程序、
+                對資訊系統的<一般控制>作法規循遵測試、
+                對資訊系統的<應用控制>作法規循遵測試、
+                穿透性測試，找出稽核證據，支持稽核報告書
+            6.CAAT的優點分別：
+                a.提升稽核生產力(直接存取原始資料)
+                b.持續性監控
+                c.進行舞弊偵測
+                d.強化法規遵循(SOX 404、COSO)
+                e.確保資料存取的安全性(唯讀存取)
+                f.稽核團隊的協同查核(分享稽核指令及記錄)
+        
+        Section2-通用稽核軟體(GAS)
+            1.CAATs最常使用的技術。
+            2.GAS擁有清楚的稽核軌跡
+            3.利用ACL進行電腦查核的程序如下：
+                a.訂定查核目的
+                b.了解電腦應用系統與檔案架構
+                c.規劃查核目標及內容
+                d.收集應用系統資料
+                e.在ACL中,定義檔案欄位與格式
+                f.在ACL中,驗證資料的正確性(VIP)
+                g.執行資料分析(查核)
+                h.出具查核報告
+        
+        Section3-ACL的功能
+            1.*.acl , 專案副檔名
+            2.*.fil , 資料表副檔名
+            3.*.inx , 索引副檔名
+            4.*.log , 指令記錄檔，可轉換為Script，執行自動化稽核作業的指令
+        
+        Section4-CAAT導入的關鍵成功因素
+            1.3大先決條件：(1)稽核人員資訊能力、(2)經驗專案協助、(3)了解組織環境/接受組織文化
+            2.高階管理者的支持與承諾
+            3.建立可達成的目標(過度樂觀及太高目標都不切實際)
+            4.建構試驗階段(施行前導型案例)
+            5.為成功計劃(組織環境支持)
+            6.追蹤成本與效益(指的是推行CAAT後，節省成本與獲取效益回饋，作為爭取高階管理者支持的佐證)
+        
+        Section5-ACL查核案例-銷貨退回的查核
+            查核程序：
+                1.專案規劃(要查什麼，展開查核點，查核程序，查核所需資料)
+                2.獲得資料(資料由誰提供)
+                3.讀取資料(資料格式及定義，並匯入)
+                4.驗證資料(資料正確性)
+                5.分析資料(剖析資料內涵，找出資料特性，該流程表示的現象)
+                6.出具報告(根據分析結果，與作業標準作比對，提出改善建議)
+            
+            查核案例：銷退之查核
+                1.專案規劃(要查什麼，展開查核點，查核程序，查核所需資料)
+                    a.查核是否有虛擬退貨受款人之情形
+                        a.1 退貨客戶未列於客戶名單中
+                        a.2 退貨客戶與銷貨客戶不同
+                    b.查核異常退貨之情形
+                        b.1 退貨未於規定期限內(1個月內)完成
+                        b.2 退貨金額大於銷貨金額
+
+                2.獲得資料(資料由誰提供)
+                    a.寫信給資訊部門，
+                    b.惠請提供查核期間的<A.客戶檔>、<B.銷貨單-Header,銷貨單號,銷貨日期,銷貨金額>、<C.退貨單-Header,退貨單號,退貨日期,退貨金額>、<D.退貨單-Detail,退貨單號,鎖貨單號>
+                    c.唯讀資料放置位置，讀取帳密
+
+                3.讀取資料(資料格式及定義並匯入) - a.定義檔案欄位與格式
+                
+                4.驗證資料(資料正確性) - a.使用資料驗證功能
+
+                5.分析資料(剖析資料內涵，找出資料特性，該流程表示的現象)
+                    a.1 退貨客戶未列於客戶名單中(A & C關聯，比對C.客戶 Not In A清單中)
+                    a.2 退貨客戶與銷貨客戶不同(利用D將B & C關聯，比對B.客戶 != C.客戶)
+                    b.1 退貨未於規定期限內(1個月內)完成(利用D將B & C關聯，比對C.退貨日期 > B.銷貨日期 +30天)
+                    b.2 退貨金額大於銷貨金額(利用D將B & C關聯，比對C.退貨金額 > B.退貨金額)
+
+                6.出具報告(根據分析結果，與作業標準作比對，提出改善建議)
+                    詳實描述查核結果。
+            
+            ------
+            <習題>
+            ------
+            一、選擇題
+            Q1.(E) 何者非電腦輔助稽核技術？
+                (A)資料分析軟體
+                (B)網路安全執行軟體
+                (C)作業系統/資料庫安全執行軟體
+                (D)軟體和程式碼測試工具
+                (E)以上皆是
+            Q2.(A) 資訊稽核方法一開始的目的，讓稽核人員了解「什麼會導致錯誤發生？」 
+                (A)風險分析
+            Q3.(C) 自從美國制度以下法案後，使得資訊科技的內部控制成為公司治理、資訊科技洽理不可或缺的組件？
+                (C)沙賓法案(SOX 404)
+            Q4.(B) 下列何者非電腦輔助稽核軟體工具出現後，全新觀念？
+                (A)持續性稽核
+                (B)定期稽核 <-這個不是->
+                (C)全面性稽核
+                (D)風險管理
+            Q5.(A) 電腦輔助稽核技術的縮寫為？
+                (A)CAATs
+            Q6.(E) 何者非電腦輔助稽核技術之實際運用？
+                (A)電子化工作底稿
+                (B)舞弊偵查
+                (C)網路安全
+                (D)電子商務與網際網路安全
+                (E)以上皆是
+            Q7.(D) 何者非電腦輔助稽核技術之優點？
+                (A)鑑辨特殊交易找出錯誤
+                (B)使用者介面統一
+                (C)強化稽核結果的效率及效果
+                (D)以上皆是
+            Q8.(A) 何者是電腦輔助稽核技術中最受歡迎的方式？
+                (A)資料分析軟體
+                (B)網路安全執行軟體
+                (C)作業系統/資料庫安全執行軟體
+                (D)軟體和程式碼測試工具
+            Q9.(E) 何者常見的通用稽核軟體？
+                (A)ACL
+                (B)EASYSTRIEVE
+                (C)FOCAUDIT
+                (D)APPLAUD
+                (E)以上皆是
+            Q10.(C) 何者非通用稽核軟體的特性？
+                    (A)大量資料處理
+                    (B)差異性資料分析
+                    (C)程式撰寫能力
+                    (D)唯讀存取
+            Q11.(D) 非ACCESS的特性？
+                    (D)無限檔案容量
+            Q12.(D) 非EXCEL的特性？
+                    (D)唯讀存取
+            Q13.(E) 何者非通用稽核軟體的資料分析功能？
+                    (A)查詢
+                    (B)取樣
+                    (C)統計
+                    (D)數位分析
+                    (E)以上皆是
+            Q14.(B) 非稽核軟體提供之好處？
+                    (B)提供執行測試產生文件，據此作為稽核工作底稿
+            Q15. ACL發明人是(A)Hart J. Will
+            Q16. ACL是目前全世界使用最多的GAS(通用稽核軟體)
+            Q17.(E) 非ACL用來配合的稽核程序為？
+                    (A)重複付款、帳單號碼缺漏、或未發帳單之測試
+                    (B)測試未授權員工與廠商間的關係
+                    (C)對應收、應付及其他具時間敏感性交易之帳齡分析
+                    (D)重新計算與確認餘額
+                    (E)以上皆是經常被用來配合的程序
+            Q18.(E) 非ACL專案的組成項目？
+                    (A)資料表(Table)
+                    (B)批次作業(Script)
+                    (C)資料夾(Folder)
+                    (D)工作區(Workspace)
+                    (E)以上皆是組成項目
+            Q19. GAS是通用稽核軟體的縮寫
+            Q20. ISACA是美國電腦稽核協會的縮寫 , IIA是國際內部稽核協會
+
+            二、問答題
+            Q1.電腦輔助稽核技術可分為四大類？
+                資料分析、網路安全、軟體測試、系統安全
+            Q2.傳統稽核與電腦稽核之差異。
+                傳統-紙本資料、定期性、稽核範圍大多侷限在財務、高成本及低效率
+                電腦-電子資料、持續性、稽核範圍可擴及全組織、低成本及高效率
+            Q3.電腦輔助稽核軟體與技術具有稽核功能？
+                1.對交易與帳戶餘額進行測試
+                2.進行分析性程序的流程測試
+                3.對資訊系統<一般控制>進行法循測試
+                4.對資訊系統<應用控制>進行法循測試
+                5.穿透性測試
+            Q4.列舉出三個電腦輔助稽核軟體與技術的優點。
+                1.提高稽核報告的可驗證性
+                2.提高稽核效率
+                3.提高稽核人員的自主分析能力
+            Q5.通用稽核軟體的定義是:
+                具有下列特性的稽核軟體:
+                1.大量資料處理能力
+                2.差異資料分析能力
+                3.資料唯讀
+                4.記錄稽核軌跡
+            Q6.常用的稽核軟體：ACL,APPLAUD,EASYSTRIEVE,FOCAUDIT...
+            Q7.ACL軟體的優點：等同於GAS的定義
+                1.可直接讀取多類型資料檔
+                2.唯讀存取資料
+                3.方便可用的統計、抽樣及數值分析功能
+                4.記錄稽核軌跡，並轉為批次作業指令，方便實施持續性稽核時使用
+            Q8.ACL查核的電腦程序
+                1.定義資料格式及型態，匯入資料
+                2.驗證資料的正確性
+                3.資料分析，與稽核目標驗證是否相符
+                4.出具稽核報告，說明查核結果
+            Q9.ACL專案規劃的六大步驟為：
+                1.規劃查核目的
+                2.獲得資料
+                3.讀取資料
+                4.驗證資料
+                5.分析資料
+                6.出具報告
+            Q10.CAAT導入的關鍵成功因素：
+                1.高階長官的支持與承諾
+                2.組織環境支持
+                3.稽核人員資訊能力
+                4.建立可達成的目標...
+
+    (CH5)-銷售及收款循環控制與稽核
+        Section1-概論
+            1.由3大系統流程組成：(1)銷售、(2)請款、(3)收款
+
+        Section2-應用控制
+            1.在稽核的概念中，財務報表必須呈現對交易和帳戶平衡的正確性與完整性
+            2.稽核人員利用稽核程序來驗證第1點管理概念能否實踐
+            3.這套稽核程序就是<控制測試>及<證實測試>，<--稽核手法-->
+            4.然而，電腦系統應用控制可分為：(1-輸入控制)、(2-處理控制)、(3-輸出控制)、(4-測試輸出控制)
+                (1-輸入控制)：目的在於確保交易之有效性、準確性及完整性(資料輸入時的控制)
+                    證實測試常伴隨著控制測試，因為控制測試的結果是被用來決定證實測試的性質、時間安排與範圍。
+                (2-處理控制)：透過對檔案更新及資料處理權限的管理來對系統處理進行控制，下列則是本階段的主要任務：
+                        a.確保所有交易都有正確地授權
+                        b.交易紀錄都是有效的並忠實記錄交易事項
+                        c.對於資產有萬全的保護措施
+                        d.所有處理活動執行上須兼顧效率及效果
+                    控制點包含了：
+                    (一)檔案更新控制(交易碼，順序，測試檔更新等稽核測試方法)
+                    (二)存取控制(適當授權、保密)
+                    (三)實體控制
+                    (四)
+
+        Section3-子系統控制
+
+        Section4-驗證測試
+
+        Section5-實作案例
+
+        Section6-總結
+
+    (CH6)-採購及付款循環控制與稽核
+==書名：<電腦稽核>(END)==============
+
+==參考書目：ACL資料分析與電腦稽核(BEGIN)==============
+    (CH1)-ACL電腦稽核軟體的第一印象
+        1.電腦輔助稽核技術工具(CAAT-Computer Assisted Audit Techniques/Tools), ex. ACL , IDEA , EXCEL
+        2.ACL特點有：
+            協助取得大量資料、
+            可讀取多資料來源檔案、
+            確保資料完整性與安全性(資料格式與資料檔分開處理，以唯讀方式讀取來源檔)、
+            處理多種資料格式/型態能力(ASCII , EBCDIC , Unicode , Encoded...)、
+            可匯入OPEN DATA(雲端資料)
+        3.ACL證照有：
+            JCCP 電腦稽核軟體應用師-ACL初階
+            ACDA ACL 稽核分析師-ACL進階
+            CEAP ERP 電腦稽核師-評估查核ERP的技術能力與專業知識
+        ------
+        <習題>
+        ------
+        Q1. ACL是一項電腦輔助查核技術(CAAT)，可執行哪些查核程序？
+            A1.[E] (A)測試交易明細及餘額,
+                (B)分析性程序,
+                (C)測試一般控制,
+                (D)使用抽樣程式選取查核資料,
+                (E)以上皆是
+        Q2. 全世界使用最多的通用稽核軟體？
+            A2.[A] (A)ACL
+        Q3. 關於ACL敘述,何者為非？
+            A3.[B]  (A)是電腦輔助審計工具,
+                    (B)可連結SQL資料庫修改資料, 
+                        <--在ACL中,資料表 & 資料格式與原始資料來源是分離的,ACL只儲存資料格式、資料來源連接資訊、顯示、查核紀錄、變數,
+                        強調以唯讀方式讀取原始資料,所以不可能修改-->
+                    (C)可一次分析來自不同資料系統平台資料的差異
+                    (D)可將資料分析過程留下紀錄(LOG)
+                    (E)不受檔案大小限制,進行資料分析工具
+        Q4. ACL提供資料整理和操作功能，主要功能有哪些？
+            A4.[E]  (A)可讀取未轉換格式的大型主機資料與SAP資料
+                    (B)確保來源資料的完整性與安全性
+                    (C)處理多種資料格式
+                    (D)處理任何大小的資料檔
+                    (E)以上皆是
+        Q5. ACL專案副檔名是 ".acl" , 一個ACL專案由下列何者組成？
+            A5.[E]  (A)資料表(Table),用來描述資料格式,來源檔案名稱及位置
+                    (B)批次作業(Script),將LOG轉為批次作業指令
+                    (C)工作區(Workspace),儲存自定函數/計算公式欄位的地方,並可應用在不同資料表間
+                    (D)資料夾(Folder)
+                    (E)以上皆是
+        Q6. (Correct)查核人員為確保資訊處理時使用正確的主檔、資料庫與程式，應執行哪項測試？(100年會計師考題)
+            A6.[A]  (A)有效性測試
+                    (B)順序性測試
+                    (C)資料合理性測試
+                    (D)完整性測試
+        Q7. (Correct)從審計的觀點,哪些基本原則是不變的？(100年會計師考題)
+                    (1)證實測試與控制測試的設計與執行
+                    (2)內部控制目標
+                    (3)財務報表聲明
+                    (4)固有風險及控制風險的考量
+                    (5)審計技術
+            A7.[C]  僅(2)(3)不變
+        Q8. (Correct)資訊系統的內部控制在電腦程式中，欲查核內部控制，須測試程式能否有效執行控制功能，何者為適當的檢測方法？(102年會計師考題)
+                    (A)測試資料法
+                    (B)交易標示法
+                    (C)嵌入稽核軟體法
+                    (D)系統管理程式
+            A8.[A]  測試資料法,取出資料進行測試
+        Q9. (Wrong)有關電腦審計，何者有誤？(102年會計師考題)
+                    (A)電腦資訊系統的一般控制,通常包括組織及管理控制
+                    (B)查核工作之目的與範圍是不會改變的
+                    (C)確保輸出結果即時提供給授權人員屬於電腦資訊系統的一般控制目的
+                    (D)電腦資訊系統的內部控制，又可分為一般控制及應用控制，其相關控制均可包括人工及程式化之控制程序
+            A9.[B]X  查核工作之目的與範圍是不會改變的 !--會根據每次查核項目而改變 , 答錯--!
+            A9.[C]O  確保輸出結果即時提供給授權人員屬於電腦資訊系統的一般控制目的
+        Q10.(難) 電腦資訊系統的應用控制包括"建立處理電腦資訊檔控制" , 以合理確保下列哪一事項？(105年會計師考題)
+                    (A)交易已適當轉換為機器可讀取之狀態
+                    (B)交易 (包括系統自動產生之交易) 業經電腦適當處理
+                    (C)錯誤交易業經拒絕或更正
+                    (D)處理結果之正確性
+            A10.[A]X 交易已適當轉換為機器可讀取之狀態 !-答錯-!
+            A10.[B]O 交易 (包括系統自動產生之交易) 業經電腦適當處理
+        
+        19.COBIT架構計可分為六大部分，包含：
+
+    (CH2)-專案規劃與簡易案例
+        Section1-確認專案目標
+            電腦稽核專案規劃常分為 6個階段：
+            1.規劃
+            2.獲得
+            3.讀取
+            4.驗證
+            5.分析
+            6.報告
+            
+            a.專案開始前，稽核人員要清楚地描述此次查核目標。
+            b.查核目標描述越清楚，有助於後續查核規劃與進行。
+            c.查核目標亦影響報表、欄位及資料是否足夠。
+        
+        Section2-確認技術需求
+            a.取得分析資料的可行性
+            b.分析資料的欄位完整性，是否足夠
+            c.硬體擁有足夠硬碟空間
+        
+        Section3-決定查核分析程序
+            以「查核實際售價與標準定價間是否偏離？」為例。
+            a.import invoice details DATA
+            b.import product standard pric DATA
+            c.relate above two DATA Tables by Product ID
+            d.check  實際售價 > 標準定價 發生項目
+            e.export matched result to a new data file as Audit Found result
+        
+        Section4-Create a new Project
+            Step-1.Create a new or Open a existed Project (*.acl) <--專案副檔名
+            Step-2.Create a new Table <table layout> for importing DATA (*.fil) <--資料來源副檔名
+                兩種新增資料表方式
+                (1)指令：File > New > Table , Open <Data Definition Wizard>
+                (2)Manually Define Data Format , for special data Format
+
+        Section5-How to Use <Data Definition Wizard> Read Data
+            依據審計分析性覆核作業規範的電子資料取得程序(下列步驟就是ACL選擇資料來源的方式)：
+            
+            1.Select Platform(SAP,Oracle,SQL Server)
+            2.Select Data Coding Format and File Format
+            3.Identify Properties(辨別資料內容屬性)
+            4.Define Fields/Records(定義欄位的資料屬性)
+            5.Edit Field Properties
+            6.Finish
+
+            利用<Data Definition Wizard>工具，即可完成資料讀取作業
+            
+        Section6-資料匯入練習
+            注意：[資料來源的欄位資料型態]會<直接影響>[匯入資料表欄位屬性]
+
+        Section7-對查核資料進行分析
+            例：以<CUSTNO>為KEY,<NEWBAL>作加總欄位
+            指令：Analyze > Classify(分群/分類) , 開啟<分群設定畫面>
+        
+        Section8-使用Filter隔離異常資料(匯出/Extract)
+            方法1.利用 Filter:<Filter Box> , 輸入篩選條件運算式 , 按下輸入即可
+            方法2.按下 Filter:<Filter Box> 右邊的 <Edit View Filter>漏斗按鈕後 , 開啟 <Expression Builder>畫面建立複雜的篩選條件，並可以儲存
+
+            篩選結果快速匯出
+            指令：Data > Extract Data ,開啟編輯視窗, click <View> , key Output Name into <To...> ，按下確定，就會產生一個View
+        
+        ------
+        <習題>
+        ------
+        Q1. 哪些是ACL可讀取的檔案格式？
+            A1.[E] a.Excel , b.XML , c.Report file , d.Flat file , e.All
+        Q2. 何者非ACL之特性？
+            A2.[C] a.處理大量資料能力 , b.差異性資料分析 , c.要求具備電腦程式撰寫能力 , d.唯讀
+        Q3. 電腦稽核專案規劃方法通常採用 6 個階段為
+            A3.[B] 規劃 , 獲得 , 讀取 , 驗證 , 分析 , 報告
+        Q4. 使用Excel作匯入表格的source , 應注意要求有？
+            A4.[C] a.可以有合併儲存格(X)
+                b.允許彙總欄位等影響資料匯入ACL的格式(X)
+                c.存在Excel內的欄位格式型態 , 也會影響資料匯人ACL欄位型態 , 故須先調整(O)
+                d.無須調整兩個比較檔的關鍵欄位長度(X,要,不然會影響匯入欄位型態長度)
+        Q5. 哪套軟體為稽核系統軟體？
+            A5.[C] ACL & IDEA都是
+        Q6. 會計師採用通用審計軟體進行財務報表查核時，應如何進行？(100年會計師考題)
+            A6.[A]X  查核工作之目的與範圍是不會改變的 !--會根據每次查核項目而改變 , 答錯--!
+            A6.[D]O  對查核客戶軟體特性了解有限的情況下，到客戶電腦系統中存取(Access)所儲存的交易資訊。
+        Q7. 使用稽核軟體重新計算利息或篩選一定金額以上的銷貨交易，係屬何種查核程序？(105年會計師考題)
+            A7.[C]X 測試應用控制
+            A7.[D]O 測試交易明細及餘額
+        Q8. 查核人員使用CAAT之首要步驟為何？(105年會計師考題)
+            A8.[D]O 設定使用電腦輔助查核技術之目的
+        Q9. 有關顯著風險(Significant Risk)，何者有誤？(104年會計師考題)
+                a.查核人員於判斷所辨認之風險是否為顯著風險時,應考慮與該項風險有關之控制所能降低風險之效果(O)
+                b.經由系統自動處理之例行且非複雜交易較不會產生顯著風險(O)
+                c.管理階層踰越控制之風險 , 存於所有受查者中，且為導因於舞弊之重大不實表達之顯著風險(X)
+                d.當對某一顯著風險之因應方式僅為證實程序時，該等程序至少應包含證實分析性程序(X)
+                e.查核人員所辨認顯著風險之相關控制於本年度並未發生改變，如擬予信賴、可直接採用上年度控制測試之查核證據，無須於本年度再進行控制測試(X)
+            A9.[C,D,E]
+
+    (CH3)-資料取得與格式定義
+        Section1-電腦如何顯示資料
+            1 bit = 1個字元
+            1 byte = 8 bits
+            1 KB = 1024 bytes
+            1 MB = 1024 KB
+            1 GB = 1024 MB
+            1 TB = 1024 GB
+            (一)ACL讀取資料來源時,必須選取適當編碼方式,才不會出現亂碼現象。
+                常見的編碼技術 1. EBCDIC , 2.ASCII(0~127,128~255) , 3.Encoding Text(BIG5 , UTF-8...) , 4.Unicode Text
+            (二)常見的資料檔案結構
+                1.Field Name , 2.Data Type , 3.Data Length
+            (三)常見的資料檔案儲存平台
+                1.Disk : 結構單純 , ex. Excel or Txt File
+                2.ODBC : 連接關聯式資料庫 , 本機須事先安裝ODBC Driver , ex. SQL Server , Oracle
+                3.External Definition : 大型主機的記錄結構(Record Structure) & 資料型態(Data Type) 所組成的資料檔(Data File) , ex. AS400
+        
+        Section2-ACL系統作業架構
+            ACL專案是由下列項目所組成的：
+            1.Tables : Table layout可編輯資料表格式 , View產生不同的資料視界 , Index可在資料表上不同欄位中設定索引以進行排序
+            2.Scripts : 撰寫批作作業指令
+            3.Workspace : 工作區-儲存自定函數/計算公式欄位的地方,並可應用在不同資料表間
+            4.Folder : 資料夾-可用來組織或整理專案內容
+        
+        Section3-ACL可讀取的資料表格式
+            1.Access database (*.mdb , *.accdb)
+            2.AccPac master file(北美常用的會計軟體檔)
+            3.dBase compatible file(DBF 資料庫檔)
+            4.Delimited Text File(分界文字檔)
+            5.Excel File
+            6.PDF File
+            7.Print Image(Report) File
+            8.SAP private file format / DART
+            9.XBRL 2.1 file(XBRL是IFRS報表的標準語言,是XML File的一種且使用XML語法及技術 , ex. *.xbrl)
+            10.XML data file(*.XML)
+            11.other file format(其他,不屬上述任一種,則可手動定義)
+
+        Section4-<Data Definition Wizard>資料定義精靈匯入資料 , 以Delimited Text File(分界文字檔)為例
+            指令:File > New > Table,接下來操作方式就同Excel的文字檔匯入功能
+        
+        Section5-ACL的資料類型
+            主要資料型別有：(1)文字character , (2)數值numeric , (3)日期datetime
+            特別資料型別有：(4)LOGICAL ACL儲存邏輯值的資料類型
+            以下列舉ACL內資料類型與資料型別對應：
+                ACCPAC(numeric)
+                ACL(numeric) **
+                BASIC(numeric)       -basic floating point
+                BINARY(numeric)
+                FLOAT(numeric)
+                HALFBYTE(numeric)
+                IBMFLOAT(numeric)
+                MICRO-PC BINARY(numeric)
+                PACKED(numeric)
+                NUMBERIC(numeric)   -NUMBERIC[unformatted]
+                PRINT(numeric)      -NUMBERIC[formatted]
+                UNISYS(numeric)
+                UNSIGNED(numeric)
+                VAXFLOAT(numeric)
+                ZONED(numeric)
+
+                ASCII(character)
+                CUSTOM(character)                           -custom text format **
+                EBCDIC(character)
+                PCASCII(character)
+                UNICODE(character)
+                NOTE(character)
+
+                DATETIME(datetime)
+
+                LOGICAL(LOGICAL) **
+            
+            註：以**標註的都是ACL本身特有的
+        
+        Section6-ACL數值資料處理方式
+            1. NUMBERIC(unformatted):將數值均視為未格式化，會直接將小數位數套用於數值上 , 例:指定小數點後2位 , 讀取500.50美元 & 399美元 , 結果為500.50 & 3.99
+            2. NUMBERIC(formatted):將數值均視為已格式化 , 不會自動將小數位數套用於數值上 , 例:指定小數點後2位 , 讀取500.50美元 & 399美元 , 結果為500.50 & 399.00 (結果正確)
+            3. 數值運算採用 [定點計算法](Fixed Point Arithmetic) , 非Excel用的 [浮點計算法](floating Point Numbers) , 優點:處理速度快 , 有效控制小數位數 及 四捨五入
+                例1:在[定點計算法](Fixed Point Arithmetic)內,1.11就是1.11
+                例2:在[浮點計算法](floating Point Numbers)內,1.11實際儲存值可能為1.11111111111111(16位數)，提供精確度 , 但不利於查核作業
+            4. ACL內的[定點計算法](Fixed Point Arithmetic)邏輯
+                4.1 每次運算後,就會四捨五入
+                4.2 位數限制為22位數,超過時會有警示
+                4.3 運算式中,若有兩個以上數值,會以較多小數位數值為基礎作運算, 例: 5.125 * 1.01 ,會用小數點後3位
+                4.4 預防不必要的四捨五入
+                    例: Excel(2.00/3.00=0.666666...) * 1,000,000 = 666,666.666... ; ACL(2.00/3.00=0.67) * 1,000,000 = 670,000(小數位數不見了...糟了)
+                
+                (VIP)Q：如何確保不會截斷重要的小數點呢？
+                    A：放1個最大小數位的數值在運算式第1個位置。100.1 , 100.25 , 100.156 , 最大小數位的數值是 100.1
+                    
+                    要求：計算結果為小數點下2位(XXXXX.XX)
+                    例1：2.00 / 3.00 * 1000000 = 0.67 * 1000000 = 670,000(Error)
+                    例2：套用上述原則 - [放1個最大小數位的數值在運算式第1個位置] , 就是把 1000000 放最前面再作運算
+                    1000000 * (2.00/3.00) (OK)
+                    1000000 * 2 * (1.00/3.00) (OK)
+                    ..
+        Section7-日期資料的處理方式
+            ex. 以2010/12/31為例之表示法
+            MM DD YY    -> 123110   ->美式純數值
+            DD MM YYYY  -> 31122010 ->歐式純數值
+            YYDDD       -> 10365    ->Julian純數值
+            MMM DD      -> DEC 31   ->文字格式
+
+            資料匯入時，若已知資料是日期型態時，首先要選好資料類型，還要看的懂它對應的格式
+            Year 1-99       -> YY
+            Year 1900-9999  -> YYYY
+            Month 1-12      -> MM
+            Month Jan-DEC   -> MMM
+            Day 1-31        -> DD
+            Day 1-366       -> DDD
+
+            匯入設定日期格式時，須與來源檔日期資料吻合，要注意[/]or[-]的分隔符號
+            若判斷失敗，ACL會塞入日期空值，就是系統初始日期 01/01/1900
+
+        Section8-ACL匯入不同資料表格式
+            指令：File > New > Table , 跳出<Data Definition Wizard>
+            步驟：
+                1.Select Platform       ->選擇檔案格式,例：excel , Delimited Text , access , Print Image(Report) File , XML , XBRL
+                2.Select Data
+                3.Identity Properties
+                4.Define Fields/Records
+                5.Edit Field Properties ->編輯欄位名稱,表頭,欄位型態,或忽略此欄位
+                6.Finish
+        
+        Section9-Table layout使用及計算欄位的定義
+            指令：點選[Table Name] > Edit > Table Layout , 跳出<Table Layout>
+            在<Table Layout>畫面內，提供的功能有<Table Layout Options> , <Edit Fields/Expressions> , <Add a New Data Filter>
+            
+            如何新增計算欄位並使用在View
+            1.Click [Table Name] > Edit > Table Layout > switch to tab <Edit Fields/Expression> > add a new Expression ex.Total_Cost Expression Column
+            2.Click [Table Name] , Move mouse cursor to Data List , Right Click any Data Column , choose <Add Column> function , Add Total_Cost Column into View.
+
+        ------
+        <習題>
+        ------
+        Q1.ACL產生報表的方式,哪項是正確的？
+            (A)ACL可產生 XBRL格式
+            (B)ACL可產生 Crystal Report Template
+            (C)ACL可產生 IBM EBCDIC Text File 
+            (D)ACL可產生 SAS File
+            (E)以上皆非
+        A1.[E]
+        Q2.定義下列日期欄位資料格式，何者為真？
+            2020-12-20 , 2004-07-05
+            (A)YY-MM-DD
+            (B)MMDDYYY
+            (C)DDMMMYYYY
+            (D)YY/MM/DD
+            (E)以上皆非
+        A2.[E],正確應為YYYY-MM-DD
+        Q3.ACL採用定點計算(Fixed Point Arithmetic)規則作運算。為預防不必要的四捨五入，須調整算式，下列哪個運算式及運算結果是吻合的？
+            (A)1,000,000 * 2.00 / 3.00 = 2,000,000.00 / 3.00 = 666,666.67(O) ; 666,666.6667(X)
+            (B)(1,000,000 * 1.00) * 2.00 / 3 = 1,000,000.00 * 2.00 / 3 = 2,000,000.00 / 3 = 666,666.67(O) ; 666,667(X)
+            (C)1,000,000 * 2.0 / 3 = 2,000,000.0 / 3 = 666,666.7(O) ; 666,667(X)
+            (D)1,000,000 * 2.00 / 3 = 2,000,000.00 / 3 = 666,666.67(O) ; 666,666.67(O)
+            (E)以上皆非
+        A3.[D]
+        Q4.ACL對檔案進行格式定義時，哪些檔會自動提供欄位格式定義(Table Layout)?
+            (A)DB2
+            (B)dBase File
+            (C)Excel File / Access File
+            (D)ODBC Source File
+            (E)以上皆是
+        A4.[E]
+        Q5.ACL對數值運算採用哪種方式？
+        A5.[B]定點運算
+
+    (CH4)-資料驗證技術
+        Section1-資料驗證的技巧
+            1.所有稽核專案,驗證資料是很重要的階段.若查核資料有問題,後面分析報告就不足採信。
+            2.稽核資料驗證方式有：格式、筆數、加總、順序、遺漏(有序號的資料)、重複、內容合理性(一定範圍內/數值欄位出現字元/離群值數量是否異常)、內容驗證(抽樣,與實際資料比較)
+        Section2-驗證資料格式
+            1.指令：Data > Verify，跳出(圖4-1 Verify對話視窗)畫面
+            2.ACL的Verify指令，會檢查<格式>、<內容>，例：文字欄位出現不可列印的項目；數值欄位出現 + , - , 太多小數點....
+            2.檢查結果如有錯誤會顯示檔案的2進位值 及 行號，如 20 20 20 20 20 20 20....
+            3.Tab<Main>內，點選<Verify Fields>加入要來檢查欄位；點選<If...>加入Expression,篩選要檢查的範圍
+            4.Tab<More>內，可選擇輸出資料(檢查結果)的範圍
+            5.Tab<Output>內，可選擇輸出資料的格式
+        
+        Section3-計算筆數(一般稱為核帳，確認要分析資料是否被完整讀取)
+            1.指令：Analyze > Count，跳出(圖4-11 Count對話視窗)畫面
+            2.若計算結果與帳上總筆數相符，表示資料沒有遺漏
+        
+        Section4-計算加總(只適用於數值欄位或運算欄位的加總)
+            1.指令：Analyze > Total，跳出(圖4-13 Total對話視窗)畫面，只會顯示數值欄位或運算欄位。
+            2.Tab<Main>內，點選<Total Fields>加入要來加總欄位；點選<If...>加入Expression,篩選要加總的範圍
+            3.快速執行總和指令，在View畫面，先點選欄位標頭(可多欄位)，再執行指令：Analyze > Total，即算出結果。
+        
+        Section5-檢查順序(適用於數值欄位或文字欄位，一般稱為序時序號檢查)
+            1.指令：Analyze > Sequence，跳出(圖4-18 Sequence對話視窗)畫面。
+            2.Tab<Main>內，點選<Sequence On...>加入多欄位；點選<If...>加入Expression,篩選範圍；或直接點選列表欄位即可
+        
+        Section6-檢查缺漏(只適用事先排序好的循序資料檔上。常用於指定欄位的缺漏或抽單查核)
+            1.指令：Analyze > Gap，跳出(圖4-21 Gap對話視窗)畫面
+            2.Tab<Main>內，直接點選列表欄位即可。<Presort>預設勾選，因為只適用循序資料檔
+            3.注意：若用於文數字混合欄位，會自動忽略字元只驗證數值。例：A123 , B124，檢查結果是<無缺漏>，因為檢查 123 / 124
+
+        Section7-檢查重複(只適用事先排序好的循序資料檔上。常用於指定欄位有不可重複時)
+            1.指令：Analyze > Duplicate，跳出(圖4-27 Duplicate對話視窗)畫面
+            2.Tab<Main>內，有兩個列表，分別是<Duplicate On...>檢查哪些欄位重複及<List Fields...>列出其他欄位資料
+            3.查核案例：查核同一位員工(Duplicate On... EmployeeNo)是否有取得多筆支票(List Fields... CheckNo,PayDate,GrossPay)
+        
+        Section8-統計分析(顯示<數值欄位>及<日期欄位>的統計表，快速顯示可能異常所在，作為查核方向或分析目標之參考)
+            1.指令：Analyze > Statistic，跳出(圖4-32 Statistic對話視窗)畫面
+            2.Tab<Main>內，點選<Statistic On...>加入多欄位，注意只能挑選<數值欄位>及<日期欄位>進行統計分析
+            3.注意1：統計可標示異常處，可作為驗證資料正確性的方式
+            4.注意2：基本統計數字，亦可作為分析處理目標或方向之參考
+            5.提供的統計類別有：筆數、加總、平均值、絕對值、全距(上下限)、標準差(sigma)、最大值、最小值
+            6.查核案例：標準差(sigma)，查核資料應近似常態分佈時，就可利用此統計資訊，又稱為［68-95-99.7法則；1-2-3 sigma］
+            68%數值分佈在距離平均值1個標準差範圍(±1 sigma)內
+            95%數值分佈在距離平均值2個標準差範圍(±2 sigma)內
+            99.7%數值分佈在距離平均值3個標準差範圍(±3 sigma)內
+        
+        Section9-剖析()
+            1.指令：Analyze > Profile，跳出(圖4-40 Profile對話視窗)畫面
+            2.Tab<Main>內，點選<Profile Fields...>加入多欄位，注意只能挑選<數值欄位>進行統計分析
+            3.提供的統計類別有(比Statistic少)：加總、絕對值、最大值、最小值，注意：若要完整統計資訊，還是以執行指令：Analyze > Statistic為主。
+            4.重點：預先產生統計資訊供下列進階指令使用：
+                主要使用<Stratify分層> & <Histogram直方圖> & <SampleRecords抽樣>指令。
+
+        ------
+        <習題>
+        ------
+        Q1.
+            A1.
+
+    (CH5)-分析資料
+        Section1-數值資料分層技術(Stratify Data) (針對數值欄位)
+            1.只適用於數值欄位或運算欄位的特定區間或層級記錄，分層對1個或多個欄位進行加總小計
+            2.Stratify不用事先排序表格資料
+            3.優點在於：提供平均分群方式或使用者自訂分群作分析運算
+            4.資料分層的執行步驟為
+                a.剖析資料，指令：Analyze > Profile，對數值欄位預先產生統計資料，作為初始值
+                b.資料分層，指令：Analyze > Stratify，跳出(圖5-4 Stratify對話視窗)畫面，挑出目標分群欄位
+                    1.Tab<Main>內，點選<Stratify On...>，挑出目標分群欄位，ex.Invocie Amount(發票金額)
+                    2.Tab<Main>內，點選<Subtotal Fields...>，挑出加總小計欄位，ex.Quantity(數量) & UnitCost(單位成本)
+                    3.Tab<Main>內，Intervals = 10(預設值)，預設分群區間設為10等分(最大至最小值之間)
+                    4.Tab<Main>內，Free欄位則能自訂區間層級範圍，ex.10,500,1000，就會分為10.00-499.99 , 500.00-1000.00共兩層
+        
+        Section2-文字資料分類技術(Classify) (針對文字欄位)
+            1.適用情境：未排序資料要<快速瀏覽>及<彙總記錄>時特別有用
+            2.例：從未排序的總帳交易明細中產生以<會計科目>為分類基礎的試算表
+            3.資料分群加總的執行步驟為
+                a.資料分群加總，指令：Analyze > Classify，跳出(圖5-11 Classify對話視窗)畫面，挑出目標分群欄位
+                    1.Tab<Main>內，點選<Classify On...>，挑出目標分群欄位，ex.Vendor No(供應商編號)
+                    2.Tab<Main>內，點選<Subtotal Fields...>，挑出加總小計欄位，ex.invoice_Amount(金額)
+                b.Classify預設會自動加總筆數、筆數/總數佔比、分群後單筆加總欄位值/總數佔比
+        
+        Section3-日期資料帳齡分析技術(Age) (針對日期欄位)
+            1.將資料依日期欄位距離特定日期為分群區間進行分層彙總，並產生各層級的<記錄個數>、<數值欄位小計值>及<小計值/總數佔比>
+            2.可快速進行會計上的帳齡分析，須指定Cutoffday(截止日)，若未指定預設為Cutoffday = today
+            3.帳齡計算方式 = Cutoffday - 日期欄位值 , ex. Cutoffday = 2013/01/31 - 2013/01/01 = 30天
+            4.帳齡分析的執行步驟為
+                a.帳齡分析，指令：Analyze > Age，跳出(圖5-17 Age對話視窗)畫面，挑出分析帳齡的日期欄位
+                    1.Tab<Main>內，點選<Age On...>，挑出分析帳齡的日期欄位，ex.Due(帳款到期日)
+                    2.Tab<Main>內，點選<CutoffDate>，指定Cutoffday(截止日)，ex.today
+                    3.Tab<Main>內，點選<Aging Periods>，指定帳齡區間，預設為0、30、60、90、120、10,000，每一個值為該區間最小值
+                    4.Tab<Main>內，點選<Subtotal Fields...>，挑出加總小計欄位，ex.invoice_Amount(金額)
+        
+        Section4-多欄位資料彙總分類技術(Summarize) (針對多欄位,以文字及日期欄位作分類)
+            1.Stratify , Classify & Age分析，僅可針對單一欄位
+            2.若要同時對多個欄位進行分類分析，可使用彙總指令(Summarize)
+            3.Summarize與Classify指令相當類似，兩者差別如下：
+                a.Summarize分析的欄位須預先排序，然而Classify則毋須先排序
+                b.Summarize允許多欄位，然而Classify僅有單一欄位
+                c.Summarize分類沒有種類限制，然而Classify依MAX RAM設定值有上限(預設為50,000種)
+                d.Summarize分類速度較慢，然而Classify分類速度較快
+                e.Summarize預設產生新的資料表
+            4.多欄位分類的執行步驟為
+                a.多欄位分類，指令：Analyze > Summarize，跳出(圖5-25 Summarize對話視窗)畫面，挑出多欄位分類的日期欄位
+                    1.Tab<Main>內，點選<Summarize On...>，挑出目標分群欄位(可選多個日期或文字欄位)，ex.Vendor No(供應商編號)
+                    2.Tab<Main>內，點選<Subtotal Fields...>，挑出加總小計欄位，ex.invoice_Amount(金額)
+                    3.Tab<Main>內，點選<other Fields...>，挑選一併加入報表顯示的欄位。
+                    4.注意：表格資料須先排序，或勾選<Presort>CheckBox，確保分析結果正確
+            5.圖表分析技術
+                a.Histogram直方圖，指令：Analyze > Histogram，跳出(圖5-27 Histogram對話視窗)畫面，挑出圖表分析的欄位(文字,數值均可)
+                b.用指令繪圖
+                    1.從View點選特定欄位後按右鍵，選擇<Graph Selected Data>
+                    2.在各功能的Tab<Output>內，點選<To..Graph>
+        Section5-交叉列表分析
+            1.交叉列表分析，指令：Analyze > Cross Table，跳出(圖5-37 Cross Table對話視窗)畫面，挑出作為縱軸<Columns..>及橫軸<Rows..>的欄位，再挑選<Subtotal Fields>欄位
+        Section6-模糊重複比對
+            1.適用情境：找出關鍵欄位是否發生重複的分析
+            2.模糊重複比對的執行步驟為
+                a.重複比對，指令：Analyze > Duplicates，跳出(圖5-40 Duplicates對話視窗)畫面，挑出調查是否重複<Duplicates On..>的欄位，再挑選相關佐證欄位<List Fields..>
+                b.模擬重複比對，指令：Analyze > Fuzzy Duplicates，跳出(圖5-43 Fuzzy Duplicates對話視窗)畫面，挑出調查是否重複<Fuzzy Duplicates On..>的欄位，再挑選相關佐證欄位<List Fields..>
+        Section7-班佛(Benford Law)分析(針對數值欄位)
+            0.班佛定理指的是自然界中數值規則，各數值的首位數字出現[1]的頻率最高，[2]的頻率次高，隨著數字變大依序出現頻率遞減，又稱為「第一數位現象」或「第一數位頻率」
+            0.班佛定理可協助稽核人員找出哪些交易是人為操作，將查核焦點集中在這些交易上。
+            0.用於審計應用時，在資料數量足夠的前提下，正常交易資料其數值欄位的資料數位分佈頻率應與Benford Law相符。
+                若出現差異時，則可能存在錯誤或潛在的舞弊行為
+            1.適用情境：利用「分析性覆核程序」來達成查核目標
+            2.此法常用於財務報表的查核方面，另電腦稽核界亦用於「偵測異常電腦侵入」的方式
+            3.班佛(Benford Law)分析的執行步驟為
+                a.班佛(Benford Law)分析，指令：Analyze > Benford，跳出(圖5-46 Benford對話視窗)畫面
+
+        ------
+        <習題>
+        ------
+        (E)Q1.哪些指令無法產生分析圖表？
+            (A)Summarize (針對多欄位)
+            (B)Stratify (針對數值欄位)
+            (C)Classify (針對文字欄位)
+            (D)Age      (針對日期欄位)
+            (E)以上皆是  (註：以上指令都是產生分析報表，圖表功能會利用Output另外產生)
+        (B)Q2.帳齡分析，哪季收入最高？
+            (B)第二季
+        (A)Q3.執行Stratify指令前，可透過哪個指令取得MAX & MIN值變數？
+            (A)Statistic
+        (B)Q4.哪些指令可用來依照不同數值資料範圍進行彙總比較？
+            (B)Stratify
+        (B)Q5.對於Age指令的描述，何者為真？
+            (B)針對期間範圍來彙總資料
+        
+        Q1.Benford's Law的定義？優點有哪些？
+            A1.定義：數值第1數位出現1的頻率最高，並隨著數字遞增相對地頻率遞減。例：第1數位出現1的頻率是30.1%..出現9的頻率則降至4.6%。
+                    愈往後的數位中，數字1到9出現頻率就越緩和。例：第4數位出現1的頻率和出現9的頻率趨近相同為10%
+            A1.優點：
+                1.協助找出可能異常交易，將查核重點聚焦在這些交易上
+                2.協助找出可能存在錯誤或潛在的舞弊行為，及早提出預防控制點，遏止異常發生的可能性
+        Q2.Summarize & Classify指令的差別為何？
+            A2.差別如下：
+                1.可使用的欄位個數(Summarize:多欄位；Classify:單一欄位)
+                2.是否須預先排序資料(Summarize:須預先排序；Classify:不用預排序)
+                3.執行速度(Summarize:慢；Classify:快)
+                4.可分類上限數(Summarize:無上限；Classify:最多50,000類)
+
+    (CH6)-協助規劃與整理資料的指令應用
+        Section1-利用Expression建立新欄位(Fields)
+        
+        方式1：直接輸入Expression，常用於以計算結果作為欄位內容，
+                例：新增產品毛利率(售價-成本/售價)欄位
+
+            1.指令：點選[Table Name] > Edit > Table Layout , 跳出<Table Layout>
+            2.在<Table Layout>畫面(圖6.3 顯示新欄位與其運算式)內，提供的功能有<Table Layout Options>、<Edit Fields/Expressions>、<Add a New Data Filter>，切換至<Edit Fields/Expressions>Tab
+                a.新增Expression欄位：在(圖6-13)點選<fx+>按鈕後，跳出(圖6-10)畫面，
+                b.編輯Expression運算式：點選<f(x)>按鈕後，跳出(圖6-1 Expression Builder)畫面，輸入運算式，完成後按下OK，運算式會顯示在<Default Value>欄位內。
+        
+        方式2：輸入Condition，常用於以數值區間進行分類，
+                例：新增應收帳款風險辨別欄位：以風險低(Amount<50)、中(Amount>=50 and Amount<=500)、高(Amount>500)表示
+        
+            1.指令：點選[Table Name] > Edit > Table Layout , 跳出<Table Layout>
+            2.在<Table Layout>畫面(圖6.3 顯示新欄位與其運算式)內，提供的功能有<Table Layout Options>、<Edit Fields/Expressions>、<Add a New Data Filter>，切換至<Edit Fields/Expressions>Tab
+                a.新增Condition條件：在(圖6-3)下半部點選<+>按鈕後，跳出(圖6-4 輸入相對條件式及條件值)畫面，輸入相對條件式及條件值
+                b.可1次輸入多個條件。
+                c.注意：若欄位值落在Condition條件外，會使用<Default Value>欄位內的預設值
+                    ex.add a new Expression , Name is "Risk" , Default Value is "Low Risk"
+                        add two conditions , [first Condition..] = "Amount > 50 and Amount <= 500" , [Value] = "Middle Risk";
+                                            [Second Condition..] = "Amount > 500" , [Value] = "High Risk";
+        
+        待Expression新增成功後，再回到<Table Layout>，將Expression加入View裡面
+        
+        Section2-利用篩選器(Filter)檢視特定條件資料
+            1.指令：點選[Table Name] > Edit > Table Layout , 跳出<Table Layout>
+            2.在<Table Layout>畫面(圖6.3 顯示新欄位與其運算式)內，提供的功能有<Table Layout Options>、<Edit Fields/Expressions>、<Add a New Data Filter>，切換至<Add a New Data Filter>Tab
+        
+        Section3-萃取資料欄位至新資料表(Extract)
+            1.挑選部分欄位或部分記錄，作為分析之用
+            2.使用Extract指令須遵循下列程序：
+                a.選擇資料表
+                b.驗證資料表的關鍵值(正確的,比對資料來源用)
+                c.執行Extract指令產生新資料表
+                d.驗證新資料表旳正確性
+
+            3.萃取資料的3種方式：(指令：點選[Table Name] > Data > Extract Data , 跳出(圖6-21 Extract畫面))
+                a.Extract From Records : 欄位型態及公式一併匯至新資料表
+                b.Extract From View : 僅匯出欄位型態，公式不會匯出，全欄位匯出
+                c.Extract From Field : 僅匯出欄位型態，公式不會匯出，可挑選部分欄位
+
+        Section4-利用排序及索引指令重組記錄(Sort & Index)
+            =Sort=
+            1.Sort指令：Data > Sort，跳出(圖6-35 Sort對話視窗)畫面
+            2.Tab<Main>內，點選<Sort On...>加入排序欄位；在<To...>輸入資料表名稱，可以將排序結果生成新資料表(ex.SortVIP)
+            3.驗證Sort順序，利用Sequence指令：Analyze > Sequence，跳出(圖6-36 Sequence對話視窗)，Uncheck "Gaps and Duplicate"，得到驗證結果
+            4.利用排序結果生成新資料表(ex.SortVIP)，尋找指定紀錄
+                a.Search指令：Data > Search，跳出Search對話框，點選<Locate If...>選項，並輸入Expression 'Vendor_No = "13373"'，尋找指定紀錄
+
+            =Index=
+            1.Index指令：Data > Index，跳出(圖6-43 Index對話視窗)畫面
+            2.Tab<Main>內，點選<Index On...>加入索引欄位；在<To...>輸入資料表名稱，可以將索引結果生成新資料表(ex.IndexVIP)
+                注意1：要勾選"Use Output Table"，會立即套用到原本Table上，在原本Table與索引建立聯結
+                注意2：回到原本Table的View畫面，即可發現"IndexVIP"在Index:清單內
+            3.利用索引檔尋找指定紀錄(記得先套用Index)
+                a.Search指令：Data > Search，跳出Search對話框，點選<Indexed>內的選項，
+                    1.Find Literal , Expr...= 12433 (註：文字串不能加引號)
+                    2.Seek Expression , Expr... = "12701" (註：文字串要加引號)
+                b.有條件式的索引可作為儲存快速篩選條件的方式
+                    1.新增Index時，在<If...>加入條件即可
+
+        Section5-ACL變數
+            a.ACL變數可分為3類：
+                1.系統變數(專案關閉後消失)：指令執行後，自動產生的變數(ex.Count1 , outputfolder..)
+                2.自訂變數(專案關閉後消失)：
+                3.專案變數(專案關閉後仍保留)：開頭須為_，例：_Project
+            b.變數指令：Edit > Variables，跳出(圖6-48 變數編輯)畫面，點選<New>可新增變數，開啟(圖6-49 新變數的命令及編輯運算式)
+            c.變數值查詢：Command Line > 輸入 <DispVar>，會列出所有變數值
+
+        Section6-總結
+
+        ------
+        <習題>
+        ------
+        Q1.
+            A1.
+
+    (CH7)-多表格間資料查核分析
+        Section1-資料庫系統觀念
+        Section2-關聯代數
+            1.Project-指的是只選出資料表內部份欄位. Select col1 , col2 from Product;
+            2.Select-指的是篩選出資料表中符合條件的資料. Select * from Product Where price > 50;
+            3.Cartesian-指的是兩個資料表的所有組合(X). ex.Table1有3筆資料,Table2有2筆資料,則Table1 X Table2 = 6筆資料的組合
+            4.Intersect-指的是兩個資料表相同欄位的交集組合. ex.Select * from Order o , OrderDetails od where o.id = od.orderID;
+            5.Union-指的是兩個資料表的聯集組合.
+            6.Except-指定的是兩個資料表的差集組合，資料表A不存在於資料表B的內容.
+        
+        Section3-ACL(Relation Table)勾稽指令 = where a.ID = b.ID , 可以1次連接多個檔案
+            0.Relate像是SQL的子查詢，在主資料表的基礎上，勾稽其他關聯資料進來
+            1.兩個資料表勾稽的(欄位型態與長度)必須相符
+            2.注意：被勾稽欄位非唯一時，ACL只會挑第1筆資料。
+            3.指令：點選[主資料表,ex.AP_Trans] > Data > Relate , 跳出(圖7-7 Relation)畫面
+                a.開啟(圖7-7 Relation)畫面後，[主資料表,ex.AP_Trans]成功Parent Table
+                b.點選[Add Table]按鈕，加入被勾稽的資料表
+                c.從[主資料表,ex.AP_Trans]勾稽欄位拉至[被勾稽的資料表]的可勾稽欄位(圖7-8 Relation)
+                d.回到View畫面後,再點選[Add Column]選單功能,跳出(圖7-9 Add Column)畫面,挑選要顯示在View的欄位
+                e.注意：Table建立連結後，隨時都能點選[Add Column]選單功能加入新欄位至View畫面顯示
+        
+        Section4-比對指令(Join) = 兩個資料表欄位的左右聯結 [ex.TableA(col1,col2) + TableB(col1,col3,col4) = (col1,col2,col3,col4)]
+            1.Join方式分為3類：
+                a.one to one
+                b.many to one
+                    只允許many to one(ex.主表是明細檔-OrderDetails , 子表則是主檔-Orders) (O)
+                    不允許one to many(ex.主表是主檔-Orders , 子表則是明細檔-OrderDetails) (X)
+                    主表與子表的選擇要注意。
+                c.many to many
+                    適用情境：是否有比對成功的任何可能性(所有比對)
+            2.指令：點選[主資料表,ex.Employee] > Data > Join , 跳出(圖7-18 Join Table對話框)畫面
+                a.並在<Secondary Table>下拉選單，挑選[子資料表,ex.Payroll]
+                b.接著<Primary Keys..> & <Secondary Keys..>，點選用來JOIN的欄位 ex.EmpNo
+                c.緊接<Primary Fields..> & <Secondary Fields..>，挑選一併加入報表顯示的欄位。
+                d.輸入<To..>欄位值，把Matched Table匯出至View。
+            2.Join型態分細分為6類：
+                設定位置：(圖7-18 Join Table對話框) Tab<More>內，<Join Categories>區域內設定
+                a.Mathched Primary Records
+                    1.Include All Primary Records
+                    2.Include All Secondary Records
+                b.Unmatched Primary Records(差集)
+                c.Many-TO-Many Mathched Records
+                圖解可參考(圖7-17 Join指定Match結果說明)
+
+        Section5-合併指令(Merge) = 兩個相同欄位且經排序後的資料表上下聯結 [ex.TableA(col1,col2) 6筆 + TableB(col1,col2) 4筆 = TableC(col1,col2) 10筆]
+            1.適用情境：不同時間週期、不同分公司的相同資料檔合併查核時
+            2.使用限制：兩個資料表須針對同一欄位先排序
+            3.指令：點選[主資料表,ex.Employee] > Data > Merge , 跳出(圖7-25 Merge Table對話框)畫面
+                a.並在<Secondary Table>下拉選單，挑選[子資料表,ex.Payroll]
+                b.接著<Primary Keys..> & <Secondary Keys..>，點選用來JOIN的欄位 ex.EmpNo
+                c.緊接<Primary Fields..> & <Secondary Fields..>，挑選一併加入報表顯示的欄位。
+                d.輸入<To..>欄位值，把Matched Table匯出至View。
+                e.合併結果依同一欄位排序規則resort by the same Column
+            4.替代方案：Extract / Append
+                a.可用於未排序資料上
+                b.直接加到現有資料表後面
+                c.指令：點選[主資料表,ex.AR] > Data > Extract , 跳出(圖7-27 Extract對話框)畫面
+                    1.Tab<Main>內，點選<Records>將欄位及公式一併匯至新資料表；在<To...>輸入資料表名稱(ex.AR01)；勾選<Use Output Tables>
+                        註：AR01表已存在。
+                    2.Tab<More>內，點選<Append To Existing File>
+                    3.按下確認後，資料表<AR01>後面會加上資料表<AR>資料。
+        ------
+        <習題>
+        ------
+        (E)Q1.關於ACL Join指令的使用規則，何者為真？
+            (A)兩資料表須在同專案內
+            (B)兩資料表，至少要有一個KEY欄位相連
+            (C)兩資料表的KEY欄位型態須相同
+            (D)兩資料表的KEY欄位長度須相同
+            (E)以上皆是
+        (A)Q2.Relation指令是Join指令的哪種合併型態？
+            (A)MathchedRecords
+        (D)Q3.查核目標：客戶應收帳款餘額是否超過信用額度；
+            擁有資料：應收帳款明細檔 & 客戶基本檔(含信用額度)
+            查核程序可用的指令有：
+            (D)數值加總(Classify) + 聯結(Join) + 運算式比對(Expression)
+        (D)Q4.關於ACL Relation指令的使用規則，何者為真？
+            (A)可跨專案連結(X)
+            (B)兩個TABLE可以連結1個以上的KEY Field(X)
+            (C)KEY Field僅限文字型態(X)
+            (D)聯結關係被儲存在Parent Table內(O)
+            (E)以上皆非
+        (A)Q5.下列沒有Presort功能的指令？
+            (A)Report(O)
+            (B)Summarize
+            (C)Join
+            (D)Gap
+            (E)Classify
+
+    (CH8)-資料瀏覽與報表製作
+        Section1-Project Navigator 專案瀏覽器
+            注意1：匯入他案資料表(Table)格式後，需要在新資料表上連接來源資料檔(Link To New Source Data 圖8-8 連接至新的來源資料檔)
+            注意2：複製同專案資料表(Table)格式後，<同樣> 需要在新資料表上連接來源資料檔(Link To New Source Data 圖8-8 連接至新的來源資料檔)
+            
+        Section2-Custom View Window Format 自訂檢視視窗格式
+            1.可以自訂檢視調整的項目有：
+            2.指令：點選[主資料表,ex.Employee] > View > Change Font , 跳出(圖8-14 Select View Fonts對話框)畫面
+            
+        Section3-Design & Print Report 設計和列印報表
+            1.ACL報表是根據View內容來顯示
+            2.ACL設計報表三步驟：
+                a.編排資料視界(View)(點選[主資料表,ex.Employee])
+                b.設計報告樣式，指令： Data > Report , 直接編輯View的畫面 , 例:欄位往下拉，可將單行變多行
+                c.列印報告
+            3.匯出HTML格式
+                a.指令： Data > Report
+                b.Tab<Output> , File Type = "HTML Text File" , Name = <html Name>
+            4.Sort Key Columns
+                a.Modify Column指令：click Column Title(ex. Vendor_No) twice , 跳出(圖8-32 Modify Column畫面)
+                    1.check <Sort Key Column>
+                    2.click <Sort Ascending> or <Sort Descending>
+                    3.報表顯示就會以此欄位作排序
+            5.Break Column(群組欄位) <-限文字欄位->
+                a.[加小計]
+                    1.該欄位值變更時，會自動加入小計欄位。例:Vendor_No:1234改為1235時，在1234最後1列會加入小計
+                    2.Modify Column指令：click Column Title(ex. Vendor_No) twice , 跳出(圖8-32 Modify Column畫面)
+                        a.check <Break Column>
+                        b.報表顯示就會以此欄位作小計
+                b.[小計+跳頁]
+                    1.該欄位值變更時，會換頁，並自動加入小計欄位。例:Vendor_No:1234改為1235時，在1234最後1列會加入小計
+                    2.Modify Column指令：click Column Title(ex. Vendor_No) twice , 跳出(圖8-32 Modify Column畫面)
+                        a.check <Break Column> + <Page Break>
+                        b.先換頁
+                        c.在每頁下方顯示小計
+                
+                b.[隱藏主鍵重複值] <Suppress Duplicates>
+                    1.該主鍵欄位值只顯示1次，增加可讀性
+                    2.Modify Column指令：click Column Title(ex. Vendor_No) twice , 跳出(圖8-32 Modify Column畫面)
+                        a.check <Break Column> + <Suppress Duplicates>
+                        b.123   48.00
+                                12.00  <--這列的123被隱藏了-->
+                        123   60.00
+            6.Suppress Totals(隱藏小計欄位) <-限數值欄位->
+                a.Modify Column指令：click Column Title(ex. Vendor_No) twice , 跳出(圖8-32 Modify Column畫面)
+                    1.check <Suppress Totals>
+            7.Summarize Report(彙總報表顯示)
+                a.Modify Column指令：click Column Title(ex. Vendor_No) twice , 跳出(圖8-32 Modify Column畫面)
+                    1.check <Break Column> + <Suppress Duplicates>
+                b.Report指令：Data > Report
+                    1.check <Summarize>
+            8.Suppress Blank Detail Lines(隱藏空白行)
+                a.Modify Column指令：click Column Title(ex. Vendor_No) twice , 跳出(圖8-32 Modify Column畫面)
+                    1.check <Sort Key Column> on 主鍵欄位 + <Break Column> on 群組欄位 + <Suppress Duplicates> on 群組欄位
+                b.Report指令：Data > Report
+                    1.check <Presort> + <Suppress Blank DetailLines>
+            9.Blank if Zero(不顯示0值)
+                a.Modify Column指令：click Column Title(ex. 訂單數量) twice , 跳出(圖8-32 Modify Column畫面)
+                    1.check <Blank if Zero>
+        
+        Section4-Export DATA 匯出資料
+            1.指令：點選[主資料表,ex.Employee] > Data > Export , 跳出(圖8-43 Export對話框)畫面
+            2.ACL可匯出資料的格式
+                mdb , txt , dbf , del(有分隔符號) , xls , wks , wp , doc , wp , xlsx , xml , grc , json(網路傳輸用)
+
+        ------
+        <習題>
+        ------
+        Q1.ACL Project組成(Table + Scripts + Folder + Workspace)
+        Q2.Export可匯出的資料格式？dBase
+        Q3.計算欄位可執行的功能？算術 + 型態轉換 + 字串替換 + 邏輯運算
+        Q4.ACL可產生報表的指令？Summarize , Report , Classify(O) , 但Export不行(這是匯出資料用)
+        Q5.ACL可匯出資料的格式？dBase , Lotus , Excel , Word(O)
+
+    (CH9)-Script基本概念與撰寫方法
+        Section1-Scripts概述
+            1.利用ACL Script作為查核自動化工具前，應考量下列面向：
+                a.ACL Scripts查核範圍？
+                b.ACL Script是否要求User輸入資料？須輸入何類資料？
+                c.定義查核目標(預期看到哪種異常？)，如何辨識與判別異常確實發生？
+                d.ACL Script執行頻率？(每週、每月或每季)
+                e.誰負責管理ACL Script？
+
+        ------
+        <習題>
+        ------
+        Q1.
+            A1.
+
+    (CH10)-ACL進階技術探討
+        1.
+
+        ------
+        <習題>
+        ------
+        Q1.
+            A1.
+
+    (CH11)-ACL個案分析
+        1.
+        ------
+        <習題>
+        ------
+        Q1.
+            A1.
+==參考書目：ACL資料分析與電腦稽核(END)==============
+
+==<電腦稽核-習題>(問答題)==
+(CH1)
+1.請簡述稽核的定義？
+    A(試寫).確認組織是否依風險評估結果所制定程序執行，以確保組織風險值在可控範圍內。
+            --(↑↑↑↑↑什麼都沒看，自己試著寫↑↑↑↑↑)----------------------------------------------------------------
+            
+            資料收集：客觀獲取與經濟活動相關的證據(資料、紀錄)
+            資料驗證：對資料和紀錄進行獨立檢測，以驗證資料可靠性
+            資料分析：鑑定企業控制系統的完整性
+            出具報告：提供改善建議及確認聲明與標準符合程度，以降低企業風險並揭露給利害關係人
+            --(↑↑↑↑↑看過解答，重點整理↑↑↑↑↑)----------------------------------------------------------------
+
+    A(解析).稽核是一套有系統的程序。
+            客觀地獲取、評估與經濟活動相關的證據，
+            對資訊及紀錄進行獨立檢測方法，
+            鑑定企業控制系統的完整性，
+            並提供改善控制系統缺失的建議及其確定公司所作聲明與既定標準符合程度，
+            以便降低與限制企業風險範疇及將結果傳達給利害關係人的過程。
+            --(↑↑↑↑↑課本解答↑↑↑↑↑)----------------------------------------------------------------
+
+2.外部稽核與內部稽核的差別？
+    A(試寫).外部稽核:外部人員從客觀角度出發，收集相關證據，驗證實質程序與標準程序是否相符。
+            內部稽核:持續追蹤內部實質流程是否遵循程序執行
+            --(↑↑↑↑↑什麼都沒看，自己試著寫↑↑↑↑↑)----------------------------------------------------------------
+
+    A(解析).稽核的種類可按性質分為外部稽核及內部稽核兩類。
+            「外部稽核」又稱為獨立稽核，通常由持有執照的專業人員獨立完成，提供企業外部使用者(如股東、債權人、政府..)允當表達的財務資訊。
+                而大部份外部稽核的焦點鎖定在財務報告書上。因此，外部稽核又稱為財務稽核。
+            「內部稽核」建立於組織內部之獨立評估性功能，以驗證評量組織活動。
+                內部稽核執行範圍涵蓋絕大多數的企業活動，包括實施財務稽核、細察經營者在組織政策上的決策、檢視組織的法遵承諾、評估經營效率、偵測內部欺騙行為及執行資訊科技稽核等。
+            --(↑↑↑↑↑課本解答↑↑↑↑↑)----------------------------------------------------------------
+
+3.請指出四種電腦稽核工作常用的軟體。
+    A(試寫)：EXCEL , ACL , Access , Word
+    A(解析)：自動化工作底稿軟體(EXCEL) , 稽核軟體(ACL) , 稽核管理軟體 , 內控自評軟體
+
+4.請簡述「繞過電腦稽核」、「透過電腦稽核」、「利用電腦稽核」三種稽核方式的不同。
+    A(試寫)：「繞過電腦稽核」直接檢視系統產出結果；
+            「透過電腦稽核」檢驗系統流程；
+            「利用電腦稽核」利用系統資料及稽核軟體的輔助，檢驗系統流程正確性。
+            --(↑↑↑↑↑什麼都沒看，自己試著寫↑↑↑↑↑)----------------------------------------------------------------
+
+    A(解析)：「繞過電腦稽核」(Auditing around the Computer)
+                把電腦視為黑盒子，僅驗證輸入及輸出資料，而不管電腦處理過程，或僅就電腦周圍的人、事、物及制度作查核，與傳統的稽核方法類似。嚴格說來，「繞過電腦稽核」不算是電腦稽核。
+            「透過電腦稽核」(Auditing through the Computer)
+                是指不僅查核電腦系統產出的結果，並深入查核電腦系統的處理過程。也就是實際地測試系統或程式是否作有效地控制及其處理過程是否正確，故稽核人員須具備電腦稽核知識與技巧。
+            「利用電腦稽核」(Auditing with the Computer)
+                是指稽核人員使用電腦作為稽核輔助工具，利用稽核軟體來執行稽核作業，以提高稽核效率。
+            --(↑↑↑↑↑課本解答↑↑↑↑↑)----------------------------------------------------------------
+
+5.請簡略說明企業的資訊系統內部控制無法確實發揮功能的主要原因為何？為何稽核人員在使用組織中的各種資訊技術時普遍沒有信心？
+    A(試寫)：(1)因為人的惰性。藉由持續有效的合理監控方法，可讓系統內控確實發揮功能。
+            (2)因為稽核人員不熟悉資訊技術所造成，須強化稽核人員對資訊系統及技術的訓練，即能有效提昇其信心
+            --(↑↑↑↑↑什麼都沒看，自己試著寫↑↑↑↑↑)----------------------------------------------------------------
+    
+    A(解析)：(1)企業需要可靠的資料與交易紀錄。但隨著交易量越大，系統環境越複雜，使得資料整合上出現瓶頸，也就是資料與交易的控管能力備受挑戰。
+                一旦控管交易流程機制中出現弱點，企業就會暴露在風險下。
+            (2)沒信心的原因在於，即使企業使用許多控制機制來確保交易資料的完整性，但仍無法保證交易資料中無重大錯誤產生。
+            --(↑↑↑↑↑課本解答↑↑↑↑↑)----------------------------------------------------------------
+
+6.請解釋何謂通用稽核軟體，稽核軟體最大的特色為何？
+    A(試寫)：GAS指的是具備稽核作業所需功能的軟體，以提高稽核效率。
+            最大特色是讀取多格式資料來源、強大的運算能力、資料唯讀及查核過程完整記錄，可確保查核報表結果公正性。
+            --(↑↑↑↑↑什麼都沒看，自己試著寫↑↑↑↑↑)----------------------------------------------------------------
+    
+    A(解析)：GAS指的是該稽核軟體可讀取不同資料檔案類別及內容格式。此類軟體常針對應用系統稽核而設計，其功能強調擁有強大的運算能力(例：抽樣、檔案合併、日期計算及資料轉換能力)
+            最大特色是可在個人電腦上操作，稽核人員可將受查單位提供的資料下載至PC，再利用稽核軟體進行資料讀取、驗證及分析作業。
+            --(↑↑↑↑↑課本解答↑↑↑↑↑)----------------------------------------------------------------
+
+7.企業如果要確保內部交易資料的完整性與正確性，就必須明瞭本身企業目前到底曝露在哪些風險範圍裡面？
+    A(試寫)：資料完整性，可利用是否連號、是否缺漏，並與關聯資料作比對，勾稽出可能的缺失。
+            資料正確性，可經由取得輸入及輸出資料，比照既定標準程序，驗證資料正確性。
+            --(↑↑↑↑↑什麼都沒看，自己試著寫↑↑↑↑↑)----------------------------------------------------------------
+    A(解析)：[題目要問的是，因為交易資料的不完整或不正確，造成企業曝露在哪些風險下，請舉例說明]
+            1.因舞弊或詐欺(假資料)，導致企業重大現金或資產損失
+            2.因內控制度缺失或法遵未落實，導致企業財務損失、商譽喪失並可能遭受主管機關嚴厲處分
+            3.因供應商溢付貨款，或應收帳款疏於管理，導致呆帳損失
+            4.因客戶或供應商資料不正確，破壞了企業與顧客、企業與供應商間的信賴關係
+            5.因無法及時提供完整營運資料，出現決策錯誤而錯失商機，甚至引來重大財務損失
+            --(↑↑↑↑↑課本解答↑↑↑↑↑)----------------------------------------------------------------
+
+8.通用稽核軟體主要運用在配合稽核程序的進行，試說明之。
+    A(試寫)：稽核程序可分為以下幾個階段：(1)界定稽核範疇、(2)資料收集、(3)資料驗證、(4)資料分析、(5)出具報告、(6)結案。
+            GAS主要運用在稽核程序中(3) & (4)
+            --(↑↑↑↑↑什麼都沒看，自己試著寫↑↑↑↑↑)----------------------------------------------------------------
+    
+    A(解析)：稽核程序的四個階段：(1)計劃、(2)蒐集證據、(3)評估證據、(4)交流稽核結果
+            --(↑↑↑↑↑課本解答↑↑↑↑↑)----------------------------------------------------------------
+
+9.傳統稽核工作的簽證服務與現今稽核工作的擴大服務有何差別，試說明之。
+    A(試寫)：主要差別在於稽核頻率、範疇及深度。
+            頻率：傳統稽核每季1次或每年1年、電腦稽核藉由電腦稽核軟體的輔助，提高稽核效率。
+    
+    A(解析)：簽證服務可被定義為：由稽核人員約定發布，或者確實發布的一種保證，表示關於另一位當事人責任的書面主張的可靠性。
+            簽證服務必須有以下條件：
+            * 簽證服務需要書面證明和稽核人員的書面證明。
+            * 簽證服務需要建立正式的衡量準則或用語遣詞的說明書。
+            * 簽證服務約束的等級被侷限在檢查、複審或是經同意的申請程序。
+            
+            隨者資訊科技的進步，當前的商業環境已讓目前稽核人員的工作擴大到{確認服務}，
+            稽核的範圍由狹義的財務稽核擴大為營運稽核，稽核人員運用電腦稽核蒐集證據，以評估委託人的電子資料處理系統是否與組織目標一致。
+            {確認服務(assurance services)}為較廣義的觀念，包含證實的意涵，但不侷限只由它組成。
+            {確認服務}指的是為決策者所提供的專業服務，被設計來改善財務或非財務的資訊品質。
+            {確認服務}的範疇未加以刻意地侷限，原因在於不希望抑制現在的成長。
+            {確認服務}傾向於提供更好的資訊以幫助人們做出更好的決策。這些資訊可能來自於事先約定的正式服務或是從獨立動機的審視。
+
+10.請問在這種資訊化的環境下，應採用哪些電腦稽核策略來進行？而主要可以利用電腦輔助查核技術進行查核的範圍有哪些？
+    A(解析)：(1)可採用透過電腦稽核(Auditing Through the Computer)或利用電腦稽核(Auditing With the Computer)策略來進行
+            (2)查核範圍可依照其產業所屬特性已交易循環來區分這些控制作業，外加資訊循環，即有九大循環可做查核範圍。
+            以下為該九大循環：(銷售收款、採購付款、生產、研發、固定資產、薪工、資訊、融資、投資)
+                * 銷售及收款循環。
+                * 採購及付款循環。
+                * 生產循環。
+                * 薪工循環。
+                * 融資循環。
+                * 固定資產循環。
+                * 投資循環。
+                * 研發循環。
+                * 資訊循環。
+
+(CH2)
+    1.<審計實務指引>主要分為哪五大部份加以探討？
+        Q1.
+            * 資訊系統環境-PC
+            * 資訊系統環境-線上作業系統
+            * 資訊系統環境-資料庫系統
+            * 風險評估與內部控制-電腦資訊系統特點與考量
+            * 電腦輔助稽核技術
+    2.主要的電腦輔助稽核技術有哪些?
+        Q2.
+            * 套裝軟體：執行資料處理功能的程式，例：ACL。
+            * 特定用途程式：執行特定稽核用途的程式。
+            * 公用程式：具一般資料處理功能的程式，例：列印。
+            * 系統管理程式：提升效率的工具，常為作業系統的一部分。
+            * 嵌入式例行性稽核程式：安裝於受查者電腦的程式，供稽核人員存取所需稽核證據。
+            * 測試資料技術：藉由輸入資料至受查者電腦，比較輸出結果與預期結果是否相符。
+    3.COSO內控五大要素。
+        Q3.
+            * 控制環境：其他組成的基礎，指的是企業活動的核心及所處環境，提供人們執行任務，履行控制責任的綜合因素。
+            * 風險評估：企業應考慮影響達成目標之內、外在因素，及企業辨識風險並分析的過程，以作為風險如何管理之依據。同時組織建立一套機制，對應管理風險的行動方案。
+            * 控制活動：一套完整的控制程序。控制活動重點在於職能分工，避免作業流程均由同一人或同部門人員執行，並給予適當授權，對交易作完整紀錄。
+            * 資訊與溝通：經由資訊系統，在時程內有效的傳遞資訊並相互溝通，使得活動相關者均能取得正確資訊
+            * 監督：隨著時間經過而評估制度執行品質的過程。
+    4.簡述IT治理之五大重點區域。
+        Q4.
+            * 策略搭配：IT計劃與企業策略目標是否一致或朝向同方向前進。
+            * 價值傳遞：確保IT計劃能落實企業策略所承諾的利益，並專注在成本最佳化及提供IT本身價值
+            * 風險管理：管理階層清楚企業風險偏好，了解法遵需求，將企業風險透明化，及將風險管理責任引入企業內。
+            * 資源管理：將關鍵IT資源(例：軟體、系統、基礎設施及人員)進行有效配置並追求最佳化。
+            * 績效衝量：針對上述各項目標，挑選合適指標以評估目標達成度。
+    5.簡述COBIT為滿足企業目標而訂定的七大資訊標準。
+        Q5.
+            * 有效性:提供企業適切有效的資訊
+            * 效率性:以企業內部最適當方式即時提供資訊
+            * 遵循性:符合企業相關法律、規範及契約
+            * 可靠性:提供正確資訊予企業營運、財務報告與法令遵循使用
+            * 機密性:人員僅能取得授權範圍內的資訊
+            * 可用性:有資訊需求時，均能取得所需資訊
+            * 完整性:攸關資料的正確性及完整性，確保資訊傳遞過程不被竄改
+(CH3)
+    1.沙賓法案中，非稽核服務範圍的工作可分為哪九類？
+        Q1.
+            * 帳冊簿記(bookkeeping)
+            * 資訊系統之設計與執行
+            * 資產評估評價服務
+            * 精算服務
+            * 內部稽核
+            * 管理及人力資源相關服務
+            * 中間商及投資、貸款類之服務
+            * 無關稽核業之法律諮商服務
+            * 其他審計委員會通過認可之有關服務
+    2.有效的輪調制度，指的是每幾年應輪調1次？
+        Q2. 每五年
+    3.何謂科技治理？請簡述科技治理。
+        Q3. 運用正確決策及可信賴架構，使用科技工具以確保公司之正常營運行為。
+    4.科技治理的適用範圍？
+        Q4. 適用範圍為人員、設備、成本及資訊等層面。
+    5.評估科技治理績效時，一般績效衡量因子包括哪些？
+        Q5.
+            * C 連結性
+            * C 互通性
+            * R 可靠性
+            * R 回應時間
+            * P 生產力
+            * E 延伸性
+            * Q 品質保證
+    6.沙賓法案，對諮詢服務業所造成的影響。
+        Q6. PCAOB小組訂定了哪些服務可以允許執行，及哪些服務不行，限制了傳統諮詢服務業(稽核公司)所能提供的服務。
+            因此，所有會計師事務所(稽核公司)均忍痛出售了其資訊系統諮詢部門。
+    7.簡述治理的組成要素。
+        Q7. * 目標(WHAT)，你要作什麼
+            * 績效評量指標(KPI)，你作的如何
+            * 組織(WHO)，由誰來作
+            * 執行原則與程序(How)，怎麼作
+    8.簡述科技治理的工作項目。
+        Q8. * 決定應用科技於資產的價值(Value)
+            * 評估運用科技於資產造成的影響(Impact)
+            * 評估運用科技產生的績效(Strategy)
+            * 檢查科技運用於資產有無出現偏差行為(Undesirable Behavior)
+            * 運用科技進行持續監督及矯正之工作
+    9.簡述科技治理的實行架構
+        Q9. * 建立科技治理小組(Team)
+            * 決定科技治理策略(Strategy)
+            * 訂定科技治理決策(Decision)
+            * 定義科技治理資產(Asset)
+            * 套用科技治理架構(Framework)
+            * 評估科技治理績效(Performance)
+    10.COBIT架構已成為全球採用最廣泛的有關科技管理方面之一重要稽核評估工具，相對於其他架構最大不同之處為何？又此架構分為哪些部份？
+        Q10. COBIT架構最大不同在於科技管理導向。
+            此架構可分為六大部份：
+            1.策略性總結(Executive Summary)
+            2.基本架構(Framework)
+            3.控制目標(Control Objectives)
+            4.稽核準則(Auditing Guidelines)
+            5.管理準則(Management Guidelines)
+            6.執行工具組(Implementation Tool Set)
+(CH4)
+    1.電腦輔助稽核技術
+        Q1. * 資料分析軟體
+            * 網路安全執行軟體
+            * 作業系統和資料庫安全執行軟體
+            * 軟體和程式碼測試工具
+    2.傳統稽核與電腦稽核之差異
+        Q2. 主要差異在於
+            * 查核方式(人工；電腦化)
+            * 查核環境(紙本；電腦系統)
+            * 查核頻率(定期；持續性)
+            * 蒐集證據的方式
+                > 傳統稽核：藉由稽核人力，對現有紙本作證據蒐集及分析，評估企業財務及營運狀況，就資料及一般公認準則間的相關度作出結論及報告，受到人力及時間上的限制
+                > 電腦稽核：可透過電腦輔助軟體對不同的資料結構、記錄格式、處理功能進行證據蒐集及分析，評估控制風險成效及衡量企業實際操作及遵守方式。
+    3.電腦輔助稽核軟體與技術具有的稽核功能。
+        Q3. * 對交易以及帳戶餘額進行詳細的測試。
+            * 進行分析性複核程序。
+            * 對資訊系統的一般控制進行法規遵循測試。
+            * 對資訊系統的應用程式控制進行法規遵循測試。
+            * 穿透性測試。
+    4.請列舉三項電腦輔助稽核軟體與技術的優點。
+        Q4. * 提昇稽核生產力及效率
+            * 持續性稽核
+            * 進行舞弊偵測
+            * 強化法規遵循
+            * 確保資料存取的安全性
+            * 稽核團隊的協同查核
+    5.何謂通用稽核軟體。
+        Q5. 1.資料分析軟體是電腦輔助稽核技術中最受歡迎的稽核方式。
+            2.這類型又被稱為通用稽核軟體(GAS)，是最常的電腦稽核工具與技術。
+            3.這類軟體可適用於不同檔案種類及資料格式，也因為它是針對應用系統稽核功能而設計的軟體，它特別強調抽樣、檔案合併、日期計算及資料轉換等資料處理能力。
+    6.列舉常用的通用稽核軟體
+        Q6. ACL , FOCAUDIT , IDEA等
+    7.列舉ACL軟體的優點
+        Q7. 1.讀取必要資訊來協助決策制定(讀取多類型檔案及格式)
+            2.確保資料完整性及安全性(以唯讀方式存取資料，保留完整稽核歷程)
+            3.處理多種資料格式
+    8.試說明使用ACL查核之電腦程序。
+        Q8. 1.擬定查核計劃(訂定查核目的、規劃查核內容)
+            2.獲得資料(了解電腦應用系統與檔案架構、取得資料)
+            3.讀取資料(定義資料格式及欄位)
+            4.驗證資料
+            5.分析資料
+            6.報告結果與溝通
+    9.列舉電腦輔助稽核軟體導入成功的關鍵因素。
+        Q9. * 管理階層支持
+            * 稽核人員協助
+            * 專家經驗
+            * 徹底了解組織環境與接受組織文化
+            * 建立可達成的目標
+            * 建構試驗階段
+(CH5)
+    1.銷售循環功能
+        Q1. * 接獲客戶訂單
+            * 查明客戶信用程度
+            * 輸入銷售訂單
+            * 備貨
+            * 送貨
+    2.銷售循環中，各部門可能使用到的文件及功能
+        Q2. * 銷售訂單 , 銷售部門
+            * 接訂通知單 , 銷售部門 , 通知客戶完成下訂
+            * 揀貨單 , 倉儲部門
+            * 缺貨單/進貨單 , 採購部門
+            * 裝箱單/送貨單 , 運輸部門
+            * 提貨單 , 托運方與承運方間的運貨契約
+            * 銷貨發票
+    3.試列舉一些銷售及請款系統的應用控制。
+        Q3. 應用控制存在於各個營運活動作業，如訂單輸入、現金收入等。藉由將應用控制運用於電腦處理過程，能達到錯誤的預防或即時偵測，提升作業的正確及完整。
+            * 銷售系統：例如，在輸入顧客訂單到訂單被接受
+            * 請款系統：例如，定期確認客戶帳戶
+    4.在進行(資料)證實測試前，稽核人員對於資料的了解有何重要性？
+        Q4. 對於一個稽核人員，了解資料是進行證實測試前的第一優先的工作。證實測試主要是分析系統中所運用及產出的檔案資料的合理性，來驗證整體交易及帳戶資料的完整正確。
+            重要性在於：
+            * 了解資料，才能知道如何適當地操作資料，並執行資料分析工作，從中驗證出流程中不合理的地方
+            * 此外，資料分析前，務必確認原始資料的版本及正確性
+            * 甚至，資料分析前，事先篩選處理轉換為可分析形式，也利於分析工作的進行
+    5.試說明證實測試的意義並舉例說明如何進行測試。
+        Q5. 經由證實測試的結果作為有力證據，證明財務報表所聲明的正確性及完整性。
+            * 跳號檢查
+            * 重號檢查
+    6.請列舉出五種常見資料確認控制方法。
+        Q6. * 遺漏資料確認：是否有空白欄位
+            * 資料格式檢查：數值欄位出現文字值
+            * 界限檢查：超出客戶信用上限
+            * 範圍檢查
+            * 上、下限範圍檢查
+    7.請說明何謂批次控制與批次控制的特點為何？
+        Q7. 批次控制：批次控制主要用來管理大量資料處理，從資料輸入開始，批次控制將會繼續所有後續階段的資料處理。
+            批次控制的特點：透過批次控制可以更方便地確定：(1)所有銷售發票都有輸入至系統中；(2)每張發票都僅輸入一次。
+    8.請列舉三項常見的處理控制並說明之。
+        Q8. * 檔案更新控制(File Update Controls)：檔案更新控制的部分是為了要處理以及避免不一致的情形。
+            * 訂單號碼控制(Transaction Code Controls)：交易循環系統會開發各種應用程式來處理多筆以及多種類型的資料記錄。其處理的實際工作就由Transaction Code來執行各項記錄的編輯。然而Transaction Code的錯誤會造成資料交易的不一致而產生錯誤的訊息。
+            * 順序確認控制(Sequence Check Control)：在批次處理系統中，資料的順序的正確性對於處理的正確與完整是很重要的，一個不正確的處理順序會造成資料的錯誤。
+    9.請列舉三項常見的稽核輸出控制報表並說明之。
+        Q9. * 應收帳款變動報告(Account receivable change report)
+            * 交易日誌(Transaction logs)
+            * 交易清單(Transaction listing)
+(CH6)
+    1.
+(CH14)
+    1.請簡述稽核實務管理步驟。
+        Q1. 稽核實務之運作、問題管理、績效評估與修正、組態控制、變革管理、管理回報
+    2.請問稽核實務應包含哪些活動？
+        Q2. 
+
+
+

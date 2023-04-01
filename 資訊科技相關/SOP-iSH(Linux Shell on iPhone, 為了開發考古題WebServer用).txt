@@ -1,0 +1,90 @@
+
+================================
+iSH 使用方式.
+apk add <packagename> 安裝套件指令
+apk del <packagename> 刪除套件指令
+https://wiki.alpinelinux.org/wiki/FTP
+
+	0. iSH 是 iPhone & iOS 上執行的SHELL.
+	1. (OK, 放棄)因為無法透過 pscp 將HTML傳至 iPhone 上面
+	2. (OK, 放棄, 太麻煩)透過OneDrive傳單檔可以啦, 但是在 iPhone 上面操作太麻煩了.
+	3. (OK, 放棄, 伺服器端卡關, 反其道而行, 改由iPhone當Client, Windows當Server, 讓它過來抓)
+		在 iPhone 上面安裝 ftp Server呢? windows 上面開發完成後, 傳過去.
+		
+		apk open openrc #先安裝後, rc-update & rc-service 才能用.
+
+		<Installing vsftpd on iSH>
+			apk add vsftpd
+
+			rc-update add vsftpd default
+				* service vsftpd added to runlevel default
+
+			rc-service vsftpd restart # 這個指令可以檢查是FTP Server是否啟動. #
+				* WARNING: vsftpd is already starting
+
+		<Configuring vsftpd on iSH>
+			The default configuration is not ideal because anonymous access is enabled by default and IPv4 support is only enabled. 
+			Therefore, the default configuration should not be considered suitable for production uses.
+
+		<Managing vsftpd on iSH>
+			Starting vsftpd: 
+				After the installation vsftpd is not running.
+
+				"rc-service vsftpd start"
+
+			Stopping vsftpd: 
+				if you want to stop the web server use stop in the same way of previous command: 
+
+				"rc-service vsftpd stop"
+
+			Restarting or reloading vsftpd: 
+				After changing the configuration file, you must either restart or reload vsftpd in order for the new configuration to take effect.
+
+				"rc-service vsftpd restart"
+				"rc-service vsftpd reload"
+
+			Testing vsftpd
+				"nc -zv server_address"
+
+		<File transfer between ubuntu and windows using VSFTP(vsftpd)>
+			https://techmonger.github.io/3/linux-windows-ftp/
+
+		<如何設定VSFTP(vsftpd)開放檔案上傳>
+			1. 找到檔案 "/etc/vsftpd.conf". 以iSH為例, 路徑在 "etc/vsftpd/vsftpd.conf" 下.	
+				在Linux上找檔案時, 要注意目前所在位置, 請用 "ls"
+				"ls etc/vsftpd", 列出 vsftpd.conf 檔案就對了.
+			2. # Uncomment this to enable any form of FTP write command.
+				write_enable=YES
+	4. (OK, 放棄, Windows當Server的作法, 最後決定用寫BLOG的方式, 把筆記寫在上面, 多看的方式來準備郵政特考-外勤 2023-01-30)
+    (先不用加密方式..)https://winscp.net/eng/docs/guide_windows_openssh_server#windows_older
+
+    (先使用FileZila Server就好了.)https://filezilla-project.org/download.php?type=server
+      
+      id:kl
+      pwd:54878916
+      virtual path:/
+      Native path:E:\TEMP\WebSite
+
+      =使用LeapFTP on windows =
+        ip:127.0.0.1 (本機Client連本機Server)
+        id:kl / pwd:54878916
+        上傳 / 下載 / 測試OK
+
+      =使用wget on iSH=
+        ip:172.20.10.3 (遠端Client<172.20.10.1> 連 遠端Server<172.20.10.3>)
+        id:kl / pwd:54878916
+
+        # 下載前, 請注意目前路徑, VIP.
+        # mkdir backup-dir/
+        # cd backup-dir/
+        
+        # 指令1: 下載根目錄所有檔案及目錄到當前目錄.
+        # wget -r ftp://username:password@ftp.ftphost.com/
+
+        # 指令2: 下載目錄 /httpdocs/ only.
+        # wget -r ftp://username:password@ftp.ftphost.com/httpdocs/
+
+        # 指令3: -r & -m 差異在於 -m 連同檔案的建立時間也會一同複製
+        # wget -m ftp://username:Password@ftp.ftphost.com/
+        # wget -m ftp://username:Password@ftp.ftphost.com/httpdocs/
+    

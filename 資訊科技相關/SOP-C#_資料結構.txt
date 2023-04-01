@@ -1,0 +1,681 @@
+=========
+快速新增練習環境(.net core)
+dotnet new console --output <專案名稱>
+dotnet run --project <專案名稱>
+
+=========
+C#資料結構(參考書目：資料結構使用Visual C#。ISBN：978-986-500-413-2)
+  CH4-鏈結串列
+    類別,物件及成員(屬性,方法)
+      1.public 公開 所有類別皆可存取
+      2.private 私有 只適用該類別的成員函數
+      3.protected 保護 產生繼承關係的衍生類別可取用
+      4.internal 內部 只適用於目前專案(組件)
+      5.protected internal 只適用於目前(組件)或衍生自包含類別的型別
+    
+    建構子
+      1. 語法：ClassName() ex. Student()
+      2. 建構子存取修飾詞必須使用 public
+      3. 一個類別可以有多個建構子(又稱多載),它不能有回傳值,也毋須用void
+      4. 類別若不含任何具參數建構子時,程式自動呼叫<預設建構函式>
+
+    解構子
+      1. 語法：~ClassName() ex. ~Student()
+      2. 解構子不能使用存取修飾詞
+      3. 一個類別只能有1個解構子,它不含任何參數,不能有回傳值,無法被繼承或多載
+      4. 解構子無法直接呼叫,只有物件被清除時才會執行
+
+    環狀串列
+      1.它和單向鏈結串列相似,不同點在於必須將 (最後1個節點) 指向 (第1個節點)
+      2.優:
+          回收時間固定,無關長度
+          可從任一節點追蹤所有節點
+      3.缺:
+          多1個鏈結空間
+          插入節點須改變兩個鏈結
+          讀取較慢,因為須多讀取一個鏈結指標
+    
+    雙向鏈結串列
+      1.它和單向鏈結串列相似,不同點在於它有 (左) 和 (右) 兩個節點,而單向鏈結串列只有1個節點 (指向下個節點)
+      2.它的(左) 和 (右) 兩個節點,(左)節點指向前節點,(右)節點指向次節點
+      3.優:
+          已知前後節點,刪除或新增時,較單向節點快
+          鏈結斷裂時,可從另一方向重建
+      4.缺:
+          多一個鏈結空間
+          新增節點時,要變更4個鏈結
+          刪除節點時,要變更2個鏈結
+
+  CH3-善用陣列
+    稀疏矩陣,儲存方式
+      1.直接利用 M*N 兩維陣列來儲存，但是浪費空間
+      2.利用 三行式結構 儲存非零元素 (row,column,value)
+        範例：假設有1個 M*N 的稀疏矩陣，內有 K 個非零元素，須準備 Ary[0:K,1:3]的二維陣列。
+        另外,Ary[0,1]：存放稀疏矩陣的列數(M)
+            Ary[0,2]：存放稀疏矩陣的欄數(N)
+            Ary[0,3]：稀疏矩陣內非零元素(K)
+
+    1.靜態資料結構又稱為 <陣列> ，它使用 <連續記憶體空間> ，儲存有序串列的資料。
+    2.<動態記憶體配置> 是指變數儲存配置的過程是在執行(Run time)時，透過作業系統提供可用的記憶體空間。
+    3.陣列結構具有的特色，是 佔用 <連續> 的記憶體空間，所存放的元素，其 <資料型態> 皆相同。
+    4.int[] grade = {51,63,92,75,84};
+      上述宣告了grade是 <1維數值> 陣列，並以大括號作 <陣列值初始化>
+    5.要設定陣列元素，可呼叫Array類別的方法 <Array.SetValue(value,index)> ，其屬性 <Array.Length> 能取得陣列長度。
+    6.要排序陣列元素，可呼叫Array類別的方法 <Array.Sort(array)>，反轉陣列元素則為 <Array.Reverse(array)>
+    7.int[,] Ary = new int[3,4];
+      上述宣告了Ary <2維數值> 陣列，其中的 <3> 是列數，欄數是 <4>，取得2維陣列長度的方法為 GetLength(維度);
+    8.宣告 <2 * 3 * 4>的3維陣列
+      int[,,] aryT = new int[2,3,4];
+    9.如何處理稀疏矩陣？
+      作法1：直接以 <M*N> 2維陣列儲存
+      作法2：使用 <三行式結構> 儲存非零元素
+    10.字串初始化為空字串，使用 <String.Empty> 屬性
+      字串中插入指定字串，使用 <string.Insert(index,value)> 方法
+      字串中取得部份字串，使用 <string.Substring(index,?length)> 方法
+      
+  CH2-話說資料結構
+    演算法的特性(五大特性)
+      輸入：零個或多個輸入資料，輸入要清楚的描述或定義。
+      輸出：至少會有一個輸出結果，不可以沒有輸出結果。
+      明確性：每個指令或步驟必須簡潔明確。
+      有限性：在有限步驟後會結束，不會產生無窮迴圈。
+      有效性：步驟清楚可行，可用紙筆算出結果。
+    
+    試述演算法與程式流程圖的關係為何？
+      演算法可以用程式流程圖來表現，但是程式流程圖可包含無限迴圈，所以無法利用演算法來表達。
+    
+      利用文字描述來表示其演算法，並以C#自訂方法來寫出此程式
+      情境2：輸入1數值，計算其階乘值
+        演算法(文字描述)：
+          步驟1：輸入1數值
+          步驟2：(執行次數為輸入數值-1次)減1前數值 * 減1後數值
+      情境1：有3位同學，每人有5科成績，求每位同學的總分及平均分數，及平均分數高於60分的同學。
+        演算法(文字描述)：
+          步驟1：輸入{同學X}的5科成績
+          步驟2：計算{同學X}的總分及平均分數
+          步驟3：若平均分數大於60分，則顯示出來
+          步驟4：總共執行3次
+
+  CH1-認識Visual C#
+    1.方案和專案的描述
+      > 以方案管理專案
+      > 方案下可產生多個專案
+      > 專案副檔名為「*.csproj」
+      > 方案副檔名為「*.sln」
+
+    2.C#自訂名稱空間，使用關鍵字為「namespace」
+    3.C#要匯入靜態類別，使用關鍵字為「using static」
+    4.CST實值型別有：所有數值型別，另包括布林 boolean , 字元 char , 列舉 enum , 結構 structure
+      CST參考型別：字串 string , 陣列 array , 委派 delegate , 類別 class
+      答案：陣列不屬於CST實值型別
+    5.資料型別「int」對照於.NET Framework預先定義資料型別：System.Int32
+    6.C#處理含有小數的數值，預先定義資料型別：System.double
+    7.C#宣告常數時，使用關鍵字為「const」
+
+    ? : 
+
+=========
+C#筆記(參考書目:進入IT產業必讀的200個.NET面試決勝題 ISBN:978-986-201-602-2)
+
+  C# QuickGuide
+
+  <.Net framework>
+
+  Following are some of the components of the .Net framework −
+
+  Common Language Runtime (CLR)
+
+  The .Net Framework Class Library
+
+  Common Language Specification
+
+  Common Type System
+
+  Metadata and Assemblies
+
+  Windows Forms
+
+  &nbsp;ASP.Net and ASP.Net AJAX
+
+  &nbsp;ADO.Net
+
+  Windows Workflow Foundation (WF)
+
+  Windows Presentation Foundation
+
+  Windows Communication Foundation (WCF)
+
+  LINQ
+
+  <Writing C# Programs on Linux or Mac OS>
+
+  Mono
+
+  <C#注意要點(Notice)>
+
+  1. C# is case sensitive
+
+  2. all statements and expression must end with a semicolon(;).
+
+  3. the programe execution starts at the Main method.
+
+  4. Unlike Java, program file name could be different from the class name.(C#程式檔名可以和類別名稱不同)
+
+  
+
+  <識別子命名原則>
+
+  1.識別子字首為(字母),再接續(字母),(數字),(_)
+
+  2.識別子字首不能為(數字)
+
+  3.不能包括(空白)及下列符號(? - + ! @ # % ^ & * ( ) [ ] { } . ; : " ' / \)
+
+  4.唯一可用符號(_)
+
+  5.不能用保留字
+
+
+
+  <資料型態>
+
+  1.Value types. sizeof(type)可回傳正確的物件或型態大小以bytes表示.例:sizeof(int) = 4.因為int是32bits=4bytes
+
+  2.Reference types
+
+    (object Type):所有型態的基底.當value type轉為object type,稱為boxing;object type轉為value type則為unboxing.
+
+    ex. object obj; obj = 100;//this is boxing.
+
+    (dynamic Type):可儲存任何型態的值到dynamic type變數.型別檢查發生於<執行 Run-time>階段
+
+        dynamic type 和object type是類似的.
+
+        除了,dynamic type型別檢查發生於<執行 Run-time>階段
+
+        object type型別檢查發生於<編譯 compile >階段
+
+    (string type):它是System.String類別的別名.
+
+        同樣繼承自object type
+
+    ex. String str = "The World";
+
+      @"The World";
+
+    (class , interface , delegate):則屬於使用者定義的Reference Type
+
+  3.Pointer types
+
+    Pointer type variables store the memory address of another type. Pointers in C# have the same capabilities as the pointers in C or C++.
+
+    指標型別.用法和C or C++相同
+
+    ex. char* cptr; int* iptr;
+
+
+
+  <Type Conversion>
+
+  1.implicit type conversion:type-safe manner.
+
+    由smaller to larger integral types
+
+    由derived classes to base classes.
+
+  2.explicit type conversion
+
+    由user使用函式進行轉換,須要case運算子
+
+    ex.double b = 23.2; int i;
+
+      i = (int)b;
+
+    ex.ToType -> Converts a type to a specified type.
+
+    ex.ToDateTime -> Converts a type (integer or string type) to date-time structures.
+
+    ex. int i =75; i.ToString();
+
+
+
+  <Variables>
+
+  integral type. ex.char, int ....
+
+  floating point type. ex.float, double
+
+  decimal type. ex.decimal
+
+  boolean type. ex.true or false
+
+  nullable type. ex. nullable data types
+
+  other value type. ex. enum
+
+  reference type. ex. class
+
+
+
+  <Accepting Values from User>
+
+  Console.ReadLine();
+
+
+
+  <Constants and Literals>
+
+  <Integer Literals>
+
+  合法宣告方式
+
+  212 /* Legal */
+
+  215u /* Legal */
+
+  0xFeeL /* Legal */
+
+  85 /* decimal */
+
+  0x4b /* hexadecimal */
+
+  30 /* int */
+
+  30u /* unsigned int */
+
+  30l /* long */
+
+  30ul /* unsigned long */
+
+  
+
+  <Floating-point Literals>:has an integer part, a decimal point, a fractional part, and an exponent part.
+
+  3.14159 /* Legal */
+
+  314159E-5F /* Legal */
+
+  510E /* Illegal: incomplete exponent */
+
+  210f /* Illegal: no decimal or exponent */
+
+  .e55 /* Illegal: missing integer or fraction */
+
+  
+
+  <Character Constants>
+
+  plaiin character ex.'x'
+
+  escape sequence ex.'\t'
+
+  universal character ex.'\u02C0'
+
+  
+
+  <String Literals>
+
+  "" or with @"" , 它和character literals類似. 注意:宣告時,它允許用空白字元
+
+  ex.
+
+  "hello, dear"
+
+  "hello, \
+
+  dear"
+
+  "hello, " "d" "ear"
+
+  @"hello dear"
+
+  
+
+  <定義常數>
+
+  const double pi = 3.14159;
+
+  
+
+  <特殊運算子>
+
+  1.sizeof - return the size of a data type. ex.sizeof(int) , return 4.
+
+  2.typeof - return the type of a class. ex.typeof(StreamReader)
+
+  3.?: -
+
+  4.& - return the address of an varialbe
+
+  5.* - Pointer to a variable. ex.*a; create pointer named 'a' to a variable.
+
+  &nbsp;6.is - 判斷物件是否為某型別. If(Ford is Car)
+
+  &nbsp;7.as - Cast without raising an exception if the cast fails. ex.Object obj=new StreamReader("Hello"); StreamReader r = obj as StreamReader;
+
+CH08 ASP.NET 應用開發
+  1.請解釋ASP.NET 是用什麼形式執行?
+    ASP.NET是一個ISAPI篩檢程式(ISAPI Filters),同時也是個.NET CLR的宿主,進而完成執行託管伺服器程式的功能
+  
+  2.常見的 HTTP STATUS CODE 有哪些?
+    HTTP STATUS CODE 是http協定中伺服器回傳給要求端的狀態碼。
+    100 - OK TO CONTINUE TO REQUEST、101 - Server has switched
+    200 - Request complete、201 - 要求結束、202 - 已接受進一步處理要求、203 ...
+    300 - 存個多個資源,但不能確定...
+    400 - 大部份是錯誤碼 , 404 找不到資源
+    500 - 伺服器相關異常
+  
+  3.GET要求 & POST要求有何區別？
+    這是 <HTTP協定> 中常用的兩種要求方式(Request) : GET & POST
+    GET要求：把表單資料放在 <URI> 裡，對要求長度及編碼(ASCII字元ONLY)有限制，預設用來向伺服器取資料用
+    POST要求：把表單資料放在 <HTTP要求內容> 中，且沒有長度限制(編碼可使用ISO10646字元集)，預設用來向伺服器送資料用
+  
+  4.ASP.NET頁面生命週期為何？
+    大致上可區分為4大類
+    1.初始化(PreInit,Init,InitComplete)：初始化類別物件,主題主頁面等,判斷是否為初次訪問
+    2.載入資料及頁面(LoadState,ProcessPostData,PreLoad,Load,ProcessPostData-第2次):ProcessPostData-第1次確認頁面載入前,所有資料從頁面被載入
+    3.觸發事件(ChangedEvents,PostBackEvent):比較前後ViewState內容,判斷哪些事件須被觸發,再檢查PostBack事件
+    4.保存狀態並呈現頁面(SaveState,SaveStateComplete,Render):編碼後的ViewState資料存到hidden內,再轉換為HTML,回傳給用戶端
+  
+  5.什麼是 <靜態頁面>,什麼是 <動態頁面>?
+    靜態頁面毋須伺服器額外處理,回應速度快,可直接呈現給使用者的頁面,例:HTML
+    動態頁面則是伺服器須針對每個要求作處理的頁面,彈性較高,例:aspx,jsp,php...
+  
+  6.請簡述 <ViewState> 的功能及實作機制
+    ViewState功能:在於儲存使用者<頁面狀態>，以保有持續性
+    ViewState實作方式:ViewState被保存在頁面的隱藏控制項(hidden)內,送到伺服器後被取出供後續處理
+      1.ViewState為空時,表示初次訪問.
+      2.伺服器處理完回傳前,會將狀態編碼後保存在ViewState內,再傳給使用者
+      3.之後訪問,伺服器將比較前後ViewState內容,決定讓觸發哪些事件
+  
+  7.<Session>有哪些儲存方式,各種方式間的區別,如何設定?
+    Session功能:工作階段(關閉瀏覽器或登出,視為工作階段結束)狀態保存
+    Session儲存方式(設定):
+      1.放在IIS處理序內(預設) <--設定在Web.config內-->
+        <system.web>
+          <sessionState mode="InProc" timeout="20"></sessionState>
+        </system.web>
+      2.放在Session Server內:重啟Web應用程式時可保存工作階段狀態,且工作階段狀態可在多個Web伺服器共用
+        2.1.啟動服務<ASP.NET State Service>
+        2.2.再設定Web.config內
+            <system.web>
+              <sessionState mode="StateServer" timeout="20"
+                            stateConnectionString="tcpip=192.168.0.1:42422"></sessionState>
+            </system.web>
+      3.放在SQL SERVER DB內
+        3.1.安裝SQL SERVER
+        3.2.安裝.NET內建狀態資料庫套件 (Aspnet_regsql.exe)
+        3.3.再設定Web.config內
+            <system.web>
+              <sessionState mode="SQLServer" timeout="20"
+                            stateConnectionString="database connection..."></sessionState>
+            </system.web>
+      4.自訂保存程式
+        4.1.撰寫自訂程式,須繼承自 <SessionStateStoreProviderBase> 型別的類別
+        4.2.再設定Web.config內
+            <system.web>
+              <sessionState 
+                regenerateExpiredSessionId="true"
+                mode="Custom" 
+                customProvider="xxProvider">
+                  <provider>
+                    <add name = "xxProvider" 
+                      type="...."
+                      writeExceptionsToEventLog="false"/>
+                  </provider>
+              </sessionState>
+            </system.web>
+
+  8.如何使用 GridView 控制項?
+    利用<asp:TemplateField>自訂控制項,彈性較高.
+    範例:在主GridView內再夾1個子GridView
+    <asp:GridView OnRowDataBound="Add Binding-to-GridView_Child-CODE" 
+                  OnRowCommand="點選Button後,開啟或關閉子GridView">
+      <asp:TemplateField>
+        <ItemTemplate>
+          Label + GridView(預設隱藏)
+        </ItemTemplate>
+      </asp:TemplateField>
+      <asp:TemplateField>
+        <ItemTemplate>
+          Button(查看/隱藏)
+        </ItemTemplate>
+      </asp:TemplateField>
+    </asp:GridView>
+    
+  9.列舉頁面跳轉的方法,並說明實作機制.
+    9.1. Response.Redirect : 
+          > Server回應302 Status CODE,指出資源已轉換位置,讓瀏覽器再取得另一網頁
+          > 跳轉發生在用戶端,跳轉目的端不受限,可由<原網站>跳至<他網站>
+          > 限制:無法和用戶產生額外互動(例:跳窗會被擋)
+    9.2. Server.Transfer : 
+          > Server端<原程式>直接交出執行權,並由<最後取得執行權程式>回應使用者. 
+            例:User->Page1,Page1->Server.Transfer(Page2,<是否保留原表單資料>),Page2->User
+            <是否保留原表單資料> == true,則Page1的Request資料(ex.QueryString)會傳遞給Page2使用
+            >> 跳轉後,使用者沒有任何感覺,因為網址仍然指向Page1
+          > 限制:僅限<同網站>程式
+    9.3. Server.Execute : 
+          > Server內<原程式>呼叫<他程式>,取得<他程式>回應後,再由<原程式>回應使用者.
+            例:User->Page1 / Page1->Server.Execute(Page2) / Page2->Page1 / Page1->User
+          > 限制:僅限<同網站>程式
+    9.4. JavaScript指令碼 : 
+          > (1)跳轉發生在用戶端,跳轉目的端不受限,可由<原網站>跳至<他網站>
+              >> JavaScript指令碼已預先寫在頁面上
+          > (2)跳轉發生在伺服端,Server端處理完成後,再寫出用戶端指令碼至前端,由用戶自行決定是否轉頁(可與用戶產生互動).
+              >> 插入指令碼,建議用ClientScript or ScriptManager註冊 JavaScript指令碼.
+              >> 使用 Response.Write 方式,容易出現UpdatePanel失效,頁面CSS失效等問題出現
+          > 限制:受限於用戶端的安全性限制,若瀏覽器禁止執行指令碼,則跳轉將無法完成.
+    9.5. Hyperlink
+          Server端處理完成後,再寫出連接目的端至前端,同樣由用戶自行決定是否點選(無互動).
+  
+  10.請解釋 <%# Eval("dataSource")%> 功能及實作方式
+    10.1. 功能:將資料繫結至前端控制項的語法
+    10.2. 舊寫法: <%# DataBinder.Eval(Container.DataItem,"dataSource")%> ; 
+          新寫法: <%# Eval("dataSource") %>
+          伺服器後端: xxxControl.DataSource = "...";
+                     xxxControl.DataBind(); //這裡會執行繫結動作
+  
+  11.ObjectDataSource控制項的功能為何?
+    11.1. 功能:作為雙向資料綁定中傳遞元素的角色,在多層web系統內擔任<商業邏輯層>和<頁面呈現層>間銜接角色
+    11.2. 特色:相較於SQLDataSource,彈性更高
+    11.3. 寫法範例:
+            [頁面程式碼]:
+              <asp:ObjectDataSource ID="datasource" Runat="Server" EnableCaching="True" CacheDuration="1200" EnableViewState=true
+                                    SelectMethod="selectCmd" UpdateMethod="updateCmd"
+                                    TypeName="GetData" > //##<注意要點(Notice):須另外寫自訂類別(GetData.cs)處理> 
+                <UpdateParameter>
+                  <asp:Parameter Type="String" Name="Id"></asp:Parameter>
+                  <asp:Parameter Type="String" Name="Name"></asp:Parameter>
+                  <asp:Parameter Type="String" Name="Age"></asp:Parameter>
+                  <asp:Parameter Type="String" Name="Gender"></asp:Parameter>
+                </UpdateParameter>
+              </asp:ObjectDataSource>
+            [資料處理程式碼]: 
+              public partial class GetData //##<注意要點(Notice):資料來源成員宣告為靜態(static)的目的,確保所有呼叫者呼叫到同一個資料來源,只要一個用戶更新資料來源後,其他使用者會取得相同的最新資料> 
+              {
+                private static DataTable _Source = GetDataSource(); //取得資料來源
+
+                public static DataTable GetDataSource()
+                {
+                  String xmlString = GetDataSourceContent(); //範例用寫死的XML作為資料來源
+                  DataSet set = new DataSet();
+                  set.ReadXml (new StringReader(xmlString));
+                  return set.Table[0];
+                }
+
+                public static DataTable selectCmd()
+                {
+                  return _Source;
+                }
+                
+                public static void updateCmd(string Id , string Name , string Age , string Gender)
+                {
+                  foreach(DataRow row in _Source.Rows) //此法可考慮用 <LINQ作select查詢>
+                  {
+                    if(row["Id"].ToString() == Id)
+                    {
+                      row["Name"] = Name;
+                      row["Age"] = Age;
+                      row["Gender"] = Gender;
+                      return;
+                    }
+
+                  }
+                }
+              }
+
+  --8.3驗證與安全--
+  12.如何使用<規則運算式>
+    12.1. 功能:比較字串用的規則模式(pattern)
+    12.2. 常用字元:
+            \ , 不是逸出字元時 , 則比對字元。例:\c 則比對c , \n 因為\n是逸出字元,則比對換行符號
+            ^ , 從字串開頭或行首開始比 ; 如果RegExp物件的Multiline=true,則會比較 '\n' or '\r' [後的位置]
+            $ , 比對發生在字串結尾或行尾前 ; 如果RegExp物件的Multiline=true,則會比較 '\n' or '\r' [前的位置]
+            * , 比較上1字元 , 0次|多次 = {0,N} = {0,}。例:zo* 比對出 "z","zo","zoo"..
+            + , 比較上1字元 , 1次|多次 = {1,N} = {1,}。例:zo+ 比對出 "zo","zoo"..
+            ? , 比較上1字元 , 0次|1次 = {0,1}。例:rai?n 比對出 "ran" , "rain"
+            {n} , 比較上1字元 , 剛好n次。例:o{2} 可以比對出 "food","boolean" ;無法比出"Bob","snow"
+            {n,} , 比較上1字元 , 至少N次
+            {n,m} , 比較上1字元 , 至少N次 , 至多M次
+            <pattern>? , 比對儘可能少次 , 不加?的話 , 會比較所有字元。
+              例1:o+? , 只會比對單個o是0次還是1次
+              例2:o+ , 則會找出所有的o
+            . , 萬用字元 , 比對\n之外的所有字元 , 若要加入\n , 則為[.\n]
+            (pattern) , 回傳比對結果
+            (?:pattern) , 不回傳比對結果 , 例:industr(?:y|ies) , 可比對 industry 及 industries
+            (?=pattern) , 正向預查 , 例:Windows(?=95|98|NT|2000) , 可比對 Windows95 | Windows98 , 但不包括 Windows2012
+            (?!pattern) , 負向預查 , 例:Windows(?!95|98|NT|2000) , 可比對 95|98|NT|2000以外的項目, 如Windows3.1|Windows2012|Windows2016..
+            ...
+    12.3. JavaScript實例
+            function ValidTelNum(num)
+            {
+              var pattern = /^02-\d{8}$/;  //javascript的RegExp物件必須放在 /^ 和 / 中間
+              var result = pattern.text(num);
+              if(result ==true)
+                alert("合法-北北基電話號碼");
+              else
+                alert("非-北北基電話號碼");
+            }
+
+  13.ASP.NET驗證控制項
+    13.1. 注意要點1:ASP.NET驗證控制項 會發生在UserSide & ServerSide，因為UserSide指令碼可能無法執行(安全考量)
+                  ServerSide記得加上 <Page.IsValid> 作檢查
+    13.2. 種類:CompareValidator , CustomValidator , RangeValidator , RegularExpressionValidator , RequiredValidator , ValidationSummary等項目
+    13.3. 注意要點2:控制項的CauseValidation="true"屬性 , 預設是開啟的 ; 如果希望繞過驗證,可設定為"false" , 例:取消鈕、關閉鈕、回上頁鈕
+    13.4. CustomValidator使用方式介紹
+      13.4.1. 注意要點3:不是所有控制都能由CustomValidator,要有ValidationProperty屬性的控制項才能用.
+      13.4.2. 注意要點4:CustomValidator要有 ClientValid & ServerValid的 function
+
+  14.如何防止SQL注入式攻擊?
+    1.(初)表單處理時,對使用者輸入的資料預作分析及檢查
+    2.(中)不使用串接方式組SQL指令,直接利用參數對應
+    3.(高)不使用明文儲存帳密,而使用<加密後的二進位資料>儲存,可杜絕此問題發生
+
+CH09 .NET中的資料庫開發
+  --9.1 ADO.NET和資料庫程式基礎--
+  1.
+
+  --9.2 ADO.NET和資料庫連接--
+  
+
+
+  --9.3 ADO.NET讀寫資料庫--
+
+=========
+C#基本語法
+
+  1.程式進入點
+    static void Main(string[] args)
+    {
+      Console.WriteLine("Hello World !");
+    }
+
+  2.註解
+    //單行註解 
+    /* 多行註解 */
+
+  3.變數宣告
+    int myNum = 50;
+    string myName = "John";
+
+    int x = 5 , y = 6 , z = 50;
+    Console.WriteLine(x+y+z);
+
+  4.內容顯示
+    int x = 5;
+    int y = 10;
+    Console.WriteLine(x+y);
+
+  5.轉型Convert
+    Convert.ToString(myInt);
+    Convert.ToInt32(myNum); //Convert.ToInt是錯的
+
+  6.User Input
+    Console.WriteLine("Enter username");
+    string userName = Console.ReadLine();
+    Console.WriteLine("Username is " + userName);
+
+  7.Math
+    取最大值 Math.Max(x,y);
+    取平方根 Math.Sqrt(64); //result is 8
+    四捨五入 Math.Round(2.5); //result is 3
+
+  8.String 
+    8.1 結合
+      string firstName = "KL";
+      string lastName = "Cheng";
+      string FullName = $"My full name is {firstName} {lastName}";
+      Console.WriteLine(FullName);
+    8.2 取第1個字元
+      string firstName = "Cheng";
+      Console.WriteLine(firstName[0]);
+    8.3 取字串長度
+      string txt = "Hello";
+      Console.WriteLine(txt.Length); //注意:txt.length是錯的，正確的是 txt.Length
+    8.4 字串轉大寫
+      string txt = "Hello World";
+      Console.WriteLine(txt.ToUpper());
+
+  ===============================
+  //What is the name of the 'special' class that represents a group of constants?
+  public enum Season
+  {
+      Spring,
+      Summer,
+      Fall,
+      Winter
+  }
+
+  // C# 繼承 :
+  class Car : Vehicle
+  {
+      
+  }
+
+  // C# try catch:
+  try
+  {
+    int[] myNumber = {1,3,4};
+    Console.WriteLine(myNumber[10]);
+  }
+  catch (Exception e)
+  {
+    Console.WriteLine(e.Message);
+  }
+
+  // C# try catch finally
+  try
+  {
+    int[] myNumber = {1,3,4};
+    Console.WriteLine(myNumber[10]);
+  }
+  catch (Exception e)
+  {
+    Console.WriteLine(e.Message);
+  }
+  finally
+  {
+    Console.WriteLine("The try catch is finished.");
+  }
+
+

@@ -1,0 +1,182 @@
+
+可在家登入, 線上收看教育訓練課程
+  glen.cheng@cvilux.com
+  0809Apple0809Apple
+
+Button按鈕的使用方式, 讓人感到十分困惑?? 
+  資料選取設定有兩種: (屬性 -> 「進階」頁籤 -> 「資料選取設定」按鈕)
+  (1)資料選取註冊器, 資料來源須先設定完成, 才能選擇. 
+    a. 路徑: 系統設定 -> 資料選取註冊器.
+    b. 指定 選取名稱(註: 確定資料來源)
+    c. 指定 類型(註: 開窗內單選或複選)
+    d. 指定 回傳表單欄位代號(註: 可傳至表單內已存在欄位 or 隱藏欄位)
+    e. 勾選 雙擊清空欄位(註: 在表單欄位雙擊後, 會清空相關內容值)
+
+  (2)參考表單資料(開窗), 資料來源須先設定完成, 才能選擇. 
+    a. 路徑: 系統設定 -> SQL註冊器.
+    b. 資料來源確定後, 接續表單畫面設定
+    
+    Step1: 選取設定
+      c. 輸入 標題名稱(含多語系)
+      d. 指定 類型(註: 開窗內單選或複選)
+      f. 指定 寬高(註: 開窗大小)
+      g. 指定 開窗前呼叫 or 開窗後呼叫 函式
+      h. 指定 SQL註冊器的項目.
+    Step2: 模糊查詢
+      i. 指定 查詢用的欄位代號及標籤名稱 (註: 查詢欄位 === select子句內的欄位名稱)
+    Step3: 設定 Grid 標籤
+      j. 指定 查詢結果的GridView
+    Step4: 設定回傳欄位
+      K. 指定 回傳表單欄位代號(註: 可傳至表單內已存在欄位 or 隱藏欄位)
+      L. 勾選 雙擊清空欄位(註: 在表單欄位雙擊後, 會清空相關內容值)
+
+
+  Q: (1)資料選取註冊器 與 (2)參考表單資料(開窗) 的差異在哪?
+  A: (2)參考表單資料(開窗) 可以額外 「指定 開窗前呼叫 or 開窗後呼叫 表單函式」, 彈性較高.
+  A: (1)資料選取註冊器, 使用上快速簡便.
+
+TextBox元件的使用方式
+  1. 若要作「數值比較」, 請至 屬性 -> 進階頁籤 -> 資料型態 改為浮點數或整數.
+  2. 可設定「驗證規則」, 自訂驗證函式OK.
+  3. 資料型態 === 「數值」時, 提供簡易運算及單身加總功能.
+
+TextArea元件的使用方式
+  1. 多文字資料輸入時使用, 例: 申請理由.
+  2. 使用方式同 資料型態 === 「字串」的TextBox元件.
+
+HiddenTextBox元件的使用方式
+  1. 所有的HiddenTextBox元件會放在同一個「HiddenTextBox 隱藏畫布」中, 非「表單可視畫布」.
+  2. 點選「表單可視畫布」左下角按鈕可切換至「HiddenTextBox 隱藏畫布」.
+
+Attachment附件元件的使用方式
+  1. 一張表單只能有一個Attachment附件元件.(註: 代號無法修改)
+  2. 一個Attachment附件元件可上傳多個檔案
+  3. 上傳大小限制, 請至 屬性 -> 進階頁籤 -> 每個檔案容量限制(註: 0 === 不限大小).
+  4. 檔案數目限制, 請至 屬性 -> 進階頁籤 -> 檔案數目限制(註: 0 === 不限個數).
+  5. 總容量限制, 請至 屬性 -> 進階頁籤 -> 總容量限制(註: 0 === 不限大小).
+  6. 檔案類型限制, 請至 屬性 -> 進階頁籤 -> 檔案類型限制(註: 限 jpg => 請輸入 jpg; 限jpg & pdf => 輸入 jpg,pdf).
+  7. ISO表單附件轉PDF?? (未說明)
+
+SerialNumber表單序號元件的使用方式
+  1. 建議使用: 自訂表單單號 + 序號編碼規則.(註: 代號建議為 SerialNumber)
+  2. 一張表單只能有一個SerialNumber表單序號元件.
+  3. 若無 SerialNumber表單序號元件, 系統預設表單序號為「表單代號 + 8碼流水號」
+  4. 自訂SerialNumber表單序號, 請至 屬性 -> 進階頁籤 -> 序號前置字串中設定, 
+    a.可選項目有:
+      (A)西元年、(B)民國年、(C)月、(D)日、(E)單位代號、(F)表單欄位(表單內的所有欄位都能用)
+      例1: 依[表單欄位-廠別]開立製工單..
+      例2: GEN01-<#adYear><#month>
+    b.勾選「按照分類編排」, 當序號的前置字號改變時, 例:年份或月份的改變, 流水號就會歸零從1起算.
+    c.!! 注意 !! 位元長度不足, 可能造成「單號重複」問題.
+
+Grid元件的使用方式
+  1. (顯示、新增、修改、刪除)單身多筆資料時使用.
+  2. Grid元件高度預設為 160px. (註: 可自行調整)
+  3. Grid元件內各個欄位必須與表單內欄位代號綁定(註: 繫結元件代號 === 表單欄位代號).
+  4. Grid元件內欄位有另外儲存TABLE需求時,「代號」就是另存TABLE的ColumnName.
+  5. Grid元件第一欄設為流水號作法.
+    a. 勾選「將最前面的欄位設為自動增加的流水號」
+    b. 「繫結元件代號」留空
+    c. 「代號」指定為 "serialNo" (註: 大小寫必須相符.)
+  6. Grid元件內, 要有新增、修改、刪除功能時, 須勾選[增加「新增」按鈕、增加「修改」按鈕、增加「刪除」按鈕], 並增加對應的函式(註: 必須搭配表單程式撰寫). 按鈕會顯示在Grid元件右上角.
+  7. Grid元件內, 沒有勾選「Table模式」會依設定高度呈現, 資料量較大時會自動出現ScrollBar; 勾選「Table模式」時, Grid元件會依資料量長大, 將下面的元件往下擠.
+
+DialogInput單選開窗元件的使用方式
+  1. !! 注意 !! 代號會自動加上 "_txt". 例: 代號為輸入為"applyUser", 其實系統儲存的是"applyUser_txt".
+  2. 開窗類型: 請至 屬性 -> 進階頁籤 -> 開窗類型, 可選項目有:
+    a. 自定義開窗, 點選「資料選取設定」.(註: 請參閱 "Button按鈕的使用方式")
+    b. 使用者
+    c. 部門
+    d. 專案
+    e. 群組
+
+=====================================
+
+Ajax Service
+  ajax_OrgAccessor, 提供與組織相關的服務, 例: 取得人員、部門、群組或主管等相關資訊.
+  ajax_ExtAccessor, 提供與組織相關的服務, 例: 取得人員、部門、群組或主管等相關資訊.
+  ajax_FormAccessor, 取得表單相關服務, 例: 取得表單相關值.
+  ajax_ProcessAccessor, 取得流程相關服務, 例: 取得簽核歷程.
+  ajax_DatabaseAccessor, 提供與資料庫連線相關的服務, 例: 執行SQL註冊器所定義的SQL Command.
+  ajax_CommanAccessor, 可取得與系統相關的服務, 例: 日期, 時間.
+
+  舉例說明 OrgAccessor 使用方式.
+    執行正面測試, 會實際回傳結果.
+    {} <= 物件
+    [] <= 陣列, 陣列內還可以有物件.
+    <id>:<value> <= 屬性表示方式, ex. id:EN0812
+    簡言之, 它會回傳JSON格式的物件資料.
+
+  表單中如何使用Ajax Service
+    (1) 先 import 所需的Accessor.
+    (2) 表單腳本編輯器最上方加入 
+      document.write('<script type="text/javascript" src="../../dwrDefault/interface/ajax_OrgAccessor.js"></script>'); 
+    (3) 若要使用多個ajax服務, 則須IMPORT多次.
+      document.write('<script type="text/javascript" src="../../dwrDefault/interface/ajax_OrgAccessor.js"></script>'); 
+      document.write('<script type="text/javascript" src="../../dwrDefault/interface/ajax_CommanAccessor.js"></script>'); 
+    
+    (4) 使用前, 直接複製ajax服務樣版(通常會有兩個函式, 一個是 main function, 另一個是 callback function)
+      a. main function發動後, 程式就往下跑. 
+      b. 當資料回傳後, main function再把資料丟給 callback function 作後續處理
+
+    (5) BPM文件範例如下: 
+      document.write('<script type="text/javascript" src="../../dwrDefault/interface/ajax_OrgAccessor.js"></script>'); 
+
+      // main function (可自行調整名稱)
+      function testOrgAccessor_findUserById_no(){
+        var orgId = document.getElementById("orgIdForUser").value;
+        var empId = document.getElementById("empId").value;
+        ajax_OrgAccessor.findUserById(orgId, empId, loadUserById); //use ajax Service.
+      }
+
+      // callback function (可自行調整名稱)
+      function loadUserById(data){
+        alert(DWRUtil.toDescriptiveString(data,2));
+        document.getElementById("aUserById").innerHTML = data.name;
+      }
+
+    (6) 改寫後範例如下: 
+      document.write('<script type="text/javascript" src="../../dwrDefault/interface/ajax_OrgAccessor.js"></script>'); 
+
+      // main function (可自行調整名稱)
+      function getUserDataById(){
+        var orgId = FormUtil.getValue("companyID")[0];
+        var empId = FormUtil.getValue("applyUser").txt;
+        ajax_OrgAccessor.findUserById(orgId, empId, loadUserPhone); //use ajax Service.
+      }
+
+      // callback function (可自行調整名稱)
+      function loadUserPhone(data){
+        FormUtil.setValue("applyPhone", [data.phone]);
+      }
+
+      // 接著在表單開啟時, 載入員工分機
+      function formOpen(){
+        getUserDataById(); //呼叫 main function 即可.
+        return true;
+      }
+
+    (7) Ajax Service預設為 [非同步機制], 但有兩種情況須關閉 [非同步機制].
+      a. 兩支ajax服務呼叫, 第2個服務須等待第1個服務回傳值後, 再執行.
+      b. 在formSave()函式執行ajax服務呼叫, 要確保執行完成後, 才能送出表單時.
+    
+    (8) 如何關閉ajax服務 [非同步機制] 
+      a. 在呼叫ajax服務前, 寫下語法 => DWREngine.setAsync(false);
+
+表單程式除錯
+  1. 可利用瀏覽器-開發人員工具除錯功能(F12)
+  2. 切換至 [主控台] 頁籤, 可查得表單的錯誤訊息.
+  3. 當錯誤發生時,
+    a. 若表單使用 document.getElementByID..., 表單錯誤一般都出現在 [CallFormHandler] 中.
+      例: 主控台顯示 => (X) CallFormHandler (1253,3)
+    b. 若表單使用 [FormUtil], FormUtil.setValue("applyDateEo",["123"]); // 有ID輸入的錯誤.
+      例: 主控台顯示 => "applyDateEo" 的字樣, 並不會出現 CallFormHandler (1253,3) 的錯誤(X)警告.
+  
+  4. 若 [主控台] 頁籤出現 'workItemOID' 未定義的錯誤, 請檢查括號是否不成對 {}.
+
+表單設計管理
+  (一)表單版本發行歷程
+    1. 舊版表單只能查看無法修改
+    2. 表單發行歷程
+
+  ()

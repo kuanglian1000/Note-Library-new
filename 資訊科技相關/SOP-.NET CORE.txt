@@ -1,0 +1,2133 @@
+
+Introduction to Identity on ASP.NET Core(登入驗證功能) <== 有需要再重新估一遍.
+https://docs.microsoft.com/zh-tw/aspnet/core/security/authentication/identity?view=aspnetcore-6.0&tabs=netcore-cli
+
+與全網站相關設定的 "檔案位置: Properties/launchSettings.json"
+1. 啟動網站設定 (網址埠號, 網站伺服器設定, 登入驗證方式)
+2. 在 ASP.NET Core 中使用多個環境的設定(開發, 測試, 正式環境)
+  https://docs.microsoft.com/zh-tw/aspnet/core/fundamentals/environments?view=aspnetcore-6.0
+
+<使用 "EF Core" 還是 "EF6" Entity Framework 6.0>
+  The recommendation is to use EF Core if:
+    The app needs the capabilities of .NET.
+    EF Core supports all of the features that the app requires.
+  
+  Consider using EF6 if both of the following conditions are true:
+    The app will run on Windows and .NET Framework 4.0 or later.
+    EF6 supports all of the features that the app requires.  
+
+/*== .NET CORE 常用指令==*/
+
+  dotnet new sln -o <方案名稱>
+    新增方案檔
+
+  dotnet new console -o <專案名稱>
+    新增console專案
+
+  dotnet new clslib -o <類別專案名稱>
+    新增Class專案
+
+  dotnet new xunit -o <測試專案名稱.Tests>
+    新增Test專案
+
+  dotnet add <測試專案名稱.Tests>/<測試專案名稱.Tests>.csproj reference <類別專案名稱>/<類別專案名稱>.csproj
+  dotnet add <測試專案名稱.Tests> reference <類別專案名稱>
+    在<測試專案>中, 新增參考至<被測試專案>, 否則無法呼叫類別方法.
+
+  dotnet sln add <專案名稱>/<專案名稱>.csproj
+    將<專案>加入<方案>中
+
+  dotnet tool install -g {toolName}
+    安裝共用工具(-g)
+    dotnet tool install -g Microsoft.dotnet-httprepl 安裝共用工具至專案中, Microsoft.dotnet-httprepl => 測試WEBAPI用
+
+  dotnet run    
+    Locates the project file at the current directory.(在目前資料夾找專案檔)
+    Retrieves and installs any required project dependencies for this project.(依據專案檔, 存取並安裝所需的套件)
+    Compiles the project code.(編譯專案程式)
+    Hosts the web API with the ASP.NET Core Kestrel web server at both an HTTP and HTTPS endpoint.
+      (在ASP.NET Core Kestrel web server平台上, 開啟HTTP & HTTPS的存取點)
+
+  dotnet dev-certs https --trust 
+    信任測試環境簽章(https用)
+  
+  dotnet new mvc
+    新增MVC架構網站
+  
+  dotnet new webapi -f 6.0
+    新增webapi專案(使用6.0 SDK)
+
+  dotnet --list-sdks
+    檢查已安裝SDK版本, 預設會使用最新版.(6)
+    3.1.100 [C:\program files\dotnet\sdk]
+    5.0.100 [C:\program files\dotnet\sdk]
+    6.0.100 [C:\program files\dotnet\sdk]
+
+  dotnet --list-runtimes
+    檢查目前執行環境.
+    Microsoft.AspNetCore.App 6.0.4 [C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App]
+    Microsoft.NETCore.App 6.0.4 [C:\Program Files\dotnet\shared\Microsoft.NETCore.App]
+    Microsoft.WindowsDesktop.App 6.0.4 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
+
+/*== Learn 範例 (2022/06/21~ 進行中..)==*/
+
+  ={進行中}=
+
+    Create a web API with ASP.NET Core controllers (2022/06/21~ 進行中..)
+    https://docs.microsoft.com/en-us/learn/modules/build-web-api-aspnet-core/
+      
+      學習目標: By the end of this session, you'll be able to create new web API applications by using ASP.NET Core. 
+        You'll also know how to create API controllers that implement basic CRUD logic.
+
+      API clients communicate with the server over HTTP, 
+      and the two exchange information by using a data format such as JSON or XML. (WebApi最常用的兩種格式, JSON & XML, 與前端SPA程式作資料交換)
+      APIs are often used in single-page applications (SPAs) that perform most of the user interface logic in a web browser. 
+      (SPAs指的就是那些使用JS框架的前端應用程式, 它們把主要負載放在前端瀏覽器的程式.)
+      Communication with the web server primarily happens through web APIs.
+
+      REST: A common pattern for building APIs with HTTP
+        Representational State Transfer (REST) is an architectural style for building web services. 
+        REST requests are made over HTTP.
+        它使用瀏覽器存取網頁和回傳資料回Server時, 相同的動詞
+        
+        GET: Retrieve data from the web service.
+        POST: Create a new item of data on the web service.
+        PUT: Update an item of data on the web service.
+        PATCH: Update an item of data on the web service by describing a set of instructions about how the item should be modified. The sample application in this module doesn't use this verb.
+        DELETE: Delete an item of data on the web service.
+
+      Benefits of creating APIs in ASP.NET Core(使用ASP.NET Core新增APIs的優點)
+      
+        # Simple serialization: (簡單序列化)
+          ASP.NET was designed for modern web experiences. Endpoints automatically serialize your classes to properly formatted JSON out of the box. No special configuration is required. Of course, you can customize serialization for endpoints that have unique requirements.
+        # Authentication and authorization: (認證和授權機制)
+          For security, API endpoints have built-in support for industry-standard JSON Web Tokens (JWTs). Policy-based authorization gives you the flexibility to define powerful access control rules in code.
+        # Routing alongside your code: (路由就在程式碼旁邊)
+          ASP.NET lets you define routes and verbs inline with your code, by using attributes. Data from the request path, query string, and request body are automatically bound to method parameters.
+        # HTTPS by default: (預設的HTTPS加密機制)
+          HTTPS is an important part of modern, professional web APIs. It relies on end-to-end encryption to provide privacy and to help ensure that your API calls aren't intercepted and altered between client and server.
+
+      Share code and knowledge with .NET apps(可以和其他.NET分享程式碼.)
+      
+      Testing web APIs by using the .NET HTTP REPL(利用.NET HTTP REPL工具測試 WebApi)
+        # "REPL" stands for read-evaluate-print loop. 
+          It's a simple and popular way to a build interactive command-line environments.
+
+      CHECK YOUR KNOWLEDGE
+      Which of the following is not a reason to build a web API by using ASP.NET Core?
+        (O)To provide a back-end server for an SPA front end, such as Angular or React.
+        (O)To provide data to a mobile client application by using XML or JSON.
+        (X)To serve a traditional HTML-based web application.
+            Answer: To serve a traditional HTML-based web application with ASP.NET Core, you would use Razor Pages or MVC
+
+      Create and explore a web API project(新增WEBAPI專案)
+        # 指令詳常用指令
+          dotnet new webapi -f net6.0
+
+        # 新增後的程式結構
+        -| Controllers (WebApi對外類別方法, 寫在這)
+        -| obj (程式編譯後DLL放這)
+        -| Properties
+        -| appsettings.Development.json (應用程式設定檔-開發環境)
+        -| appsettings.json (應用程式設定檔-正式環境)
+        -| ContosoPizza.csproj (專案相關設定檔)
+        -| Program.cs (註冊服務的地方[DI], 例: 身分驗證; 資料庫設定...)
+        -| WeatherForecast.cs
+
+      Build and test the web API
+        1. dotnet run 測試執行..
+
+        2. https://localhost:{PORT} or http://localhost:{PORT} 無回應.
+
+        3. https://localhost:{PORT}/weatherforecast 有回應, 回傳JSON字串.
+
+        4. 利用 Microsoft.dotnet-httprepl 工具, 協助測試Webapi (Swagger比較直覺..)
+            dotnet tool install -g Microsoft.dotnet-httprepl
+
+            使用步驟(under cmd shell, .NET CLI): 
+              1. httprepl 
+              2. (Disconnected)> connect https://localhost:{PORT}
+              3. https://localhost:7117/>
+              4. ls 
+                .                 []
+                WeatherForecast   [GET]
+
+              5. cd WeatherForecast
+                https://localhost:7117/WeatherForecast>
+
+              6. GET => 回傳JSON字串
+                https://localhost:7117/WeatherForecast> get
+                HTTP/1.1 200 OK
+                Content-Type: application/json; charset=utf-8
+                Date: Tue, 21 Jun 2022 06:51:14 GMT
+                Server: Kestrel
+                Transfer-Encoding: chunked
+
+                [
+                  {
+                    "date": 2022/6/22 下午 02:51:15,
+                    "temperatureC": 39,
+                    "temperatureF": 102,
+                    "summary": "Balmy"
+                  },
+
+              7. exit => 結束 httprepl 工具
+
+        5. Ctrl + C => 關閉 WebApi 服務.
+
+      ASP.NET Core Web API Controllers
+
+        In this unit, 
+        you'll see how <WeatherController> uses the <ControllerBase> base class and a few .NET attributes 
+          to build a <functional web API> in a few dozen lines of code. (重點在於, 繼承底層 ControllerBase, 可為建立具備完整功能WEBAPI提供基礎.)
+
+
+      The base class: ControllerBase
+
+        # 依照慣例(Conventions), 
+
+        !! 注意: WebApi 與 RazorPages or MVC 基底類別不同 !!
+        1. WebApi 使用 ControllerBase class 即可.
+        2. RazorPages 必須使用 Controller class, 而Controller 也是繼承自ControllerBase, 另外加上了檢視(VIEW)支援, 
+
+    ASP.NET Core MVC(檢視)
+    https://docs.microsoft.com/en-us/aspnet/core/mvc/views/overview?view=aspnetcore-5.0
+
+    ASP.NET Core MVC(部分檢視, 先跳過)
+    https://docs.microsoft.com/en-us/aspnet/core/mvc/views/partial?view=aspnetcore-5.0
+
+    ASP.NET Core MVC(控制器)
+    https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/actions?view=aspnetcore-5.0
+
+    ASP.NET Core MVC(路由)
+    https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing?view=aspnetcore-5.0
+
+    ASP.NET Core MVC(控制器插入服務. Dependency injection into controllers in ASP.NET Core)
+    https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/dependency-injection?view=aspnetcore-5.0
+
+    ASP.NET Core MVC(檢視插入服務. Dependency injection into views in ASP.NET Core)
+    https://docs.microsoft.com/en-us/aspnet/core/mvc/views/dependency-injection?view=aspnetcore-5.0
+
+    ASP.NET Core MVC(單元測試. Unit test controller logic in ASP.NET Core)
+    https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/testing?view=aspnetcore-5.0
+
+    Upload files in ASP.NET Core (for 訪視照片檔案上傳用)
+    https://docs.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-5.0
+
+    Host ASP.NET Core on Windows with IIS (for 佈署上線)
+    https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/?view=aspnetcore-5.0
+
+    使用 ASP.NET Core、最小 API 和 .NET 6 建立 Web 應用程式和服務
+    https://docs.microsoft.com/en-us/learn/modules/build-web-api-minimal-api/4-advanced-commands
+
+      <ASP.net core web api>
+      1. 新增路由結構, 來處理資料讀取和寫入
+      2. 使用 Swagger, 發佈web api資訊.
+    
+      <minimal api = 最小化的api based on .net 6.0>
+      1. controller-based approach(控制器) and minimal API的差異?
+        其實, 兩者都能夠產生WebApi, 之間的差異在於
+        1.1. No Startup.cs. 
+            建立minimal API時, 不用 Startup.cs. 
+            所有的程式碼在 Program.cs 內即可完成.
+        1.2. Top-level statements.
+            因為使用
+
+      GET: 存取資料, 存取資源 = Select
+        app.MapGet("/", () => "Hello World !");
+        app.MapGet("/products", () => data );
+        app.MapGet("/products/{id}", (int id) => data.SingleOrDefault(product => product.Id == id));
+
+      POST: 新增資源 = Insert
+        app.MapPOST
+
+        // JSON 從USER端丟進來
+        {
+          "Name" : "New Product",
+          "Description" : "a Description"
+        }
+
+        // WEBAPI 可接收
+        app.MapPOST("/products", (Product product) => /**/ );
+
+        // C#類別 Product
+        public recored Product(id Id, string Name);
+
+      PUT: 更新資源 = Update, 它的作法和 app.MapPOST很像, 不過傳入的是變更後的資料
+        app.MapPUT("/products", (Product product) => /* Update the data store using the `product` instance */)
+
+      DELETE: 刪除資源 = Delete
+        app.MapDelete("/products/{id}", (int id) => /* Remove the record whose unique identity */)
+
+      回傳結果
+        app.MapGet("/products", () => products);
+        
+          //JSON(多筆)
+          [{"id" = 1, "name" = "product A"}
+          ,{"id" = 1, "name" = "product B"}]
+
+        app.MapGet("/products/{id}, (int id) => products.SingleOrDefault(product => product.id == id)");
+          
+          //JSON(單筆)
+          [{"id" = 3, "name" = "Product C"}]
+
+        app.Mapget("/product", () => new {id = 1});
+          //JSON(在router範圍外, 給定預設值)
+          {
+            "id" = 1,
+          }
+
+  ={完成}=
+
+    [MVC 初階學習 Get started with ASP.NET Core MVC (MVC架構完整RUN一次) => ProjectName: MvcMovie] 2022/05/30 完成.
+    https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/start-mvc?view=aspnetcore-5.0&tabs=visual-studio
+
+      Part 2, add a controller to an ASP.NET Core MVC app (OK)
+      Part 3, add a view to an ASP.NET Core MVC app (OK)
+      /*== Part 4, add a model to an ASP.NET Core MVC app 關於Model的細節說明 ==*/
+        https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/adding-model?view=aspnetcore-6.0&tabs=visual-studio
+        
+        [Initial migration 新增或更新資料庫 Model的工具, dotnet-ef]
+        dotnet ef migrations add InitialCreate (註: 依照慣例, 第1次移轉的取名為 InitialCreate; 之後可以改為 add Column_Desc..)
+        dotnet ef database update (註: 使用最近1次移轉, 執行移轉內的 Up 方法, 來新增資料庫.)
+        
+        [Dependency injection 關注點注入]
+        1. MVC中的 "Model", 是由1個實體類別(/Model/Movie.cs) 和 1個Context Object(/Data/MvcMovieContext.cs)所組成的, 它代表資料庫中的一個Session. (2022/05/18)
+        2. 1個 Database Context Object允許查詢和儲存資料, 它繼承自 Microsoft.EntityFrameworkCore.DbContext
+        3. (自己註解: DbContext 像是虛擬資料庫, 而每一個DbSet<T> or DbSet<Movie>表示 每筆資料實體, 可以取得其屬性.)
+        4. 首先, 把整個網站要用的服務在 Program.cs 檔案內註冊. (註: Program.cs 是整個網站的啟始點.)
+          
+          範例程式碼:
+          builder.Services.AddDbContext<MvcMovieContext>(options =>
+              options.UseSqlite(builder.Configuration.GetConnectionString("MvcMovieContext") ?? throw new InvalidOperationException("Connection string 'MvcMovieContext' not found.")));
+
+        5. 接著, Controllers/MoviesController.cs 檔案內, 將 MvcMovieContext DI(注入) 到Controller內. 因為 MvcMovieContext 提供 Controller 所需的資料庫CRUD功能.
+        
+        [檢視資料庫的連接字串]
+        6. appsettings.json 的 "ConnectionStrings" 區段, 
+
+          "ConnectionStrings": {
+          "MvcMovieContext": "Data Source=.db",
+          "ProductionMvcMovieContext": "Data Source=xxxx.xxx.xxx."
+
+        [關於 InitialCreate class類別]
+        7. 位置: Migrations/{timestamp}_InitialCreate.cs migration file:
+          
+          Up方法 => 新增 Movie 資料表, 設定 Id 為主鍵
+          Down方法 => 回復 Up方法的 Schema變更
+
+        [控制器(Controller)內的 DI]
+        8.  位置: Controllers/MoviesController.cs file:
+
+          MoviesController初始化時, 把 MvcMovieContext 注入在控制器內, 使得CRUD作業得以在控制器中執行.
+
+          public class MoviesController : Controller
+          {
+            private readonly MvcMovieContext _context;
+
+            public MoviesController(MvcMovieContext context)
+            {
+                _context = context;
+            }
+
+        [檢視(View)中的強型別模型(strongly typed models)及 @model指示詞]
+        9. ViewData["..."] 提供一個便利方式, 讓後端資料傳遞至前端檢視. 
+          使用方式1: 後端把值放入 ViewData["..."] = "XXX"; 前端再利用右側寫法 @ViewData["..."], 取值後放在HTML中顯示.
+          使用方式2: @{ ViewData["..."] = "首頁"; } 可修改內容值後, 再放在HTML中, 再取值.
+          
+        10. View(movie) 提供另一種方式.
+          使用方式3: 後端 return View(movie); 抛至前端, 
+            前端View頁面 
+              最上方宣告 @model MvcMovie.Models.Movie 後, 
+              再利用右側寫法 @Html.DisplayFor(model => model.屬性名稱); 
+              注意寫成 @Html.DisplayFor(ob => ob.屬性名稱)也可以;
+
+          使用方式4: 後端 return View(await _context.Movie.ToListAsync()); 抛回清單至前端.
+            前端View頁面
+              最上方宣告 @model IEnumerable<MvcMovie.Models.Movie> 集合
+              再利用右側寫法 @foreach (var item in Model) {... @Html.DisplayFor(modelItem => item.Title) ...} 顯示集合內容
+
+        * controller/action/id
+                下列兩種方式, 都能將 id=1 傳給Controller
+                https://localhost:5001/movies/details/1
+                https://localhost:5001/movies/details?id=1
+
+          > 回傳單筆
+            * return View(movie); // Controller 將挑出來的Model, 回傳給View使用
+            * @model MvcMovie.Models.Movie // View在頁面先定義後, 即可使用
+            * Model 物件是強型別 // @Model.Id, 就能抓取 movie.Id 值.
+
+          > 回傳清單
+            * return View(await _context.Movie.ToListAsync()); // 存取DB後, 以非同步方式回傳多筆給View // 使用非同步函式, 記得加上 await
+            * @model IEnumerable<MvcMovie.Models.Movie> // View抓到的是 可列舉的清單
+            * @foreach (var item in Model) // 使用迴圈逐一存取項目
+
+          > SQL Logging of Entity Framework Core
+            * 在appsettings.json內, 加入下列LOGGING設定 {,"Microsoft.EntityFrameworkCore.Database.Command": "Information"}
+              "Logging": {
+                "LogLevel": {
+                  "Default": "Information",
+                  "Microsoft": "Warning",
+                  "Microsoft.Hosting.Lifetime": "Information"
+                ,"Microsoft.EntityFrameworkCore.Database.Command": "Information"
+                }
+              },
+
+      /*== Part 5, work with a database in an ASP.NET Core MVC app 關於與資料庫間的協作, 餵資料 ==*/
+        https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/working-with-sql?view=aspnetcore-6.0&tabs=visual-studio
+        1. DbContext 最主要的功能在於 (1)連接資料庫 和 (2)Model與資料庫記錄間的對應.
+        2. DbContext 會在 Program.cs 內註冊(DI)
+          
+          builder.Services.AddDbContext<MvcMovieContext>(options => 
+            options.UseSqlite(builder.Configuration.GetConnectionString("MvcMovieContext")));
+
+          一般而言, 本機開發時, ConnectionStrings會儲存在 appsettings.json內
+          "ConnectionStrings": {
+            "MvcMovieContext": "Data Source=MvcMovie.db"
+          }
+
+          
+          (註: Entity Framework Core migrations 使用限制, 功能不完全)
+          dotnet ef migrations add Add_Column_Desc (註: 產生欄位新增的移轉指令時, 可執行成功.)
+          dotnet ef database update (註: 但是實際異動Schema時, 卻會出現失敗.)
+          
+          下列功能都仍未提供.
+            Creating a new table.
+            Copying data from the old table to the new table.
+            Dropping the old table.
+            Renaming the new table.
+          
+          SQLite手動變更指令, 請參考: https://sqlite.org/lang_altertable.html
+
+          因此, 官方建議開發階段, 刪除DB & 重新新增DB
+
+        [Seed the database 餵資料]
+        3. 新增 /Models/SeedData.cs 檔案, 加入下列程式碼
+
+          using Microsoft.EntityFrameworkCore;
+          using Microsoft.Extensions.DependencyInjection;
+          using System;
+          using System.Linq;
+
+          namespace MvcMovie.Models
+          {
+              public static class SeedData
+              {
+                  public static void Initialize(IServiceProvider serviceProvider)
+                  {
+                      
+                      using (var context = new MvcMovieContext(
+                          serviceProvider.GetRequiredService<
+                              DbContextOptions<MvcMovieContext>>()))
+                      {
+                          // Look for any movies.
+                          //註: 自己加上去的, 因為 public DbSet<MvcMovie.Models.Movie>? Movie { get; set; } 可能為NULL, 可是官方範例沒改到..
+                          if (context.Movie is not null) 
+                          {
+                            if (context.Movie.Any())
+                            {
+                                return;   // DB has been seeded
+                            }
+                          
+                          context.Movie.AddRange(
+                              new Movie
+                              {
+                                  Title = "當哈利遇到瑪麗",
+                                  ReleaseDate = DateTime.Parse("1989-2-12"),
+                                  Genre = "Romantic Comedy",
+                                  Price = 7.99M
+                              },
+
+                              new Movie
+                              {
+                                  Title = "魔鬼剋星",
+                                  ReleaseDate = DateTime.Parse("1984-3-13"),
+                                  Genre = "Comedy",
+                                  Price = 8.99M
+                              },
+
+                              new Movie
+                              {
+                                  Title = "小鬼頭哈哈笑",
+                                  ReleaseDate = DateTime.Parse("1986-2-23"),
+                                  Genre = "Comedy",
+                                  Price = 9.99M
+                              },
+
+                              new Movie
+                              {
+                                  Title = "赤膽屠龍",
+                                  ReleaseDate = DateTime.Parse("1959-4-15"),
+                                  Genre = "Western",
+                                  Price = 3.99M
+                              }
+                          );
+                          context.SaveChanges();
+                          }
+                      }
+                  }
+              }
+          }
+        4. 接著 Program.cs 預先執行, 才會有效果.
+
+          using MvcMovie.Models; //新增
+
+          builder.Services.AddControllersWithViews();
+          var app = builder.Build();
+
+          using (var scope = app.Services.CreateScope()) //新增
+          {
+              var services = scope.ServiceProvider; //新增
+              SeedData.Initialize(services); //新增
+          }
+
+      /*== Part 6, controller methods and views in ASP.NET Core 關於控制器的異動欄位保護, 檢視畫面的資料檢查 ==*/
+        https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/controller-methods-views?view=aspnetcore-6.0
+
+        [Processing the POST Request 處理異動資料]
+        1. 增加資料欄位細節 @ /Models/Movie.cs
+
+          using System.ComponentModel.DataAnnotations;
+          using System.ComponentModel.DataAnnotations.Schema;
+
+          [Display(Name = "發行日期")]
+          [DataType(DataType.Date)]
+          public DataTime ReleaseDate {get;set;} //[Display(Name = "發行日期")] 沒加的話, 預設用欄位名稱顯示.
+
+          [Column(TypeName = "decimal(18,2)")]
+          public decimal Price {get;set;} //[Column(TypeName = "decimal(18,2)")], EF Core 6.0 指定欄位型態
+
+        2. <Tag Helper> 允許後端程式碼加在前端 XXX.cshtml檔案內, 例: @item.Id
+          <Tag Helper> 也是一個很重要的必學項目, 它有很多種類, 
+          例: Form Tag Helper, Label Tag Helper, Input Tag Helper, Validation Tag Helper
+            <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <label asp-for="Price" class="control-label"></label>
+            <input asp-for="Price" class="form-control" />
+            <span asp-validation-for="Price" class="text-danger"></span>
+
+          原始碼: 
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+
+          產生後: (註: 它會利用 Program.cs 內指定路由規則來產生, pattern: "{controller=Home}/{action=Index}/{id?}")
+            <td>
+                <a href="/Movies/Edit/4"> Edit </a> |
+                <a href="/Movies/Details/4"> Details </a> |
+                <a href="/Movies/Delete/4"> Delete </a>
+            </td>
+
+        3. 控制器(Controller)中 GET Task 及 POST Task 的不同處理方式.
+
+          // GET: Movies/Edit/5
+          // 可以加上[HttpGet], 但沒必要, 因為它是預設的
+          [HttpGet]
+          public async Task<IActionResult> Edit(int? id)
+            {
+              if (id == null)
+              {
+                return NotFound();
+              }
+
+              var movie = await _context.Movie.FindAsync(id);
+              if (movie == null)
+              {
+                return NotFound();
+              }
+              return View(movie);
+            }
+
+          // POST: Movies/Edit/5
+          // To protect from overposting attacks, enable the specific properties you want to bind to.
+          // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+          
+          // 防止 over-posting的產生的方式1(似乎比較直覺): [Bind("加入開放變更的欄位項目") Movie movie]
+          // 防止 over-posting的產生的方式2: ViewModel (https://rachelappel.com/use-viewmodels-to-manage-data-amp-organize-code-in-asp-net-mvc-applications/)
+
+          // 防止 XSRF 跨站請求偽造攻擊, 加上這個 [ValidateAntiForgeryToken] 後, 會產生隱藏token, 比對回傳網頁token和Controller是否一致.
+
+          [HttpPost]
+          [ValidateAntiForgeryToken]
+          public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ReleaseDate,Genre,Price")] Movie movie)
+            {
+              if (id != movie.Id)
+              {
+                return NotFound();
+              }
+
+              if (ModelState.IsValid)
+              {
+                try
+                {
+                  _context.Update(movie);
+                  await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyExceptoin)
+                {
+                  if (!MovieExists(movie.Id))
+                  {
+                    return NotFound();
+                  }
+                  else
+                  {
+                    throw;
+                  }
+                }
+                return RedirectToAction(nameof(Index));
+              }
+              return View(movie);
+            }
+
+        * [Bind] 屬性是一種方式, 用來防止 over-posting 攻擊.
+        * [Bind] 限制要變更的屬性項目, 
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Edit(int id, [Bind("ID,Title,ReleaseDate,Genre,Price")] Movie movie)
+        * 另一種防止 over-posting 攻擊的方式, ViewModels
+        
+        * [ValidateAntiForgeryToken], 用來防止 XSRF/CSRF 攻擊, 
+            它會去檢查 Form Tag Helper 產生的TOKEN, 通常放在最後面, 長的像下列碼
+            <input name="__RequestVerificationToken" type="hidden" value="CfDJ8Inyxgp63fRFqUePGvuI5jGZsloJu1L7X9le1gy7NCIlSduCRx9jDQClrV9pOTTmqUyXnJBXhmrjcUVDJyDUMm7-MF_9rK8aAZdRdlOri7FmKVkRe_2v5LIHGKFcTjPrWPYnc9AdSbomkiOSaTEg7RU" />
+        
+        * Label Tag Helper, 用來顯示名稱
+        * Input Tag Helper, 用來產生輸入欄位
+        * Validation Tag Helper, 用來顯示與屬性相關的驗證結果訊息
+
+        !! 注意 !! 
+          [HttpGet] 屬性是預設值, 可加可不加.
+            千萬不要在 [HttpGet] Action方法內, 異動資料, 有資安上的風險.
+          [HttpPost] 屬性則是 新增, 修改, 刪除及其他異動資料時, 使用的.
+            要特別加註上去.
+
+      /*== Part 7, add search to an ASP.NET Core MVC app 檢視畫面增加搜尋, 控制器對應的調整 ==*/
+        https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/search?view=aspnetcore-6.0
+        [原理說明]
+          0. 一元運算的後置!功能(null-forgiving), 表示這個運算式不是NULL. 
+              例: string? Title = ""; Title變數是 nullable. 
+                如果使用 Title 時, 明確加上 Title! 表示跟編譯器說, 這時候它不是NULL
+                https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/null-forgiving
+
+          0. Linq命令會使用 Lambda 語法, LINQ queries are not executed when they're defined or 
+            when they're modified by calling a method such as "Where", "Contains", or "OrderBy".
+          0. Linq命令通常不會當下執行, 而會 延遲到 "開始取值" 或 "ToListAsync()" 這類方法呼叫時才會執行.
+            https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/ef/language-reference/query-execution
+          0. Linq關鍵字 Where & Contains 間的差異, Where回傳 IEnumerable, Contains回傳 bool, 所以要使用Where
+
+          1. Index的清單畫面中, 增加名稱搜尋功能. (調整 /Controllers/MoviesController.cs)
+          1. 最直覺的方式, 還是程式員提供查詢欄位, 而不是由使用者自行修改網址.
+
+            // https://localhost:7076/Movies?searchString=查詢字串
+              public async Task<IActionResult> Index(string searchString)
+              {
+                var movies = from m in _context.Movie 
+                              select m;
+                if (!String.IsNullOrEmpty(searchString)) // !前置, 表示Not
+                {
+                  movies = movies.Where(s => s.Title!.Contains(searchString)); // 後置!, 表示 Not null
+                }
+                return View(await movies.ToListAsync()); 
+              }
+            // https://localhost:7076/Movies/index/查詢字串
+              public async Task<IActionResult> Index(string id)
+              {
+                  var movies = from m in _context.Movie
+                              select m;
+
+                  if(!String.IsNullOrEmpty(id))
+                  {
+                      movies = movies.Where(s => s.Title!.Contains(id));
+                  }
+                  return View(await movies.ToArrayAsync());
+              }
+
+          2. 使用 method="get" 指定前端以GET方式將資料送至後端, 後端當然也要有對應[HttpPost] or [HttpGet] 方法
+            之間差異在於 
+            (1) POST 送出時, 會有 "1串隱藏碼" 避免XSRF攻擊, 所以你要重新篩選結果的網址會失敗.
+            (2) GET 送出時, Form內的查詢字串會放在網址, 沒有 "1串隱藏碼" 問題, 便於分享或作書籤使用.
+            (3) 後端方法如果沒有 [HttpPost] or [HttpGet], 前端無論以 GET OR POST 送都能接, 預設前端以 GET 後送的資料 
+            (4) 後端方法如果加上 [HttpPost], 只接前端 以 POST 後送的資料.
+            (5) 前端方法 加上 method="get" 後, 限定以 GET 將資料送至後端
+            (6) 前端方法 未加上 method="get" 時 , 預設以 POST 將資料送至後端
+
+        [Add Search by genre 程式碼調整]
+
+          > Add Search by genre (by HttpGet)
+            * 不需要用 HttpPost, 就能達成篩選目的.
+            * 使用 HttpGet, 查詢字串會放在URL內.
+
+            // Controller.cs
+            public async Task<IActionResult> Index(string searchString)
+            {
+                var movies = from m in _context.Movie
+                              select m;
+                if (!String.IsNullOrEmpty(searchString))
+                {
+                    movies = movies.Where(s => s.Title.Contains(searchString));
+                }
+                return View(await movies.ToListAsync());
+            }
+
+            // View.cshtml
+            @* 新增查詢欄位, 指定用[HttpGet]方式傳送, 即使Controller有[HttpPost]的Action, 一樣不會跑進去 *@
+            <form asp-controller="Movies" asp-action="Index" method="GET">
+                <p>
+                    名稱: <input type="text" name="searchString">
+                    <input type="submit" value="篩選">
+                </p>
+            </form>
+
+          > Add search by genre to the Index View (by ViewModel)
+            // MvcMovie.Models.MovieGenreViewModel.cs
+            using Microsoft.AspNetCore.Mvc.Rendering;
+            using System.Collections.Generic;
+            namespace MvcMovie.Models
+            {
+                public class MovieGenreViewModel
+                {
+                    public List<Movie> Movies { get; set; }
+                    public SelectList Genres { get; set; }
+                    // User Selected Genre
+                    public string MovieGenre { get; set; }
+                    // User Input SearchString
+                    public string SearchString { get; set; }
+                }
+            }
+
+            // Controller.cs
+            public async Task<IActionResult> Index(string movieGenre, string searchString)
+              {
+                  IQueryable<string> genreQuery = from m in _context.Movie
+                                                  orderby m.Genre
+                                                  select m.Genre;
+                  var movies = from m in _context.Movie
+                              select m;
+
+                  if(!string.IsNullOrEmpty(searchString))
+                  {
+                      movies = movies.Where(s => s.Title.Contains(searchString));
+                  }
+
+                  if(!string.IsNullOrEmpty(movieGenre))
+                  {
+                      movies = movies.Where(s => s.Genre == movieGenre);
+                  }
+
+                  var movieViewModel = new MovieGenreViewModel
+                  {
+                      Genres = new SelectList(await genreQuery.Distinct().ToListAsync())
+                      , Movies = await movies.ToListAsync()
+                  };
+                  return View(movieViewModel);
+              }
+            
+            // View.cshtml
+            @model MvcMovie.Models.MovieGenreViewModel
+            @* 新增查詢欄位, 使用 ViewModel *@
+            <form asp-controller="Movies" asp-action="Index" method="get">
+                <p>
+                    類型: <select asp-for="MovieGenre" asp-items="Model.Genres">
+                        <option value="">All</option>
+                    </select>
+                    <br>
+                    名稱: <input type="text" name="searchString">
+                    <input type="submit" value="篩選">
+                </p>
+            </form>
+
+        [Add search by genre to the Index view 程式碼調整] # 進階功能-多欄位篩選 #
+
+          3. 利用 ViewModel , 實現多欄位篩選功能.
+
+            檔案: /Models/MovieGenreViewModel.cs
+
+              using Microsoft.AspNetCore.Mvc.Rendering;
+              using System.Collection.Generic;
+              namespace MvcMovie.Models;
+
+              public class MovieGenreViewModel
+              {
+                public List<Movie>? Movies {get;set;} //可供顯示的電影清單
+                public SelectList? Genres {get;set;} //可供選擇的類別清單
+                public string? MovieGenre {get;set;} //使用者選擇的類別項目
+                public string? SearchString {get;set;} //使用者輸入的查詢字串
+              }
+
+            檔案: /Controllers/MoviesController.cs
+
+              public async Task<IActionResult> Index(string movieGenre, string searchString)
+              {
+                //調整下列項目
+                
+                //抓出可供選擇的類別清單
+                IQueryable<string> genreQuery = from m in _context.Movies
+                                                orderby m.Genre
+                                                select m.Genre;
+
+                //抓出可供顯示的電影清單
+                var movies = from m in _context.Movies
+                            select m;
+
+                if(!String.IsNullOrEmpty(searchString))
+                {
+                  movie = movies.Where(s => s.Title!.Contains(searchString));
+                }
+
+                if(!String.IsNullOrEmpty(movieGenre))
+                {
+                  movies = movies.Where(s => s.Genre == movieGenre);
+                }
+
+                var movieGenreVM = new MovieGenreViewModel
+                {
+                  Genre = new SelectList(await genreQuery.Distinct().ToListAsync()),
+                  Movies = await movies.ToListAsync()
+                }
+
+                return View(movieGenreVM);
+              }
+              
+            檔案: /Views/Movies/Index.cshtml
+
+              @model MvcMovie.Models.MovieGenreViewModel <!-- 因為控制器Controller return View(movieGenreVM), 所以要先宣告才能用. -->
+
+              <!--加入下列程式碼-->
+              <select asp-for="MovieGenre" asp-item="Model.Genres"> <!-- 加入選擇清單 -->
+                <option value="">All</option>
+              </select>
+
+              <!--調整下列程式碼-->
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>
+                              @Html.DisplayNameFor(model => model.Movies[0].Title) <!--調整-->
+                          </th>
+                          <th>
+                              @Html.DisplayNameFor(model => model.Movies[0].ReleaseDate) <!--調整-->
+                          </th>
+                          <th>
+                              @Html.DisplayNameFor(model => model.Movies[0].Genre) <!--調整-->
+                          </th>
+                          <th>
+                              @Html.DisplayNameFor(model => model.Movies[0].Price) <!--調整-->
+                          </th>
+                          <th></th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    @foreach (var item in Model.Movies) <!--調整-->
+                    {
+                      <tr>
+                          <td>
+                              @Html.DisplayFor(modelItem => item.Title)
+                          </td>
+                          <td>
+                              @Html.DisplayFor(modelItem => item.ReleaseDate)
+                          </td>
+                          <td>
+                              @Html.DisplayFor(modelItem => item.Genre)
+                          </td>
+                          <td>
+                              @Html.DisplayFor(modelItem => item.Price)
+                          </td>
+                          <td>
+                              <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                              <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                              <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                          </td>
+                      </tr>
+                    }
+                  </tbody>
+              </table>
+
+            # 問題: 出現 warning CS8602: 可能 null 參考的取值 (dereference) 警告 #
+            https://docs.microsoft.com/en-us/ef/core/miscellaneous/nullable-reference-types
+
+              因為 C# 8 以後引進了 nullable的型別, 編譯器會自動偵測, 並提醒可能會出現NULL的宣告上要加上 '?' .
+              但是編譯時, 就會經常出現 warning CS8602 的困擾, 如果你確認物件不可能為NULL, 可以使用加上 後置'!' => 一元運算的後置!功能(null-forgiving), 表示這個運算式不是NULL.
+
+              例1: public string? Title {get; set;}
+              例2: public SelectList? Genres { get; set; } //可供選擇的類別清單
+
+              例3: public string ProductName {get;set;} = ""; //如果不使用 nullable的型別, 宣告時可以加上預設值(default value), 警告就會消失了..
+
+            # 解決方法: 下面記錄了我花兩小時解決的警告(nullable 型別), 幸好最後有解決, 發生在 View 檢視畫面出現 'warning CS8602' 的問題.
+
+              檔案: \Models\MovieGenreViewModel.cs
+                
+                public class MovieGenreViewModel
+                {
+                  public List<Movie>? Movies { get; set; } //因為 Movies is nullable(可能為NULL的型別)
+                  public SelectList? Genres { get; set; } 
+                  public string? MovieGenre { get; set; } 
+                  public string? SearchString { get; set; } 
+                }
+              
+              檔案: \Views\Movies\Index.cshtml
+                @model MvcMovie.Models.MovieGenreViewModel
+
+                @Html.DisplayNameFor(m => m.Movies![0].Title) //如果沒有在 m.Movies![0] 加上'!', 就會出現 'warning CS8602' 的警告, 程式不會出錯, 只是有警告.
+
+                @foreach (var item in Model.Movies!) { //這裡也要加上 '!', 在變數後置'!'功能(null-forgiving), 表示這個運算式不是NULL.
+                  <tr>
+                      <td>
+                          @Html.DisplayFor(modelItem => item.Title)
+
+      /*== Part 8, add a new field to an ASP.NET Core MVC app 新增資料欄位, 及相關程式碼更新(檢視畫面, Controller [Bind]) ==*/
+        https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/new-field?view=aspnetcore-6.0&tabs=visual-studio
+        1. (EF Code First方式) 常用於
+          [Add a new field to the model]
+          [Migrate the new field to the database]
+
+        2. 另外, 使用 (EF Code First方式) 來新增資料庫, 可擁有下列優點:
+          # 追蹤資料表綱要Schema的變更
+          # 確認 model 類別與 資料庫欄位是否一致. 若不一致, 則 EF會丟例外
+
+        [Add a Rating Property to the Movie Model]
+
+          檔案: /Models/Movie/
+          public string? Rating {get;set;}
+
+          接著執行指令 "dotnet build"
+
+          檔案: /Controllers/MoviesController
+          修改 [Bind] 內容, 在 Create & Edit 方法內, 加入Rating
+
+          檔案: /Views/Movies
+          Index & Create & Delete & Details & Edit 都要一起修改
+
+        (註: Entity Framework Core migrations 使用限制, 功能不完全)
+          dotnet ef migrations add Add_Column_Desc (註: 產生欄位新增的移轉指令時, 可執行成功.)
+          dotnet ef database update (註: 但是實際異動Schema時, 卻會出現失敗.)
+          
+          下列功能都仍未提供.
+            Creating a new table.
+            Copying data from the old table to the new table.
+            Dropping the old table.
+            Renaming the new table.
+          
+          SQLite手動變更指令, 請參考: https://sqlite.org/lang_altertable.html
+          因此, 官方建議開發階段, 刪除DB & 重新新增DB
+
+      /*== Part 9, add validation to an ASP.NET Core MVC app 將 '驗證規則' 加至Model內, 並且確保使用者在新增及修改時, 均能套用 '驗證規則' ==*/
+        https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/validation?view=aspnetcore-6.0
+        [Keeping things DRY]
+          1. MVC & EF Core Code First是 DRY很好的實踐.
+          2. 將 '驗證規則' 放在 Model中, 而且這些規則會強制套用至整個網站
+
+        [Add validation rules to the movie model]
+          1. using System.ComponentModel.DataAnnotations; 
+            DataType 屬性 => (只有資料格式化), 無資料檢查
+            Required 屬性 => 資料檢查
+            StringLength 屬性 => 資料檢查(預設最大; 最小長度)
+            RegularExpression 屬性 => 資料檢查(RegularExpression)
+            Range 屬性 => 資料檢查(數值範圍, 例: 1-100)
+
+          2. using System.ComponentModel.DataAnnotations.Schema;
+            [Column(TypeName = "decimal(18, 2)")] => 定義資料庫欄位型態 & 指定為必填欄位
+            Value types (such as decimal, int, float, DateTime) are inherently required and don't need the [Required] attribute
+
+        [Validation Error UI]
+          1. Validation 在 Client Side & Server Side 都會套用.
+          2. 最明顯的效益是 => 驗證屬性只須在 Model 內調整, Controller & Create View 都不用修改
+          3. 同樣地, Edit View 也不用修改
+        
+        [How validation works]
+          1. 驗證發生的時間點有二: 
+            (1) 前端 by JavaScript, 
+            (2) 當前端JavaScript被關掉後, 後端會再驗證1次
+              if (ModelState.IsValid) //當前端JavaScript被關掉後, 後端會再驗證1次
+              {
+                  _context.Add(movie);
+                  await _context.SaveChangesAsync();
+                  return RedirectToAction(nameof(Index));
+              }
+              return View(movie);
+        
+          2. Controller & Create View 都不會知道 "驗證規則" & "驗證錯誤的訊息"
+              The (Input Tag Helper) uses the (DataAnnotations attributes) and produces HTML attributes needed for jQuery Validation on the client side. 
+              The (Validation Tag Helper) displays validation errors.
+              
+              節錄自 Create.cshtml
+              <div class="form-group">
+                  <label asp-for="Title" class="control-label"></label>
+                  <input asp-for="Title" class="form-control" />
+                  <span asp-validation-for="Title" class="text-danger"></span>
+              </div>
+
+        [Using DataType Attributes]
+          1. using System.ComponentModel.DataAnnotations;
+            DataType 屬性 => (只有資料格式化), !! 無任何資料檢查功能 !!
+            已內建多種資料格式. such as Date, Time, PhoneNumber, Currency, EmailAddress and more
+
+          2. 另外, 也可以使用 [RegularExpression(@"^[A-Z]+[a-z]+[0-9]*$")] 方式作資料格式檢查.
+          3. 注意, [DataType(DataType.Date)] 無法指定日期格式, 日期格式會依伺服器的 CultureInfo 而定.
+          4. 如果, 需要指定日期格式, 請考慮使用下列方式(不建議, 維持 [DataType(DataType.Date)] 是比較好的作法):
+
+            [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+            public DateTime ReleaseDate { get; set; }
+
+          5. 優點, 使用 [DataType(DataType.Date)] 顯示日期欄位的優點
+            a. The browser can enable HTML5 features (for example to show a calendar control, the locale-appropriate currency symbol, email links, etc.)
+            b. By default, the browser will render data using the correct format based on your locale.
+            c. The DataType attribute can enable MVC to choose the right field template to render the data (the DisplayFormat if used by itself uses the string template).
+
+          6. 不建議, 把 [Range] 屬性 和 DateTime放在一起用.
+            
+            [Range(typeof(DateTime), "1/1/1966", "1/1/2020")]
+            因為上列用法會造成 jQuery驗證功能失效
+
+        [Additional resources]
+          Working with Forms https://docs.microsoft.com/en-us/aspnet/core/mvc/views/working-with-forms?view=aspnetcore-6.0
+          Globalization and localization https://docs.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-6.0
+          Introduction to Tag Helpers https://docs.microsoft.com/en-us/aspnet/core/mvc/views/tag-helpers/intro?view=aspnetcore-6.0
+          Author Tag Helper https://docs.microsoft.com/en-us/aspnet/core/mvc/views/tag-helpers/authoring?view=aspnetcore-6.0
+
+      /*== Part 10, examine the Details and Delete methods of an ASP.NET Core app 檢視資料明細及刪除頁面 ==*/
+        https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/details?view=aspnetcore-6.0
+        1. 它會根據 Program.cs 內的路由規則, 將request傳至(Details) 方法.
+          重點在於 
+            (1)先判斷傳入的ID是否為空值(NULL), 若為空值, 要丟給 NotFound() 頁面.
+            (2)再判斷ID值是否有對應的object, 若為空值, 也要丟給 NotFound() 頁面.
+            (3)抓到你要的object後, 再作邏輯運算.
+
+        2. 如果沒有先檢查空值, 出現系統異常時, 例外狀況曝露的資訊可能會被駭客不當使用.
+          
+            檔案: /Program.cs
+              app.MapControllerRoute(
+              name: "default",
+              pattern: "{controller=Home}/{action=Index}/{id?}"); //<==規則在這
+
+            檔案: /Controllers/MoviesController.cs
+              // GET: Movies/Details/5
+              public async Task<IActionResult> Details(int? id) //<==方法在這, 網址: Movies/Details/5
+              {
+                  if (id == null || _context.Movie == null) //(1)先判斷傳入的ID是否為空值(NULL), 若為空值, 要丟給 NotFound() 頁面.
+                  {
+                      return NotFound();
+                  }
+
+                  var movie = await _context.Movie
+                      .FirstOrDefaultAsync(m => m.Id == id);
+                  if (movie == null) //(2)再判斷ID值是否有對應的object, 若為空值, 也要丟給 NotFound() 頁面.
+                  {
+                      return NotFound();
+                  }
+
+                  return View(movie);
+              }
+
+        3. 再來看 // Get: Movies/Delete/5 "Delete" & // Post: Movies/Delete/5 "DeleteConfirmed" 這兩個方法.
+          檔案: Controllers/MoviesController.cs
+
+          a. // Get: Movies/Delete/5 Delete, 它只有抓值顯示, 未實際刪除資料
+          b. // Post: Movies/Delete/5 DeleteConfirmed, 它才是實際刪除資料的方法.
+
+            // GET: Movies/Delete/5, 它只有抓值顯示, 未實際刪除資料
+            public async Task<IActionResult> Delete(int? id)
+            {
+                if (id == null)
+                {
+                    return NotFound();
+                }
+
+                var movie = await _context.Movie
+                    .FirstOrDefaultAsync(m => m.Id == id);
+                if (movie == null)
+                {
+                    return NotFound();
+                }
+
+                return View(movie);
+            }
+
+            // 防止 XSRF 跨站請求偽造攻擊, 加上這個 [ValidateAntiForgeryToken] 後, 會產生隱藏token, 比對回傳網頁token和Controller是否一致.
+            // POST: Movies/Delete/5, 它才是實際刪除資料的方法.
+            [HttpPost, ActionName("Delete")]
+            [ValidateAntiForgeryToken] 
+            public async Task<IActionResult> DeleteConfirmed(int id)
+            {
+                var movie = await _context.Movie.FindAsync(id);
+                _context.Movie.Remove(movie);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+        4. 如何在 Controller 重載方法(Action), 1個給GET使用, 另1個給POST使用
+
+          a. 方法1:
+            // Get
+            public async Task<IActionResult> Delete(int? id)
+
+            // Post
+            [HttpPost, ActionName("Delete")]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> DeleteConfirmed(int id)
+
+          b. 方法2:
+            // Get
+            public async Task<IActionResult> Delete(int? id)
+
+            // Post
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Delete(int id, bool notUsed)
+
+    ASP.NET Core MVC 概觀 (MVC > Overview) (2021/07/08)
+    https://docs.microsoft.com/en-us/aspnet/core/mvc/overview?view=aspnetcore-5.0
+      > 什麼是MVC模式?
+        1. M = Model(模型), V = View(檢視), C = Controller(控制器).
+        2. 關注點分離(SOC)是拆分為MVC的優點之一.
+        3. View & Controller都相依於Model, 
+            但Model不相依於View or Controller, 這是分離的主要優點之一.
+
+        > Model職責
+          1. 保存應用程式狀態, 商務邏輯或作業.
+          2. 商務邏輯應與保存應用程式狀態的實作邏輯, 一起封裝在模型中.
+          3. 強型別檢視 常會使用 {ViewModel類型}, 目於在於包含要在檢視上顯示的資料.
+          4. Controller 會從 Model 建立, 並填入這些 ViewModel類型 執行個體.
+          
+        > View職責
+          1. 檢視會負責透過使用者介面展示內容。
+          2. 它們使用 Razor view engine將 .net 程式碼內嵌在 HTML 標籤中。 
+          3. 檢視內應該有基本邏輯，而且 {其中的任何邏輯都應該與展示內容相關}。 
+          4. 如果您需要在檢視檔案中執行大量邏輯以便顯示複雜模型中的資料，
+              請考慮使用 {檢視元件、ViewModel 或檢視範本} 來簡化檢視。
+
+        > Controller職責
+          1. 控制器是處理使用者互動、使用模型，並在最終選取要呈現之檢視的元件。 
+          2. 在 MVC 應用程式中，檢視只會顯示資訊，而控制器則會處理及回應使用者輸入和互動。 
+          3. 在 MVC 模式中，控制器是初始進入點，負責選取要使用的模型類型及要呈現的檢視 
+              (如其名稱所指，它會控制應用程式回應指定要求的方式)。
+          
+          !! Notice !!: Controller不應該太過複雜, 如有太多商務邏輯請移至 {領域模型} 中.
+          !! Notice !!: Controller經常執行相同動作類型時, 請將常用動作移至 {篩選} 中.
+        
+      > 什麼是 ASP.NET Core MVC
+        1. 它是一個架構, 輕量型, 開放原始碼及可高度測試的架構.
+        2. 可建立動態網站, 套用SOC. 可掌握HTML標記, 適合TDD開發, 並使用最新網站標準.
+
+      > 功能
+        > 路由
+          1. 以 {慣例為基礎的路由}, 可定義全域AP能接受的URL格式, 及這些URL格式如何對應至指定控制器的特定動作方法.
+            routes.MapRoute(name: "Default", template: "{controller=Home}/{action=Index}/{id?}");
+          2. {屬性路由}, 指定路由屬性, 來裝飾這些控制器及動作方法.
+            [Route("api/[controller]")]
+            public class ProductsController : Controller
+            {
+                [HttpGet("{id}")]
+                public IActionResult GetProduct(int id)
+                {
+                  ...
+                }
+            }
+        
+        > 模型繫結
+          1. 自動將用戶端REQUEST資料, 轉換為Controller可處理的物件.
+          2. Controller不必管資料內容, 它只會將資料當作動作方式的參數.
+
+            public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null) { ... }
+
+            // https://localhost:5001/Helloworld/welcome?name=KL&numTimes=25
+            // 控制器會自動對應 "網址參數(?後面的值)".
+            public string Welcome(string name = "Jack", int numTimes = 1)
+
+            // https://localhost:5001/helloworld/welcome/50?name=Leo&age=25
+            // 控制器也會自動對應 "Routing URL", 
+            // 參考路由定義, routes.MapRoute(name: "Default", template: "{controller=Home}/{action=Index}/{id?}");
+            // id?, 有個?表示它是選項欄位.
+            public string Welcome(string name = "Judy", int ID = 1, int age = 28)
+
+        > 模型驗證
+          1. 指定資料註解{驗證屬性}, 來裝飾這些模型物件.
+          2. 用戶端先檢查, 伺服器端再檢查, 最後再呼叫控制器動作.
+
+            // 指定資料註解{驗證屬性}, 來裝飾這些模型物件.
+            using System.ComponentModel.DataAnnotations;
+            public class LoginViewModel
+            {
+                [Required]
+                [EmailAddress]
+                public string Email { get; set; }
+
+                [Required]
+                [DataType(DataType.Password)]
+                public string Password { get; set; }
+
+                [Display(Name = "Remember me?")]
+                public bool RememberMe { get; set; }
+            }
+
+            // 控制器動作
+            public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+            {
+                if (ModelState.IsValid)
+                {
+                  // work with the model
+                }
+                // At this point, something failed, redisplay form
+                return View(model);
+            }
+
+        > 相依性插入
+          1. 方式1: 在控制器中, 利用建構函式要求所需的服務.
+          2. 方式2: 在檢視中, 利用 @inject 指示詞 使用所需的服務.
+
+            @inject SomeService ServiceName
+
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <title>@ServiceName.GetTitle</title>
+            </head>
+            <body>
+                <h1>@ServiceName.GetTitle</h1>
+            </body>
+            </html>
+
+        > 篩選器
+          1. 時機: 常用於{例外狀況處理}或{授權}.
+          2. 功能: 篩選可執行動作方法的自訂處理前後邏輯，並可設定為在指定要求之執行管線內的特定時間點執行。
+          3. 套用: 把篩選作為屬性套用於控制器、動作或全域執行.
+
+            [Authorize]
+            public class AccountController : Controller
+
+        > 區域
+          1. 時機: 大型電子商務應用程式, 可區分為多個BU, 例: 結帳、帳單、商品查詢等不同功能別.
+          2. 功能: 將程式拆解為 個別自行運作的單元模組, 每個單元模組擁有各自的MVC架構.
+
+        > Web API
+          1. ASP.NET Core MVC 支援Web API.
+          2. 支援 格式化資料 JSON OR XML.
+          3. 支援 跨原始來源資源共用 (CORS).
+
+        > 可測試性
+          1. ASP.NET Core MVC 使用 相依性插入(DI)概念, 服務適合於單元測試.
+          2. 例: 利用Entiry Framework 的 TestHost & InMemory, 進入整合測試.
+        
+        > Razor 查看引擎
+          1. 簡單來說, 就是View裡面使用 內嵌C#程式碼, 再由Razor動態產生前端HTML內容.
+
+            <ul>
+                @for (int i = 0; i < 5; i++) {
+                    <li>List item @i</li>
+                }
+            </ul>
+
+        > 強型別檢視(View)
+          0. 檢視內不應該 (1)執行商業邏輯, (2)與資料庫直接互動.
+          0. 檢視內應該 (3)只使用控制器提供的資料, 以維持 Clean & Testable & Maintainable.
+          1. Razor MVC 中的 views 可以根據您的模型以強型別為基礎。
+          2. 控制器(Controller)可以將強型別模型(ViewModel)傳遞至檢視.
+          2. !! (註: 首選作法, 使用 ViewModel傳資料給View, 而非使用 ViewData 集合來傳)
+          3. 控制器(Controller)內的動作方法, 等同於檢視(View)檔案名稱.
+
+            @model IEnumerable<Product>
+            <ul>
+                @foreach (Product p in Model)
+                {
+                    <li>@p.Name</li>
+                }
+            </ul>
+
+            // 例:return View(); 結果會傳給 Index.cshtml 檢視檔案作處理.
+            public class HelloWorldController: Controller
+            {
+                public IActionResult Index()
+                {
+                  return View();
+                }
+            }
+
+        > HTML標籤協助程式
+          1. 自訂HTML標籤內屬性(例:<environment>), 或變更現有HTML標籤行為(例:<label>)
+          
+            <!--例1: EnvironmentTagHelper 可根據執行階段環境 (例如開發、預備或生產)，將不同的指令碼加入檢視-->
+            <environment names="Development">
+                <script src="~/lib/jquery/dist/jquery.js"></script>
+            </environment>
+            <environment names="Staging,Production">
+                <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.1.4.min.js"
+                        asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                        asp-fallback-test="window.jQuery">
+                </script>
+            </environment>
+            
+            <!--例2: 變更現有HTML標籤行為, 點選下方的LINK, 它會導向 Account Controller 內的 Login Action -->
+            <p>
+                Thank you for confirming your email.
+                Please <a asp-controller="Account" asp-action="Login">Click here to Log in</a>.
+            </p>
+
+        > 檢視元件
+          1. 類似自訂控制項/部分檢視, 可在整個AP中重複使用.
+          2. 將可共用的邏輯加以封裝
+
+        > 區分環境別 by Startup.cs (for ASP.NET CORE MVC 架構)
+          * 完整範例程式
+            public Startup(IConfiguration configuration, IWebHostEnvironment env)
+            {
+                Environment = env;
+                Configuration = configuration;
+            }
+            public IConfiguration Configuration {get;}
+            private IWebHostEnvironment Environment {get;}
+            public void ConfigureServices(IServiceCollection services)
+            {
+                services.AddControllersWithViews();
+                services.AddDbContext<JobsContext>(options =>
+                {
+                    var connectionString = Configuration.GetConnectionString("JobsContext");
+                    if (Environment.IsDevelopment() || Environment.IsStaging())
+                    {
+                        Console.WriteLine(Environment.EnvironmentName);
+                        Console.WriteLine("Now is IsDevelopment or IsStaging");
+                        //connectionString = Configuration.GetConnectionString("JobsContext-Dev"); //重點在這裡.
+                        options.UseSqlite(connectionString);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Not dev or staging env.");
+                        options.UseSqlServer(connectionString);
+                    }
+                });            
+            }
+
+            // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            public void Configure(IApplicationBuilder app)
+            {
+                if (Environment.IsDevelopment())
+                {
+                    app.UseDeveloperExceptionPage();
+                }
+                else
+                {
+                    app.UseExceptionHandler("/Home/Error");
+                    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                    app.UseHsts();
+                }
+                app.UseHttpsRedirection();
+                app.UseStaticFiles();
+
+                app.UseRouting();
+
+                app.UseAuthorization();
+
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllerRoute(
+                        name: "default",
+                        pattern: "{controller=Home}/{action=Index}/{id?}");
+                });
+            }
+        
+      > 安裝ORM套件(EntityFrameworkCore)
+          dotnet tool install --global dotnet-ef
+          dotnet tool install --global dotnet-aspnet-codegenerator
+          dotnet add package Microsoft.EntityFrameworkCore.Design
+          dotnet add package Microsoft.EntityFrameworkCore.SQLite
+          dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
+          dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+
+      > {新增Model後}, 產生對應的Controller & View (ORM套件要先裝, 不然程式碼生不出來)
+          dotnet-aspnet-codegenerator controller 
+          -name JobsController 
+          -m Jobs 
+          -dc JobsContext 
+          --relativeFolderPath Controllers 
+          --useDefaultLayout 
+          --referenceScriptLibraries
+      
+      > 測試用SQLite, 上線用SqlServer by Startup.cs
+
+      > 接下來, 資料庫初始移轉(inital migration), 依據 JobsContext 所產生.
+
+          dotnet ef migrations add InitialCreate
+          dotnet ef database update
+          dotnet ef database update -- --environment Development
+          dotnet ef database update -- --environment Production
+
+          問題:
+            執行 "dotnet ef database update"後, 出現下列錯誤. 
+            Connection string keyword 'server' is not supported. For a possible alternative, see https://go.microsoft.com/fwlink/?linkid=2142181.
+
+          原因: 
+            1. EF自動產生的是SQL Server用連接字串,不支援SQLite[測試環境我把它設為讀取SQLite,正式環境讀取SQL Server],所以會
+            2. {C:\Users\syscc\Documents\Visual Studio Code\Projects\MvcMovie\appsettings.json}
+            3. "JobsContext": "Server=(localdb)\\mssqllocaldb;Database=JobsContext-0d04fe32-b4eb-47cb-a886-0161e3b643af;Trusted_Connection=True;MultipleActiveResultSets=true"
+
+          解決辦法: 
+            1. 新增SQLite用連接字串. @appsettings.json => 
+                "JobsContext-Dev": "Data Source=MvcJob.db"
+            2. 測試環境讀取SQLite用連接字串字串即可. @Startup.cs => 
+                public void ConfigureServices(IServiceCollection services)
+                {
+                    services.AddControllersWithViews();
+                    services.AddDbContext<JobsContext>(options =>
+                    {
+                        var connectionString = Configuration.GetConnectionString("JobsContext");
+                        if (Environment.IsDevelopment() || Environment.IsStaging())
+                        {
+                            Console.WriteLine(Environment.EnvironmentName);
+                            Console.WriteLine("Now is IsDevelopment or IsStaging");
+                            connectionString = Configuration.GetConnectionString("JobsContext-Dev"); //重點在這裡.
+                            options.UseSqlite(connectionString);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Not dev or staging env.");
+                            options.UseSqlServer(connectionString);
+                        }
+                    });            
+                }
+
+      > 相容性版本
+          1. {SetCompatibilityVersion} 方法可讓應用程式加入或退出 ASP.NET Core MVC 2.1 或更新版本所引入的可能重大行為變更。
+
+      > 其他資源
+
+    ASP.NET Core MVC with EF Core (加強資料庫工具應用.) => ProjectName: ILanUniversity (2021/07/13)
+    https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/?view=aspnetcore-5.0
+
+      1. Create web app
+        ProjectName : ILanUniversity
+        dotnet new mvc //指令: 新增MVC架構網站(MVC)
+        dotnet dev-certs https --trust //指令: 信任測試環境簽章(https用)
+        
+        2021/07/09
+        TODO: 如果要使用登入驗證功能，請參考下列使用說明。
+        不然，加入SchoolContext後，在產生DB時會出錯。
+        因為，登入驗證功能用的ApplicationContext，也會產生DB。
+        https://docs.microsoft.com/zh-tw/aspnet/core/security/authentication/identity?view=aspnetcore-5.0&tabs=visual-studio
+
+      2021/07/09
+        找到原因：要遷移後，資料庫才會產生。 
+        EF 支援下列模型開發方法：
+        從現有的資料庫產生模型。
+        將模型手動編寫成符合資料庫的程式碼。
+        建立模型之後，請使用 EF 遷移 從模型建立資料庫。 當模型變更時，遷移可讓資料庫演進。
+
+      2. Set up the site style (調整網站風格, 修改名稱, 新增選單...)
+        * 調整首頁 Views > Home > Index.cshtml
+        * 調整共用版面 Views > Shared > _Layout.cshtml
+
+      3. 安裝ORM套件(EntityFrameworkCore)
+          dotnet tool install --global dotnet-ef
+          dotnet tool install --global dotnet-aspnet-codegenerator
+          dotnet add package Microsoft.EntityFrameworkCore.Design
+          dotnet add package Microsoft.EntityFrameworkCore.SQLite
+          dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+          
+          // 自動產生程式碼範本用
+          dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
+          
+          // 協助偵測及診斷EF Core Migration(移轉)的問題
+          dotnet add package Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore
+      
+      4. 新增 Data Model
+        * Three Table(Course, Enrollment, Student), 新增3個Entity
+          > 1名 Student, 可選多堂課(Enrollment)
+          > 1堂 Course, 可被多名學生選取(Enrollment)
+        * 若使用 ICollection<T>建立關聯, EFCore 預設會新增 HashSet<T>
+        
+        * Models.Student.cs
+          
+          using System;
+          using System.Collection.Generic;
+          namespace ILanUniversity.Models
+          {
+            public class Student
+            {
+              // EFCore會視為PK, 使用自動遞增
+              public int ID {get;set;}
+              public string LastName {get;set;}
+              public string FirstName {get;set;}
+              // 範例怪怪的, 選課時間放在學生實體內??
+              public DateTime EnrollmentDate {get;set;}
+
+              // Navigation Properties(關聯實體)
+              public ICollection<Enrollment> Enrollments {get;set;}
+            }
+          }
+
+        * Models.Enrollment.cs
+
+          using System;
+          namespace ILanUniversity.Models
+          {
+            public enum Grade
+            {
+              A, B, C, D, F
+            }
+
+            public class Enrollment
+            {
+              // EFCore會視為PK, 使用自動遞增
+              public int EnrollmentID {get;set;}
+              public int CourseID {get;set;}
+              public int StudentID {get;set;}
+              public Grade? Grade {get;set;}
+
+              // Navigation Properties(關聯實體)
+              public Course Course {get;set;}
+              public Student Student {get;set;}
+
+            }
+          }
+        * Models.Course.cs
+
+          using System;
+          using System.Collections.Generic;
+          using System.ComponentModel.DataAnnotations.Schema;
+          namespace ILanUniversity.Models
+          {
+            public class Course
+            {
+              // 指定使用 CourseID 為PK, 而非使用 EFCore 自動產生的
+              // 不會套用自動遞增設定.
+              [DatabaseGenerated(DatabaseGeneratedOption.None)]
+              public int CourseID {get;set;}
+              public string Title {get;set;}
+              public int Credits {get;set;}
+
+              // Navigation Properties
+              public ICollection<Enrollment> Enrollments {get;set;}
+            }
+          }
+
+      5. 新增 Database Context
+        * DbContext 是 EFCore內最主要的類別, 決定使用哪些 Data Model.
+        * 須繼承自 Microsoft.EntityFrameworkCore.DbContext 類別.
+        * 1個 entity DbSet 會對應 1個 Table
+        * 1個 entity 會對應 1筆 Row
+        * EFCore新增DB時, 預設以 {DbSet名稱} 作為 {資料表名稱}
+                        , 亦可使用 {程式員指定名稱} 詳下例:
+
+        * Data.SchoolContext.cs
+
+          using ILanUniversity.Models;
+          using Microsoft.EntityFrameworkCore;
+          namespace ILanUniversity.Data
+          {
+            public class SchoolContext: DbContext
+            {
+              // : base(options), 這一段不要漏掉了.
+              public SchoolContext(DbContextOptions<SchoolContext> options): base(options)
+              {
+              }
+
+              public DbSet<Student> Students {get;set;}
+              public DbSet<Course> Courses {get;set;}
+              public DbSet<Enrollment> Enrollments {get;set;}
+
+              // 不用DbSet名稱作為TableName(預設), 例: Table Students, Courses 有些程式員無法接受.
+              // 改以指定名稱新增
+              protected override void OnModelCreating(ModelBuilder modelBuilder)
+              {
+                modelBuilder.Entity<Student>().ToTable("Student");
+                modelBuilder.Entity<Course>().ToTable("Course");
+                modelBuilder.Entity<Enrollment>().ToTable("Enrollment");
+              }
+            }
+          }
+
+      6. 註冊Database服務
+        * .NET Core 使用 DI(依賴性注入), 所以 EFCore Database Context 也要註冊後才能使用.
+        * 去哪註冊服務?
+          > Startup.cs -> ConfigureServices 方法
+
+        * 範例: Startup.cs
+
+          using ILanUniversity.Data; //放DbContext的地方
+          using Microsoft.EntityFrameworkCore; //連接資料庫用套件
+
+          namespace ILanUniversity
+          {
+            public class Startup
+            {
+              ...
+              public void ConfigureServices(IServiceCollection services)
+              {
+                if (env.IsDevelopment())
+                {
+                  // 連接SQLite
+                  services.AddDbContext<SchoolContext>(options => 
+                  options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+                }
+                else
+                {
+                  // 連接SQL Server
+                services.AddDbContext<SchoolContext>(options => 
+                  options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                }            
+              }
+
+              // 新增資料庫例外篩選器(Add the database exception filter)
+              services.AddDatabaseDeveloperPageExceptionFilter();
+
+              services.AddControllersWithViews();
+            }
+          }
+
+      7. 新增資料庫例外篩選器(Add the database exception filter)
+        * 在開發環境下, 可提供有用的錯誤資訊.
+        * 同樣在 > Startup.cs -> ConfigureServices 方法內註冊
+        * 範例: 詳上列程式碼
+
+      8. (正式環境) 新增初始移轉 + 匯出SQL Scripts
+        dotnet ef migrations add InitialCreate //新增初始移轉 by DbContext
+        dotnet ef migrations script //匯出SQL Scripts by Latest Migration
+        dotnet ef migrations script --output SqlScripts\InitialCreate.sql //匯出至指定資料夾
+
+        !! 注意 !! SQL Scripts匯出後, 要改寫才能用在SQL Server
+          1. 資料表存在否, 語法改寫
+              IF OBJECT_ID('__EFMigrationsHistory', 'U') IS NOT NULL
+              DROP TABLE __EFMigrationsHistory
+              GO
+          2. 自動遞增欄位, 語法改寫為 IDENTITY(1,1), 不能用 AUTOINCREMENT
+          3. 拿掉所有的 "", 除了新增值或異動值外
+              (X)CREATE INDEX "IX_Enrollment_StudentID" ON "Enrollment" ("StudentID");
+              (O)CREATE INDEX IX_Enrollment_StudentID ON Enrollment (StudentID);
+
+              (O)INSERT INTO __EFMigrationsHistory (MigrationId, ProductVersion)
+              VALUES ('20210713014457_InitialCreate', '5.0.7');
+          
+        dotnet ef database update //產生資料庫(測試環境用)
+
+      8. (測試環境)資料庫初始化 + 測試資料 (Initialize DB with test data)
+        * 撰寫新增初始化資料類別
+        * Data.DbInitializer.cs
+
+          using ILanUniversity.Models;
+          using System;
+          using System.Linq;
+
+          namespace ILanUniversity.Data
+          {
+            public static class DbInitializer
+            {
+              public static void Initialize(SchoolContext context)
+              {
+                // 每次都會刪除資料庫再重新建立, 僅適用於<測試階段>
+                context.Database.EnsureCreated();
+
+                // Look for any students.
+                if (context.Students.Any())
+                {
+                  return; // DB has been seeded.
+                }
+
+                var students = new Student[]
+                {
+                new Student{FirstMidName="Carson",LastName="Alexander",EnrollmentDate=DateTime.Parse("2005-09-01")},
+                new Student{FirstMidName="Meredith",LastName="Alonso",EnrollmentDate=DateTime.Parse("2002-09-01")},
+                new Student{FirstMidName="Arturo",LastName="Anand",EnrollmentDate=DateTime.Parse("2003-09-01")},
+                new Student{FirstMidName="Gytis",LastName="Barzdukas",EnrollmentDate=DateTime.Parse("2002-09-01")},
+                new Student{FirstMidName="Yan",LastName="Li",EnrollmentDate=DateTime.Parse("2002-09-01")},
+                new Student{FirstMidName="Peggy",LastName="Justice",EnrollmentDate=DateTime.Parse("2001-09-01")},
+                new Student{FirstMidName="Laura",LastName="Norman",EnrollmentDate=DateTime.Parse("2003-09-01")},
+                new Student{FirstMidName="Nino",LastName="Olivetto",EnrollmentDate=DateTime.Parse("2005-09-01")}
+                };
+                foreach (Student s in students)
+                {
+                    context.Students.Add(s);
+                }
+                context.SaveChanges();
+
+                var courses = new Course[]
+                {
+                new Course{CourseID=1050,Title="Chemistry",Credits=3},
+                new Course{CourseID=4022,Title="Microeconomics",Credits=3},
+                new Course{CourseID=4041,Title="Macroeconomics",Credits=3},
+                new Course{CourseID=1045,Title="Calculus",Credits=4},
+                new Course{CourseID=3141,Title="Trigonometry",Credits=4},
+                new Course{CourseID=2021,Title="Composition",Credits=3},
+                new Course{CourseID=2042,Title="Literature",Credits=4}
+                };
+                foreach (Course c in courses)
+                {
+                    context.Courses.Add(c);
+                }
+                context.SaveChanges();
+
+                var enrollments = new Enrollment[]
+                {
+                new Enrollment{StudentID=1,CourseID=1050,Grade=Grade.A},
+                new Enrollment{StudentID=1,CourseID=4022,Grade=Grade.C},
+                new Enrollment{StudentID=1,CourseID=4041,Grade=Grade.B},
+                new Enrollment{StudentID=2,CourseID=1045,Grade=Grade.B},
+                new Enrollment{StudentID=2,CourseID=3141,Grade=Grade.F},
+                new Enrollment{StudentID=2,CourseID=2021,Grade=Grade.F},
+                new Enrollment{StudentID=3,CourseID=1050},
+                new Enrollment{StudentID=4,CourseID=1050},
+                new Enrollment{StudentID=4,CourseID=4022,Grade=Grade.F},
+                new Enrollment{StudentID=5,CourseID=4041,Grade=Grade.C},
+                new Enrollment{StudentID=6,CourseID=1045},
+                new Enrollment{StudentID=7,CourseID=3141,Grade=Grade.A},
+                };
+                foreach (Enrollment e in enrollments)
+                {
+                    context.Enrollments.Add(e);
+                }
+                context.SaveChanges();
+
+              }
+            }
+          }
+
+        * 程式啟動前, {新增初始資料}
+        * 更新 Program.cs
+
+          using ILanUniversity.Data;
+          using Microsoft.Extensions.DependencyInjection;
+          ...
+
+          namespace ILanUniversity
+          {
+            public class Program
+            {
+              public static void Main(string[] args)
+              {
+                var host = CreateHostBuilder(args).Build();
+                CreateDbIfNotExists(host);
+                host.Run();
+              }
+
+              private static void CreateDbIfNotExists(IHost host)
+              {
+                using (var scope = host.Services.CreateScope())
+                {
+                  var services = scope.ServiceProvider;
+                  try
+                  {
+                    // Get a database context instance from the dependency injection container.
+                    var context = services.GetRequiredService<SchoolContext>();
+                    
+                    // Call the DbInitializer.Initialize method.
+                    DbInitializer.Initialize(context);
+                  }
+                  catch (Exception ex)
+                  {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occured during creating the DB.");
+                  }
+
+                  // Dispose the context when the Initialize method completes
+                }
+              }
+
+              public static IHostBuilder CreateHostBuilder(string[] args) => ...
+            }
+          }
+
+        * 上述方法, 可在APP首次執行時使用, 新增DB, 塞入Test Data.
+        * 但是當{data model變更}時, 則須 (1)刪除DB (2)更新DataSeed函式 (3)新增DB (4)Insert into Test Data.
+
+        !! 之後會說明當 {data model變更} 時, 毋須 {刪除DB & 新增DB} 的方法, 使用 {移轉Migrations from DbContext} !!
+
+      9. {新增Model後}, 自動產生對應的Controller & View 
+        * ORM套件要先裝, 不然程式碼生不出來.
+        * Model已撰寫完成.
+        * 利用 dotnet-aspnet-codegenerator 工具產生程式碼
+        * 官方說明: https://docs.microsoft.com/zh-tw/aspnet/core/fundamentals/tools/dotnet-aspnet-codegenerator?view=aspnetcore-5.0
+    
+        * 先前範例
+          dotnet-aspnet-codegenerator controller // 指定產生控制器
+          -name JobsController             // 控制器名稱
+          -m Jobs                          // 要使用的模型類別
+          -dc JobsContext                  // DbContext要使用的類別 or 要產生的類別名稱
+          --relativeFolderPath Controllers //指定相對輸出檔案夾路徑
+          --useDefaultLayout               //針對檢視使用預設的配置
+          --referenceScriptLibraries       //所產生檢視中的參考指令碼程式庫
+      
+        * 本專案指令(for Student, Course, Enrollment三個Model)
+          dotnet-aspnet-codegenerator controller
+          -name StudentsController
+          -m Student
+          -dc SchoolContext
+          --relativeFolderPath Controllers
+          --useDefaultLayout      
+          --referenceScriptLibraries
+
+          dotnet-aspnet-codegenerator controller -name CoursesController -m Course -dc SchoolContext --relativeFolderPath Controllers --useDefaultLayout --referenceScriptLibraries
+
+          dotnet-aspnet-codegenerator controller -name EnrollmentsController -m Enrollment -dc SchoolContext --relativeFolderPath Controllers --useDefaultLayout --referenceScriptLibraries
+
+      10. 檢視資料庫
+        * 資料庫自動產生, 乃依據 Data.DbInitializer.cs
+        * 因為使用了 context.Database.EnsureCreated(); // 每次都會刪除資料庫, 僅適用於<測試階段>
+          如果Model屬性異動時, 例: Student須多記錄 Email
+          > 類別Student 新增屬性Email
+          > 刪除資料庫
+          > 停止再啟動APP. 資料庫將重新產生
+        
+        !! 注意, 資料庫重新產生後, 檢視並不會同步更新, 因為工具不同(dotnet-aspnet-codegenerator). !!
+
+      11. 慣例(Conventions)
+        * DbContext 的 DbSet 名稱 = 資料表名稱; 
+        * DbContext 的 Entity 未被 DbSet 參考時, Entity名稱 = Table Name
+        * Entity Property名稱 = Column Name
+        * Entity Property名稱 = ID or classnameID時, 將被視為PK
+        * Model 內有 navigation property 將被視為FK, 
+          FK命名規則1: <navigation property name><PK property name>, 
+            例如: navigation property = Student, PK property = ID => FK Name = StudentID
+          FK命名規則2: <primary key property name>, 
+            例如: Enrollment entity的 PK = EnrollmentID
+        
+        !! 注意, 上述慣例可被推翻/覆寫, 例如: 指定資料表名稱, 指定PK或FK !!
+
+      12. 非同步指令碼(aysnchronous code)
+        * Asynchronous programming is the default mode for ASP.NET Core and EF Core.
+        * 非同步指令碼 可解決因等待I/O完成, 造成執行緒無法充份利用的問題.
+        * 非同步指令碼 有成本, 但對於效能改善有實質幫助.
+
+        * 關鍵詞 async, Task<T>, await, ToListAsync 讓程式碼變得非同步.
+          public async Task<IActionResult> Index()
+          {
+            return View(await _context.Students.ToListAsync());
+          }
+        
+        * 實作原理
+          The async keyword tells the compiler to generate callbacks for parts of the method body and to automatically create the Task<IActionResult> object that's returned.
+          The return type Task<IActionResult> represents ongoing work with a result of type IActionResult.
+          The await keyword causes the compiler to split the method into two parts. The first part ends with the operation that's started asynchronously. The second part is put into a callback method that's called when the operation completes.
+          ToListAsync is the asynchronous version of the ToList extension method.
+
+        !! 注意事項: 使用 非同步指令碼(aysnchronous code)時 !!
+          # 只在{送至資料庫的查詢或指令}上執行非同步.
+            正例(須非同步): ToListAsync(取列表), SingleOrDefaultAsync(取第1個值), SaveChangesAsync(儲存)
+            反例(不要使用非同步): 單純篩選IQueryable, 例: var students = context.Students.Where(s => s.LastName == "David");
+
+          # EF Context 非執行緒安全, 不要試著平行執行多個作業.
+            使用任何 async EFCore 方法, 都要加上 await 關鍵字.
+
+            public async Task<IActionResult> Index()
+            {
+              // 記得加上 await, 在使用async EFCore 方法時 (ToListAsync())
+              return View(await _context.Students.ToListAsync());
+            }
+
+          # 確定所有 library package 也使用 async
+
+      13. Limit entities fetched(效能考量)
+        * 通常會利用分頁或限制回傳筆數上限, 不會開放隨意筆數回傳.
+        * 存取大張資料表時, 可回傳HTTP 200(成功)作為回應, 儘管資料庫存取時出現例外.
+        * MaxModelBindingCollectionSize 預設值 = 1024筆, 下列程式碼將值重設為 100
+        * Startup.cs
+          using Microsoft.AspNetCore.Mvc; //這個要加, For MvcOptions
+          public void ConfigureServices(IServiceCollection services)
+          {
+            var myMaxModelBindingCollectionSize = Convert.ToInt32(
+              Configuration["MyMaxModelBindingCollectionSize"] ?? "100");
+            services.Configure<MvcOptions>(options => 
+              options.MaxModelBindingCollectionSize = myMaxModelBindingCollectionSize);        
+            ...
+          }
+        
+        * Configuration["MyMaxModelBindingCollectionSize"]的值去哪抓?
+          設定位置: appsetting.{Environment}.json
+            {
+              "ConnectionStrings": {
+                "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=MyDB-2;Trusted_Connection=True;MultipleActiveResultSets=true"
+              },
+              "MyMaxModelBindingCollectionSize":"50",
+              "AllowedHosts": "*"
+            }
+
+      14. SQL Logging of EntityFrameworkCore
+        * Logging設定通常由 appsetting.{Environment}.json 檔案提供.
+        * 如果要記錄 SQL 指令, 請在檔案內 appsettings.json or appsetting.Development.json
+          加入以下設定 "Microsoft.EntityFrameworkCore.Database.Command": "Information"
+        * appsetting.Development.json 設定範例
+          { 
+            "Logging": {
+              "LogLevel": {
+                "Default": "Information",
+                "Microsoft": "Warning",
+                "Microsoft.Hosting.Lifetime": "Information",
+                // 增加下1行, SQL Command 會顯示在 Terminal內.
+                "Microsoft.EntityFrameworkCore.Database.Command": "Information"
+              }
+            },
+            "AllowedHosts": "*"
+          }      
+
+    Entity Framework Core(資料庫工具) => ProjectName: EFGetStarted (2021/07/12)
+    https://docs.microsoft.com/en-us/ef/core/get-started/overview/first-app?tabs=netcore-cli
+
+      {基本觀念}
+        新增專案
+          dotnet new console -o <ProjectName>
+        
+        安裝套件至專案中(存取Sqlite)
+          dotnet add package Microsoft.EntityFrameworkCore.Sqlite
+
+        新增模型(Model)
+          1. 主類別 : DbContext; 繼承至 DbContext
+          2. 資料實體類別, 描述實體屬性及與其他實體間的關係; 例: Student, Course
+
+        新增資料庫(利用migrations移轉來新增DB)
+          dotnet tool install --global dotnet-ef //安裝共用工具(dotnet-ef)
+          dotnet add package Microsoft.EntityFrameworkCore.Design //安裝套件至專案中(自動產生移轉程式碼用)
+          dotnet ef migrations add InitialCreate //產生初始移轉
+          dotnet ef database update //依據最近1次移轉, 產生資料庫DB
+
+        利用【主類別 : DbContext】作資料庫異動(CRUD)
+          using (var db = new BloggingContext())
+          {
+            //Create
+            db.Add(new Blog{...});
+            db.SaveChanges();
+
+            //Read(讀取1筆)
+            var blog = db.Blogs.Order.OrderBy(b=>b.BlogId).First();
+
+            //Update
+            blog.Url = "https://www.ilan.gov.tw";
+            blog.Posts.Add(new Post{ Title="測試", Content="一篇測試文章" }); //新增實體相關子實體項目
+            db.SaveChanges(); //儲存變更
+
+            //Delete
+            db.Remove(blog); //刪除取出來的Blog實體
+            db.SaveChanges(); //儲存變更
+          }
+
+      {資料實體屬性細節設定} https://docs.microsoft.com/en-us/ef/core/modeling/
+        * 實體屬性無設定時, 會依慣例.
+        * 兩種方式可設定實體屬性, 適用優先性(左至右, 由高至低) Fluent API > data annotation(資料註釋) > Conventions(慣例)
+
+          > Fluent API
+            * 在你繼承產生的DB主類別中, OnModelCreating 方法內設定
+              protected override void OnModelCreating(ModelBuilder modelBuilder)
+              {
+                modelBuilder.Entity<Blog>()
+                  .Property(b=>b.Url)
+                  .IsRequired();
+
+                modelBuilder.Entity<Blog>()
+                  .Property(b=> b.Comments)
+                  .HasMaxLength(500);
+
+                modelBuilder.Entity<Blog>()
+                  .Property(b => b.Title)
+                  .IsRequired()
+                  .HasMaxLength(160);
+              }
+            
+            * 若你想簡化 OnModelCreating 方法的程式碼長度, 可利用 Grouping configuration, 將設定獨立為類別檔再引用.
+              https://docs.microsoft.com/en-us/ef/core/modeling/#grouping-configuration
+
+          > data annotation(資料註釋)
+            * 在資料實體上, 加上註釋
+              using System.ComponentModel.DataAnnotations;
+              public class Blog
+              {
+                public int BlogId{get;set;}
+
+                [Required] //加上註釋, 必填欄位
+                public string Url{get;set;}
+
+                [Required]
+                [MaxLength(500) , MinLength(5)] //多條件限制
+                public string Comments {get;set;}
+
+                [Required]
+                [StringLength(160)]
+                public string Title {get;set;}
+              }
+
+      {利用Migrations移轉, 更新Table Schema, 在資料實體改變後}
+        * 初版實體
+          public class Blog
+          {
+            public int Id {get;set;}
+            public string name {get;set;}
+          }
+
+        * 安裝共用工具(dotnet-ef)
+          dotnet tool install --global dotnet-ef //安裝共用工具(dotnet-ef)
+
+        * 產生初版移轉(預設放在Migrations資料夾內)
+          dotnet ef migrations add InitialCreate
+
+        * (測試環境) 產生資料庫及綱要
+          dotnet ef database update //套用最新版migrations, 產生資料庫及綱要
+          dotnet ef database update {migrations name} //套用指定migrations, 產生資料庫及綱要.
+
+          !!注意 (SQlite不支援)!! 
+            1. dotnet ef database update 指令, 不完整, 異動DB上可能出現錯誤
+            2. dotnet ef migrations add xxx, OK, 產生移轉沒問題
+            
+            //亦可用於回溯於之前移轉版本, 有產生資料遺失的風險.
+
+          註: (正式環境) 通常不會使用上述指令直接異動DB，而是【產生SQL Scripts】比較保險
+          dotnet ef migrations script                  //採用最新版migrations, 產生SQL Scripts
+          dotnet ef migrations script {指定migrations} //From 指定migrations to 最新版migrations, 產生SQL Scripts
+          dotnet ef migrations script {From} {To}      //From migrations To migrations, 產生SQL Scripts
+        
+          註: (正式環境) 產生已套用移轉的【Idempotent SQL scripts】, 常用於確認【套用至DB的最新版移轉】？
+          dotnet ef migrations script --idempotent
+
+        * 改版實體
+          public class Blog
+          {
+            public int Id {get;set;}
+            public string name {get;set;}
+            public DateTime CreatedTimestamp (get;set;) //新增欄位
+          }
+
+        * 產生改版移轉
+          dotnet ef migrations add AddBlogCreatedTimestamp
+        * 改版資料庫及綱要
+          dotnet ef database update
+
+        !! 注意: 排除在移轉範圍內 !!
+          > 常發生在【主類別: DbContext】 引用 另一個DbContext資料時
+          > 請套用下列指令碼, 將 另一個DbContext資料 排除在移轉範圍外
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+              modelBuilder.Entity<IdentityUser>()
+                .ToTable("AspNetUsers",t => t.ExcludeFromMigrations());
+            }
+
+    Introduction to Identity on ASP.NET Core(登入驗證功能) => ProjectName: MvcIdentity (2021/07/12)
+    dotnet new mvc --auth Individual
+    https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-5.0&tabs=visual-studio
+
+      * 新增登入驗證功能的MVC專案
+        dotnet new mvc --auth Individual
+
+      * 套用移轉, 產生資料庫DB
+        dotnet tool install --global dotnet-ef
+        dotnet ef database update
+      
+      * 註冊身分驗證服務 @Startup.cs
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlite(
+                    Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDatabaseDeveloperPageExceptionFilter();
+
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddControllersWithViews();
+
+            // 設定身分驗證服務
+            services.Configure<IdentityOptions>(options =>
+            {
+                  // Password settings.
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
+
+                // Lockout settings.
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings.
+                options.User.AllowedUserNameCharacters =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = false;
+            });
+
+      * 啟用身分驗證服務 @Startup.cs
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseMigrationsEndPoint();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
+            });
+        }
+
+      * 測試身分驗證功能 @XXController.cs
+
+        using Microsoft.AspNetCore.Authorization; //重點
+
+        namespace MvcIdentity.Controllers
+        {
+            public class HomeController : Controller
+            {
+                private readonly ILogger<HomeController> _logger;
+
+                public HomeController(ILogger<HomeController> logger)
+                {
+                    _logger = logger;
+                }
+
+                public IActionResult Index()
+                {
+                    return View();
+                }
+
+                [Authorize] //重點: 登入後才能瀏覽.
+                public IActionResult Privacy()
+                {
+                    return View();
+                }
+
+                [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+                public IActionResult Error()
+                {
+                    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+                }
+            }
+        }
+
+  ={延後}=
+
+    Persist and retrieve relational data with Entity Framework Core (加強資料庫工具應用 => 使用 Azure 環境, 不好實作, 先不作了 2021/07/13)
+    https://docs.microsoft.com/en-us/learn/modules/persist-data-ef-core/?view=aspnetcore-5.0
+
+    Secure an ASP.NET Core web app with the Identity framework (登入驗證功能實作 => 使用 Azure 環境, 不好實作, 先不作了 2021/07/13)
+    https://docs.microsoft.com/en-us/learn/modules/secure-aspnet-core-identity/?view=aspnetcore-5.0
+
+/*== ASP.NET 快速回顧(2022/06/21~ 進行中..) ==*/
+資料來源: https://www.w3schools.com/asp/webpages_intro.asp
+
+  1. asp, asp.net web forms, asp.net web pages(asp.net core), asp.net mvc(asp.net core), asp.net webapi(asp.net core), asp.net core
+  2. Web Pages provides an easy way to combine HTML, CSS, and server code:
+    > Easy to learn, understand, and use
+    > Uses an SPA application model (Single Page Application)
+    > Similar to PHP and Classic ASP (十分類似PHP及傳統的ASP)
+    > VB (Visual Basic) or C# (C sharp) scripting languages
+  3. ASP.NET Web Pages use <Razor> markup with C# or VB code
+  4. Razor Syntax for C#(Razor不是程式語言, 它只是一種語法, 能把後端C# OR VB語言寫在前端HTML網頁內)
+    # C# code blocks are enclosed in @{ ... }
+    # Inline expressions (variables or functions) start with @
+    # Code statements end with semicolon(;)
+    # Variables are declared with the var keyword, or the datatype (int, string, etc.)
+    # Strings are enclosed with quotation marks("")
+    # C# code is case sensitive
+    # C# files have the extension .cshtml

@@ -1,0 +1,3672 @@
+<Effective SQL 寫出良好SQL的61個具體作法> 
+  讀我
+  
+    * 作者: John L. Viescas, Douglas J. Steele, Ben G. Clothier
+    * 範例壓縮檔路徑: C:\Users\p10154383\Documents\個人資料夾\筆記-圖書館\資訊科技相關\Effective-SQL-master-範例程式碼.zip
+    * Oracle範例路徑: C:\Users\p10154383\Documents\個人資料夾\筆記-圖書館\資訊科技相關\Effective-SQL-master-範例程式碼-OracleDB-Script
+
+      Q: 如何匯入Oracle範例資料 ?
+      A: 請參閱 C:\Users\p10154383\Documents\個人資料夾\筆記-圖書館-new\資訊科技相關\SOP-OracleDB.txt
+        <利用VSCode Oracle Extension 執行 PLSQL> 段落
+
+  CH01 資料模型設計 (OK)
+
+    #01 確認所有資料表都有主建(PK)
+
+      > 所有好的主鍵?
+        1. 儲存UNIQUE(獨特)值 
+          => 防止重複, 可用 ('無意義數值' + #02 + #04) OR ('有意義文字') 兩種方式, 
+          => 使用數值或文字都行, 重點就是不能重複
+        2. 不能為NULL
+        3. STABLE(穩定=不易變更, 一旦變更會耗費大量成本)
+        4. 儘可能簡單(例: 使用INT OR 單一欄位PK, 而非複合欄位PK)
+      
+      > 常見作法: 使用 '無意義數值' 作為PK
+        1. DM2, SQL Server, Oracle => IDENTITY
+        2. ACCESS, MySQL => Auto_Increment
+        3. PostgreSQL => serial
+
+      > 關於 '複合欄位PK' 使用上注意事項
+        1. 建議不要用
+        2. 通常用在中介資料表上較合理, 
+          例: 該資料表上記錄 產品(ProductID) & 廠商(VenderID) 組合下的價格(Price)關係.
+
+      > 摘要
+        1. 所有資料表都要指定1個COLUMN為PK(或1組COLUMNS)為PK
+        2. 若擔心'非鍵值欄位'有重複值, 可對該'非鍵值欄位'定義'獨特索引', 以確保完整性.
+        3. 盡可能使用 '簡單' & '不會變更' 的鍵值.
+
+    #02 消除重複儲存資料
+
+      > 資料庫正規化的目的是 '消除重複資料', 並減少處理資料時所需的資源, 亦可減少 SCHEMA 的變動.
+      > '消除重複資料', 可消除新增、修改與刪除資料.
+      > '消除重複資料', 可減少不一致的資料.
+
+    #03 去除重複群組(GROUP)
+
+      > 使用者匯入資料至DB時, 通常未考慮DB正規化, 而不同欄中儲存許多重複資料.
+
+      > !!@@!! 重點: 資料表(TABLE)設計要訣 <= 真的耶 => 
+        1. 欄(COLUMN)代價高 <= 註: 未來需要類似資料時, 必須增減欄位就要警惕, 是否可改為增減列
+        2. 列(ROW)代價低
+
+        BAD DESIGN 實例:
+        Assignments(ID[PK], DrawingNumber, Predecessor_1, Predecessor_2, Predecessor_3, ...) //Predecessor就是重複的群組
+
+        GOOD DESIGN 實例: <= 拆成兩個資料表存.(1-N的關係)
+        Drawings(DrawingID[PK], DrawingNumber) 1
+        Predecessors(PredecessorID[PK], DrawingID, Predecessor) N, 
+          註: PredecessorID[PK] + DrawingID <= 可以加1個 'UNIQUE INDEX' 防止重複資料產生.
+
+      > 利用 UNION 查詢對重複群組作正規化(排除重複資料)
+
+        以BAD DESIGN 實例作範例:
+        Select ID as DrawingID, Predecessor_1 as Predecessor
+        From Assignments Where Predecessor_1 is not NULL
+        UNION //UNION 排除重複資料; UNION ALL 則是全部資料
+        Select ID as DrawingID, Predecessor_2 as Predecessor
+        From Assignments Where Predecessor_2 is not NULL
+        UNION
+        Select ID as DrawingID, Predecessor_3 as Predecessor
+        From Assignments Where Predecessor_3 is not NULL
+
+      > 摘要
+        1. 資料庫正規化的目的是 '消除重複資料', 並減少處理資料時所需的資源, 亦可減少 TABLE SCHEMA 的變動.
+        2. '消除重複資料群組'後, 可使用索引來防止重複資料, 並大幅簡化查詢. 
+          註: 詳 GOOD DESIGN 實例 Predecessors 的說明.
+        3. '消除重複資料群組'後, 可讓設計更彈性. 因為加入新群組, 只須加1列, 而不用改變 TABLE SCHEMA 加入1欄.
+
+    #04 每個欄位只儲存一個屬性
+
+      > 關係(資料表) => 應該只有1個主題/動作, 例: 學生, 課程, 老師, 員工, 門診清單
+
+      > 屬性(欄位) => 
+        1. 應該只有1個屬性(不可分割)來描述主題/動作, 例: 姓, 名, 學號, 員編.
+        2. 外來鍵(FK)則是其他關係的屬性, 用來建立與其他關係間的關聯性.
+        3. 1個欄位包含多個屬性的缺點:
+          * 難搜尋、查詢無效率(LIKE *...)、無法精準搜尋，難彙總或分類.
+          * 例: 員編, 姓名, 地址 <= 只有3個儲存欄位, 明顯不足.
+            125467, 王大明, 台灣台北市大安區陽明東路二段87號9樓 104
+        4. 建議作法: 1欄位1屬性
+          * 例: 員編, 姓, 名, 國, 市, 區, 街, 號, 樓, 郵號 <= 拆解為更小的資料區塊.
+            125467, 王, 大明, 台灣, 台北市, 大安區, 陽明東路二段, 87號, 9樓, 104
+        
+        5. 如果要結合屬性, 利用SQL CONCAT即可.
+
+      > 摘要
+        1. 正確的資料表設計會將個別屬性放在獨立欄位中, 因為單欄位帶有多個屬性時, 搜尋與彙總會變得困難且不可能.
+        2. 對某些應用程式(視情況而定), 過濾地址(例: 路,巷,弄,號)或電話欄位(例: 國碼,區碼,電話號碼)的部分內容需求, 而決定欄位細分程度.
+        3. 需要重新組合資料屬性時, 使用連接函式(例: concat, ||, + ..)
+
+    #05 儲存計算結果, 通常不是好主意
+
+      > 在交易用資料表內, 儲存計算結果通常不是好主意, 會對使用中的DB效能有影響, 每次更新時都要重新計算1次並更新. (#09 對資料倉儲使用反正規化)
+        (註: 在資料倉儲的FACT TABLE內, 還可以)
+      
+      > 如果真的要儲存或在同一個表上有計算結果, 怎麼辦?
+        作法1. (最差作法)使用 Trigger(觸發器) 在每次更新時都要重新計算1次並更新, 但是代價很高 (#13 不要濫用觸發器(Trigger))
+        作法2. 計算欄位[同資料表時], 可加上索引, 讓查詢更快.
+        作法3. 非決定性表示式/函式[不同資料表時], 但非決定性的, 故無法對計算欄建立索引, 也不能像其他欄位有一致性(persisted), 而且效率不高(1筆查1次) <= 缺點.
+
+          CREATE FUNCTION dbo.getOrderTotal(@orderId int)
+          RETURN money
+          AS
+          BEGIN
+            declalre @r money;
+            select @r = sum(quantity * price)
+            from order_details
+            where OrderNumber = @orderId
+            return @r;
+          END;
+          GO
+          CREATE TABLE ORDERS{
+            OrderNumber int not null,...
+            OrderTotal money as dbo.getOrderTotal(OrderNumber)
+          };
+        作法4. (較佳作法)需要計算結果時, 以連接資料表再加上彙總OrderID欄位的子查詢會更有效率
+
+      > 何謂決定性函式與非決定性函式呢?
+        1. 決定性函式 對相同的輸入值回傳相同結果. 例: DateAdd();
+        2. 非決定性函式 對相同的輸入值不一定回傳相同結果. 例: GetDate();
+
+      > 摘要
+        1. 許多DB允許設計資料表時定義 '計算欄位', 但設計者須了解效能影響. 特別是: 使用非決定性表示式/函式.
+        2. 可定義與一般欄位相同的的 '計算欄位', 委由Trigger(觸發器), 但程式會很複雜.
+        3. '計算欄位' 會對DB SYSTEM 造成負擔, 當 (好處 > 成本) 時再使用.
+        4. 設計者通常會對 '計算欄位' 製作索引, 以 (儲存空間 & 較慢更新) 換得一些好處.
+        5. (更佳作法) (不製作索引時), 使用檢視表(VIEW)來定義計算, 優於 在資料表內儲存計算結果.
+
+    #06 定義外來鍵(FK), 以保護參考完整性
+
+      > 在正確設計DB架構時, 資料表內會有外來鍵(FK)儲存關聯資料表的主鍵(PK)
+      > 這個動作稱為 '宣告參考完整性約束', 而其目的在於:
+        1. 資料庫得知如何建構正確的JOIN子句, 在這層關聯前提下.
+        2. (VIP)資料庫可得知如何執行資料完整性(一併更新 ON UPDATE CASCADE; 拒絕刪除或一併刪除 ON DELETE CASCADE)
+      
+      > 新增外來鍵(FK) 的注意事項
+        1. 建議順序: 新增資料表 => 新增外來鍵(FK) => 再加入資料 (註: 加在1-N的N資料表上)
+        2. xx順序: 新增資料表 => 加入資料 => 新增外來鍵(FK) (註: 無法確保資料均符合外來鍵(FK)約束.)
+
+      > 摘要
+        1. 若要子列有相對應的父列, 外來鍵(FK)可確保資料完整性/一致性.
+        2. 對已有資料的資料表加上外來鍵(FK)時, 若現有資料違反約束, 則 <加上外來鍵(FK)> 動作會失敗.
+        3. 有些DB在加上外來鍵(FK)後, 會自動建立索引(例: ACCESS), 以提升效能；某些DB則須手動建立索引(例: DB2).
+          儘管外來鍵(FK)沒有索引, 某些DB仍有其他提昇效能的方式.
+
+    #07 確保資料表關係的合理性 <= 沒有正解, 只有最佳解或最適解.
+
+      > 只有2個資料表的關聯欄位型別相同, 就可以建立關聯.
+      > 但 '能夠這麼作' 不代表 '應該這麼作', 也就是設計者要思考資料間的合理性.
+
+      > 客戶 與 員工 間如何建立關係(1-N)
+      > 產品(木材公司) 與 產品特性(長,寬,高,材質) 間如何建立關係 (1-N)
+      > 產品(零售業) 與 產品特性(根據產品特性一直加欄位, 就不是好主意, 可將欄轉為列儲存) <= 但是查特定產品屬性時, 就麻煩了點.
+
+        create table products{
+          productNumber int not null primary key,
+          productDescription varchar(255) not null
+        };
+
+        create table productAttributes{
+          productNumber int not null,
+          attributeName varchar(255) not null,
+          attributeValue varchar(255) not null,
+          constraint pk_productAttributes
+            primary key (productNumber, attributeName)
+        };
+
+        alter table productAttributes
+          add constraint fk_productAttributes_productNumber
+            foreign key (productNumber)
+              references products(productNumber);
+
+      > (VIP)屬性問題顯示出, 設計者必須能區分 '結構化資料(TABLE)' 與 '非結構化資料(XML OR JSON)'
+        1. 因為 '結構化資料(TABLE)', 資料表須先定義再新增
+        2. 但是 '非結構化資料(XML OR JSON)', 不需相同結構, 在紀錄層級也一樣.
+        
+        =(如果你遇到關聯性區分, 困難時)=
+        3. 請先考慮是否在處理 '非結構化資料(XML OR JSON)' ?
+        4. 也要考慮是否直接以 '結構化資料(TABLE)' 顯示它 ?
+        
+      > SQL 標準現已涵蓋在SQL中使用XML與JSON
+        參考資料: SQL Server 中的 JSON 資料(SQL Server 2016後才有支援, OPENJSON)
+        https://docs.microsoft.com/zh-tw/sql/relational-databases/json/json-data-sql-server?view=sql-server-ver16
+
+      > (VIP)一般而言, 人們會認為該由 <應用程式決定資料模型設計('非結構化資料(XML OR JSON)' OR '結構化資料(TABLE)')>
+      > (VIP)實務上, 資料模型的選擇將大幅改變使用此資料庫的應用程式之設計, 並影響應用程式的成本及交付時程.
+
+      > 摘要:
+        1. 仔細檢視結合帶有類似欄位的資料表是否合理, 以簡化其關係. (例: 員工, 供應商, 客戶, 都有類似聯絡欄位, 是否有必要合併)
+        2. 原則上, 只要兩個資料表欄位有相同資料型別就能連接,
+          但是, 關係只有在欄位具有相同的值域時才有效.
+          然而, 連接兩方最好具有相同資料型別.
+        3. 在資料模型引用前, 要檢查是否為 '結構化資料(TABLE)'.
+          若資料為 '非結構化資料(XML OR JSON)' , 則務必作出必要規定. (註: 如此一來, '非結構化資料(XML OR JSON)'會比較好管理)
+        4. 清楚識別資料模型的目的在於, 協助評估是否為了簡化AP設計而增加複雜性異常的可能. 
+          (註: '非結構化資料(XML OR JSON)' 前端容易使用, 但後端不易剖析及管理.)
+
+    #08 3NF不夠時, 更多的正規化
+
+      > 摘要:
+        1. 大部分的資料模型可能已達成更高的正規化.
+          因此, 設計者要注意明顯違反更高正規化的情況.
+          通常, 問題發生在 '具有複合鍵' 或 '參與多個多對多關聯' 的資料表上.
+
+        2. 一個實體(TABLE)的兩個無關聯屬性(COLUMN)的所有排列組合必須列舉的特殊情況下, 可能會違反 '4NF'
+        3. '5NF' 確保所有連接相依性來自候選鍵, 表示設計者可根據個別元素約束候選鍵的有效值, 此情形只會發生在 '複合鍵' 上.
+        4. '6NF' 將關係減至只有一個非鍵屬性. 因此, 會導致 '資料表爆發', 但讓設計者 '不必定義可為NULL' 的欄位.
+        5. '無損分解' 是用來判斷資料是否違反更高正規化的有效工具.
+
+    #09 對資料倉儲使用反正規化
+
+      > '正規化' 的好處在於(快速寫入及更新), 主要為 '交易系統' 而設計.
+      
+      > '反正規化' 的好處在於(快速讀取), 主要為 '資料倉儲系統' 而設計.
+        1. 反正規化資料庫適合大量讀取負載.
+        2. 若欄位被適當編製索引, 甚至可直接使用索引而不讀取資料表.
+        3. 由於寫入較少, 亦不用擔心過多索引會大幅影響寫入效能.
+        4. 若有必要, 可對每個欄位編製索引, 提昇搜尋與排序效能.
+
+      > '反正規化' 的形式
+        1. 在資料表中複製(儲存)其他關聯資料表值, 以避免連接.
+          例: Invoice資料表內, 直接存入客戶資料.(CustomerID, CustomerName[直接儲存, 不用關聯存取])
+        2. 加入指示性欄位值至其他資料表內, 可提昇效能, 並維護歷史紀錄.(註: 跟第1點好像一樣耶??)
+          例: Invoice資料表內, 直接存入客戶當時的完整資料.(註: 若客戶搬家, 換新地址, 一樣可以出一張當時相同的發票)
+        3. 儲存計算結果或衍生值.
+      
+      > (VIP)關於資料倉儲的觀念, 有超級完整的資訊哦.., 可查閱下列資源 RALPH KIMBALL (2015/12/31 退休了..)
+        https://www.kimballgroup.com/
+
+      > 摘要
+        1. 決定要複製什麼資料與複製的理由.
+        2. 規劃如何保持資料同步.
+        3. 重新撰寫查詢以使用反正規化欄位.
+
+  CH02 程式化與索引設計 (2022/07/21 四 - OK)
+
+    > (索引)交給開發者建立比較好, 因為開發者清楚(他|她)要下的查詢
+    > (適當編製索引), 是能否取好的查詢效能之關鍵.
+
+    #10 建構索引時的空
+
+      > 摘要
+        1. 檢查你要建立索引的欄位是否帶有空值(NULL)
+        2. 如果你想要搜尋空值(NULL), 且欄位值大部分可能為空值(NULL)時,
+          <最好不要> 對該欄位製作索引, 也表示資料表可能須重新設計.
+        3. 想要更快的搜尋欄位但欄位值大部分為空值(NULL)時,
+          <若DB有支援> 則在該欄位製作1個'排除空值(NULL)索引'.
+
+          DB2(支援)
+            create unique index ProductUPC_IDX
+              on Products (ProductUPC ASC)
+              exclude null keys; //UNIQUE 索引排除空值
+
+            create index CustPhone_IDX
+              on Customers(CustPhoneNumber)
+              exclude null keys; //標準索引(允許重複值)排除空值
+
+          Access(支援)
+            create index CustPhone_IDX
+              on Customers(CustPhoneNumber)
+              with ignore null;
+          
+          SQL Server(過濾索引會排除空值)
+            create index CustPhone_IDX
+              on Customers(CustPhoneNumber)
+              where CustPhoneNumber is not null;
+          
+          MySQL:(DB不支援)
+
+          Oracle:(DB不支援, 用別的方式)
+            create index CustPhone_IDX
+              on Customers(CustPhoneNumber ASC, 1); //以人工複合鍵強制ORACLE索引空值
+
+            create index CustPhone_IDX
+              on Customers(NVL(CustPhoneNumber, 'unknown')); //轉換空值以製作索引
+
+              //轉換空值以製作索引(缺點:測試時, 要將 'unknown' 視為 NULL)
+              where NVL(CustPhoneNumber, 'unknown') = 'unknown';
+          
+          PostgreSQL:(DB有支援)
+            create index CustPhone_IDX
+              on Customers(CustPhoneNumber)
+              where CustPhoneNumber is not null;
+        4. 每種DB系統對索引中空值的支援不同. 建構可能帶有空值(NULL)欄位索引前, 要確保你知道DB系統的選項.
+
+    #11 仔細考慮索引的建構, 以減少索引與資料掃描
+
+      > 查詢效能調校常見問題:
+        1. 索引掃描
+        2. 資料表掃描
+
+      > 效能不佳的常見原因:
+        1. 缺少索引
+        2. 不正確的索引
+
+      > (VIP)索引設計概念
+        1. 先考慮資料如何存取, 若欄位不常出現在 'WHERE欄位' , 則加入索引無意義.
+        2. 若增加索引後, 無法讓DB ENGINE讀取少於一定百分比的資料時, DB ENGINE將不會使用.
+        3. 索引只適用於 '大資料表' , 因為DB ENGINE會把 '小資料表' 直接載入記憶體內.
+        
+        4. 索引新增時, '多欄位的組合' 很重要. (註: 當某些欄位會一起查詢時.)
+          例: CustFirstName & CustLastName 可能會一起查詢, 那就可以一起放入索引內.
+        
+        5. 索引新增時, '多欄位索引的順序' 很重要.
+          例1: 查詢1會用 CustLastName 欄位查; 查詢2會用 CustFirstName & CustLastName
+          建議新增的索引順序:
+            create index custName
+              on customers(CustLastName, CustFirstName); //注意: CustLastName放前面
+
+      > (VIP) 設計索引時, 須同時考量 'WHERE欄位' 及 'SELECT欄位', 以下表為例.
+        create table Customers(CustomerID int primary key not null, CustState varchar(2) null, ...);
+        create index CustState on Customers(CustState)
+        註: 以上新增2個索引 CustomerID(PK索引) & CustState(標準索引)
+
+        1. SELECT * FROM Customers WHERE CustomerID = 1; (略差, 因為 select *)
+          a. 它使用(PK索引)找到資料
+          b. 再參考 '資料表' 並回傳所有屬性.
+
+        2. SELECT customerID FROM Customers WHERE CustomerID = 25; (最佳)
+          a. 它使用(PK索引)找到資料, 並直接回傳
+
+        3. SELECT * FROM Customers WHERE CustState = 'TX'; (差)
+          a. 因為(標準索引)非UNIQUE INDEX, 會出現 '索引掃描' 的問題. (差)
+          b. 另外 Select * 選取了不在(標準索引)內的欄位, 還須再參考 '資料表' 並回傳所有屬性. (差)
+
+        4. SELECT * FROM Customers WHERE CUSTAREACODE = '268';
+          a. CUSTAREACODE 沒有建立任何索引, 會出現 '資料表掃描' 的問題. (差)
+
+      > 索引掃描 & 資料表掃描 的差異
+        1. 索引空間較小, 設計用來被掃描用. 若只須部分列(ROW)時(例: < 33%), 索引表現會快一些
+        2. 一般而言, 對資料表新增適合索引是建議作法 (註: #46 認識執行計劃如何運作)
+        
+      > (VIP) 索引不是提昇效能的萬靈丹.
+        1. <交易用資料表>不建議有許多索引, 因為頻繁變更會增加索引資料表異動, 而拖慢效能.
+        2. <報表用資料表(資料倉儲)>可以有較多索引, 因為沒有經常性的修改. (註: <報表用資料表(資料倉儲)> 也適合反正規化 #09 對資料倉儲使用反正規化)
+
+      > 索引結構
+        1. 有兩種 => 叢集索引 & 非叢集索引.
+        2. 叢集索引 & 非叢集索引 的結構相同.
+        3. 叢集索引 & 非叢集索引 的差別在於:
+          a. 非叢集索引的排列可與資料表的實體順序不同.
+          b. 非叢集索引的葉節點 => 是指向資料的書籤, 而非資料組成(本身嗎?)
+
+      > 查詢效能比較(一般而言)
+        (優) 非叢集索引 > 叢集索引 > 資料表掃描 (劣)
+
+      > 摘要
+        1. 分析資料以建構可提昇查詢效能的索引. (註: 索引不是提昇效能的萬靈丹.)
+        2. 確保你的建構的索引會被使用.
+        
+    #12 索引不只用於過濾
+
+      > 索引在哪裡使用?
+        1. <WHERE 子句>定義SQL的搜尋條件, 它是使用索引的核心所在.
+        2. 關聯欄位也是使用索引, 而影響資料表連接效率.
+        3. 資料叢集, 表示資料儲存在一起, 讓所需I/O減少.
+        4. <ORDER BY 子句>也會被索引影響.
+
+          select employeeid, empfirstName, empLastName
+          from employees
+          where empstate = 'WA' //可用索引
+            and empcity like '%ELLE%'; //有LIKE表示式加上萬用字元, 會執行TABLE SCAN. 因為無法用索引.
+
+          create index empStateName
+            on employees (empstate, empcity); //可新增此索引來改善.
+
+      > 摘要
+        1. (WHERE 子句中欄位)是否存在索引, 會影響查詢效能.
+        2. (SELECT 子句中欄位)是否存在索引, 會影響查詢效能.
+        3. (兩個資料表的關聯欄)是否存在索引, 會影響查詢效能.
+        4. 索引會影響 ORDER BY 子句效能.
+        5. 索引會影響 寫入效能.
+
+    #13 不要濫用觸發器(Trigger)
+
+      > 觸發器(Trigger)使用最佳時機:
+        1. 維護重複或衍生資料 => 反正規化通常會有資料重複. 此時, 可透過觸發器(Trigger)保持資料同步.
+        2. 複雜的欄位約束條件 => 若欄位約束條件根據同一資料表的其他列(ROWS), 或其他資料表的其他列(ROWS)時.
+        3. 複雜的欄位預設值 => 若欄位預設值是根據其他欄(COLUMN), 其他列(ROWS)或其他資料表時.
+        4. 跨資料庫參考完整性 => 相關聯資料表存在於不同資料庫時, 可透過觸發器(Trigger)保持參考完整性.
+      
+      > 摘要
+        1. 使用約束提供的參考完整性(DRI)和內建的計算列, 效能會比觸發器(Trigger)好.
+        2. 觸發器(Trigger)通常不可攜, 更新DBMS時須重寫.
+        3. 只有在絕對必要時, 才使用觸發器(Trigger).
+
+    #14 以過濾索引包括或排除一組資料
+
+      > 摘要
+        1. 過濾索引在索引只用於一小部分資料列(ROW)時, 對節省空間有幫助.
+          例1: create index SelectProducts //這裡沒有用 nonclustered, 所以會以1,5,9順序排
+                on Products(ProductName, ProductNumber)
+                where categoryID in (1,5,9); //建構過濾索引以消除排序的SQL
+               
+               select ProductNumber, ProductName
+               from Products
+               where categoryID in (1,5,9)
+               order by categoryID; //沒有上面索引前
+
+               select ProductNumber, ProductName
+               from Products
+               where categoryID in (1,5,9); //有上面索引後, 因為索引內已完成排序.
+
+          例2: create nonclustered index PendingDocuments //這裡使用nonclustered 
+                on Documents (DocumentNumber, status)
+                where status in ('Pending publication逾期發文','Pending expiration逾期結案');
+        2. 過濾索引可用於實作一部分資料列(ROW)(例: WHERE active = 'Y') 的唯一(UNIQUE)約束.
+        3. 過濾索引可用於避免排序操作.
+        4. '分割資料表' 可提供類似 '過濾索引' 無須維護其他索引的好處.
+
+    #15 宣告約束代替程式檢查
+
+      > 約束(constraint)的六種類別:
+        1. NOT NULL 
+          => 不能儲存空值.
+        
+        2. UNIQUE 
+          => 不能儲存重複值.
+          => 1個關係(TABLE)可以有多個UNIQUE.
+          => 可儲存1個NULL值.
+          (註: UNIQUE 與 PRIMARY KEY 的差別在於, UNIQUE允許NULL值; PRIMARY KEY不允許NULL值)
+        
+        3. PRIMARY KEY
+          => 主要功能為識別每列(ROW)資料的唯一性.
+          => 類似 UNIQUE, 不能儲存重複值.
+          => 1個關係(TABLE)只能有1個PRIMARY KEY.
+          => 不能儲存NULL值.
+
+        4. FOREIGN KEY
+          => 資料表外來鍵, 參考其他資料表的主鍵(PRIMARY KEY), 確保資料的參考完整性.
+
+        5. CHECK
+          => 可對單一欄位或資料表定義
+          => 對<單一欄位>, 只限制該欄位
+          => 對<資料表>, 特定欄位值會根據同一列的其他欄位值作限制.
+
+        6. DEFAULT
+          => 沒給值時, 給定預設值.
+
+      > 維持參考完整性(DRI)的四種方式:
+        1. #15 宣告約束代替程式檢查
+          (註: 本章的重點, 讓資料規則與應用程式分離, 以確保所有人操作相同資料, 並以相同方式更新, 可消除重複撰寫與維護相同程式的需求.)
+        
+        2. 用戶端應用程式
+        3. 預儲程序 => 需要多一層(預儲程序)管理工作, 而且限制AP人員只能從(預儲程序), 不允許AP人員更新底層資料.
+        4. 觸發器(Trigger) => #13 不要濫用觸發器(Trigger)
+
+      > 摘要
+        1. 考慮使用約束(constraint)來強制資料完整性.
+        2. 查詢最佳化工具可使用約束(constraint)定義高效能的執行計劃.
+
+    #16 認識你的產品使用的 SQL 並據此撰寫
+
+      > 摘要
+        1. 符合SQL標準的指令, 可能無法在你使用的DBMS上執行.
+        2. 因不同資料庫實作方式不同, 相同的SQL指令可能會有不同的效能.
+        3. 仍以各家DBMS文件為準.
+        4. 不同資料庫實作比較
+        Comparison of different SQL implementations http://troels.arvin.dk/db/rdbms/
+
+    #17 知道何時使用索引中的計算結果 <= 計算欄位上作索引 OR 函式索引
+
+      > (VIP)SQL Server 對 <計算欄位索引> 的限制
+        1. 所有權要求: 計算欄位參考的函式和資料表, 必須在同一個所有者底下(例: dbo)
+        2. 決定性要求: 計算欄位必須是決定性的. (註: 詳閱 => 何謂決定性函式與非決定性函式呢?)
+        3. 精確度要求: 函式不能是 float or real 資料型別表示式 & 定義中不能使用 float or real 資料型別
+        4. 資料型別要求: 函式不能解析為 text, ntext or image.
+        5. SET 選項要求: create table or alter table時, ansi_nulls 連接層級必須設為 ON.
+
+      > 對函式作索引的需求範例(容許不分大小寫)
+
+        select employeeid, empfirstName, empLastName
+        from employees
+        where empLastName = 'Abcd'; //不分大小寫, 無論是'Abcd' or 'aBcd' or 'AbcD' 都會被找出來.
+
+        select employeeid, empfirstName, empLastName
+        from employees
+        where UPPER(empLastName) = 'ABCD'; //可區分大小寫, 但效率很差, 因為在WHERE子句上用函式, 會執行 'TABLE SCAN'
+
+        create index EmpLastNameUpper
+          on employees (UPPER(empLastName)); //新增函式索引, 可解決問題.
+
+      > 基於函式索引似乎可提昇效能, 但這不是好主意.
+        因為 '索引' 需要定期持續維護, 
+        '索引' 越多, 更新資料表的速度越慢.
+        '基於函式索引' 又特別麻煩, 因為容易產生多餘的索引.
+
+      > 摘要
+        1. 不要濫用索引
+        2. 分析資料庫預期使用方式, 以確保過濾索引只在合理地方使用.
+
+  CH03 不能改變設計時 (2022/07/22 五 - OK)
+
+    #18 使用檢視表(VIEW)簡化無法改變的部分
+
+      > 檢視表(VIEW)的特性
+        1. 方便, 好用.
+        2. 使用 SELECT DISTINCT & UNION 的檢視表(VIEW)無法更新.
+        3. 使用 INSTEAD OF 觸發器(Trigger) 的檢視表(VIEW)則可以更新.
+      
+      > 檢視表(VIEW)的優點
+        1. 專注於特定資料或特定任務. (例: 限制回傳部分列, 或部分欄位..)
+        2. 簡化欄位名稱. (例: CustName = CustLastName + CustFirstName)
+        3. 集中不同資料表的資料. => 結合多資料表
+        4. 簡化資料操作. (例: 將報表用複雜查詢寫在裡面, 讓查詢邏輯統一管理並維持一致.)
+        5. 保護敏感資料. (例: 限制使用者可檢視底層資料, 只能透過檢視表(VIEW)存取, 例如將信用卡號欄位模糊化[8769-****-****-9187])
+          注意: 使用 WITH CHECK OPTION 保持資料完整性, 限制使用者更新超出查詢範圍的資料.
+        6. 提供向後相容. (例: 在不改變舊程式使用舊資料結構的前提下, 讓舊程式以 <檢視表作中介層, 沿用舊資料結構名稱> 讀取舊資料結構.)
+          注意: 若是舊程式須更新資料, 亦可加上 INSTEAD OF 觸發器(Trigger), 對應 INSERT, DELETE 與 UPDATE更新舊資料結構.
+        7. 使用者限定資料. (例: 依使用者登入ID區別可瀏覽的資料表內容. User-A 只能查得所屬客戶AA, AB, AC的訂單資料; User-B 只能查得所屬客戶BA, BB, BC的訂單資料; )
+        8. 提供彙總. (例: 將計算結果作為檢視表(VIEW)的一部分.)
+        9. 匯入及匯出資料.
+
+      > 檢視表(VIEW)的注意事項(不要這麼作)
+        1. 不要以 檢視表(VIEW) 建構 檢視表(VIEW)的優點.
+        
+      > 摘要
+        1. 使用檢視表(VIEW), 建構使用者容易使用的資料結構.
+        2. 使用檢視表(VIEW), 限制使用者可檢視(或修改)的資料. 
+          記得必要時, 須使用 WITH CHECK OPTION.
+          (註: 在VIEW中, 使用 WITH CHECK OPTION 設定, 會限制USER對VIEW異動時, 必須符合 VIEW 的 WHERE條件, 否則會失敗.)
+
+          Views can be created in SQL Server WITH CHECK OPTION.
+          WITH CHECK OPTION will make sure that all INSERT and UPDATE statements executed 
+          against the view meet the restrictions in the WHERE clause, 
+          and that the modified data in the view remains visible after INSERT and UPDATE statements. 
+
+          範例說明:
+            CREATE TABLE table_1 //新增資料表
+            (
+            id int,
+            data nvarchar(20)
+            )
+
+            INSERT INTO table_1
+            VALUES (1, 'a'), (2, 'b'), (3, 'c'); //新增資料
+
+            CREATE VIEW view_1 //新增檢視表(WITH CHECK OPTION ON data like 'b%')
+            AS
+            SELECT * FROM table_1
+            WHERE data like 'b%'
+            WITH CHECK OPTION;
+
+            SELECT * FROM view_1; //OK, show (2, 'b')
+            INSERT INTO view_1 VALUES (4, 'd'); //失敗, against condition <WHERE data like 'b%'>
+            INSERT INTO view_1 VALUES (4, 'bbb'); //成功, match condition <WHERE data like 'b%'>
+        3. 使用檢視表(VIEW), 隱藏複雜的查詢, 並且重複使用複雜查詢.
+        4. 使用檢視表(VIEW), 彙總產生報表所需的不同資料表.
+        5. 使用檢視表(VIEW), 實作與強制命名與程式設計標準, 特別是針對舊資料庫設計時.
+          (註: 在不改變舊程式使用舊資料結構的前提下, 讓舊程式以 <檢視表作中介層, 沿用舊資料結構名稱> 讀取舊資料結構.)
+
+    #19 使用 ETL 將非關聯式資料轉換成資訊
+
+      > 摘要
+        1. ETL工具能讓你快速匯入非關聯式資料(例: 未整理的文字檔)至資料庫內.
+        2. ETL工具幫助你重新安排匯入的資料(例: 調整順序, 增加計算欄位..)
+        3. 大部分的DBMS都提供ETL工具(例: SSIS-SQL Server, ODI-Oracle, InfoSphere DataStage-IBM, Informatica..)
+
+    #20 建構彙總資料表, 並加以維護
+
+      > 彙總資料表(SUMMARY TABLE ON DB2)
+        1. 視資料量而定, 建構彙總資料表並加以維護, 或許是個不錯的選擇.
+        2. 彙總資料表-維護作法
+          * 新增明細資料表時, 一併新增彙總資料表, 並使用觸發器(Trigger)即時更新
+          * 利用預存程序(SP)定期更新彙總資料是較佳作法: 刪除所有列(ROW), 並重新產生彙總資料.
+
+      > 彙總資料表(SUMMARY TABLE ON DB2) 的缺點
+        1. 佔空間(以空間換取時間)
+        2. 額外管理工作, 在原資料表及彙總資料表上, 衍生多的 觸發器(Trigger), 約束(constraint), 預存程序(SP)
+        3. 必須先知道使用者要查什麼, 才能預先計算彙總並加入彙總資料表.
+        4. 若須不同分組或過濾方式, 可能需要多個彙總資料表.
+        5. 須額外設定自動排程, 管理彙總資料表的更新作業.
+        6. 須額外週期性人工, 管理彙總資料表的刪除作業.(例: 超過2年或1年以上的資料..)
+
+      > 彙總資料表(SUMMARY TABLE ON DB2) 
+        = 實質化檢視表(MATERIALIZED VIEW ON Oracle) 
+        = 索引資料表(Indexed View ON MS SQL)
+        
+        各家作法均不相同, 仍以各家DBMS文件為準.
+
+      > 摘要
+        1. 儲存彙總資料, 可以減少彙總所需的處理.
+        2. 儲存彙總資料, 可對彙總資料欄位進行索引, 更有效率地查詢彙總資料.
+        3. 彙總資料適用於靜態資料表(例: 報表用資料表). 
+          若資料表異動頻率高, 則彙總成本可能會很高.
+        4. 觸發器(Trigger)可用來更新彙總,
+          但以預存程序(SP)定期更新彙總資料是較佳作法.
+
+    #21 使用 UNION 陳述 "反轉" 非正規化資料
+
+      > 使用 UNION 的注意事項
+        1. 查詢欄位<個數>相同
+        2. 查詢欄位<順序>相同
+        3. 查詢欄位<型別>相容
+      
+      > 實例作範例
+        1. 非正規化資料 from Excel 
+                  , Jan            , Feb            , Mar            , April..         
+          Category, Quantity, Sales, Quantity, Sales, Quantity, Sales, ...
+        
+        2. 匯入DB要稍微調整欄位名稱
+          Summary(
+            Category, Quantity-Jan, Sales-Jan, Quantity-Feb, Sales-Feb, Quantity-Mar, Sales-Mar, ...
+          );
+          
+        3. 再利用UNION作反轉
+          select Category, 'Jan' as SalesMonth , Quantity-Jan as Quantity, Sales-Jan as Sales
+          from Summary
+          UNION
+          select Category, 'Feb' , Quantity-Feb, Sales-Feb
+          from Summary
+          UNION
+          select Category, 'Mar' , Quantity-Mar, Sales-Mar
+          from Summary
+          order by SalesMonth, Category;
+
+      > 摘要
+        1. UNION 查詢, 每個 <SELECT子句> 必須有相同數量的欄位.
+        2. UNION 查詢, 以第1個 <SELECT子句> 的欄位名稱作為輸出欄位名稱.
+        3. UNION 查詢, 個別 <SELECT子句> 欄位名稱可以不同, 但欄位型態必須相容.
+        4. UNION 查詢, 若要控制資料順序, 可在最後1個 <SELECT子句> 後加上 <ORDER BY子句>.
+        5. UNION 查詢, UNION 會排除重複資料, UNION ALL 會保留重複資料.
+
+  CH04 過濾與搜尋資料 (2022/07/23 六 - 50%)
+
+    #22 認識關聯代數與如何以 SQL 實作
+
+      > 摘要
+        1. 關聯式模型定義了 8 種集合運算.
+        2. 主流DBMS實作都支援 選擇(WHERE), 投影(SELECT, GROUP BY), 連接(JOIN), 笛卡兒積(CROSS JOIN), 聯集(UNION)
+        3. 有些DBMS實作支援 交集(INTERSECT), 差集(EXCEPT[MS SQL] OR MINUS[Oracle])
+        4. 無DBMS實作支援 除法, 但可透過 EXISTS 達到相同效果.
+
+    #23 找出不相符或不存在的紀錄
+
+      > 摘要
+        1. 找出不相符或不存在的紀錄, (使用 NOT IN) 最易理解的方式.(注意: 使用 NOT IN 通常不是最有效率的方式)
+        2. 找出不相符或不存在的紀錄, (使用 NOT EXISTS) 優於 (使用 NOT IN).
+        3. 找出不相符或不存在的紀錄, (使用 IS NULL) 有效率, 但須視DBMS如何處理空值(NULL).
+        4. 找出不相符或不存在的紀錄, 善用DBMS提供的查詢分析工具, 判斷最佳方式.
+
+    #24 使用 CASE 解決問題的時機
+      
+      > 摘要
+        1. CASE WHEN (IF條件) THEN (符合IF條件) ELSE (不符IF條件) END.
+        2. 可使用 CASE 執行 簡單(相等測試) 或 複雜(條件式判斷,見第1點)
+        3. CASE 可用於 SELECT子句(常見作法) 或 WHERE子句及HAVING子句(較難理解)內. 
+
+    #25 解決多條件問題的技巧
+
+      > 解決多條件問題的常見技巧之實例
+        1. INNER JOIN 或 (OUTER JOIN + IS NULL 檢查).
+        2. IN 或 (NOT IN + 子查詢).
+        3. EXISTS 或 (NOT EXISTS + 子查詢). 
+
+      > 摘要
+        1. 解決多條件問題不容易(不簡單 & 不直接)
+        2. 詳: 解決多條件問題的常見技巧之實例
+
+    #26 需要完全符合時, 使用除法
+
+      > 可用 除法 解決的問題有:
+        1. 找出符合特定職位的所有應徵者
+        2. 列出所有可提供某元件所有部件的供應商
+        3. 顯示所有購買特定產品組合的客戶
+
+      > 以 'NOT EXISTS' 實作除法 //找出被客戶實際購買的商品未存在於被客戶瀏覽過商品清單中, 未存在於被客戶實際購買的商品清單的資料.
+
+        select distinct cp1.customerID, cp1.CustFirstName, cp1.CustLastName
+        from CustomerProducts as cp1
+        where not exists
+          (select ProductName
+          from ProdsOfInterest as PofI
+          where not exists(
+            select customerID
+            from CustomerProducts as cp2
+            where cp2.customerid = cp1.customerid
+              and cp2.ProductName = PofI.ProductName
+          ));
+
+      > 以 'GROUP BY/HAVING' 實作除法
+
+        select cp.CustomerID, cp.CustFirstName, cp.CustLastName
+        from CustomerProducts as cp
+          cross join ProdsOfInterest as PofI
+        where cp.ProductName = PofI.ProductName
+        group by cp.CustomerID, cp.CustFirstName, cp.CustLastName
+        having count(cp.ProductName) = 
+          (select count(ProductName) from ProdsOfInterest); //找出被客戶實際購買的商品未存在於被客戶瀏覽過商品清單中, 未存在於被客戶實際購買的商品清單的資料.
+
+      > 摘要
+        1. 除法, 是 8 個關聯式集合的運算之一, 但主流DBMS均未實作DIVIDE關鍵字.
+        2. 除法, 可找出A集合中符合B集合所有列的列.
+        3. 除法, 可使用 'NOT EXISTS' 與 'GROUP BY/HAVING' 兩種方式來實作.
+
+    #27 正確過濾時間日期欄的日期範圍
+
+      > 摘要
+        1. 不要依賴間接的日期轉換, 請使用明確的日期轉換函式(例: CONVERT(datetime, '2022-07-22',120);)
+        2. 已知1個日期, 善用 DATEADD函式, 取得另1個日期值
+        3. 不要對 或 不可對 datetime欄位作搜尋引數的查詢, 套用函式??(看不懂)
+        4. 時分秒的進度錯誤, 會使得 datetime欄位值失真. (註: 請使用 >= or < , 不能用BETWEEN)
+
+    #28 撰寫可作搜尋引數的查詢, 以確保引擎會使用索引
+
+      > 摘要
+        1. 避免使用不可作為搜尋引數的運算子.(例: WHERE ISNULL(EmpLastName, 'ABcd') = 'ABCD', ISNULL 不要用, 無法保證用到索引)
+        2. 在 WHERE子句內, 不要使用對一個或多個欄位操作的函式. (註: 不要在 WHERE子句內, 使用函式)
+        3. 在 WHERE子句內, 不要執行數學運算.
+        4. 在 WHERE子句內, 使用LIKE運算子時, 不要字串前面或中間加上萬用字元, 只在字串後面加上萬用字元 (註: '%something', 'some%thing')
+
+    #29 正確過濾左連接的右側
+
+      > 摘要
+        1. 使用外部連結(OUTER JOIN) 執行 差集運算.
+        2. 在LEFT JOIN ON 或 RIGHT JOIN ON 的外側(連接後), WHERE子句加上過濾條件, 不會得到你要的結果.
+          (註: 先過濾再連接)
+        3. 想要正確地減掉過濾後的子集, 必須在執行外部連結(OUTER JOIN)前, 先套用過濾.
+
+  CH05 彙整 (2022/07/24 日)
+
+    #30 認識 GROUP BY 如何運作
+
+    #31 維持 小GROUP BY 句子
+
+    #32 利用 GROUP BY / HAVING 解決複雜問題
+
+    #33 不用 GROUP BY 找出最大或最小值
+
+    #34 避免使用 OUTER JOIN 的 COUNT() 錯誤
+
+    #35 測試 HAVING COUNT(X) < 某數時包含0值列
+
+    #36 使用 DISTINCT 取得獨特計數
+
+    #37 認識如何用窗口函式
+
+    #38 產生列號與排名
+
+    #39 產生動態彙整
+
+  CH06 子查詢 (2022/07/26 二)
+
+    #40 認識何時可使用子查詢
+
+    #41 認識關聯與無關聯子查詢的差別
+
+    #42 可能的話, 以通用資料表運算式替代子查詢
+
+    #43 使用連接建構子比子查詢更有效率的查詢
+
+  CH07 取得與分析元資料 (2022/07/27 三)
+
+    #44 學習使用系統的查詢分析工具
+
+    #45 學習取得資料庫的元資料
+
+    #46 認識執行計劃如何運作
+
+  CH08 笛卡兒積 (2022/07/28 四)
+
+    #47 產生兩資料表的列組合並標示一個表中間接關聯另一個表的列
+
+    #48 認識如何以等分量排名
+
+    #49 認識如何對資料表中的列配對
+
+    #50 認識如何列出類別與前三優先
+
+  CH09 對應表 (2022/07/30 六)
+
+    #51 使用對應表, 根據參數產生空列
+
+    #52 使用對應表, 與窗口函式產生序列
+
+    #53 根據對應表, 的值產生多個列
+
+    #54 根據對應表, 中的值範圍轉換資料表的值
+
+    #55 使用日期資料表簡化日期計算
+
+    #56 建構列出範圍內所有日期的日曆表
+
+    #57 以對應表旋轉資料
+
+  CH10 建構階層資料模型 (2022/07/30 六)
+
+    #58 以鄰接表模型作為起點
+
+    #59 對不常修改的階層使用套疊集合以提昇查詢效能
+    
+    #60 使用儲存路徑以簡化設置與搜尋
+    
+    #61 使用祖先遍歷閉包, 作複雜搜尋
+
+
+<升級 作為範例用的 .mdf 檔案>
+  https://docs.microsoft.com/zh-tw/visualstudio/data-tools/upgrade-dot-mdf-files?view=vs-2022
+  已升級至 VS2015 可用 C:\Projects_C#\SQL\ConsoleApplication1\ConsoleApplication1\Northwind.MDF
+  未升級至 VS2015 可用 C:\Users\p10154383\Documents\個人資料夾\筆記-圖書館\資訊科技相關\Northwind.MDF
+
+<Oracle DBA國際認證(1z0-071) 考古題檢討>
+  
+  2.Which three statements are true regarding the WHERE and HAVING clauses in a SQL statement? (Choose three.)
+
+    A. WHERE and HAVING clauses cannot be used together in a SQL statement.
+    B. The HAVING clause conditions can have aggregate functions.
+    C. The HAVING clause conditions can use aliases for the columns.
+    D. The WHERE clause is used to exclude rows before the grouping of data.
+    E. The HAVING clause is used to exclude one or more aggregated results after grouping data.
+
+
+  
+  1.  Evaluate the following SQL statement:(ABD)
+    SQL> 
+      select cust_id, cust_last_name "Last name"
+      FROM customers
+      WHERE country_id = 10
+      UNION
+      SELECT cust_id CUST_NO, cust_last_name
+
+      FROM customers
+
+      WHERE country_id = 30
+
+    Identify three ORDER BY clauses either one of which can complete the query.
+
+        A. ORDER BY "Last name" (O)
+        B. ORDER BY 2, cust_id (O)
+        C. ORDER BY CUST_NO (X) 註: 以第1個表的欄位為準.
+        D. ORDER BY 2, 1 (O)
+        E. ORDER BY "CUST_NO" (X)
+
+<優化SQL-語法與資料庫的最佳化運用> 作者: 羅炳森, 黃超, 鐘僥; 出版: 碁峰資訊
+  =先安裝 Oracle Express 21c(直接看原則, 裝範例了) =
+    多用戶容器資料庫: localhost:1521
+    可插拔資料庫: localhost:1521/XEPDB1
+    EM Express URL: https://localhost:5500/em
+
+    安裝完成後, 如何登入: (資料來源: https://docs.oracle.com/en/database/oracle/oracle-database/21/xeinw/connecting-oracle-database-xe.html)
+      切換至 <oracle_home>\bin 路徑 (ex. D:\Oracle21cExpress\dbhomeXE\bin\sqlplus.exe)
+      cd <oracle_home>\bin
+      sqlplus / as sysdba
+
+      (切換至D槽路徑語法)
+      cd /d D:\Oracle21cExpress\dbhomeXE\bin
+
+  =入門=
+    第一章: SQL最佳化必懂概念 (2022/03/16)
+      
+      1.1 基數(cardinality) , 須注意 "列的資料分佈"
+        某欄唯一鍵(Distinct_Keys)的數量叫作基數, 例: 姓名欄只有男與女, 基數為2
+        主鍵欄的基數 = 總列數, 因為主鍵欄不得重複, 基數高低影響此欄的資料分佈.
+        
+        TODO: 基本原則: 該不該使用索引?
+          a. 當查詢結果返回表中 <= 5%以內資料時, 應該走 (索引).
+          b. 當查詢結果返回表中 > 5%資料時, 應該走 (全資料表掃描).
+
+        結論: => 欄位 (資料分佈) 是決定查詢效能 & 使用正確查詢方式的關鍵.
+          a. 如果某個欄位基數很低, 該欄資料分佈會很不平均, 因為資料分佈不平均, 則SQL查詢可能會走 (索引) 也可能走 (全資料表掃描). <= 不確定性高, 有可能會走錯 =>
+          b. SQL最佳化分析時, 可用 ( SELECT column_name, COUNT(*) FROM table_name GROUP BY column_name ORDER BY 2 DESC; ) 查看該欄的資料分佈.
+
+      1.2 選擇性(SELECTIVITY) = (基數 / 總列數 * 100%)
+        在進行SQL最佳化時, 單看欄位基數是沒有意義的.
+        基數必須對比總列數才有意義, 選擇性 = (基數 / 總列數)
+
+        查看(選擇性)之前, 要先收集 (統計資訊)
+
+        TODO: 基本原則: 什麼樣的欄位必須(建立/新增)索引呢?
+          A: (1)當欄位出現在WHERE條件內 
+            & (2)該欄沒有索引 
+            & (3)欄位選擇性(基數/總列數) > 20% 
+
+        Q: 如果表很小(例:幾百列資料)還須建立索引嗎?
+        A: 那就不用了..
+
+      1.3 直方圖 (histogram) 2022/03/15
+        a. 如果沒有對基數低的欄位收集直方圖統計資訊, 基於成本的 "最佳化利器(CBO)" 會認為欄位資料分佈是均衡的. (註: 實則不然)
+        b. 執行計劃內的 'ROWS' 是假的, 這個 'ROWS' 是根據統計資訊及數學方式計算而來的.
+     TODO:c. [VIP]SQL最佳化分析時, 經常要作的工作是幫助 CBO計算出 "較準確的ROWS" . (註: 無法得出精確的ROWS, 如果可以就不用DBA來調整效能了..)
+        d. 直方圖資訊怎麼作出來的?? 就是再次利用 ( SELECT column_name, COUNT(*) FROM table_name GROUP BY column_name; ) 查看該欄的資料分佈, 並保存在資料字典內.
+        e. SQL有變數窺探時, 如何產生直方圖資訊  ( SELECT column_name, COUNT(*) FROM table_name GROUP BY column_name order by 2 desc; ) 即可解決.
+
+        結論:
+          1. 直方圖的功能 => 幫助"最佳化利器(CBO)" 針對基數低(資料分佈不平均)欄位 進行ROWS估算時, 可獲得 "較準確的ROWS" 
+          2. 什麼欄位需要收集直方圖? => 有放在 (1)WHERE條件內 & (2)基數低(選擇性 < 1%) & (3)沒有收集過直方圖 的欄位.
+          3. 沒放在WHERE條件內的欄位可以收集直方圖嗎? => 可以, 但浪費資源, 因為用不到.
+
+      1.4 回表(table access by index rowid)
+        a. 回表, 指的是透過索引中記錄的 rowid 存取表中資料.
+        b. 回表, 一般是單塊讀取. (TABLE ACCESS BY INDEX ROWID), 1個rowid = 1個資料塊
+     TODO: c. 回表次數太多會影響SQL效能. (註: 原因在於回表次數多, 表示回傳筆數多, 應該直接走 "全資料表掃描" FullTableScan, 而不該走 "索引掃描" IndexScan)
+     TODO: d. [VIP]SQL最佳化分析時, 一次要注意回表次數, 特別是回表的實體I/O次數. (註: 實體I/O次數 經常是查詢效能瓶頸)
+
+        Q: 為什麼查詢返回 5%以內的資料走 "索引掃描", 超過 5%的資料走 "全資料表掃描"?
+        A: 原因在於減少回表對資料庫效能的負擔.
+
+        Q: 什麼樣的查詢 '會' 產生回表呢?
+        A: select * from tableName where ...; //所以千萬不要用 SELECT * 全欄位查詢
+
+        Q: 什麼樣的查詢 '不會' 產生回表呢?
+        A: SELECT COUNT(*) FROM TableName;
+        A: 要查詢的欄位包含在索引內, 也 '不會' 產生回表. 
+    
+     TODO:因此, 經常會利用 "組合索引" 來消除回表, 提昇效能.
+
+        Q: 有多個過濾條件, 但只有某些欄位在索引內, 會發生什麼事呢?
+        A: 會發生回表再過濾(table access by index rowid 前面有 * 的欄位)
+        S: 如何解決? => 建立 "組合索引", 能消除回表再過濾, 而提昇查詢效能. 
+
+      1.5 叢集因數 (clustering factor)
+        a. 叢集因數 (clustering factor) 是用來判斷 "索引回表" 消耗的實體I/O次數. 
+
+          (註: 若 "有序/順序" 地儲存索引的KEY值, 叢集因數 (clustering factor) 會接近 資料表塊數[實體I/O區塊數].)
+          (註: 若 "亂序/隨機" 地儲存索引的KEY值, 叢集因數 (clustering factor) 會接近 資料表筆數.)
+          (註: 資料表塊數[實體I/O區塊數] < 叢集因數 < 資料表筆數)
+
+          create index idx_id on test(OBJECT_ID); //新增索引
+          select owner, index_name, clustering_factor //查看索引的叢集因數
+          from dba_indexes
+          where owner = 'SCOTT'
+            and index_name = 'idx_id'
+
+          SELECT COUNT(DISTINCT DBMS_ROWID.ROWID_BLOCK_NUMBER(ROWID)) blocks  //查看索引的資料表塊數
+          FROM TEST;
+
+        b. 叢集因數 (clustering factor) 如何產生的?
+          Row1 & Row2的 rowid在同資料塊, 則 "叢集因數 (clustering factor) + 0"
+          Row3 & Row4的 rowid在不同資料塊, 則 "叢集因數 (clustering factor) + 1"
+
+        c. 叢集因數 (clustering factor) 會影響哪些索引掃描方式?
+          1. 索引範圍掃描 index range scan (O), 只有 index range scan & index full scan 兩種方式才會出現 "索引回表", 所以會影響.
+          2. 索引全部掃描 index full scan (O), 只有 index range scan & index full scan 兩種方式才會出現 "索引回表", 所以會影響.
+          3. 索引唯一掃描 index unique scan (X), 回傳唯一值, 不受影響.
+          4. 索引快速掃描 index fast scan (X), 快速全掃描不回表.
+
+        結論:
+          1. 叢集因數 (clustering factor) 影響的是 "索引回表" 的實體I/O次數.
+          2. 如果1000筆資料都在同個資料塊, 則實體I/O只要1次就完成.
+          3. 如果1000筆資料都在不同資料塊, 則實體I/O須1000次才能完成.
+
+     TODO:4. [VIP]SQL最佳化分析時, 可建立 "合適的組合索引" 消除回表 或 減少回表次數.
+
+          Q: 重建索引可以降低 叢集因數 (clustering factor) 嗎?
+          A: 不行啦, 叢集因數 (clustering factor) 是根據 "資料表內容順序" 而定.
+            除非 根據索引欄位排序對 "資料表重建" , 就可以 降低 叢集因數 (clustering factor). (註: 實務上不可行.)
+            create table new_Table as select * from old_Table order by 索引欄
+
+          Q: 叢集因數 (clustering factor) 很大時, 就是資料分佈超亂/隨機時, 效能一定會很差嗎?
+          A: 不一定, 如果 "索引範圍掃描 index range scan" & "索引全部掃描 index full scan" 不產生回表時, 
+                    或是回傳筆數很少時, 對SQL查詢效能幾乎沒有影響.
+          A: 當 "索引範圍掃描 index range scan" & "索引全部掃描 index full scan" 出現了回表, 可能是返回資料量大時, 叢集因數大, 就會影響查詢效能了.
+
+          Q: 如果無法避免回表及降低叢集因數(clustering factor), 該如何調整查詢效能呢?
+          A: 把所有資料塊都放入 buffer cache. (叢集因數 (clustering factor) 影響的是實體I/O, buffer cache不受叢集因數 (clustering factor)影響.)
+
+      1.6 表與表之間關係
+        表與表之間存在有3種關係:
+        a. 1:1
+        b. 1:N
+        c. N:N
+
+        範例:
+          SELECT COUNT(*) FROM A LEFT JOIN B ON A.ID = B.ID;
+          --如果 A 和 B 間是1:1, 則可以去掉 B, 改寫為 SELECT COUNT(*) FROM A, 得到相同效果且大幅改善效能.
+          --如果 A 和 B 間是1:N, 則不能去掉 B, 因為關聯後的筆數是完全不同的.
+
+        Q: 如何看出下列兩資料表間的關係呢? 
+           select * from emp e , dept d where e.deptno = d.deptno;
+        A: 
+           select deptno, count(*) from emp group by deptno order by 2 desc;
+                  30      6
+                  20      5
+                  10      3
+           select dpetno, count(*) from dept group by deptno order by 2 desc;
+                  10      1
+                  40      1
+                  30      1
+                  20      1
+           由此可知, dept -> emp 是 1:N的關係.
+
+    第二章: 統計資訊 (2022/03/17)
+
+      2.1 什麼是統計資訊
+        a. 通常只有大表才會產生 "效能問題".
+        b. 收集統計資訊的目的在於 => 選擇最佳化的執行計劃, 以最少的成本/代價, 查出資料表內的資料.
+        b. 也就是說 "統計資訊" 會被使用在 "成本計算" 中, 作為選擇最佳執行計劃之依據.
+        c. 統計資訊可再細分出多類:
+          --討論重點--
+          1. 表的統計資訊
+          2. 欄的統計資訊
+          3. 索引的統計資訊
+          --本書不討論--
+          4. 系統的統計資訊
+          5. 資料字典的統計資訊
+          6. DMVs(動態效能檢視)的統計資訊
+
+          --討論重點--
+          1. 表的統計資訊: num_rows(總筆數), blocks(資料塊數), avg_row_len(平均列長度), 
+            可查詢資料字典 "DBA_TABLES" 獲取統計資訊.
+
+          2. 欄的統計資訊: column_name(欄位名稱), num_distinct(欄位基數), num_nulls(欄位空值數), num_buckets(欄位資料分佈=直方圖), histogram(直方圖類型), 
+            可查詢資料字典 "dba_tab_col_statistics" 獲取統計資訊.
+          
+          3. 索引的統計資訊: blevel(索引高度), leaf_blocks(葉子塊個數), clustering_factor(叢集因子),
+            可查詢資料字典 "dba_indexes" 獲取統計資訊.
+            新增索引, 會"自動收集索引的統計資訊".
+            
+            "手動收集索引統計資訊"語法 >> DBMS_STATS.GATHER_INDEX_STATS( OWNNAME => 'SCOTT', INDNAME => 'IDX_T_STATS_ID' );
+            
+          //程式範例
+          
+            >> 新增資料表
+              CREATE TABLE T_STATS AS SELECT * FROM DBA_OBJESTS; 
+
+            >> 查詢'表'統計資訊
+              SELECT owner, num_rows, blocks, avg_row_len 
+              FROM DBA_TABLES
+              WHERE OWNER = 'SCOTT'
+                AND TABLE_NAME = 'T_STATS';
+
+            >> 收集'表'的統計資訊.
+              BEGIN 
+                DBMS_STATS.GATHER_TABLE_STATS(OWNNAME          => 'SCOTT',
+                                              TABNAME          => 'T_STATS',
+                                              ESTIMATE_PERCENT => 100,
+                                              METHOD_OPT       => 'FOR ALL COLUMNS SIZE AUTO',
+                                              NO_INVALIDATE    => FALSE,
+                                              DEGREE           => 1,
+                                              CASCADE          => TRUE);
+              END;
+
+            >> 查詢'欄'統計資訊
+              select column_name , num_distinct, num_nulls, num_buckets, histogram
+              from dba_tab_col_statistics
+              where owner = 'scott'
+                and table_name = 'T_STATS';
+
+            // TODO:實務運用 <<DBA常看的統計資訊語法>> 
+              select a.column_name,
+                b.num_rows,
+                a.num_nulls,
+                a.num_distinct as cardinality, --基數(欄位重複性)
+                round(a.num_distinct / b.num_rows * 100 , 2), --選擇性
+                a.histogram, --直方圖類型
+                a.num_buckets --直方圖桶數
+              from dba_tab_col_statistics a, DBA_TABLES B
+              where a.owner = b.owner
+                and a.table_name = b.table_name
+                and a.owner = 'scott'
+                and a.table_name = 'T_STATS';
+
+            >> 新增索引 on column OBJECT_ID後, 會自動建立索引的統計資訊.
+              create index IDX_T_STATS_ID on T_STATS(OBJECT_ID);
+
+            >> 查詢'索引'統計資訊
+              select blevel, leaf_blocks, clustering_factor, status
+              from dba_indexes
+              where owner = 'scott'
+                and index_name = 'IDX_T_STATS_ID';
+
+            >> 個別收集'索引'統計資訊
+              BEGIN
+                DBMS_STATS.GATHER_INDEX_STATS(
+                  OWNNAME => 'SCOTT',
+                  INDNAME => 'IDX_T_STATS_ID'
+                );
+              END;
+              /
+
+      2.2 統計資訊重要參數設定
+        z. 收集統計資訊的腳本SCRIPT: (註: 先更新資料庫監控資訊, 再收集統計資訊...)
+          
+          BEGIN --先更新資料庫監控資訊
+            DBMS_STATS.FLUSH_DATABASE_MONITORING_INFO; 
+          END;
+          /
+          
+          BEGIN --再收集統計資訊
+            DBMS_STATS.GATHER_TABLE_STATS(  
+              ownname           => 'TABLE_OWNER',
+              tabname           => 'TABLE_NAME',
+              estimate_percent  => 須根據表大小設定,
+              method_opt        => 'for all columns size repeat', --收集直方圖的策略
+              no_invalidate     => false,
+              degree            => 須根據表大小 & CPU資源和負載 設定,
+              granularity       => 'AUTO',
+              cascade           => TRUE
+            );
+          END;
+          /
+
+        a. 關鍵兩個參數設定是: 
+          1. estimate_percent(採樣比率, 須根據 "當時的資料表大小" 而定) (註: 為確保準確率, 建議不要低於 30%)
+            建議作法:
+              小表(<1GB) => 100% (註: 除非是小表, 否則沒有必要用 100%, 因為表隨時在變動..)
+              中表(1GB-5GB) => 50%
+              大表(>5GB) => 30%
+              巨表(>10-1000GB) => 先分區, 再個別收集.
+          
+          2. degree(收集統計資訊使用的平行度, 須根據 "當時的資料表大小"、"CPU資源及系統負載" 而定)
+            預設為NULL, 收集統計資訊時, 不開平行處理.
+            建議作法:
+              --表有設定degree, 收集統計資訊時就跟著設定degree
+              --一般表的degree = 1, 亦可利用 DBA_TABLES.degree 查詢degree
+        
+        b. 偶爾要調整參數是:
+          1. method_opt(控制收集直方圖的策略)
+            
+            請先回顧直方圖章節, 
+            Q:為什麼要收集直方圖呢? 
+            A: 要讓CBO估算成本更準確.
+
+            Q:要對哪些欄位收集直方圖呢? 
+            A: 要對基數低的欄位收集, 基數低(資料分佈不平均)的欄位.
+
+            method_opt => 'for all columns size 1' 
+              // 所有欄位都不收集直方圖, 一般不會這麼作.
+              // 刪除所有欄位直方圖, 就用此設定.
+            
+            method_opt => 'for all columns size skewonly' 
+              // 所有欄位自動判斷是否收集直方圖, 一般也不會這麼作. (// TODO: 沒有放在WHERE條件內的欄位收集直方圖沒有意義)
+              // TODO: 系統針對 '全NULL欄位' 不會收集, 針對 '基數高欄位(內容差異很大)'也不會收集, 預設收集 '基數低(分佈不平均)欄位'.
+
+            method_opt => 'for all columns size auto'
+              // 對出現在WHERE條件內的欄位自動判斷是否收集直方圖
+              // TODO: 系統針對 '選擇性高欄位(基數/總列數)' 也不會收集, 儘管在 WHERE條件內．
+
+            method_opt => 'for all columns size repeat'
+              // 目前對哪些欄位收集直方圖, 就比照辦理.
+              // TODO: 對一套執行穩定的系統, 應採用 REPEAT方式收集直方圖.
+
+            method_opt => 'for COLUMNS <column_name> size skewonly'
+              // 將特定欄位交由系統判斷是否收集直方圖. (//TODO: 通常是 DBA發現 '選擇性低欄位(基數/總列數)' & '在WHERE條件內' 卻未被收集的欄位)
+              // TODO: 實務用法 <method_opt>:
+                (1)先交由系統在WHERE欄位內判斷,    method_opt => 'for all columns size auto'
+                (2)再由DBA人工增加/刪除欄位直方圖,  method_opt => 'for COLUMNS <column_name> size skewonly'
+                (3)穩定後使用REPEAT收集直方圖,     method_opt => 'for all columns size repeat'
+        
+        c. 原則採用預設值或須明確指定參數是:
+          1. ownname (資料表擁有者名稱)
+          2. tabname (資料表名稱)
+          3. granularity(統計資訊的細微性, 只對分區表生效, 預設為 'AUTO')
+          4. no_invalidate(共用池與該表相關游標是否立即失效, 預設為 'DBMS_STATS.AUTO_INVALIDATE', 建議改為 'FALSE'. 原因在於查詢緩慢是統計資訊過期所致, 重新收集仍無改善, 但設為 'FALSE'就解決)
+          5. cascade(收集統計資訊時, 是否串接'收集索引的統計資訊', 預設為 'DBMS_STATS.AUTO_CASCADE', 建議改為 'TRUE'. 收集表的統計資訊時, 可一併收集索引的統計資訊)
+
+      2.3 檢查統計資訊是否過期
+        a. 如果表中有大量資料發生變化, 此時表的統計資訊就過期了.
+        b. 使用過期的統計資訊, 會導致執行計劃走偏.
+        c. TODO: 如何檢查統計資訊是否過期
+           (1)先更新資料庫監控資訊
+            BEGIN
+              DBMS_STATS.FLUSH_DATABASE_MONITORING_INFO;
+            END;
+            /
+
+          (2)檢查統計資訊是否過期 (TODO: 註: stale_stats = 'YES', 表示已過期.)
+            select owner, table_name, object_type, stale_stats, last_analyzed
+            from dba_tab_col_statistics
+            where owner = 'scott'
+              and table_name = 'T_STATS'
+
+          //(3)查詢統計資訊過期原因 (註: 可查詢近期資料異動狀況)
+            select table_owner, table_name, inserts, updates, deletes, timestamp
+            from all_tab_modifications
+            where table_owner = 'scott'
+              and table_name = 'T_STATS'
+
+          //(4)再重新收集過期欄位的執行計劃.
+            BEGIN
+              DBMS_STATS.GATHER_TABLE_STATS(
+                OWNNAME => 'SCOTT',
+                TABNAME => 'T_STATS',
+                ESTIMATE_PERCENT => 100,
+                METHOD_OPT => 'for columns owner size skewonly', --只針對 owner 欄位重新收集統計資訊.
+                NO_INVALIDATE => false,
+                degree => 1,
+                cascade => true
+              );
+
+            END;
+            /
+
+        d. 資料字典 all_tab_modifications 還有哪些用途.
+          1. 判斷哪些表須要定期降低高水位 (註: 經常DML的表, 要定期降低高水位)
+          2. 判斷哪些表的索引要重建 (註: 經常DML的表, 要定期重建索引)
+          3. 判斷哪些表是業務核心表
+          4. 判斷表的每日增長量..
+
+        e. 如何快速檢查 SQL 語句中所有表(例: 許多關聯表或檢視套檢視表)統計資訊是否過期呢? (註: 上面例子是單表)
+          
+          (0)當表中 <超過10%> 的資料發生異動(UPDATE, DELETE, INSERT), 就會引起統計資訊過期.
+
+          (1)先用 'explain plan for <SQL command>', 在 plan_table 產生 <SQL command> 的執行計劃
+            explain plan for 
+              select * 
+              from emp e, dept d 
+              where e.deptno = d.deptno;
+
+          (2)使用以下腳本, 檢查所有表的統計資訊是否過期
+            select owner, table_name, object_type, stale_stats, last_analyzed
+            from dba_tab_col_statistics
+            where (owner, table_name) in
+              ( select object_owner, object_name
+                  from plan_table
+                where object_type like '%table%'
+                union
+                select table_owner, table_name
+                  from dba_indexes
+                where (owner, index_name) in
+                  ( select object_owner, object_name
+                      from plan_table
+                    where object_type like '%index%')
+              );
+
+          (3)使用以下腳本, 查詢統計資訊過期原因
+            select table_owner, table_name, inserts, updates, deletes, timestamp
+            from all_tab_modifications
+            where (owner, table_name) in
+              ( select object_owner, object_name
+                  from plan_table
+                where object_type like '%table%'
+                union
+                select table_owner, table_name
+                  from dba_indexes
+                where (owner, index_name) in
+                  ( select object_owner, object_name
+                      from plan_table
+                    where object_type like '%index%')
+              );
+
+      2.4 擴展統計資訊
+        z. 擴展統計資訊 只能用於 '等值查詢', 無法用於 '非等值查詢'.
+        a. 當WHERE條件內彼此有關係的過瀘條件時, 就需要 '收集擴展統計資訊' 以最佳化CBO計算成本.
+        b. oracle 11g 以前, 可用 '動態採樣(至少LEVEL4)' 解決這個問題.
+          
+          alter session set optimizer_dynamic_sampling = 4;
+
+          select * from t where a = '1a' and b '11b';
+
+        c. oracle 11g 以後, 可用 '收集擴展統計資訊' 解決這個問題.
+          
+          // 產生擴展欄位
+          SELECT DBMS_STATS.CREATE_EXTENDED_STATS(USER, 'T' '(A,B)') from dual;
+
+          DBMS_STATS.CREATE_EXTENDED_STATS(USER, 'T' '(A,B)')
+          ---------------------------------------------------
+          SYS_STUNA$...(一長串亂碼)...
+
+          // 針對擴展欄位, 收集統計資訊
+          BEGIN //再收集統計資訊
+            DBMS_STATS.GATHER_TABLE_STATS(  
+              ownname           => 'SCOTT',
+              tabname           => 'T',
+              estimate_percent  => 100,
+              method_opt        => 'for columns SYS_STUNA$...(一長串亂碼)... size skewonly',
+              no_invalidate     => false,
+              degree            => 1,
+              granularity       => 'AUTO',
+              cascade           => TRUE
+            );
+          END;
+          /
+
+      2.5 動態採樣
+        a. 若資料表從未收集過統計資訊, Oracle預設對該表作 LEVEL2 的動態採樣.
+        
+        b. 動態採樣目的 => 最佳化程式, 評估出較準確的ROWS.
+        
+        c. TODO: 估算 Rows值出現嚴重偏差時, 建議使用 動態採樣 至少LEVEL4.
+          可能引發 '估算Rows值出現嚴重偏差' 問題為:
+          1. 兩個關聯表間有多個連接欄位
+          2. 關聯後的ROWS算少
+          3. WHERE過濾條件中對欄位使用SUBSTR, INSTR, LIKE
+          4. WHERE過濾條件中有非等值過濾
+          5. GROUP BY 後導致ROWS估算錯誤.
+        
+        d. 啟用動態採樣的方式有二: <= 前提: 未收集過統計資訊, 啟用動態採樣後, 系統才會用.
+          1. 設定參數 optimizer_dynamic_sampling (語法: alter session set optimizer_dynamic_sampling=2)
+          2. 添加HINT 啟用動態採樣 ( /*+ dynamic_sample(3)*/ )
+        
+        e. TODO:如果已收集過統計資訊, 就算採用下列兩種方式, 系統也不會使用.
+          1. 設定參數 optimizer_dynamic_sampling (語法: alter session set optimizer_dynamic_sampling=2)
+          2. 添加HINT 啟用動態採樣 ( /*+ dynamic_sample(3)*/ )
+        
+        f. 何時啟用 "動態採樣" 呢?
+          1. "全域臨時表" , 因為全域臨時表無法收集統計資訊.
+
+        g. 另外在資料倉儲系統中, 由ERP系統自動產生的複雜報表SQL
+          若SQL返回資料量少 & 執行速度緩慢, 可試著利用 "動態採樣 LEVEL 6", 觀察效能是否有改善.
+
+        h. TODO: 動態採樣注意事項 => 請勿更改系統預設的 "LEVEL2 動態採樣" 級別設定.
+          如果要針對某個表啟用動態採樣, 在 "SQL中添加HINT" 即可達到相同效果.
+        
+      2.6 制定統計資訊收集策略
+        a. 資深DBA會關閉DB內建的統計資訊收集JOB, 依實際情況自訂收集策略.
+        b. 以下腳本可以作為 '依實際情況自訂收集策略' 的參考: 
+          //只針對 擁有者 OWNER = 'SCOTT'
+
+          declare 
+            cursor stale_table is
+              select owner,
+                     segment_name,
+                     case
+                      when segment_size < 1 then 100
+                      when segment_size >= 1 and segment_size <= 5 then 50
+                      when segment_size > 5 then 30
+                     end as percent,
+                     6 as degree
+              from (select owner,
+                          segment_name,
+                          sum(bytes / 1024 / 1024 / 1024) segment_size
+                      from dba_segments
+                      where owner = 'SCOTT'
+                        and segment_name in 
+                          (select table_name
+                            from dba_tab_col_statistics
+                            where (last_analyzed is null or stale_stats = 'YES')
+                              and owner = 'SCOTT')
+                      group by owner, segment_name
+                              );
+
+          BEGIN
+            dbms_stats.FLUSH_DATABASE_MONITORING_INFO
+
+            for stale in stale_table loop
+              DBMS_STATS.GATHER_TABLE_STATS(  
+                ownname           => stale.owner,
+                tabname           => stale.segment_name,
+                estimate_percent  => stale.percent,
+                method_opt        => 'for all columns size repeat',
+                no_invalidate     => false,
+                degree            => 1,
+                granularity       => 'AUTO',
+                cascade           => TRUE
+              );
+
+            end loop;
+
+          END;
+          /
+
+        c. 全域臨時表無法收集統計資訊, 但我們可以抓出系統中的全域臨時表內的 <SQL command>, 再根據下列情況處置:
+          1. 對 "全域臨時表" 啟用 "動態採樣"
+          2. 人工對 "全域臨時表" 設定統計資訊 (DBMS_STATS.SET_TABLE_STATS).(註: 不是收集, 而是設定哦..)
+
+    第三章: 執行計劃(Execution Plan)
+
+      3.1 獲取執行計畫常用方法
+        3.1.1 使用 AUTOTRACE 查看執行計劃
+        3.1.2 使用 EXPLAIN PLAN FOR 查看執行計劃
+        3.1.3 查看帶有 A-TIME 的執行計劃
+        3.1.4 查看正在執行的SQL 的執行計劃
+      
+      3.2 制定執行計畫
+
+    第四章: 存取路徑(Access Path) (2022/03/18)
+      4.1 常見存取路徑
+        4.1.1 table access full (全資料表掃描) /* 一般是多塊讀取 */
+          => Oracle最儲存單位是 block(塊) > 實體連續 block 組成 extent(區) > 多個 extent 再組成 segment(段).
+          => 因為 extent(區) 內的資料塊在實體上是連續的, 所以 table access full (全資料表掃描) 可以 多塊讀取.
+          => 進行 table access full (全資料表掃描) 時, 如有資料塊(block)已被放入 buffer cache, 則 table access full (全資料表掃描) 效能會大幅下降. (註: 因為出現大量的I/O中斷, 每次I/O不能掃描1MB資料)
+          => 當資料表正在大批異動, 並進行 table access full (全資料表掃描) 時, TODO: 建議 "使用批次游標方式" 處理大批異動.
+          => "使用批次游標方式" 處理大批異動, 還可減少對 UNDO使用, 防止異動失敗 ROLLBACK 太慢.
+
+        4.1.2 table access by user rowid (直接用ROWID 取資料) /* 單塊讀取 */
+          => TODO: 所有存取路徑中, 效能最佳的.
+          => 在WHERE條件內直接使 ROWID 取資料, 就會用 'table access by user rowid' 存取路徑.
+          => select * from test where rowid = 'LASKOIUJDLJFKJLJ';
+        
+        4.1.3 table access by rowid range (用 ROWID 範圍掃描) /* 多塊讀取 */
+          => 因為同一個BLOCK(塊)內的ROWID是連續的, 同一個EXTENT(區)內的ROWID也是連續的, 所以可以 /* 多塊讀取 */.
+          => select * from test where rowid >= 'LJKJLJJDJIFJODJ';
+
+        4.1.4 table access by index rowid (用索引的 ROWID 讀取) /* 單塊讀取 */
+          => 表示 '回表'.
+
+        4.1.5 index unique scan (用索引唯一掃描) /* 單塊讀取 */
+          => TODO: 效能次佳, 僅次於 table access by user rowid (直接用ROWID 取資料).
+          => 對 '唯一索引' 或 '主鍵(PK)' 作等值查詢, 只會回傳1列資料.
+          => select * from emp where empno = 5899;
+
+        4.1.6 index range scan (索引範圍掃描) /* 單塊讀取 */
+          => 返回資料是有順序的(預設 ASC, 由左至右, 由小至大, 檢查到不符資料時即停止)
+          => <對 '唯一索引' 或 '主鍵(PK)' 作 範圍查詢> 
+            OR <對 '非唯一索引' 作 等值查值>, 都會發生 index range scan (索引範圍掃描).
+          => TODO: 檢查執行計劃時, 要注意 index range scan (索引範圍掃描) "返回列數", 
+            1. 若 "返回列數" 少量, 不會有效能問題.
+            2. 若 "返回列數" 大量 & 沒有出現回表 (table access by index rowid), 還能接受.
+            3. 若 "返回列數" 大量 & 出現回表 (table access by index rowid), 
+              要考慮 '新建組合索引消除回表' OR '使用table access full (全資料表掃描)' 來取代之.
+
+        4.1.7 index skip scan (索引跳躍掃描) /* 單塊讀取 */
+          => 返回資料是有順序的(預設 ASC, 由左至右, 由小至大, 檢查到不符資料時即停止)
+          => Q: 為什麼發生 index skip scan (索引跳躍掃描) 呢?
+             A: 當組合索引的引導欄位(第1欄)沒有在WHERE條件中 & 組合索引的引導欄位(第1欄)/前幾欄位 的基數低, 
+                WHERE條件對非引導欄位進行過濾時, 就會發生 'index skip scan (索引跳躍掃描)'
+
+          => Q: 如何解決 index skip scan (索引跳躍掃描) 的發生呢?
+             A: 直接在過濾欄位上建立索引, 使用 'index range scan (索引範圍掃描)' 取代 'index skip scan (索引跳躍掃描)' 即可解決.
+
+        4.1.8 index full scan (索引全掃描) /* 單塊讀取 */
+          => 如果索引資料量很大, 會產生嚴重效能問題 <= 因為單塊讀取, 比 table access full (全資料表掃描) 還慘 (註: 採多塊讀取, 就大量資料而言)
+          => 發現 執行計劃中出現 'index full scan (索引全掃描)', 該如何處置?
+            1. 如果有 'index full scan (索引全掃描)' + 再出現回表 'table access by index rowid (用索引的 ROWID 讀取)' 時 => 應改採 "table access full (全資料表掃描)" 取代之.
+            2. 如果有 'index full scan (索引全掃描)' + 沒有出現回表 'table access by index rowid (用索引的 ROWID 讀取)' 時 => 應改採 "index fast full scan (索引快速全掃描)" 取代之.
+            3. 如果有 'index full scan (索引全掃描)' + 分頁語句 + 回表, 則沒有問題(註: 詳閱 8.3節)
+
+        4.1.9 index fast full scan (索引快速全掃描) /* 多塊讀取 */
+          => 需要須表中取大量資料, 但 "只需少許欄位" 時, 可以使用 'index fast full scan (索引快速全掃描)'
+          => 它的掃描方式和 "table access full (全資料表掃描)" 相同, 都是按EXTENT(區)掃描, 所以可以 /* 多塊讀取 */.
+          => 例1: 
+            select owner, object_name from test;
+            1. 上例沒有 where condition 會返回大量資料, 預設會用 "table access full (全資料表掃描)", 但是 "table access full (全資料表掃描)" 會回傳所有欄位.
+            2. 這時可新增 "組合索引" => create index idx_ownername on test(owner, object_name, 0);
+            3. 再執行1次 SQL command, DB就會使用 "index fast full scan (索引快速全掃描)".
+
+          => 例2:
+            select object_name from test where object_id < 100;
+            1. 上例有WHERE CONDITION, 只會返回少量資料.
+            2. 這時可新增 "單一欄位索引" => create index idx_id on test(object_id);
+            3. 再執行1次 SQL command, 發現 DB使用 '回表=table access by index rowid (用索引的 ROWID 讀取)' + "index range scan (索引範圍掃描)".
+            --
+            4. 執行計劃中卻出現回表 'table access by index rowid (用索引的 ROWID 讀取)', 再優化.
+            5. 因為查詢欄位只有1個, 把它放入 "組合索引" => create index idx_idName on test(object_id, object_name);
+            6. 再執行1次 SQL command, DB就會使用 "index range scan (索引範圍掃描)". (註: '回表=table access by index rowid (用索引的 ROWID 讀取)' 消失了...)
+
+          => 例3:
+            select object_name from test where object_id > 100;
+            1. 上例有WHERE CONDITION, 而且會返回大量資料. 預設會用 "table access full (全資料表掃描)" & 回傳所有欄位.
+            2. 因為查詢欄位只有1個, 而且例2已新增 "組合索引", DB就會使用 "index fast full scan (索引快速全掃描)" & 回傳所需欄位.
+
+          => Q: "index range scan (索引範圍掃描) /* 單塊讀取 */" 比起 "index fast full scan (索引快速全掃描) /* 多塊讀取 */" 的掃描塊少(邏輯讀取少),
+              但 "耗費的I/O次數" 比較多.
+             
+             A: 回傳 '大量資料' 而言, "index fast full scan (索引快速全掃描) /* 多塊讀取 */" 效能優.
+                回傳 '少量資料' 而言, "index range scan (索引範圍掃描) /* 單塊讀取 */" 效能優.
+
+        TODO: 結論 => 實體I/O次數比邏輯讀取更為重要. SQL最佳化時, 不能只追求 "邏輯讀取少", 而忘了 "實體I/O次數" 其實更重要.
+
+        TODO: 補充1. EXADATA(oracle新版本資料庫), Smart Scan 已取代 "index fast full scan (索引快速全掃描) /* 多塊讀取 */".
+              補充2. Oracle 12c 的新特性 IN MEMORY OPTION, 也取代 "index fast full scan (索引快速全掃描) /* 多塊讀取 */".
+
+        4.1.10 index full scan(min/max) (索引最小/最大值掃描) /* 單塊讀取 */
+          => 效能與 index unique scan (用索引唯一掃描) 相同, 僅次於 table access by user rowid (直接用ROWID 取資料).
+          => 這類存取路徑發生於 select max(column_name) from table; or select min(column_name) from table;
+          
+            create index idx_id on test(object_id);
+
+          => 例1:
+            select max(object_id) from test; 
+              1. index full scan(min/max) (索引最小/最大值掃描), OK, 選取正確.
+
+          => 例2:
+            select max(object_id), min(object_id) from test; 
+              1. table access full (全資料表掃描), ERROR, 挑選錯誤.
+              2. 它只須回傳單一資料, 執行計劃卻沒有用到索引. 因為SQL未把 NULL 排除.
+
+          => 例3:
+            select max(object_id), min(object_id) from test where object_id is not null;
+              1. index fast full scan (索引快速全掃描), OK, 速度改善一些.
+              2. 執行計劃用到索引. 因為SQL把 NULL 排除.
+
+          => 例4: 理想作法
+            select (select max(object_id) from test), (select min(object_id) from test) from dual;
+              1. 直接使用兩次 index full scan(min/max) (索引最小/最大值掃描) 抓出值再回傳, OK, 選取正確.
+              2. 避免掃描不需要的索引葉子塊.
+
+        4.1.11 MAT_VIEW REWRITE ACCESS FULL (實體化檢視=全資料表掃描)
+          => 實體化檢視, 實質也是一個表; 掃描方式與全資料表掃描相同.
+          => 開啟 實體化檢視 功能後, DB會自動引用.
+            create materialized view test_mv
+              build immediate enable query rewrite
+              as select object_id , object_name from test;
+
+            select object_id , object_name from test; 
+            //因為 'test_mv' 已含所需查詢欄位, 所以DB會直接引用, 採用 'MAT_VIEW REWRITE ACCESS FULL' 存取路徑
+
+      4.2 單塊讀取 與 多塊讀取
+        a. 單塊讀取 = 1次讀取 1塊至buffer cache
+        b. 多塊讀取 = 1次讀取 多塊至buffer cache
+        c. 如果資料塊已在 buffer cache, 則不用實體I/O. 也就不再需要執行 "單塊讀取 與 多塊讀取" 作業.
+
+        結論:
+          判斷哪個存取路徑好時, 常是估算哪個存取路徑的 "實體I/O次數最少".
+
+      4.3 為什麼有時候 "索引掃描" 比 "全資料表掃描" 更慢?
+        a. 要看回傳資料筆數而定.
+        b. 若 "回傳筆數多" , 卻走 "索引掃描", 會因為 "單塊讀取" 而產生許多"實體I/O", 則效能會大幅下降.
+        c. 一般而言, "回傳筆數多(>5%)" 會採取 "table full scan 全資料表掃描" OR "index fast full scan 索引快速全掃描".
+        d. 一般而言, "回傳筆數少(<=5%)" 才會採取 "索引掃描".
+
+      TODO: 4.4 DML對於索引維護的影響(OLTP交易系統 & OLAP分析系統)
+        a. OLTP交易系統
+          1. 在OLTP並行INSERT環境中, "遞增欄位索引"會出現熱點爭用. (註: 因為1次只能由1個SESSION INSERT, 其他SESSION只能等待)
+          2. 解決 "遞增欄位索引"會出現熱點爭用 的方式 => 對索引進行反轉(REVERSE), 反轉後不會同時插入索引的最右邊, 而是平均地插入各個不同的索引葉子塊中.
+          3. 但對索引進行反轉(REVERSE)後 => 索引的叢集因子(clustering_factor)會變很大 (註: 接近表的總列數, 因為呈現隨機分佈)
+            => 如果在此索引出現 'index range scan(索引範圍掃描)' & 回表'table access by index row id', 會有嚴重的效能問題.
+          ======
+          4. 一般而言, 主鍵(PK)欄位都是等值存取, 不是範圍存取, 會採取 'index unique scan(索引唯一掃描)' , 對主鍵索引欄位作索引反轉(REVERSE), 是OK的. => (可行作法: 在PK欄位上作反轉)
+          5. 一般而言, 時間欄位都是範圍存取, 若對時間欄位索引作反轉(REVERSE), 則會有嚴重的效能問題. => (錯誤作法: 在時間欄位上作反轉)
+            => 應改採 '範圍分區' (例: 半年內, 一年內) 來提昇查詢效能, 而不是在 時間欄位上建立索引 => (錯誤作法: 在時間欄位上建立索引)
+          ======
+          6. "非遞增欄位索引"(例: 電話號碼)不會出現熱點爭用.
+          7. 一般而言, "非遞增欄位" 不會建立索引. (註: 表中索引越多, DML速度越慢) => (建議作法: 採用分庫分表, 讀取寫分離和訊息佇列等技術來解決)
+
+        b. OLAP分析系統
+          1. OLAP分析系統, 不會出現並行INSERT的情況.
+          2. 一般而言, 是單處理程序作批次INSERT, 並在遞增欄位上建立索引. 
+          3. 遞增欄位索引對批次INSERT的影響不會太大, 但 '非遞增欄位索引' 對批次INSERT的影響甚巨. (註: 批次INSERT幾乎會更新索引中的所有索引葉子塊)
+          ======
+          4. 事實表(FACT TABLE)是沒有主鍵, 時間欄位上都是分區欄位, 所以遞增欄位上通常沒有索引.
+          5. 不過, "非遞增欄位" (例: 電話號碼) 常會需要索引.
+          
+          結論: OLAP分析系統環境下, INSERT前會禁止索引產生, INSERT後再重建索引.
+
+    TODO: 第五章: 表連接方式 (本書最重要章節)
+      5.0 前言
+        a. 表與表之間的連接方式非常重要. 如果CBO挑錯連接方式, 嚴重影響效能.
+        b. 在多表關聯時, 一般是兩表先關聯後, 再和其他表關聯.
+        c. 在執行計劃出現 filter, 這時可一次關聯多個表.
+      
+      5.1 巢狀嵌套迴圈(Nested Loops = NL)
+        a. 巢狀嵌套迴圈(Nested Loops = NL)的作法是: 
+          => 主表返回一列資料, 透過連接欄位傳值給附表
+          => 主表返回多少列, 附表就要被掃描多少次
+        
+        b. 巢狀嵌套迴圈(Nested Loops = NL)的特性有:
+          => 兩個關聯表都必須 返回<少量資料>時, 才能走 巢狀嵌套迴圈(Nested Loops = NL).
+          => 附表必須走索引, 如果 "連接欄位沒在索引" 中, 走全資料表掃描會跑不出結果.
+            O(可走哪些存取路徑): index unique scan, index range scan.
+            X(不能走哪些存取路徑): table access scan, index full scan, index skip scan, index fast full scan.
+
+        c. 補充: 編寫PLSQL時, 避免在CURSOR LOOP內套用SQL, 那就是天然的 '巢狀嵌套迴圈(Nested Loops = NL)', 速度很慢.
+          => 錯誤作法:
+          declare
+            cursor cur_emp is
+              select ename, job, deptno from emp; //宣告迴圈變數用
+              v_dname dept.dname%type; //宣告變數用
+            
+          begin
+            for x in cur_emp loop
+              select dname into v_dname from dept where deptno = x.deptno; //問題出在這裡..
+              dbms_output.put_line(x.ename || '' || x.job || '' || v_dname)
+            end loop;
+          end;
+
+        Q: 兩個表連接是否走 '巢狀嵌套迴圈(Nested Loops = NL)' 要看兩表關聯後返回資料量? 還是主表返回資料量而定?
+        A: '要看兩表關聯後返回資料量' 而定.
+          1. 如果返回資料量少, 可以走 '巢狀嵌套迴圈(Nested Loops = NL)'.
+          2. 如果返回資料量大, 應該走 'HASH連接'
+
+        Q: 大表能否當 '巢狀嵌套迴圈(Nested Loops = NL)' 的主表(驅動表)?
+        A: 可以, 如果大表過濾返回資料量很少, 就能當 '巢狀嵌套迴圈(Nested Loops = NL)' 的主表(驅動表).
+
+        Q: select * from a, b where a.id = b.id;
+          如果 a has 100 rows, b has 1,000,000 rows. a和B是1:N關係, N很低, 應該如何最佳化SQL?
+        A: 關聯後返回資料量很少, 可以走 '巢狀嵌套迴圈(Nested Loops = NL)'.
+          但是 B的筆數多, 
+          作法1: 可以在 '連接欄位上建立索引' , 掃描B表時走的就是 index range scan, OK.
+          作法2: 如果大表B上還有過濾條件, 則可合併 "連接欄位 + 過濾條件欄位 = 組合索引", 避免 大表B 被 table access scan(全資料表掃描)
+
+      5.2 HASH連接 (HASH JOIN)
+        a. 兩個表關聯後, 返回少量資料, 應該走 '巢狀嵌套迴圈(Nested Loops = NL)'.
+        b. 兩個表關聯後, 返回大量資料, 應該走 'HASH連接 (HASH JOIN)'.
+        c. 'HASH連接 (HASH JOIN)' 的演算法是 '兩表等值關聯'.
+
+        d. 補充:
+          1. PGA(Program Global Area), Oracle資料庫對系統記憶體的總開銷 = PGA.
+          2. SGA, 則是由資料庫快取(共享SQL區和PL/SQL區)和資料字典快取所組成.
+
+        e. OLTP交易系統:
+          1. 通常SQL返回筆數少, SQL執行計劃多以 '巢狀嵌套迴圈(Nested Loops = NL)'.
+          2. 故 SGA設定值 '大', PGA設定值 '小' (註: '巢狀嵌套迴圈(Nested Loops = NL)'不消耗 PGA)
+
+        f. OLAP分析系統
+          1. 多數的SQL都是大規模的ETL, 返回筆數量很大, SQL執行計劃多以 'HASH連接 (HASH JOIN)'.
+          2. 故 PGA設定值 '大' (註: 'HASH連接 (HASH JOIN)' 會消耗 PGA)
+
+      5.3 排序合併連接(sort merge jon SMJ)
+        a. 等值關聯返回大量資料, 請用 'HASH連接 (HASH JOIN)'.
+        b. 非等值關聯, 請用 '排序合併連接(sort merge jon SMJ)'. (註: >, >=, <, <=, <>)
+        c. 
+
+  =進階=
+    第六章: 成本計算
+
+    第七章: 必須掌握的查詢變換
+
+    第八章: 調效最佳化技巧
+      8.10 SQL 三段拆分法
+        
+        a. select 第1段 from 第2段 where 第3段
+        
+        b. select 第1段 from, 建議不要有:
+          1. (純量子查詢 or 自訂函數), 那會導致 (純量子查詢 or 自訂函數) 中的表會反覆查詢
+
+        c. from 第2段 where, 留意下列幾點:
+          1. 大表, 大表經常是效能瓶頸
+          2. 子查詢 or 檢視, 抓出執行速度慢的項目作調整.
+          3. 注意子查詢 or 檢視, 可否謂詞推入(Predicate push), 是否檢視合併.
+          4. 表與表間是內連接還是外連接, 外連接會導致 巢狀嵌套迴圈 而無法改變驅動表.
+
+        d. where 第3段, 留意下列幾點:
+          1. 子查詢能否展開至第2段.
+          2. 過濾條件不要使用函數, 會導致欄位不走索引.
+
+    第九章: SQL最佳化案例賞析
+
+    第十章: 全自動SQL審核
+
+<SQL - Questions and Answers SQL題庫 - 1> (資料來源: https://www.tutorialspoint.com/sql/sql_questions_answers.htm ; https://www.tutorialspoint.com/sql/sql_online_quiz.htm)
+    
+  (Table Schema)
+  STUDENTS(student_code, first_name, last_name, email, phone_no, date_of_birth, honours_subject, percentage_of_marks);
+      
+  Q1. Which of the following query would display names of all the students 
+      whose honours subject is English 
+        and percentage of marks more than 80, or honours subject is Spanish 
+        and percentage of marks more than 80?
+
+    A1. SELECT first_name + last_name
+        FROM STUDENTS
+        WHERE percentage_of_marks > 80
+          AND (honours_subject = 'English' OR honours_subject = 'Spanish');
+   
+  Q2. Which of the following query would 
+      display names and percentage of marks of all students 
+      sorted by honours subject, and then order by percentage of marks?
+
+    Q2. SELECT first_name + last_name, percentage_of_marks
+        FROM STUDENTS
+        ORDER BY honours_subject, percentage_of_marks; 
+
+  Q3: Which of the following is not true about (USING) clause? # 何者非 USING子句的正確用法 #
+    A - When more than one column has the same name, 
+        USING clause is used for specifying the column to be joined by equijoin.
+    B - It is used for matching one column only.
+    C(X) - You can use a table name or alias in the referenced columns.
+    D - The NATURAL JOIN and the USING clauses are mutually exclusive.
+
+  (Table Schema)
+  HONOURS_SUBJECT(subject_code, subject_name, department_head);
+  LOCATIONS(subject_code, department_name, location_id, city);
+
+  (註: LEFT OUTER JOIN == LEFT JOIN, 左邊全show, 右邊no match, 則show null)
+  Q4: Select the right query for retrieving records from the tables HONOURS_SUBJECT and LOCATIONS with a left outer join
+
+    SELECT H.subject_code, H.subject_name, H.department_head, L.department_name, L.location_id, L.City
+    FROM HONOURS_SUBJECT H LEFT JOIN LOCATIONS L ON H.subject_code = L.subject_code;
+
+  (關於 "子查詢")
+  Q5: Which of the following is true about subqueries?
+    A - Subqueries could be used for Top-N analysis.
+    B - Subqueries can be of two types – single-row subquery and multiple-row subquery.
+    C - The outer and inner queries can get data from different tables.
+    D(O) - All of the above.
+
+  (關於 "多筆查詢" 的比較子, IN, ANY, ALL; 都可以用)
+  Q6: Which of the following comparison operators could be used in a multiple row query?
+    A - IN operator (SELECT * FROM Customers WHERE Country IN (SELECT Country FROM Suppliers); )
+    B - ANY operator (SELECT PRODUCT_NAME FROM PRODUCTS WHERE PRODUCTID = ANY (SELECT PRODUCTID FROM ORDERDETIALS WHERE QUANTITY = 10); )
+    C - ALL operator (SELECT PRODUCT_NAME FROM PRODUCTS WHERE PRODUCTID = All (SELECT PRODUCTID FROM ORDERDETIALS WHERE QUANTITY = 10); )
+    D(o) - All of the above
+
+  (可條件式更新或新增的方式, MERGE)
+  Q7: Which statement allows conditional update, or insertion of data into a table simultaneously?
+    A - INSERT statement
+    B(o) - MERGE statement
+    C - UPDATE statement
+    D - None of the above
+
+  (刪除所有資料, TRUNCATE)
+  Q8: Which of the following code will remove all the rows from the table LOCATIONS?
+    A - DROP TABLE locations;
+    B(o) - DELETE TABLE locations;
+    C(o) - TRUNCATE TABLE locations;
+    D - None of the above.
+
+  (新增索引的語法, CREATE INDEX INDEX_NAME ON table_name(column_name1, column_name2); )
+  Q9: Which of the following code will create an index named stu_marks_ind on the columns student_code and percentage_of_marks of the STUDENTS table?
+    A - It’s not possible to create an index on two columns.
+    B - create index stu_marks_ind from students(student_code, percentage_of_marks);
+    C(o) - create index stu_marks_ind on students(student_code, percentage_of_marks);
+    D - create index stu_marks_ind (student_code, percentage_of_marks) on students;
+
+  (授予權限給特定群組, GRANT CREATE TABLE, CREATE VIEW TO STUDENT_GROUP)
+  Q10: Which of the following code would allocate the privileges of creating tables and view to the role named student_admin?
+    A(o) - grant create table, create view to student_admin;
+    B - grant to student_admin create table, create view;
+    C - grant role student_admin create table, create view;
+    D - None of the above.
+
+<SQL - Database Tunning 資料庫效能調校> (資料來源: https://www.tutorialspoint.com/sql/sql-database-tuning.htm)
+  It takes time to become a Database Expert or an expert Database Administrator. 
+  This all comes with lot of experience in various database designs and good trainings.
+
+  (建立好的資料庫效能基本要求) But the following list may be helpful for the beginners to have a nice database performance − .
+    1. Use 3BCNF database design explained in this tutorial in RDBMS Concepts chapter.
+      使用 3BCNF 資料庫設計方式
+      a. 去除重複資料.
+      b. 去除部分相依, 所有非主鍵欄位都要相依在主鍵上.
+      c. 去除遞移相依, 所有非主鍵欄位間不得相依.
+    
+    2. Avoid number-to-character conversions because numbers and characters compare differently and lead to performance downgrade.
+      避免使用 數值至字元 轉換, 它會導致效能下降.
+
+    3. While using SELECT statement, only fetch whatever information is required and avoid using * in your SELECT queries because it would load the system unnecessarily.
+      使用 SELECT 字句時, 只挑選所需欄位, 避免使用 * 把所有欄位都抓回來, 而增加效能耗用.
+    
+    4. Create your indexes carefully on all the tables where you have frequent search operations. 
+       Avoid index on the tables where you have less number of search operations and more number of insert and update operations.
+      小心地(新增索引), 在(頻繁查詢作業)的資料表上.
+      避免(新增索引), 在(少量查詢條件 & 頻繁新增更新作業)的資料表上.
+
+    5. A full-table scan occurs when the columns in the WHERE clause do not have an index associated with them. 
+       You can avoid a full-table scan by creating an index on columns 
+       that are used as conditions in the WHERE clause of an SQL statement.
+      當 WHERE 子句中的列沒有與其關聯的索引時，將發生全表掃描。
+      透過在 SQL 語句的 WHERE 子句中用作條件的列上創建索引，可以避免全表掃描。
+
+    6. Be very careful of equality operators with real numbers and date/time values. 
+       Both of these can have small differences that are not obvious to the eye 
+       but that make an exact match impossible, thus preventing your queries from ever returning rows.
+      相等運算符(=)用於(實數)和(日期/時間值)時, 請小心。
+      這兩者都可能有微小的差異，這些差異對眼睛來說並不明顯。
+      但這會使完全匹配變得不可能，從而防止您的查詢回傳資料。
+      (註: 因為 "數值" 和 "日期/時間值" 很像, 使用時不要看錯. )
+
+    7. Use pattern matching judiciously. (明智地)
+       LIKE COL% is a valid WHERE condition, 
+       reducing the returned set to only those records with data starting with the string COL. 
+       However, COL%Y does not further reduce the returned results set since %Y cannot be effectively evaluated. 
+       The effort to do the evaluation is too large to be considered. 
+       In this case, the COL% is used, but the %Y is thrown away. 
+       
+       For the same reason, a leading wildcard %COL effectively prevents the entire filter from being used.
+
+      > COL% , COL%有效
+      > COL%Y , COL%有效 , 但%Y會被丟棄不用.
+      > %COL, %COL有效 <== 會造成 效能問題 ==>
+      (註: 注意 萬用字元 % 放置位置, 避免無效使用)
+
+    8. Fine tune your SQL queries examining the structure of the queries (and subqueries), the SQL syntax, 
+       to discover whether you have designed your tables to support fast data manipulation 
+       and written the query in an optimum manner, allowing your DBMS to manipulate the data efficiently.
+
+      微調 SQL 查詢，檢查查詢（和子查詢）的結構、SQL 語法、以發現您是否已將表設計為支援快速數據操作
+      並以最佳方式編寫查詢，從而允許您的 DBMS 有效地操作數據。
+      (註: 使用較佳的結構、語法)
+
+    9. For queries that are executed on a regular basis, try to use procedures. 
+       A procedure is a potentially large group of SQL statements. 
+       Procedures are compiled by the database engine and then executed. 
+       Unlike an SQL statement, the database engine need not optimize the procedure before it is executed.
+
+      對於定期執行的查詢，請嘗試使用 "預存程序"。
+      "預存程序" 可能是一大組 SQL 語句。
+      "預存程序" 由資料庫引擎編譯，然後執行。
+      與 SQL 語句不同，資料庫引擎在執行該過程之前不需要優化該過程。(因為 "預存程序" 已預先編譯並儲存再利用)      
+      (註: 固定使用的查詢, 可試著利用 "預存程序")
+
+    10. Avoid using the logical operator OR in a query if possible. 
+        OR inevitably slows down nearly any query against a table of substantial size.
+
+      如果可能，請避免在查詢中使用邏輯運算元 OR。
+      OR 不可避免地減慢了對具有較大大小的表的幾乎任何查詢的速度
+
+    11. You can optimize bulk data loads by dropping indexes. 
+        Imagine the history table with many thousands of rows. 
+        That history table is also likely to have one or more indexes. 
+        
+        When you think of an index, you normally think of faster table access, 
+        but in the case of batch loads, you can benefit by dropping the index(es).
+
+      (註1: 優化大量資料載入[bulk data load] , 可試著先移除索引[drop index])
+      (註2: 優化大量資料存取[bulk data access], 可試著先新增索引[create index])
+
+    12. When performing batch transactions, perform COMMIT at after a fair number of records creation in stead of creating them after every record creation.
+      執行批次作業時，請在新增相當數量的記錄後執行 COMMIT，
+      而不是在每次新增記錄後就 COMMIT 1次。
+
+    13. Plan to defragment the database on a regular basis, even if doing so means developing a weekly routine.
+      每周定期分割資料庫, 可有效降低儲存量及提昇執行效率.
+
+  (內建效能工具)Built-In Tuning Tools
+    Oracle has many tools for managing SQL statement performance but among them two are very popular. These two tools are −
+
+      Explain plan − tool identifies the access path that will be taken when the SQL statement is executed.
+
+      tkprof − measures the performance by time elapsed during each phase of SQL statement processing.
+      (註: TKPROF program to format the contents of the trace file and place the output into a readable output file.)
+
+    If you want to simply measure the elapsed time of a query in Oracle, you can use the SQL*Plus command (SET TIMING ON).
+
+    Check your RDBMS documentation for more detail on the above-mentioned tools and defragmenting the database.
+
+<Learn Path - 監視並最佳化 SQL Server 中的運作資源> (有助於取得 DP-300) 2022/03/25
+  資料來源: https://docs.microsoft.com/en-us/learn/paths/monitor-optimize-operational-resources-sql-server/
+  
+  <描述效能監視 Describe performance monitoring> 2022/03/24
+    [簡介]
+      DBA主要工作: 監控效能 + 識別並解決效能瓶頸.
+
+      There are some metrics that are exposed in both locations so knowing where to identify specific metrics is important. 
+      One example of data that can only be captured from DMVs is data and transaction log file read/write latency 
+        as exposed in "sys.dm_os_volume_stats". 
+      On the other hand, an example of an OS metric that is not available directly through SQL Server is the seconds per disk read and write for the disk volume. 
+        Combining these two metrics can help you gain better understand if a performance issue is related to database structure or a physical storage bottleneck.
+
+    [建立基準評估 Establish baseline metrics]
+      穩定狀態或一般狀態
+
+      With any type of application workload, it is imperative to establish a working baseline. 
+      A baseline will help you identify if an ongoing issue should be considered within normal parameters or has exceeded given thresholds. 
+      Without a baseline, every issue encountered could be considered normal and therefore not require any additional intervention.
+      
+      對於任何類型的應用程序工作負載，都必須建立一個工作基線。
+      基線將幫助您確定是否應在正常參數範圍內考慮持續存在的問題或是否已超過給定閾值。
+      如果沒有基線，遇到的每個問題都可以被認為是正常的，因此不需要任何額外的干預。
+
+      <關聯 SQL Server 和操作系統性能>
+        以下性能監視器計數器是有用的 Windows 指標的示例，可讓您捕獲 SQL Server 工作負載的良好基線：
+
+        > Paging File(_Total)% Usage - 
+          在正確配置的 SQL Server 中，記憶體不應分頁到磁盤上的頁面文件。
+          但是，在某些配置中，您可能會運行其他服務，這些服務會消耗系統記憶體並導致操作系統將記憶體分頁到磁盤，從而導致性能下降。
+
+        > PhysicalDisk（_Total）\平均。磁盤秒/讀取和平均。 
+          Disk sec/Write - 此計數器提供了一個很好的衡量存儲子系統工作方式的指標。
+          在大多數情況下，您的延遲值不應超過 20 毫秒，而使用高級存儲時，您應該會看到小於 10 毫秒的值。
+
+        > System\Processor Queue Length - 此數字表示在處理器上等待時間的線程數。
+          如果它大於零，則表明 CPU 壓力，表明您的工作負載可以從更多 CPU 中受益。
+
+        > SQLServer:Buffer Manager\Page life expectancy - 頁面預期壽命表示 SQL Server 期望頁面在記憶體中存在多長時間。
+          此設置沒有合適的值。
+          較早的文檔提到 300 秒是正確的，但這是在 32 位時代編寫的，當時服務器的 RAM 少得多。
+          您應該隨著時間的推移監控此值，並評估突然下降。
+          計數器值的這種下降可能表明查詢模式不佳、外部記憶體壓力（例如，運行大型 SSIS 包的服務器）或可能只是正常的系統處理，例如在大型數據庫上運行一致性檢查。
+
+        > SQLServer:SQL Statistics\Batch Requests/sec - 此計數器適用於評估 SQL Server 在一段時間內的繁忙程度。
+          再一次沒有好或壞的值，
+          但您可以將此計數器與 % Processor time 結合使用，以更好地了解您的工作負載和基線。
+
+        > SQLServer:SQL Statistics\SQL Compilations/sec 和 SQL Re-Compilations/sec - 當 SQL Server 必須為查詢編譯或重新編譯執行計劃時，因為計劃緩存中沒有現有計劃，或者因為計劃因變更而失效。
+          重新編譯可以指示帶有重新編譯查詢提示的 T-SQL，
+          或者指示由許多臨時查詢或簡單記憶體壓力引起的計劃緩存上的記憶體壓力。
+
+        這些計數器只是可供您使用的可用性能監視器計數器的一個示例。
+        雖然上述計數器提供了良好的性能基準，但您可能需要檢查更多計數器以確定特定的性能問題。
+
+      <等待統計 Wait statistics> <== "sys.dm_os_wait_stats" 
+        a. 在理解資料庫效能基準上非常重要, 它能快速識別出特定效能問題(例: 查詢執行 或 硬體限制)
+        b. 識別適當的等待型態 及 對應解決方案在排除效能問題上十分關鍵.
+
+    [探索延伸事件 explore Extended Events]
+      擴展事件建立在 <SQL Server Profiler> 的功能之上，允許您追溯查詢並公開您可以監視的其他數據（事件）。
+      您可能使用擴展事件解決的一些問題示例包括：
+      1. 排除 BLOCKING & DEADLOCKING 效能問題
+      2. 識別 LONG-RUNNING Query
+      3. 監控 DDL(Data Definition Language) 作業
+      4. 記錄 MISSING COLUMN Statistics
+      5. 觀察 Memory Pressure in your database(資料庫內的 記憶體壓力)
+      6. 觀察 Long-running physical I/O 作業(長時間的IO存取作業)
+
+      <能利用 '擴展事件' 監控什麼>
+        1. 管理員 - 管理員事件針對最終用戶和管理員。
+          包含的事件表明管理員可以採取的一組明確定義的操作中的問題。
+          這方面的一個示例是生成 XML 死鎖報告(DEADLOCK)以幫助識別死鎖的根本原因。
+
+        2. 操作 - 操作事件用於分析和診斷或常見問題。
+          這些事件可用於根據事件的發生觸發動作或任務。
+          操作事件的一個示例是處於可用性組更改狀態的數據庫，這將指示故障轉移(faliover)。
+
+        3. 分析 - 分析事件通常與性能事件相關並且大量發布。
+          追蹤'預存程序'或'查詢執行'將是分析事件的一個示例。
+
+        4. 偵錯 - 偵錯事件不需要完成記錄，您應該僅在與 Microsoft 支持一起進行故障排除時使用它們。
+
+        5. 使用方式:
+          a. events 加到 sessions內, 在sessions內可包含多個 events.
+          b. 一般而言, 多個相關的events會被包在同一個session內, 以獲取相關資訊.
+          c. 使用下列Command, 查詢 可用的事件, 行為和目標(events, actions and targets)
+            
+            SELECT 
+              obj.object_type,
+              pkg.name as [package_name],
+              obj.name as [object_name],
+              obj.description as [description]
+            FROM sys.dm_xe_objects as obj
+              INNER JOIN sys.dm_xe_packages as pkg on obj.guid = pkg.package_guid
+            WHERE obj.object_type in ('action', 'event', 'target')
+
+        <新增'擴展事件' Session 的步驟 Create extended events session>
+          a. 新增 session > 再加入 events
+          b. SQL Server 提供一些樣版:
+            1. Locks and blocks
+            2. Profiler Equivalents
+            3. Query Execution
+            4. System monitoring
+          
+          c. 加入 events 後, 預設會把所有 instances 被挑選 events項目放進來.
+            這時, 還須利用 "Configure" 
+            > 勾選 "Global Fields(Actions)" 收集你要資訊.
+            > 指定 "Filter (Predicate)" 指定臨界值(上限, 下限, 觸發點)
+            > 檢視 "Event Fields" 顯示最終設定結果.
+
+          d. 建議作法:
+            對每個 events 都指定 "Filter (Predicate)" 指定臨界值(上限, 下限, 觸發點).
+            有助於改善資料收集效率, 並讓聚焦在問題本身而非大量資料上.
+
+          e. 另外, 設定完成後 "Event Fields" 會出現兩個選項 "statement" & "parameterized_plan_handle".
+
+          f. 最後, event session設定完成後, 要指定儲存位置.
+            兩個最常用的位置是:
+              1. event file, 放在資料檔內, 屬非同步資訊.
+              2. ring buffer, 放在記憶體內, 屬非同步資訊.
+
+            以下列出所有可用位置:
+            [Processing]  [Target]        [Description] 	
+            Synchronous   Event Counter 	Counts all events that occurred during an Extended Event session. 
+                                          This is used to obtain information about workload characteristics about a workload without the overhead of a full event collection.
+            
+            Asynchronous  <Event File> 	  Writes event session output from memory onto persistent file on disk. 	
+            
+            Asynchronous  Event Pairing 	Many events that generally occur in pairs (e.g. lock acquire, lock release), 
+                                          and this collection can be used to identity when those events do no occur in a matched set.
+            
+            Synchronous   Event Tracing 
+                          for Windows (ETW) 	Used to correlate SQL Server events with the Windows OS event data. 	
+            
+            Asynchronous  Histogram 	    This is similar to event counter, which counts the occurrences of an event. 
+                                          The difference is that the histogram can count based on a specific event column or action.
+            
+            Asynchronous  <Ring Buffer>   Used to hold data in memory. 
+                                          Data is not persisted to disk and maybe frequently flushed from the buffer.
+
+          g. 它也能利用 T-SQL 產生 Extended Event
+
+            if exists(select * from sys.server_event_session where name='test_session')
+              drop event session test_session on server;
+            go
+
+            create event session test_session
+            on server
+              add event sqlos.async_io_requested,
+              add event sqlserver.lock_acquired
+              add target package0.etw_classic_sync_target (set default_etw_session_logfile_path = N'c:\demo\traces\sqletw.etl')
+              with (max_memory = 4MB, max_event_size = 4MB);
+            go
+
+            //註: 每個 session 可以放在 server or database上.
+            //註: 新增session後, 利用 'alter test_session state on' 啟動它.
+
+    [知識檢定]
+      1. Which Intelligent Insights options provide SQL Insights? 
+        Log Analytics
+      2. Which Performance Monitor counter reflects how long SQL Server expects to retain data in memory? 
+        Page Life Expectancy
+      3. What tool should you use to see the sizes of your SQL Server databases running in an Azure virtual machine? 
+        The SQL virtual machine resource provider
+      4. Which extended event target counts how many times each specified event occurs? 
+        The event_counter target
+
+  <探索效能問題的原因 Explore causes of performance issues> 2022/03/25
+    [Introduction]
+      In SQL Server 2016, Microsoft introduced the Query Store, which acts as a data recorder for the database engine. 
+      The "Query Store" is focused on query performance and changes in execution plans.
+      SQL Server 2016 引進的新工具, "Query Store" 用於執行計劃的查詢效能改善.
+
+    [Describe SQL Server Query Store]
+      它永久地收集執行階段資訊.
+      The Query Store captures <run time information> 
+        such as duration, logical I/O, CPU usage amongst other metrics for query executions in a specific user database. 
+      
+      It also captures the <estimated execution plan> for each execution, 
+        which can allow you to quickly detect an execution plan that has regressed in performance.
+
+      主要收集兩類資料:
+        1. 有關查詢本身的資料(執行次數, 執行時使用的計劃, 查詢字串)
+        2. 有關查詢的效能資訊(執行)
+
+    [Describe blocking and locking in SQL Server]
+      Locking is normal behavior and happens many times during a normal day. 
+      Locking only become a problem when it causes blocking that is not quickly resolved. 
+      There are two types of performance issues that can be caused by blocking:
+        
+        1. 鎖定太久, 造成連鎖效應而出現查詢效能下降.
+        1. A process holds locks on a set of resources for an extended period of time before releasing them. 
+          These locks cause other processes to block, which can degrade query performance and concurrency.
+        2. 取得資源鎖定權, 但都不釋放出來.(註: 這時要由DBA介入解決..)
+        2. A process gets locks on a set of resources, and never releases them. 
+          This problem requires administrator intervention to resolve.
+
+      另一種狀況是: deadlock, 兩個交易都在等待對方釋放資源.
+      However, the SQL Server engine has a mechanism for detecting these scenarios 
+      and will kill one of the transactions in order to alleviate the deadlock, 
+      based on which transaction has performed the least of amount of work that would need to be rolled back. 
+      
+      The transaction that is killed is known as the <deadlock victim>. 
+      Deadlocks are recorded in the "system_health" extended event session which is enabled by default.
+
+      大部份 LONG-RUNNING QUERY 都是 Developer 忘記寫 COMMIT TRANSACTION 所造成.
+
+      數據庫引擎用來幫助數據庫並行(concurrency)的另一種機制是"行版本控制(row-versiong)"。
+      當對數據庫啟用"行版本控制"隔離級別時，引擎會在 TempDB 中維護每個修改行的版本。
+      這通常用於混合使用的工作負載，以防止讀取查詢阻塞正在寫入數據庫的查詢。
+
+      下列指令可以協助監控開啟中交易, 等待 COMMIT OR ROLLBACK指令:
+        SELECT tst.session_id, [database_name] = db_name(s.database_id)
+            , tat.transaction_begin_time
+            , transaction_duration_s = datediff(s, tat.transaction_begin_time, sysdatetime()) 
+            , transaction_type = CASE tat.transaction_type  WHEN 1 THEN 'Read/write transaction'
+                WHEN 2 THEN 'Read-only transaction'
+                WHEN 3 THEN 'System transaction'
+                WHEN 4 THEN 'Distributed transaction' END
+            , input_buffer = ib.event_info, tat.transaction_uow     
+            , transaction_state  = CASE tat.transaction_state    
+                WHEN 0 THEN 'The transaction has not been completely initialized yet.'
+                WHEN 1 THEN 'The transaction has been initialized but has not started.'
+                WHEN 2 THEN 'The transaction is active - has not been committed or rolled back.'
+                WHEN 3 THEN 'The transaction has ended. This is used for read-only transactions.'
+                WHEN 4 THEN 'The commit process has been initiated on the distributed transaction.'
+                WHEN 5 THEN 'The transaction is in a prepared state and waiting resolution.'
+                WHEN 6 THEN 'The transaction has been committed.'
+                WHEN 7 THEN 'The transaction is being rolled back.'
+                WHEN 8 THEN 'The transaction has been rolled back.' END 
+            , transaction_name = tat.name, request_status = r.status
+            , tst.is_user_transaction, tst.is_local
+            , session_open_transaction_count = tst.open_transaction_count  
+            , s.host_name, s.program_name, s.client_interface_name, s.login_name, s.is_user_process
+        FROM sys.dm_tran_active_transactions tat 
+        INNER JOIN sys.dm_tran_session_transactions tst  on tat.transaction_id = tst.transaction_id
+        INNER JOIN Sys.dm_exec_sessions s on s.session_id = tst.session_id 
+        LEFT OUTER JOIN sys.dm_exec_requests r on r.session_id = s.session_id
+        CROSS APPLY sys.dm_exec_input_buffer(s.session_id, null) AS ib
+        ORDER BY tat.transaction_begin_time DESC;
+
+      <隔離層級>: 
+        a. Isolation levels let you find a balance between concurrency(並行) and consistency(一致)
+        b. Isolation levels 不影響資料鎖定, 但會影響 "資料鎖定時間長短".
+        c. 低的 Isolation levels 允許多人同時存取資料, 但會增加資料不一致的風險.
+        d. 隔離層級有下列幾種:
+          
+          (最低)Read uncommitted - 可讀取未確認的變更
+            This is the lowest isolation level available. 
+            "Dirty reads" are allowed, which means one transaction may see changes made by another transaction that have not yet been committed.
+          
+          (預設)Read committed - 可讀前次資料狀態
+            This level allows a transaction to read data previously read, 
+            but not modified by another transaction with without waiting for the first transaction to finish. This level also releases read locks as soon as the select operation is performed. This is the default SQL Server level.
+          
+          Repeatable Read - 
+            This level keeps read and write locks that are acquired on selected data until the end of the transaction.
+          
+          (最高)Serializable - 
+            This is the highest level of isolation where transactions are completely isolated. 
+            Read and write locks are acquired on selected data and not released until the end of the transaction.
+
+        e. 另外, 提供針對 "行版本控制(row-versiong)" 的 隔離層級: <== 提高 資料 concurrency(並行) 能力用 ==>
+
+          Read Committed Snapshot - 常用於在OLTP(交易)環境中, 執行報表查詢時用, 避免查詢作業阻擋寫入作業.
+            In this level read operations take no row or page locks, 
+            and the engine presents each operation with a consistent snapshot of the data as it existed at the start of the query. 
+            This level is typically used 
+            when users are running frequent reporting queries against an OLTP database, 
+            in order to prevent the read operations from blocking the write operations.
+
+          Snapshot - 此類隔離易受 "update conflicts(更新衝突)" 影響. 若某一交易讀到被其他交易異動的資料, 則發生在快照上的更新交易將被中止並還原.
+            This level provides transaction level read consistency through row versioning. 
+            This level is vulnerable to update conflicts. 
+            If a transaction running under this level reads data modified by another transaction, 
+            an update by the snapshot transaction will be terminated and roll back. 
+            This is not an issue with read committed snapshot isolation.
+
+        f. 每個SESSION有自己的隔離層級, 它是 session level setting.
+          1. 無法設定所有查詢都使用相同隔離層級
+          2. 設定方式
+
+            SET TRANSACTION ISOLATION LEVEL
+            {
+              READ uncommitted
+              | READ COMMITTED
+              | Repeatable READ
+              | Snapshot
+              | Serializable
+              | Read Committed Snapshot
+            }
+
+      <阻擋問題的監控>
+        
+        作法1: 可以結合 "sys.dm_tran_locks" & "sys.dm_exec_requests" 兩個DMV, 提供每個SESSION內的LOCK資訊.
+        
+        作法2: (建議作法) 
+          使用 "擴展方法" 進行監控
+          A better way to monitor for blocking problems is to do so on an ongoing basis 
+          using the "Extended Events" engine.
+
+        阻擋問題的類型:
+          1. Poor transactional design. 糟糕的交易設計
+            a. 忘記寫 COMMIT TRANSACTION
+            b. 試著在單一交易中, 作太多作業
+            c. 使用LINKED SERVER CONNECTION進行遠端交易
+            等等..都是糟糕的交易設計
+
+            As shown above, a transaction that has no COMMIT TRANSACTION will never end. 
+            While that is a very simple example, trying to do too much work in a single transaction 
+              or having a distributed transaction which uses a linked server connection, 
+            can lead to unpredictable performance.
+
+          2. Long running transactions caused by schema design. 資料庫設計問題
+            Frequently this can be an update on a column with a missing index, 
+            or poorly designed update query.
+
+            a. 更新一個遺失索引的欄位
+            b. 更新語法撰寫問題
+
+      <資料檔案碎片 Describe data file fragmentation>
+        當應該存儲在一起的數據集合被分解成許多在磁盤上不連續的片段時，就會出現存儲碎片。
+        從歷史上看，非連續數據在具有硬盤驅動器的系統上是有問題的，在執行順序讀取和寫入（在磁盤上的連續扇區中讀取或寫入一組數據）時性能要好得多。
+        現代固態設備 (SSD) 減少了碎片的影響，至少在操作系統級別，
+        
+        但它仍然可以在 SQL Server 使用的數據文件中產生影響。 <== 有資料檔案碎片 還是不好的.
+
+        當索引（叢集和非叢集）的索引頁中基於索引鍵的數據值的索引邏輯順序與頁的物理順序不匹配時，就會出現碎片。
+        當引擎在執行插入或更新操作時修改頁面時會發生碎片。
+        如果現有頁面上沒有新值的空間，則頁面將拆分。
+        
+        拆分頁面(Split pages)會降低性能，尤其是對於掃描操作，因為檢索數據需要額外的 I/O。
+        在創建索引時使用填充因子設置(fillfactor setting)可以減少碎片。
+        較低的填充因子值會在頁面上為插入和更新的行留下可用空間。
+
+        fillfactor setting = 叢集因子(Oracle用語)
+
+    [Exercise: Identify and resolve blocking issues]
+      1. 新增Session加入EVENT => 來監控問題
+
+        use master;
+        go
+
+        create event session [Blocking] on server
+        add event sqlserver.blocked_process_report(
+          action(sqlserver.client_app_name, 
+                 sqlserver.client_hostname, 
+                 sqlserver.database_id, 
+                 sqlserver.database_name,
+                 sqlserver.nt_username,
+                 sqlserver.session_id,
+                 sqlserver.sql_text,
+                 sqlserver.username))
+        add target package0.ring_buffer
+        with (max_memory=4096 KB, 
+              event_retention_mode=allow_single_event_loss, 
+              max_dispatch_latency=30 seconds, 
+              max_event_size=0 KB,
+              memory_partition_mode=None,
+              track_causality=off,
+              startup_state=on)
+        go
+
+        -- start the event session
+        alter event session [Blocking] on server
+        state = start;
+        go
+
+      2. 新增持續運作交易
+        USE AdventureWorks2017
+        GO
+
+        BEGIN TRANSACTION
+            UPDATE Person.Person 
+            SET LastName = LastName;
+        GO
+
+      3. 新增另一個查詢作業
+        USE AdventureWorks2017
+        GO
+
+        SELECT TOP (1000) [LastName]
+          ,[FirstName]
+          ,[Title]
+        FROM Person.Person
+        WHERE FirstName = 'David'
+
+      4. 檢視 [Blocking] Session內的 Event值, 可取得阻擋及被擋的STATEMENT.
+        點開XML連接, 
+        在<blocking-process>
+            <inputbuf>..在這裡顯示STATEMENT..</inputbuf>
+          </blocking-process>
+
+        a. 再把 Session 關閉
+        b. 把阻擋的STATEMENT 取消後, 即可解決 Blocking問題.
+        
+      5. 調整 隔離層級 為 READ_COMMITTED_SNAPSHOT(樂觀鎖定)
+        USE master
+        GO
+
+        ALTER DATABASE AdventureWorks2017 
+        SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;
+
+      6. 再重覆Step2-Step3 , 檢視 [Blocking] Session內的 Event值, 發現不再出現阻擋事件.
+
+    [知識檢定]
+      1. Which isolation level should you choose 
+        if you want to prevent users reading data from blocking users writing data?
+        
+        (X-最嚴格的方式)Serializable
+        (O-可讀取前次資料, 而不阻擋資料寫入)Read Committed Snapshot Isolation <== 正確答案: 
+          The level allows each reader to have their own version of the data and prevents readers from blocking writers.
+          讀者有自己的資料版本, 不被寫入者所阻擋.
+        (X)Repeatable Read
+
+      2. Which DMV shows sessions holding locks? 
+
+        (X)sys.query_store_query
+        (O)sys.dm_tran_locks <== 正確答案: 
+          This DMV shows the active locks in a given database at the point of time in the query
+        (X)sys.databases
+
+      3. Which Query Store catalog view provides the Query ID to allow for query tracking?
+        
+        (X)sys.query_store_plan
+        (O)sys.query_store_runtime_statistics
+        (X)sys.query_store_query <== 正確答案: 
+          This view contains the queryID and can be joined to other views for other information.
+
+  <設定SQL Server資源以取得最佳效能 Configurate SQL Server resources for optimal performance> 2022/03/25
+    [簡介]
+      1. 選擇正確的<儲存體>，以及調整<虛擬機器的大小>調整，
+        是符合<應用程式效能需求和平衡雲端成本>的重要步驟。
+
+      2. 學習目標
+        a. 了解 Azure 儲存體的設定選項
+        b. 了解如何在 SQL Server 中設定 TempDB 資料檔案
+        c. 了解如何為 SQL Server 工作負載選擇正確的 VM 類型
+        d. 了解 Resource Governor 在 SQL Server 中的使用案例和設定
+
+    [如何最佳化SQL SERVER VM的AZURE儲存體]
+      1. 儲存體效能是 I/O 繁重應用程式 (例如資料庫引擎) 的重要元件。
+      2. AZURE儲存體有三類:
+        a. Blob 儲存體 - (SQL SERVER 常用於資料庫備份)
+          Blob 儲存體就是所謂的物件型儲存體，並包括非經常性、經常性和封存儲存層。 
+          在 SQL Server 環境中，Blob 儲存體通常用於資料庫備份，並使用 SQL Server 的備份至 URL 功能。
+        
+        b. 檔案儲存體 - (SQL SERVER 常用於容錯移轉叢集執行個體的儲存目標)
+          檔案儲存體實際上是可裝載在虛擬機器內的檔案共用，而不需要設定任何硬體。 
+          SQL Server 可以使用檔案儲存體，作為容錯移轉叢集執行個體的儲存目標。
+
+        c. 磁碟儲存體 - (SQL SERVER 常用於 "資料檔" & "交易紀錄檔")
+          Azure 受控磁碟提供呈現給虛擬機器的區塊儲存體。 
+          管理這些磁碟，就像是管理內部部署伺服器中的實體磁碟一樣，但它們已虛擬化。 
+          受控磁碟內有數個效能層級，取決於您的工作負載。 
+          這種類型的儲存體是 SQL Server 資料和交易記錄檔最常使用的類型。
+
+    [描述VM調整大小]
+
+    [最佳化資料庫的儲存體]
+
+    [控制SQL SERVER資源]
+
+    [知識檢定]
+
+    1. 哪種類型的儲存體應該與適用於 SQL Server 資料檔的 Azure VM 搭配使用？
+      (X)a. 資料表儲存體
+      (X)b. Blob 儲存體
+      (O)c. 磁碟儲存體
+
+    2. 下列何者可以使用 Resource Governor 來限制？
+      (O)a. 緩衝集區配置 <== 錯誤答案, Resource Governor '可控制記憶體授與', 但無法配置 '緩衝集區配置'
+      (X)b. 寫入 IOPS <== 正確答案, Resource Governor '可控制IOPS'(每秒輸出入)
+      (X)c. 重新編譯
+
+    3. 哪個選項來自適用於 Azure VM 的 SQL Server 資源提供者？
+      (X)a. 儲存體組態 <== 正確答案
+      (O)b. 變更平行處理原則的最大程度 <== 錯誤答案
+      (X)c. 維護計畫
+
+  <設定具備較佳效能的資料庫 Configurate databases for performance> 2022/03/25
+    [簡介]
+      1. Microsoft 已將更多的設定選項移至資料庫層級，讓您更深入了解資料庫的行為。 
+      2. 除了這些選項之外，它們還引進了功能作為智慧型查詢處理的一部分，讓查詢最佳化工具能夠做出更好的選擇。
+
+    [描述資料庫範圍設定選項]
+      
+      1. SQL Server 一律具有在資料庫層級設定的設定選項。 ex.<復原模式>一律是資料庫設定
+      2. 資料庫設定選項會分成兩個群組:
+        a. 在 T-SQL 中由 ALTER DATABASE 語法設定的選項
+          > 資料庫復原模式 - 資料庫處於 "完整" 還是 "簡單復原模式"
+          > 自動調整選項 - 是否要啟用強制執行上一個良好的計畫
+          > 自動建立和更新統計資料 - 允許資料庫建立和更新統計資料，並允許進行非同步統計資料更新的選項
+          > 查詢存放區選項 - 在這裡設定查詢存放區選項
+          > 快照集隔離 - 您可以設定快照集隔離和讀取認可的快照集隔離
+
+        b. 在 T-SQL 中由 ALTER DATABASE SCOPED CONFIGURATION 語法設定的選項(SQL Server 2016後才有的進階設定)
+          & 允許設定數個先前在伺服器層級設定的選項。
+          > 平行處理原則的最大程度 - 此設定可讓資料庫設定自己的 MaxDOP 設定，並覆寫伺服器的設定。
+          > 舊版基數估計 - 此設定可讓資料庫使用較舊的基數估算器。 有些查詢在較新的基數估算器 (在 SQL Server 2014 中引進) 下可能會降低效能，而且可能會受益於此設定。 您應該會注意到，如果使用此選項與較新的相容性層級搭配，您仍然可以在相容性層級 140 或 150 中取得智慧型查詢處理的優點。
+          > 上個查詢計劃統計資料 - 這可讓您擷取查詢上一個實際執行計畫的值。 此功能只在相容性層級 150 中才有效。
+          > 針對特定工作負載最佳化 - 此選項會使用最佳化工具，將虛設常式查詢計劃儲存在計畫快取中。 對於具有大量單一使用查詢的工作負載，這可協助減少其計畫快取的大小。
+
+      3. 資料庫相容性層級
+        a. 每個資料庫都有自己的相容性層級，其可控制該資料庫的查詢最佳化工具行為。
+          您可以在升級 SQL Server 時管理此設定，以確保您的查詢具有與較舊版本類似的執行計畫。
+        b. 您應該嘗試移至較新的相容性層級，因為智慧型查詢處理中有許多新的效能功能只能在相容性層級 140 或 150 下使用。 
+
+    [描述智慧型查詢處理] - 看不懂
+    [描述適用於 MySQL 和 PostgreSQL 的 Azure 資料庫中的查詢存放區] - 看不懂
+
+    [知識檢定]
+      1.哪些智慧型查詢處理功能可讓大量資料列的計算速度更快？
+        a. 資料列存放區上的批次模式(O)
+        b. 近似相異計數(X)
+        c. 交錯執行(X)
+
+      2.Resource Governor 的哪個元件可讓您設定系統資源的限制？
+        a. 工作負載群組(X)
+        b. 分類器功能(X)
+        c. 資源集區(O)
+
+      3.哪個資料庫設定會影響查詢最佳化工具產生執行計畫的方式？
+        a. 復原模式(X)
+        b. 針對特定工作負載最佳化(X)
+        c. 相容性層級(O)
+
+  <描述SQL Server中效能相關的維護工作 Describe performance-related maintenance tasks in SQL Server> 2022/03/25
+    [簡介]
+      1. 無論是 Azure 虛擬機器中的 SQL Server 執行個體或 Azure SQL Database ，
+        您都需要確定您的 <統計資料是最新的>，且您的<索引已妥善規劃>。
+
+    [維護索引]
+      1. 除了適當的索引編製外，索引維護是效能很重要的一部分，尤其是掃描資料表或索引的查詢作業。 
+        查詢最佳化工具會利用索引中的統計資訊，嘗試建立最佳的執行計畫。
+      
+      <重建(rebuild)和重組(arrange)>
+        索引頁面內的邏輯順序與實體排序不相符時，就會產生索引片段。 
+        在例行的資料修改陳述式期間 (例如 UPDATE、DELETE 和 INSERT)，頁面可能會順序紊亂。 
+        片段可能會導致效能問題，因為必須有額外的 I/O 才能找出索引頁面中的指標所參考的資料。
+
+        重新組織索引是一種線上作業，會將索引的分葉層級重組 (叢集化和非叢集化的部分都包含在內)。 
+        此重組流程會實際重新排序分葉層級頁面，以符合由左至右的節點邏輯順序。 
+        在此流程中，系統也會根據已設定的 fillfactor 值壓縮索引頁面。
+
+        根據執行的命令或使用的 SQL Server 版本，重建可以線上或離線執行。 
+        離線重建流程會卸除並重新建立索引本身。 
+        如果您可以在線上進行，新索引會以平行方式建立至現有的索引。 
+        一旦新索引建立完成，現有的索引將會卸除，然後重新命名新索引以符合舊索引的名稱。 
+        
+        請記住，線上版會需要額外的空間，因為新索引會平行建立至現有的索引。
+
+        索引維護的一般指南如下：
+          >5% 但 < 30% 重新組織索引
+          >30% 重建索引
+
+        (註:)
+          1. "重組 "是線上作業, 通常針對資料表小幅度異動範圍內使用( >5% ~ <30% )
+          2. "重建" 可以離線或線上作業, 當資料表出現大幅度異動時使用( >=30% )
+          3. "重建" 可以線上作業, 但會"需要額外空間儲存新索引", 待新索引建立完成, 才會卸除舊索引以新索引取代.
+
+    [維護統計資料]
+      統計資料會以二進位大型物件 (blob) 的形式儲存在使用者資料庫中。 
+      這些 blob 包含資料表或索引檢視表之<一個或多個資料行>中<資料值分佈的相關統計資料>。
+
+      統計資料包含 "資料行內資料值分佈的相關資訊"。 
+      
+      查詢最佳化工具會使用資料行和索引統計資料來判斷"基數"，
+      也就是查詢時預期會傳回的資料列數目。 
+      
+      然後，查詢最佳化工具會使用基數估計值來產生執行計畫。 
+      
+      "基數估計值" 也可協助最佳化工具判斷何種類型的作業 (例如，索引搜尋或掃描) 能用來取出所要求的資料。
+
+      <查看所有使用者定義的統計資料清單>
+        SELECT sp.stats_id, 
+              name, 
+              last_updated, 
+              rows, 
+              rows_sampled
+        FROM sys.stats
+            CROSS APPLY sys.dm_db_stats_properties(object_id, stats_id) AS sp
+        WHERE user_created = 1
+
+    [知識檢定]      
+      1. 哪個平台可支援自動索引管理？
+        Azure SQL 受控執行個體
+        Azure SQL Database(O)
+        Azure 虛擬機器中的 SQL Server
+
+      2. 針對統計資料所依據的物件執行查詢時，哪一個統計資料選項允許更新統計資料？
+        自動建立累加統計資料
+        自動建立統計資料
+        自動非同步更新統計資料(O)
+
+      3. 哪個 DMV 會顯示自動微調所更新的計畫狀態？
+        sys.dm_db_tuning_recommendations(O)
+        sys.dm_db_automatic_tuning_options
+        sys.query_store_query
+
+<Learn Path - 將 SQL Server 中的查詢效能最佳化> (有助於取得 DP-300) 2022/03/25
+  資源來源: https://docs.microsoft.com/en-us/learn/paths/optimize-query-performance-sql-server/
+
+  <描述什麼是 SQL Server 執行計劃 Describe SQL Server query plans> 2022/03/23
+    [執行計劃/查詢計劃的'簡介']
+      1. '資料庫效能調校' 最關鍵的能力是具備 閱讀和了解 '執行計劃/查詢計劃'
+      2. {學習目標}
+        a. 產生並儲存 '執行計劃/查詢計劃'
+        b. 比較不同型態的 '執行計劃/查詢計劃'
+        c. 了解如何以及為什麼 '執行計劃/查詢計劃' 的產生.
+
+    [執行計劃/查詢計劃的'型態']
+      1. SQL Server使用 '以成本為基礎' 的查詢優化器.
+        此查詢優化器針對不同的可用執行計劃, 依據統計資訊 & 索引等資訊計算出每個執行計劃的總成本.
+        挑選成本最低的計劃來執行.
+
+      2. "統計資訊" 用來追蹤欄位的資料分佈. 
+       + "索引" 必須保持最新 => 才能確保獲得 較優執行計劃.
+
+      3. "統計資訊" 會在資料變更時自動更新.
+       + "索引" 並不會自動更新 => 所以在經常 DML 的資料表上, 要定期重建索引.
+      
+      4. 當查詢送進資料庫時, 會發生下列步驟:
+        a. 解析查詢以獲得正確的語法，如果語法正確，則生成數據庫對象的<解析樹>。
+        b. 解析樹被作為輸入到稱為 Algebrizer 的數據庫引擎組件進行綁定。
+          此步驟驗證查詢中的欄位和物件是否存在，並識別給定查詢處理的數據類型。
+          此步驟輸出: <查詢處理器樹>。
+        c. 將QUERY轉為query_hash值, 再利用 query_hash值去 Plan Cache(執行計劃暫存區) 尋找是否相符的 <執行計劃>
+        d. 如果找不到相符的 <執行計劃>,  查詢優化器 才會產生執行計劃並挑出成本最低的那個.
+          此步驟輸出: <查詢執行計劃>。
+        e. 利用<查詢執行計劃> (註: 從Plan Cache執行計劃暫存區中取得 or 全新產生的) 執行查詢.
+          此步驟輸出: <查詢結果>。
+    
+      5. <查詢計劃>結合了一系列關係運算符來檢索數據，並擷取有關數據的資訊，例如估計的行數。
+        執行計劃的另一個元素是執行操作（例如連接或排序數據）所需的記憶體。
+        查詢所需的記憶體稱為記憶體授予。
+        記憶體授予是統計資訊重要性的一個很好的例子。
+        如果 SQL Server 認為一個運算符將返回 10,000,000 行，那麼當它只返回 100 行時，就會為查詢授予更大的記憶體量。
+        大於必要的記憶體授予可能會導致雙重問題。
+        首先，查詢可能會遇到 RESOURCE_SEMAPHORE 等待，這表明查詢正在等待 SQL Server 為其分配大量記憶體。
+        SQL Server 默認在執行前等待查詢成本的 25 倍（以秒為單位），最長 24 小時。
+        其次，在執行查詢時，如果沒有足夠的可用記憶體，查詢會溢出到 tempdb，這比在記憶體中操作要慢得多。
+
+      6. <查詢計劃>的三種類型:
+        a. 估計的執行計劃：SET SHOWPLAN_ALL ON, 屬文字類型的執行計劃, <無查詢結果>.
+          
+          這種類型是由查詢優化器生成的執行計劃。
+          查詢記憶體授予的元數據和大小基於在查詢編譯時數據庫中存在的統計信息的估計。
+          要查看基於文本的估計計劃，請在運行查詢之前運行命令 SET SHOWPLAN_ALL ON。
+          運行查詢時，您會看到執行計劃的步驟，但不會執行查詢，也不會看到任何結果。 
+          SET 選項將一直有效，直到您將其設置為 OFF。
+
+          select * from Table_1;	1	1	0	NULL	NULL	1	NULL	4	NULL	NULL	NULL	0.0032864	NULL	NULL	SELECT	0	NULL
+            |--Table Scan(OBJECT:([test].[dbo].[Table_1]))	1	2	1	Table Scan	Table Scan	OBJECT:([test].[dbo].[Table_1])	[test].[dbo].[Table_1].[col1], [test].[dbo].[Table_1].[col2]	4	0.0032035	8.29E-05	47	0.0032864	[test].[dbo].[Table_1].[col1], [test].[dbo].[Table_1].[col2]	NULL	PLAN_ROW	0	1
+
+        b. 實際執行計劃：SET STATISTICS PROFILE ON, 屬文字類型的執行計劃 & <有查詢結果>.
+          該類計劃與預估計劃相同；
+          但是，該計劃還包含查詢的執行上下文，
+          其中包括估計的和實際的行數、任何執行警告、實際的並行度（使用的處理器數量）以及執行期間經過的時間和使用的 CPU 時間。
+          要查看基於文本的實際計劃，請在運行查詢之前運行命令 SET STATISTICS PROFILE ON。
+          查詢將執行，您將獲得計劃和結果。
+
+          4	1	select * from Table_1;	1	1	0	NULL	NULL	NULL	NULL	4	NULL	NULL	NULL	0.0032864	NULL	NULL	SELECT	0	NULL
+          4	1	  |--Table Scan(OBJECT:([test].[dbo].[Table_1]))	1	2	1	Table Scan	Table Scan	OBJECT:([test].[dbo].[Table_1])	[test].[dbo].[Table_1].[col1], [test].[dbo].[Table_1].[col2]	4	0.0032035	8.29E-05	47	0.0032864	[test].[dbo].[Table_1].[col1], [test].[dbo].[Table_1].[col2]	NULL	PLAN_ROW	0	1
+
+        c. 實時查詢統計：
+          此計劃查看選項將估計和實際計劃組合成一個動畫計劃，通過計劃中的運算符顯示執行進度。
+          它每秒刷新一次，並顯示流經運算符的實際行數。 
+          Live Query Statistics 的另一個好處是它顯示了從 operator 到 operator 的切換，這可能有助於解決一些性能問題。
+          因為計劃的類型是動畫的，所以它只能作為圖形計劃使用。
+
+    [解釋預估和實際查詢計劃 Explain estimated and actual query plans]
+      1. 預估和實際查詢計劃的差異在於 "實際查詢計劃 有 執行階段的統計資訊".
+      2. "執行查詢 & 產生預估執行計劃" 都會產生成本, 所以在正式環境內 檢視執行計劃請小心.
+      3. 一般而言, 預估執行計劃 在開發階段以足以識別;
+         發生異常時, 實際查詢計劃 可作為效能優化時的參考資料.
+
+      4. Read a query plan
+        a. 閱讀方向是由右至左, 由上至下
+
+      5. Lightweight query profiling
+        a. SQL Server 2014 SP2 & 2016開始, 導入 Lightweight query profiling
+        b. Lightweight query profiling 收集了 row count and I/O使用資訊
+    
+    [識別查詢計劃的問題點]
+      1. 硬體限制
+        在大多數情況下，硬件約束不會在單個查詢執行中表現出來，但在應用生產負載並且 CPU 線程數量有限且查詢之間共享的記憶體量有限時會很明顯。
+        當您有 CPU 爭用時，通常可以通過觀察性能監視器計數器“% Processor Time”來檢測它，該計數器測量服務器的 CPU 使用率。
+        
+        深入了解 SQL Server，當服務器處於 CPU 壓力下時，您可能會看到 SOS_SCHEDULER_YIELD 和 CXPACKET 等待類型。
+        
+        但是，在某些存儲系統性能較差的情況下，即使是經過優化的查詢的單次執行也可能很慢。
+        存儲系統性能最好在操作系統級別使用性能監視器計數器“磁盤秒數/讀取”和“磁盤秒數/寫入”進行跟踪，這些計數器測量 I/O 操作完成所需的時間。
+        
+        如果 SQL Server 檢測到存儲性能不佳（如果 I/O 完成時間超過 15 秒），它將寫入其錯誤日誌。
+        
+        如果您查看等待統計信息並看到 SQL Server 中的 PAGEIOLATCH_SH 等待百分比很高，則可能存在存儲系統性能問題。
+        通常，硬件性能會在性能故障排除過程的早期進行高級別檢查，因為它相對容易評估。
+
+        大多數數據庫性能問題可歸因於次優查詢模式，但在許多情況下，運行低效查詢會給您的硬件帶來過度壓力。
+        例如，缺少索引可能會通過檢索比處理查詢所需的更多數據而導致 CPU、存儲和記憶體壓力。
+        
+        建議您在解決硬件問題之前解決次優查詢並對其進行調整。接下來我們將開始研究查詢調優。
+
+      2. 次優查詢結構 Suboptimal query constructs
+        Set-based operations (佳)
+        Row-based operations (劣) <= 跑迴圈 WHILE, LOOP
+
+        TVF (劣) <= Table View Function, 因為它沒有統計資訊可供參考.
+        如果是回傳固定結果 or 小批資料還好, 大量資料就會造成嚴重效能問題.
+
+        計量函數(scalar function) (劣) 也請少用.
+
+      3. SARGability(查詢的可優化性, 可改寫性.) <== 通常是在WHERE子句上的優化改寫 ==>
+        not SARGs(non-sargable)的實例: <== 以下實例都是可進行改寫(改為使用 SEEK, 而非 INDEX SCAN)
+          > WHERE lastName LIKE ‘%SMITH%’ 
+          > Where Convert(char(10), CreateDate, 121) = '2022-03-23'
+        
+        SELECT ADDRESSID, city
+        FROM PERSON.ADDRESS
+        WHRE LEFT(City,1) = 'm'; //LEFT 會出現 INDEX SCAN.
+
+        SELECT ADDRESSID, City
+        FROM PERSON.ADDRESS
+        WHERE CITY LIKE 'm%'; //改寫為 Index Seek後, 預估成本有明顯地改善.
+        (註1: '%...%' or '%..' 也是 not SARGs 的不好寫法)
+        (註2: 'M%' 則是 SARGs 的較佳寫法)
+
+        理想作法:
+        a. 資料庫僅供資料存取作業
+        b. 最佳化資料庫結構, 例: 聚合(aggregation)
+
+      4. 索引遺失(Missing indexes)
+        a. 可利用 SQL SERVER 提供的一個DMV <檢視可能未新增的索引項目>, 作為優化查詢的起始點.
+          'sys.dm_db_missing_index_details' 
+
+        b. 上述建議的可能未新增的索引項目, 僅供參考用.
+          最重要的還是必須理解 "關鍵查詢" , 建立所需的索引項目.
+          注意事項: 絕對不是未評估後, 直接加入所有 "可能未新增的索引項目"
+        
+        c. 另外, SQL SERVER 也提供的兩個DMV <標示現有索引的使用率>, 方便DBA評估刪除未被使用的索引.
+          'sys.dm_db_index_usage_stats'
+          'sys.dm_db_index_operational_stats'
+
+      5. 過期的統計資訊(Missing and out-of-date statistics)
+        a. 在SQL SERVER 2016起, 預設 auto-update statistics set to ON. (自動更新統計資訊 開啟)
+        b. 在SQL SERVER 2016前, 可使用 TRACE FLAG 2371 改變資料異動大於多少時,須自動更新統計資訊的異動比率.
+        c. 另外, SQL SERVER 也提供的一個DMV <統計資訊最近1次更新時點>, 讓DBA快速識別哪些統計資訊須手動更新.
+          'sys.dm_db_stats_properties'
+
+      6. 查詢優化器錯誤選擇(Poor optimizer choices) <== 可使用 '添加HINT' 限定查詢優化器 選擇執行計劃的方向.
+        a. '添加HINT' 無法保證查詢優化器選擇最佳方案, 但能確定 可預測的選擇方式.
+        b. '添加HINT' 範例
+
+          declare @city_name nvarchar(30) = 'Taipei',
+                  @postal_code nvarchar(15) = '106';
+
+          select *
+          from Person.ADDRESS
+          where City = @city_name
+            and PostCode = @postal_code
+
+          OPTION (optimize for (@city_name = 'ILan'));
+
+          //注意: @city_name = 'ILan' 只會用在 執行計劃的選擇, 
+            實際執行, 仍以 @city_name = 'Taipei' 代入.
+
+      7. 參數嗅探(Parameter sniffing)
+        a. 當數據庫引擎第一次執行該查詢時，它將根據參數的初始值（在本例中為 42）優化查詢。
+          這種稱為參數嗅探的行為可以減少編譯查詢的整體工作量在服務器上。
+        
+        b. 這種劇烈波動的性能表明數據存在偏差，而不是參數嗅探的固有問題。 
+          此行為是您應該注意的相當常見的性能問題。 
+          您應該了解緩解問題的選項。 有幾種方法可以解決這個問題，但它們都需要權衡：
+          
+          作法1: 在查詢內加入 'OPTION(RECONPILE)' 選項 or 在預存程式內加入 'WITH RECOMPILE' 選項.
+            這種作法會讓 '查詢' or '預存程式' 每次都重新產生執行計劃, 使用最新的參數值, 但相對地會有額外成本產生.
+
+          作法2: 使用查詢提示 'OPTIMIZE FOR UNKNOWN'
+            此提示將導致優化器選擇不嗅探參數並將值與列數據直方圖進行比較。 
+            此選項不會為您提供最佳計劃，但會<允許一致的執行計劃>。
+
+          作法3: 重寫 '預存程式' or '查詢' , 增加已知特殊參數值的處理<加入 OPTION(RECOMPILE)>
+
+    [程式練習]
+      變更欄位型態時, 可能出現錯誤的原因在於 '物件依賴'.
+      這時, 可以檢查是否有 '索引'依欄位建立.
+
+        alter table <schema_name>.<table_name>
+        alter column <column_name> int not null;
+
+        Msg 5074, Level 16, State 1, Line 1The index 'AK_Employee_NationalIDNumber' is dependent on column 'NationalIDNumber'.
+        Msg 4922, Level 16, State 9, Line 1
+        ALTER TABLE ALTER COLUMN NationalIDNumber failed because one or more objects access this column.
+
+      如果有, 必須先 DROP INDEX, 再變更 欄位型態, 再新增 INDEX
+
+        drop index [AK_Employee_NationalIDNumber] on <schema_name>.<table_name>;
+        GO
+
+        alter table <schema_name>.<table_name> alter column <column_name> int not null;
+        GO
+
+        create unique nonclustered index [AK_Employee_NationalIDNumber] on <schema_name>.<table_name>;
+        GO
+
+    [知識檢定]
+      1. 哪種執行計劃會儲存在 PLAN CACHE內
+        (O)Estimated Execution plan <== 預估執行計劃 才會儲存在 PLAN CACHE內
+        (X)Actual Execution plan <== 實際執行計劃 必須在執行階段, 透過 "profiler", "xEvents" or SSMS等工具才能取得. 耗費成本較大.
+        (X)Live Query Stats
+
+      2. 哪個DMV可用來查閱索引使用率?
+        (O)sys.dm_db_index_usage_stats
+        (X)sys.dm_db_missing_index_details <== 建議新增的索引項目
+        (X)sys.dm_exec_query_plan_stats <== 執行計劃統計
+
+      3. 哪種等待型態指出過高的CPU耗用量?
+        (O)SOS_SCHEDULER_YIELD <== 有大量CPU耗用需求
+        (X)RESOURCE_SEMAPHORE <== 查詢作業正在等待 SQL Server 為它分配大量記憶體
+        (X)PAGEIOLATCH_SH <== 硬碟性能問題(儲存系統)
+
+  <效能改善評估 evaluate performance imporvements>
+    []
+
+  <探索以效能為基礎的設計 explore performance-based design>
+    []
+
+<Learn Path - Program with Transact-SQL>  2022/03/23
+
+  <Get started with Transact-SQL programming> Learn Path <== https://docs.microsoft.com/en-us/learn/modules/get-started-transact-sql-programming/4-declare-assign-variables-synonyms
+    <Describe T-SQL for programming>
+      1. T-SQL program 會以 BEGIN .. END 作為區段
+      2. T-SQL program 支援的關鍵字
+        2.1. IF..ELSE 條件式判斷
+        2.2. WHILE 迴圈
+        2.3. DECLARE 宣告變數用
+        2.4. SET 設定變數用
+        2.5. BATCHES 可視為一群執行單位
+
+    [VIP] keep in mind that 'GO' is a client command(用戶端的關鍵詞), not a server T-SQL command. (GO 不是伺服器端的關鍵詞)
+      'GO' 後面不能加上 ';'
+
+    [VIP] Remember to use a CASE expression when it's a matter of returning an expression. 
+    However, if you need to execute multiple statements, you can't replace IF with CASE.
+    指定單一值時, 使用 CASE SET 最快速, SET 只須寫1次.
+    但如果要執行多行時, 則只能使用 IF, 無法以 CASE SET取代.
+
+          --IF版本
+          DECLARE @I INT = 8, @RESULT NVARCHAR(20);
+          IF @I < 5
+            SET @RESULT = N'LESS THEN 5'
+          ELSE IF @I <= 10
+            SET @RESULT = N'BETWEEN 5 AND 10'
+          ELSE IF @I > 10
+            SET @RESULT = N'MORE THAN 10'
+          ELSE 
+            SET @RESULT = N'UNKNOWN';
+
+          SELECT @RESULT AS RESULT;
+
+          --CASE SET 版本
+          DECLARE @I INT = 8, @RESULT = NVARCHAR(20);
+          SET @RESULT = 
+          CASE 
+          WHEN @I < 5 THEN N'LESS THEN 5'
+          WHEN @I <= 10 THEN N'BETWEEN 5 AND 10'
+          WHEN @I > 10 THEN N'MORE THEN 10'
+          ELSE N'UNKNOWN'
+
+    <Describe batches>
+      1. 在同一個時間點, 執行批次內所有陳述式statements, 在這個時間點會作轉譯、最佳化和執行.
+      2. 'GO' 不是T-SQL program關鍵字, 它用來區隔SSMS CLIENT端兩個不同的執行段落.
+      
+      
+
+        CREATE NEW <VIEW_NAME>
+        AS ..
+        GO
+        CREATE PROCEDURE <PROCEDURE_NAME>
+        AS ...
+        GO
+
+      3. 使用 T-SQL 批次時, 要注意的項目:
+        When working with T-SQL batches, there are two important considerations to keep in mind:
+        3.1. Batches are boundaries for variable scope, 
+              which means a variable defined in one batch may only be referenced by other code in the same batch
+        3.2. Some statements, typically data definition statements 
+              such as CREATE VIEW, CREATE FUNCTION and CREATE PROCEDURE may not be combined with others in the same batch.
+      
+    <Working with batches>
+      1. T-SQL 批次會在前端作語法檢查, 再送至SQL Server 解析物件名稱、檢查權限及執行最佳化.
+      2. T-SQL 批次會整批成功或整批失敗.
+      3. T-SQL 批次常用於 批次"INSERT", 而非 "SELECT" 
+
+    <Declare and assign variables and synonyms>
+      DECLARE @NUMROWS INT = 3, @CATID INT = 2;
+      EXEC PRODUCTION.ProdsByCategory @NUMROWS = @NUMROWS, @CATID = @CATID;
+      GO
+
+      1. T-SQL變數都是 LOCAL variable, 範圍就在批次內.
+
+    <Working with variables>
+      1. 初始化變數, 用 DECLARE.
+      2. 指定值方式1, 用 SET .
+      3. 指定值方式2, 用 SELECT 但必須回傳1筆值, 否則會出錯.
+
+    <Use IF and WHILE blocks to control program flow> SQL內控制流程的關鍵字.
+      
+      [Understand the T-SQL control of flow language]
+
+        1. IF..ELSE, 依BOOLEAN判斷結果
+        2. WHILE, 新增迴圈當條件評估結果為TRUE
+        3. BEGIN...END, 定義一起執行的SQL區段
+        4. 其他關鍵字, 例: BREAK, CONTINE, WAITFOR, RETURN..
+
+      [Use conditional logic in your programs using IF...ELSE]
+        ====
+        IF OBJECT_ID('dbo.t1') IS NOT NULL
+          DROP TABLE dbo.t1;
+        GO
+
+        ====
+        USE TSQL;
+        GO
+        IF OBJECT_ID('HR.Employee') IS NULL
+        BEGIN
+          PRINT 'THE SPECIFIED OBJECT DOES NOT EXIST';
+        END;
+
+        ====
+        IF OBJECT_ID('HR.Employee') IS NULL
+        BEGIN
+          PRINT 'THE SPECIFIED OBJECT DOES NOT EXIST';
+        END
+        ELSE
+        BEGIN
+          PRINT 'THE SPECIFIED OBJECT exists';
+        END
+
+        ====
+        IF EXISTS(SELECT * FROM SALES.EMPORDERS WHERE EMPID = 5)
+        BEGIN
+          PRINT 'Employee HAS ASSOCIATED ORDERS';
+        END
+
+      [Understand looping using WHILE statements]
+        DECLARE @EMPID INT = 1, @LNAME AS NVARCHAR(20);
+        WHILE @EMPID <= 5
+          BEGIN
+            SELECT @LNAME = last_name 
+            FROM HR.employees
+            WHERE EMPID = @EMPID;
+
+            PRINT @EMPID;
+            SET @EMPID += 1;
+          END;
+
+    <知識檢定>
+      1. GO; 是客戶端keyword
+        INSERT INTO HumanResources.PossibleSkills (SkillName, Category, Credit) VALUES('Database Administration', 'IT Professional', 5); --Success
+        INSERT INTO HumanResources.PossibleSkills (SkillName, Category, Credit) VALUES('C#.NET', 'Developer', 4); --Success
+        INSERT INTO HumanResources.PossibleSkills (SkillName, Category, Credit) VALUES('Project Management', 'Management', 'Two');GO --failed
+
+      2. 檢查資料表是否存在, 要用 IF
+        IF OBJECT_ID('DTO.TABLE')...
+
+      3. 變數在某個batch內宣告, 能否被多個batches所參考?
+        不行, sql變數都是區域變數 LOCAL variable
+
+  <建立預存程式和資料表值函式> Learn Path <== https://docs.microsoft.com/zh-tw/learn/modules/create-stored-procedures-table-valued-functions/
+    <簡介-預存程式>
+      [優點]
+        1. 重複使用
+        2. 安全性
+        3. 改善品質 => 加入ERROR handling的程式碼, 確保SP是測試過的.
+        4. 改善效能 => 當SP第1次被執行, 執行計劃會產生儲存並重複使用. 一般而言, 會比每次重新產生執行計劃快.
+        5. 較少維護 => 資料庫物件改變時, 只須更新SP, 程式端不須改變. 在資料和應用程式端作出分隔.
+
+      [類型-預存程式]
+        1. USP-使用者自訂SP
+        2. TSP-暫存SP
+        3. SSP-系統SP
+
+    <呼叫-預存程式>
+      [呼叫時機點]
+        1. 應用程式
+        2. 使用者呼叫, 例:DBA
+        3. SQL Server啟動時
+      
+      [使用者呼叫-預存程式的方式]
+        --呼叫 'USP-使用者自訂SP' --
+        EXEC dbo.uspGetEmployee; 
+        EXECUTE dbo.uspGetEmployee; 
+
+        --呼叫 'SSP-系統SP' --
+        1. 資料庫定序會被使用, 在比對 'SSP-系統SP' 名稱時,
+          若資料庫定序是區分大小寫, 則 'SSP-系統SP' 名稱 必須大小寫吻合.
+        
+        2. 你可以使用下列檢視(VIEW), 查看 'SSP-系統SP' 名稱 & 參數
+          sys.system_objects
+          sys.system_prarmeters
+
+        3. 'SSP-系統SP'命名規則, 都是以 "SP_" 作為名稱前綴詞.
+        4. 'SSP-系統SP'使用規則, 建議加上 "sys" schema name.
+          EXEC SYS.SP_WHO;
+        
+      [系統自動呼叫-預存程式的方式]
+        1. SQL Server啟動時, 可由系統自動呼叫-預存程式.
+        2. 系統自動呼叫-預存程式時, 無法包含 input or output 參數.
+        3. 使用方式:(sp_procoption)
+          
+          // 系統啟動時, 執行 'myProcedure' 預存程序.
+          exec sp_procoption @ProcName = myProcedure
+            , @OptionName = 'startup'
+            , @OptionValue = 'on';
+
+        4. 使用注意事項:
+          a. 啟動時, 想執行多個SP, 不需要平行執行(execute them in parallel).
+          b. 一般而言, 會新增一個 'StartProcedure', 再由 'StartProcedure' 呼叫其他 SP.
+          c. 上述作法, 只會使用一個執行緒(worker thread)
+          d. 'StartProcedure' 必須放在 'Master DB'.
+
+    <傳遞參數-預存程式>
+      [預存程式參數簡介]
+        1. INPUT 輸入參數 (預設類型)
+        2. OUTPUT or OUT 輸出參數
+        3. 可給定參數預設值 DEFAULT VALUES
+        4. 名稱前須加上 "@", ex. @NAME
+        5. 宣告參數名稱必須唯一.
+
+      [INPUT 輸入參數]
+        1. 'INPUT 輸入參數'在預存程式內, 被視為區域變數, 可宣告多個.
+        2. 'INPUT 輸入參數'在預存程式內, 宣告.
+        3. 'INPUT 輸入參數'使用方式:
+          a. 語法 exec <schema_name>.<PROCEDURE_NAME> <@parameter_name> = 'value'
+          b. 方式 
+            > name value (建議方式:參數名稱=參數值)
+            > position (參數位置)
+            > 兩種方式只能擇一, 無法混用.
+        
+        4. 使用注意事項:
+          a. 'INPUT 輸入參數'的傳入值 <可用> 常數 或變數值
+            declare @customerid int;
+            set @customerid = 5;
+            exec Customers.customerid @customerid;
+            exec Customers.customerid 5;
+
+          b. 'INPUT 輸入參數'的傳入值 <不可用> 函式
+            exec Customers.customerid GetDate();
+
+          c. 可使用 系統檢視(system catalog view) 查看 SP的參數項目 & 參數定義
+            sys.parameters
+
+      [OUTPUT 輸出參數]
+        1. 'OUTPUT 輸出參數', 宣告時要加上 OUTPUT.
+        2. 'OUTPUT 輸出參數', 呼叫時也要加上 OUTPUT.
+        3. 'OUTPUT 輸出參數', 宣告時可用 OUTPUT or OUT.
+
+          CREATE PROCEDURE Production.uspGetList 
+            @Product varchar(40)
+            , @MaxPrice money
+            , @ComparePrice money OUTPUT
+            , @ListPrice money OUT
+          AS
+          BEGIN
+            SET @ComparePrice = @MaxPrice
+          END;
+
+          DECLARE @OUT_cp money, @OUT_lp money;
+          EXEC Production.uspGetList @Product ='APPLE'
+            , @MaxPrice = 40
+            , @ComparePrice = @OUT_cp output
+            , @ListPrice = @OUT_lp OUTPUT;
+
+    <新增-預存程式>
+      1. 新增-預存程式須使用 "CREATE PROCEDURE" 關鍵字, 但你須先有下列權限:
+        a. "CREATE PROCEDURE" permission in DB
+        b. "ALTER" permission on the schema in which the procedure is being created.
+      2. 修改-預存程式須使用 "ALTER PROCEDURE" 關鍵字
+      3. 刪除-預存程式須使用 "DROP PROCEDURE" 關鍵字
+      4. 程式範例:
+
+        //新增
+          CREATE PROCEDURE SalesLT.TopProducts AS
+            SELECT TOP(10) NAME, ListPrice
+            FROM SalesLT.PRODUCT
+            GROUP BY NAME, ListPrice
+            ORDER BY LISTPRICE DESC;
+
+        //修改
+          CREATE PROCEDURE SalesLT.TopProducts AS
+            SELECT TOP(100) NAME, ListPrice
+            FROM SalesLT.PRODUCT
+            GROUP BY NAME, ListPrice
+            ORDER BY LISTPRICE DESC;
+
+        //刪除
+          DROP PROCEDURE SalesLT.TopProducts
+    
+    <使用動態sql WITH EXEC AND sp_executesql>
+      [動態sql]
+        1. "動態sql" 指的是 把SQL存在字串變數內, 再執行.
+        2. "動態sql" 常用於 執行階段 才能確定完整 <SQL command>
+        3. "動態sql" 也是SP另一種選擇.
+        4. "動態sql" 兩種使用方式:
+          a. execute or exec (註: 無法加參數)
+          b. sp_executesql (註: 可加參數)
+
+      [Dynamic SQL using EXECUTE or EXEC]
+        1. 語法: 
+          exec (@string_variable) <== (註: 無法加參數)
+        
+        2. 範例:
+          declare @sqlstring varchar(1000);
+          set @sqlstring = 'select customerId, companyName, firstName, lastName 
+            from SalesLT.Customer;';
+          exec (@sqlstring);
+          go;
+
+      [Dynamic SQL using Sp_executesql]
+        0. 使用方式: 類似預存程序'SP', 執行計劃也會重複使用.
+        0. [VIP] 常用於 'SQL STATEMENT' 不變, 只有'參數值'經常改變時會用.
+        0. [VIP] 感覺程式設計師會比較愛用, 因為毋須在SQL Server內新增預存程序, 一樣有預存程序的效果.
+        1. 語法:
+          DECLARE @IntVariable INT;  
+          DECLARE @SQLString NVARCHAR(500);  
+          DECLARE @ParmDefinition NVARCHAR(500);  
+            
+          /* Build the SQL string one time. (首次參數設定)*/  
+          SET @SQLString =  
+              N'SELECT BusinessEntityID, NationalIDNumber, JobTitle, LoginID  
+                FROM AdventureWorks2012.HumanResources.Employee   
+                WHERE BusinessEntityID = @BusinessEntityID';  
+          SET @ParmDefinition = N'@BusinessEntityID tinyint';  
+
+          /* Execute the string with the first parameter value. (第1次執行)*/  
+          SET @IntVariable = 197;  
+          EXECUTE sp_executesql @SQLString, @ParmDefinition,  
+                                @BusinessEntityID = @IntVariable;  
+
+          /* Execute the same string with the second parameter value. (第2次執行)*/  
+          SET @IntVariable = 109;  
+          EXECUTE sp_executesql @SQLString, @ParmDefinition,  
+                                @BusinessEntityID = @IntVariable;
+          
+    <新增資料表值函式 Create inline table-valued functions>
+      1. '資料表值函式' 可視為 資料表.
+      2. '資料表值函式' 可傳入 'input parameter' 改變 資料表內容.
+      3. '資料表值函式' 可以放在 'from' 關鍵字後作查詢使用.
+      4. '資料表值函式' 範例
+
+        CREATE FUNCTION SalesLT.ProductsListPrice(@cost money)
+        RETURNS TABLE
+        AS RETURN
+          select PRODUCTID, Name, ListPrice
+          from SalesLT.Product
+          where ListPrice > @cost;
+      
+        SELECT NAME, PRODUCTID
+        FROM SalesLT.ProductsListPrice(500);
+
+    <知識檢定>
+      1. What is the most straightforward way to pass values to a stored procedure? 
+        預存程序預設參數值為 input parameter.
+
+      2. How do you access an output parameter from a stored procedure? 
+        必須使用 OUTPUT 關鍵字 & 宣告變數並指定給 output parameter, 接收 預存程序 output parameter回傳結果.
+      
+      3. Where can you use a table-valued function? 
+        哪裡都能使用 'table-valued function', 它就像是一個 資料表, 但是無法對 'table-valued function' 進行更新.
+
+  <異常處理 Implement error handling with Transact-SQL> <== https://docs.microsoft.com/en-us/learn/modules/implement-error-handling-transact-sql/
+    [異常處理簡介]:
+      1. 學習目標
+        a. 使用 'RAISERROR' 產生錯誤
+        b. 使用 'THROW' 產生錯誤
+        c. 使用 @@ERROR 系統變數
+        d. 新增 自訂錯誤類別ERROR
+        e. 新增 警示, 當錯誤發生時.
+
+    [實作T-SQL 錯誤處理]
+      1. DB errors的組成項目
+        a. Error number - 特定ERROR對應的唯一值
+        b. ERROR MESSAGE - ERROR敘述
+        c. Severtiy - 以數值表示ERROR嚴重性(1-25)
+        d. State - 數據庫引擎條件的內部狀態代碼
+        e. Procedure - 引起錯誤的SP or Trigger名稱
+        f. Line Number - 引起錯誤的敘述句行號
+
+      2. 系統ERRORS (1-50000)
+        a. 系統ERRORS, 預先定義好的.
+        b. 系統ERRORS, 可利用 'sys.messages' 系統檢視查閱.
+        c. 系統ERRORS, 發生時SQL Server會依據嚴重程度自動採行補救措施.
+          例: 高嚴重ERROR發生時, SQL Server可能會將 'DB離線' 或 '停止DB服務'
+
+      3. 自訂錯誤ERROR (50001-)
+        a. 新增自訂錯誤ERROR, 使用下列語法:
+          sp_addmessage [ @msgnum= ] msg_id , [ @severity= ] severity , [ @msgtext= ] 'msg' 
+            [ , [ @lang= ] 'language' ] 
+            [ , [ @with_log= ] { 'TRUE' | 'FALSE' } ] 
+            [ , [ @replace= ] 'replace' ]
+        b. 新增自訂錯誤ERROR, 範例:
+          sp_addmessage 50001, 10, N'未預期值輸入';
+        
+        c. @with_log='TRUE'
+          1. 異常會同步寫至'WINDOWS Application log'
+          2. 任何寫至'WINDOWS Application log'也會寫至 'SQL Server error log'
+          3. 千萬要小心使用, 否則會造成網路及系統面很大的瓶頸.
+          4. 但是，如果需要通過警報(ALTER)捕獲錯誤，則必須首先將錯誤寫入 Windows 應用程序日誌。
+
+        d. @replace= 'replace'
+          1. 表示訊息內容值可以直接被取代
+        e. @lang= 'language'
+          1. 同樣的ERROR ID可以有不同語系的名稱
+          2. @lang = 1033 //英文
+          3. @lang = 1028 //繁中
+
+    [使用 RAISERROR <丟出>異常, Raise errors using RAISERROR] <== 前端才能 '抓取 ERROR 並處理'.
+        0. PRINT & RAISERROR 都能回傳異常訊息給AP, 但只有 RAISERROR 引發的異常可觸發呼叫端的異常處理程序
+        0. PRINT 類似觸發 Severity(10) 的ERROR
+        0. 利用 RAISERROR 回傳 ERROR Message Text, 它的 ERROR Number 都是 50000
+
+        TODO:1. RAISERROR 用法:
+          a. 找出T-SQL的問題
+          b. 檢查 the value of data.
+          c. 回傳包含變數值的訊息 return messages that contain variable text.
+
+        0. RAISERROR 語法
+          -- Syntax for SQL Server and Azure SQL Database    
+          RAISERROR ( { msg_id | msg_str | @local_variable }  --可放入 '建立在sys.messages內的異常訊息代碼', '異常訊息描述' or '變數值'
+              { ,severity ,state }  
+              [ ,argument [ ,...n ] ] )  
+              [ WITH option [ ,...n ] ]
+        
+          (註: msg_str 是具有選擇性內嵌轉換規格的字元字串。 每一轉換規格定義了引數清單中的值如何格式化，以及如何置入位於 msg_str 中轉換規格的欄位)
+
+        1. RAISERROR 範例
+          RAISERROR (N'%s %d', -- Message format,
+            10, -- Severity,
+            1, -- State,
+            N'Custom error message number', --變數值1
+            2)                              --變值值2
+
+            %s 指的就是 變數1, 格式為 '%s', 字串
+            %d 指的就是 變數2, 格式為 '%d', 數值
+          (註: 利用 RAISERROR 回傳 ERROR Message Text, 它的 ERROR Number 都是 50000)
+        
+          //執行結果
+            Custom error message number 2
+
+        2. RAISERROR 使用注意事項
+          a. 如果在下列情況下執行 RAISERROR，會將錯誤傳回給呼叫端：
+            在任何 TRY 區塊的範圍外執行。
+            在 TRY 區塊以 10 或更低的嚴重性執行。
+            以會結束資料庫連接的 20 或更高的嚴重性執行。
+          b. 在 TRY 區塊中以嚴重性 11 到 19 執行的 RAISERROR => 會再呼叫相關聯的 CATCH區塊.
+          c. 要使用 RAISERROR 傳回來自 TRY 區塊的訊息，而不叫用 CATCH 區塊，請指定 10 或更低的嚴重性。
+
+    //RAISERROR 陳述式不受 SET XACT_ABORT 影響。 新的應用程式應該使用 THROW，而非 RAISERROR。 
+    [使用 THROW <丟出>異常, Raise errors using THROW] <== 前端才能 '抓取 ERROR 並處理', 微軟建議使用 THROW, 而非 RAISERROR.
+        0. THROW 使用上更簡易
+        0. THROW 的ERROR NUMBER 最小是 50000.
+
+        1. THROW 用法:
+          THROW 50001, 'An Error Occured',0
+
+        2. THROW & RAISERROR 間的主要差異
+          a. 'THROW' ERROR Severity is always 16 (總是 16)
+          b. 'THROW' ERROR MESSAGE 跟 sys.messages無關.
+          c. 在 SET XACT_ABORT = ON + the session is terminated 情況下
+            => 使用 'THROW' 丟出ERROR, 才會導致交易中止(transaction ABORT)
+
+    [使用 @@Error 系統變數抓取 ERROR CODES] <== @@Error 只要被存取過, 就會歸零(重設)
+        1. @@Error 暫存最近1次異常發生的ERROR NUMBER
+        TODO: 2. @@Error 只要被存取過, 就會歸零(重設)
+        
+          //@@Error 範例
+          RAISERROR(n'mESSAGE', 16, 1); //訊息, 嚴重性, 狀態
+          IF @@ERROR <> 0
+          PRINT 'ERROR=' + CAST(@@ERROR AS varchar(8));
+
+          //output
+          Msg 50000, Level 16, State 1, Line 1
+          Message
+          Error=0
+
+          Q: 為什麼 Error=0, 而非Error=50000
+          A: 因為 'IF @@ERROR <> 0', 使得 @@ERROR 被存取了, 所以重設為0
+
+        3. @@Error 若要用, 必須先存在變數, 再作後續處理.
+
+          //@@Error 範例
+          declare @errorValue int;
+          RAISERROR(n'mESSAGE', 16, 1); //訊息, 嚴重性, 狀態
+          set @errorValue = @@ERROR;
+          IF @errorValue <> 0
+          PRINT 'ERROR=' + CAST(@errorValue AS varchar(8));
+
+          //output
+          Msg 50000, Level 16, State 1, Line 2
+          Message
+          Error=50000
+
+        4. Centralizing error handling(異常集中化管理, 使用 @@ERROR)
+          a. 要使用 LABEL & GOTO
+          b. 但這麼用法其實不易管理, 不建議使用.
+
+    [新增 ERROR 警示, Create error alerts]
+        1. 針對特定種類ERROR, DBA 會新增SQL Server 警示(alerts)
+        2. 警示(alerts) 常用於 '交易紀錄滿了' or '發生 Severity > 19 的ERROR'
+        3. 有兩種方式可用來 產生ERROR & 觸發警示(alerts):
+          a. WITH LOG, 但WITH LOG 只對目前STATEMENT有效
+          TODO: b. sys.sp_altermessage, 使用範圍較廣, 它會改變 ERROR行為, 而且 SQL Server 2008 SP1以後只能用這個
+
+    [實作練習: ERROR handling] 註: ERROR_NUMBER() 和 @@ERROR 的用法不太一樣, @@ERROR存取1次即重設, ERROR_NUMBER() 可多次存取.
+        1. 撰寫簡易的 TRY/CATCH 結構
+          
+          select cast(N'Some text' as int); 
+          //ERROR: Conversion failed when converting the nvarchar value ‘Some text’ to data type int.
+
+          BEGIN TRY
+            select cast(N'Some text' as int); 
+          END TRY
+          BEGIN CATCH
+            print 'Error Occured..';
+          END CATCH
+          //RESULT: Error Occured..
+
+        2. 顯示 ERROR NUMBER & ERROR MESSAGE (註: 利用 ERROR_NUMBER() & ERROR_MESSAGE() 就能抓到異常編號及訊息)
+
+          //範例1: 遇到除於0
+            declare @num varchar(20) = '0';
+            BEGIN TRY
+              PRINT 5.0 / CAST(@num AS numeric(10,4));
+            END TRY
+            BEGIN CATCH
+              PRINT 'ERROR NUMBER: ' + CAST(ERROR_NUMBER() AS varchar(8));
+              PRINT 'ERROR MESSAGE: ' + ERROR_MESSAGE();
+            END CATCH
+            
+            //RESULT: ERROR NUMBER: 8134
+            //RESULT: ERROR MESSAGE: Divide by zero error encountered. 
+            
+
+          //範例2: varchar無法轉為numeric
+            declare @num varchar(20) = 'STRING';
+            BEGIN TRY
+              PRINT 5.0 / CAST(@num AS numeric(10,4));
+            END TRY
+            BEGIN CATCH
+              PRINT 'ERROR NUMBER: ' + CAST(ERROR_NUMBER() AS varchar(8));
+              PRINT 'ERROR MESSAGE: ' + ERROR_MESSAGE();
+            END CATCH
+            
+            //RESULT: ERROR NUMBER: 8114
+            //RESULT: Error Message: Error converting data type varchar to numeric.
+            
+
+          //範例3: 資料溢位
+            declare @num varchar(20) = '1234567890123';
+            BEGIN TRY
+              PRINT 5.0 / CAST(@num AS numeric(10,4));
+            END TRY
+            BEGIN CATCH
+              PRINT 'ERROR NUMBER: ' + CAST(ERROR_NUMBER() AS varchar(8));
+              PRINT 'ERROR MESSAGE: ' + ERROR_MESSAGE();
+            END CATCH
+            
+            //RESULT: ERROR NUMBER: 8115
+            //RESULT: Error Message: Arithmetic overflow error converting varchar to data type numeric.
+            
+        3. 在CATCH區塊增加邏輯(Add conditional logic to a CATCH block)
+
+          //範例1: 遇到除於0
+            declare @num varchar(20) = '0';
+            BEGIN TRY
+              PRINT 5.0 / CAST(@num AS numeric(10,4));
+            END TRY
+            BEGIN CATCH
+
+              IF ERROR_NUMBER() IN (245,8114)
+              BEGIN
+                PRINT 'CONVERTING ERROR';
+              END
+              ELSE
+              BEGIN
+                PRINT 'no CONVERTING ERROR';
+              END;
+              PRINT 'ERROR NUMBER: ' + CAST(ERROR_NUMBER() AS varchar(8));
+              PRINT 'ERROR MESSAGE: ' + ERROR_MESSAGE();
+            END CATCH
+            
+            //RESULT: no CONVERTING ERROR
+            //RESULT: ERROR NUMBER: 8134
+            //RESULT: ERROR MESSAGE: Divide by zero error encountered. 
+
+        4. 新增預存程序, 顯示ERROR MESSAGE (註: COALESCE = CASE WHEN NULL THEN 的語法捷徑)
+          CREATE PROCEDURE dbo.GetErrorInfo as
+            print 'Error Number: ' + cast(ERROR_NUMBER() as varchar(10));
+            print 'Error Message: ' + ERROR_MESSAGE();
+            print 'Error Severity: ' + cast(ERROR_SEVERITY() as varchar(10));
+            print 'Error State: ' + cast(ERROR_STATE() as varchar(10));
+            print 'Error Line: ' + cast(ERROR_LINE() as varchar(10));
+            print 'Error Proc: ' + COALESCE(ERROR_PROCEDURE(), 'Not within procedure' ); 
+            
+            //註: 如果ERROR非SP觸發, 則 ERROR_PROCEDURE() = NULL
+
+          //範例1: 遇到除於0
+            declare @num varchar(20) = '0';
+            BEGIN TRY
+              PRINT 5.0 / CAST(@num AS numeric(10,4));
+            END TRY
+            BEGIN CATCH
+              execute dbo.GetErrorInfo; 
+            END CATCH
+
+            //OUTPUT:
+            Error Number: 8134
+            Error Message: Divide by zero error encountered.
+            Error Severity: 16
+            Error State: 1
+            Error Line: 4
+            Error Proc: Not within procedure
+
+        5. 將現有存在異常丟至前端 (註: 利用 THROW)
+          declare @num varchar(20) = '0';
+          begin TRY
+            print 5.0 / cast(@num as numeric(10,4));
+          end TRY
+          begin CATCH
+            execute dbo.GetErrorInfo;
+            THROW; //這裡把ERROR丟至前端處理
+          end CATCH
+
+          //OUTPUT
+          Error Number: 8134
+          Error Message: Divide by zero error encountered.
+          Error Severity: 16
+          Error State: 1
+          Error Line: 4
+          Error Proc: Not within procedure
+          --THROW 丟出來的--
+          Msg 8134, Level 16, State 1, Line 4
+          Divide by zero error encountered.
+
+        6. 增加異常處理邏輯(Add an Error Handling routine)
+          
+          declare @num varchar(20) = 'A';
+          begin TRY
+            print 5.0 / cast(@num as numeric(10,4));
+          end TRY
+          begin CATCH
+            execute dbo.GetErrorInfo;
+
+            IF ERROR_NUMBER() = 8134
+            BEGIN
+              PRINT '除0異常';
+            END
+            ELSE
+            BEGIN
+              PRINT '丟出原始異常';
+              THROW;
+            END;
+            
+          end CATCH
+
+          //OUTPUT
+          Error Number: 8114
+          Error Message: Error converting data type varchar to numeric.
+          Error Severity: 16
+          Error State: 5
+          Error Line: 5
+          Error Proc: Not within procedure
+          丟出原始異常
+          --THROW 丟出來的--
+          Msg 8114, Level 16, State 5, Line 5
+          Error converting data type varchar to numeric.
+
+    [挑戰練習題]
+      Challenge 1: Catch errors and display only valid records
+
+        <原始題目 + 修改後的結果..>
+        declare @customerID as int = 30110;
+        declare @fname as nvarchar(20);
+        declare @lname as nvarchar(30);
+        declare @maxReturns as int = 1;
+
+        while @maxReturns <= 10
+        begin
+          
+          BEGIN TRY
+            select @fname = FirstName
+              , @lname = LastName
+            from SalesLT.Customer
+            where CustomerID = @customerID;
+
+            if @@ROWCOUNT > 0
+            BEGIN
+              print cast(@customerID as nvarchar(20)) + N' ' + @fname + N' ' + @lname;
+              
+            END;
+          END TRY
+          BEGIN CATCH
+            THROW;
+          END CATCH
+
+          set @maxReturns += 1;
+          set @customerID += 1;
+        end;
+
+      Challenge 2: Create a simple error display procedure
+
+        Create Procedure DisplayErrorDetails
+        as 
+        begin
+          PRINT '===ERROR information==='
+          PRINT 'ERROR NUMBER: ' + cast(ERROR_NUMBER() as varchar(10));
+          PRINT 'ERROR MESSAGE: ' + ERROR_MESSAGE();
+          PRINT 'ERROR SEVERITY: ' + cast(ERROR_SEVERITY() as varchar(10));
+        end;
+        
+        declare @num varchar(20) = 'Challenge 2';
+        BEGIN TRY
+          PRINT 'Casting: ' + CAST(@num as numeric(10,4));
+        END TRY
+        BEGIN CATCH
+          EXECUTE dbo.DisplayErrorDetails;
+        END CATCH
+    
+    [知識檢定]
+      1. 丟出來的ERROR嚴重性指定為 '20' 時, 應該使用哪個 command?
+        (O) RAISERROR <= 只有 RAISERROR 可以指定 ERROR嚴重性, 最高可指定到 20 等級
+        (X) THROW <= 固定為 16
+        (X) @@ERROR <= 系統變數, 無法指定
+
+        RAISERROR(N'%s %d', 10, 1, N'I am Error Message for @s', 2)
+
+      2. 在CATCH區塊外, 如何丟出異常? (How can you THROW outside of a CATCH block?)
+        (X)With arguments that raise a user-defined error. <= 正確答案, 
+        (X)With a conditional EXCEPTION clause 
+        (O)With a RAISERROR argument. <= 答錯了..... RAISERROR 無法讓你丟出 ERROR)
+
+      3. 什麼情況下, 會使用 @@ERROR變數?
+        (X)To throw an error code. <= 可以使用 THROW;
+        (X)To trigger an alert 
+        (O)To capture the last error code. <= @@ERROR值可存放在變數內, 抓取最近1次的ERROR_NUMBER
+
+  <交易處理 Implement transactions with Transact-SQL> <== https://docs.microsoft.com/en-us/learn/modules/implement-transactions-transact-sql/
+    [交易處理-學習目標]
+      1. 描述什麼是'交易'
+      2. 比較 '交易' 和 '批次' 的差異
+      3. 新增和管理 '交易'
+      4. '交易'異常處理
+      5. 描述什麼是'同步處理'
+
+    [描述什麼是'交易']
+      1. '交易' STATEMENTS執行成功結果必須一致, 全部成功(COMMIT) OR 全部失敗還原(ROLLBACK)
+      2. '交易' 的兩種類型
+        a. 顯性交易: BEGIN TRANSACTION and COMMIT, ROLLBACK 
+        b. 隱性交易: 當交易發生時, 每個交易會在 COMMIT OR ROLLBACK 後自動會執行.
+
+    [比較 '交易' 和 '批次' 的差異]
+      1. '交易' 是由 BEGIN TRANSACTION , COMMIT TRANSACTION, ROLLBACK TRANSACTION 所組成.
+      2. '批次' 是由 BEGIN TRY ... END TRY, BEGIN CATCH ... END CATCH 兩個區塊所組成.
+      3. '交易' 和 '批次' 的差異在於
+        a. '交易' 可確保資料一致性, 所有STATEMENTS執行成功 或 執行失敗.
+        b. '批次' 有助於抓取異常發生點, 回傳錯誤資訊給前端使用. TODO: 但 '批次' 無法保證資料一致性.
+        c. '交易' 和 '批次' 可併用, 讓程式更強健(ROBUST).
+      
+      4. 程式範例
+        a. (批次 only)
+          BEGIN TRY
+            INSERT INTO dbo.Orders(custid, empid, orderdate) 
+              VALUES (68,9,'2006-07-15');
+            INSERT INTO dbo.OrderDetails(orderid,productid,unitprice,qty) 
+              VALUES (99, 2,15.20,20);
+          END TRY
+          BEGIN CATCH
+            SELECT ERROR_NUMBER() AS ErrorNum, ERROR_MESSAGE() as ErrorMsg;
+
+          END CATCH
+        b. (交易 & 批次併用)
+          BEGIN TRY
+            BEGIN TRANSACTION;
+              INSERT INTO dbo.Orders(custid, empid, orderdate) 
+                VALUES (68,9,'2006-07-15');
+              INSERT INTO dbo.OrderDetails(orderid,productid,unitprice,qty) 
+                VALUES (99, 2,15.20,20);
+              COMMIT TRANSACTION;
+          END TRY
+          BEGIN CATCH
+            SELECT ERROR_NUMBER() AS ErrorNum, ERROR_MESSAGE() as ErrorMsg;
+            ROLLBACK TRANSACTION;
+          END CATCH
+
+    [新增和管理 '交易']
+      1. 新增 '交易'
+        a. 語法: BEGIN TRANSACTION; OR BEGIN TRANS;
+        b. 一旦新增 '交易', 就必須以下列任一語法結束:
+          > COMMIT TRANSACTION; OR 
+          > ROLLBACK TRANSACTION;
+
+        d. '交易' 會持續存在, 直到
+          > COMMIT TRANSACTION; or
+          > ROLLBACK TRANSACTION; or
+          > Connection is dropped; (連接中斷) (註: 若連接中斷, 則整個 TRANSACTION 會 ROLLBACK)
+
+        e. 出現巢狀 '交易' 時, 若外部 '交易' ROLLBACK, 則內部 '交易' 同步ROLLBACK.
+        
+      2. 管理 '交易'
+        a. 無錯誤發生時, 請使用 'COMMIT TRANSACTION' 確認交易, 並釋放相關資源.
+        b. 有錯誤發生時, 請使用 'ROLLBACK TRANSACTION' 回復交易, 並釋放相關資源.
+
+      3. XACT_ABORT 標記用途
+        a. SET XACT_ABORT ON; 當SQL SERVER丟出ERROR, 則整個交易都會回復.
+        b. SET XACT_ABORT OFF; 只有 那個 丟出 低嚴重性ERROR 的 STATEMENT, 會 ROLLBACK.
+        
+        //前提
+        1. SET XACT_ABORT OFF; 
+        2. 3個STATEMENTs都包在 'TRANSACTION' 內.
+
+        例1: 前2個STATEMENT 沒有錯誤, 但第3個STATEMENT出現 check constraint error, <== 屬低嚴重性ERROR
+          則 前2個STATEMENT COMMIT, 只有第3個STATEMENT 未COMMIT.
+        
+        例2: 前2個STATEMENT 沒有錯誤, 但第3個STATEMENT出現 incorrect datatype error, <== 屬高嚴重性ERROR
+          則 會發出 ROLLBACK TRANSCATION, 沒有STATEMENT被COMMIT.
+
+    ['交易'異常處理]
+      1. '交易'異常處理的關鍵在於, 將 COMMIT & ROLLBACK 放在正確的 TRY/CATCH區塊內.
+
+      2. 確認 '交易', 要把 'COMMIT TRANSACTION' 放在 TRY 區塊內.
+        begin try
+          begin transaction;
+            insert into dbo.Orders(custid, empid, orderdate)
+            values(68,9,'2006-07-12');
+            insert into dbo.OrderDetails(orderid, productid, unitprice, qty)
+            values(1,2,15.20,20);
+          commit transaction;
+        end try
+
+      3. 回復 '交易', 要把 'ROLLBACK TRANSACTION' 放在 CATCH 區塊內.
+        begin try
+          begin transaction;
+            insert into dbo.Orders(custid, empid, orderdate)
+            values(68,9,'2006-07-12');
+            insert into dbo.OrderDetails(orderid, productid, unitprice, qty)
+            values(1,2,15.20,20);
+          commit transaction;
+        end try
+        begin Catch
+          select error_number() as ErrorNum , error_message() as ErrorMsg;
+          rollback transaction;
+        end Catch
+
+      4. XACT_STATE() 系統變數用途 (註: 是否有啟用中交易, 常與 'ROLLBACK' 併用)
+        begin try
+          begin transaction;
+            insert into dbo.Orders(custid, empid, orderdate)
+            values(68,9,'2006-07-12');
+            insert into dbo.OrderDetails(orderid, productid, unitprice, qty)
+            values(1,2,15.20,20);
+          commit transaction;
+        end try
+        begin Catch
+          select error_number() as ErrorNum , error_message() as ErrorMsg;
+          IF (XACT_STATE() <> 0)
+          BEGIN
+            ROLLBACK TRANSACTION;
+          END
+          ELSE
+          BEGIN
+            ....
+          END
+          rollback transaction;
+        end Catch
+        
+    [描述什麼是'同步處理' CONCURRENCY]
+      1. '同步處理' CONCURRENCY 它會阻擋其他使用者, 當1個時間點只能有1個使用者對該物件作存取.
+        因此, 要避免'不需要的長時間交易' 或 '存取大量資料的交易' 發生.
+      2. 這裡會討論 broad categories of isolation level(隔離層級), 
+        optimistic locking(樂觀鎖定), and 
+        pessimistic locking(悲觀鎖定).
+
+      3. optimistic locking(樂觀鎖定) => "假設會發生較少的更新衝突".
+        A. 交易開始, 資料 '初始狀態' 會被記錄.
+        B. 在交易確認前, '目前狀態' 會與 '初始狀態' 比較
+          > 如果狀態相同, 則 commit
+          > 如果狀態不同, 則 rollback
+      
+      4. pessimistic locking(悲觀鎖定) => "假設同時間會有大量的更新衝突發生"
+        A. '資料鎖定'只發生在 '更新' 時, 可預防產生大量rollback. (註: 有可能會出現不必要的查詢阻擋.)
+        
+        TODO: 考量你的資料特性, 採取合適的'同步處理' CONCURRENCY.
+          
+          optimistic locking(樂觀鎖定) => "假設會發生較少的更新衝突". => OLAP分析系統
+          pessimistic locking(悲觀鎖定) => "假設同時間會有大量的更新衝突發生" => OLTP交易系統
+
+      5. Snapshot isolation
+        a. READ_COMMITTED_SNAPSHOT_OFF , SQL Server預設的隔離等級
+          > 屬於 pessimistic locking(悲觀鎖定) => "假設同時間會有大量的更新衝突發生"
+
+        b. READ_COMMITTED_SNAPSHOT_ON , Azure SQL Database預設的隔離等級
+          > 屬於 optimistic locking(樂觀鎖定) => "假設會發生較少的更新衝突".
+          > 它會對資料作快照, 更新只在快照上執行.
+          > 允許查詢對原始資料作查詢.
+          > 當交易結束時, 在比對快照與目前資料狀態, 如相同則確認交易, 如差異則回復交易.
+
+        c. 變更 isolation 語法
+          > ALTER DATABASE <DB_NAME> SET READ_COMMITTED_SNAPSHOT ON; //開始快照
+          > ALTER DATABASE <DB_NAME> SET READ_COMMITTED_SNAPSHOT OFF; //關閉快照
+
+        d. 注意事項(Snapshot isolation)
+          > Snapshot isolation 只會發生在 READ COMMITTED transactions.
+          > Snapshot isolation 不會影響使用其他隔離等級的交易.
+
+    [程式練習]
+
+    [知識檢定]
+      1. What happens to nested transactions when the outer transaction is rolled back? 
+        如果巢狀交易, 外部交易ROLLBACK, 則內部交易會一併ROLLBACK.
+
+      2. Which of the following T-SQL keywords are used to control transactions? 
+        BEGIN TRANSACTION;
+
+      3. What does XACT_STATE test for? 
+        (O)是否有啟用中交易 / (X)Whether there are nested transactions
+        (O)The status of the current request.
+
+      4. What is the default transaction isolation level for Azure SQL Database? 
+        READ_COMMITTED_SNAPSHOT ON (樂觀鎖定, 比對資料狀態)
+
+=========
+<準備知識分享【預存程序】相關資料時，得到的結論：務必先理解程式目的後, 再挑選合適的資料庫存取方式>
+<= 在薛長興作的知識分享 =>
+
+  <好用的系統預存程序(SP)>
+    
+    --回傳 預存程序(SP) 名稱, 型態等資訊
+    exec sp_help 'uspSelect'
+
+    --回傳 預存程序(SP) 內容
+    exec sp_helptext 'uspSelect'
+
+    --回傳 預存程序(SP) 依賴的資料表, 資料行, 查詢或更新
+    exec sp_depends 'uspSelect'
+
+  <預存程序(SP)基本認識>
+    2.1. What: 什麼是預存程序? 	指的是在資料庫內預先儲存的SQL Command程式碼，以便外部程式呼叫的資料庫物件。
+    2.2. How: 如何新增預存程序 / 如何執行預存程序 (略)
+    2.3. When: 適用時機 / 不適用時機
+      2.3.1. 適用時機
+        + 複雜報表查詢, 可結合多個資料進行處理後再1次回傳.
+        + 特定情況會不斷地重覆執行時, 例: 程式每筆交易記錄 
+        + 特定情況會不斷地重覆執行時, 例: 利用系統既定的預存程序管理資料庫
+      2.3.2. 不適用時機
+        + 單檔資料表維護(增刪修查), 可採用 "介接器(SqlDataAdapter)" 進行開發。
+          利用 "介接器(SqlDataAdapter)" 與資料庫間溝通所需的程式碼行數為 {32行}
+          利用 "預存程序(StoredProcedure)" 與資料庫間溝通所需的程式碼行數則為 {69行}
+      2.3.3. Who: 哪些人會使用預存程序? 
+        + DBA 資料庫管理人員 & Programmer 程式開發人員
+      2.3.4. Where: 在哪裡使用預存程序?
+        + 能存取資料庫的程式碼或介面, 就能使用.
+      2.3.5. Why: 為什麼要使用預存程序
+        + 固定程式碼重覆使用
+        + 節省網路傳輸流量(查詢指令)
+        + 提供執行效能, 在第1次執行時會編譯儲存在buffer pool被重覆使用
+        + 它可以輕易地被修改。不過，這次優點也是缺點，當資料表欄位變更時或輸入參數異動，如果這支預存程序使用範圍遍佈各處程式碼，往往需要花費大量時間進行測試，因為它引發的是Runtime Exception 而非Checked Exception(這可透過IDE幫你抓出來)
+
+  <預存程序(SP) VS 函數(FN)的差異>
+    https://www.sqlshack.com/functions-vs-stored-procedures-sql-server/
+
+    結論: 
+      -Basic-
+        1. 資料範疇: SP 彈性較大; FN 固定結構, 支援較少子句和功能, 但專注細節處理, 例: 類型, 大小寫轉換等等..
+        2. 傳出參數: SP 必須另外宣告(EXEC usp_FABRIC_Select(@ROWCOUNT OUTPUT)); FN直接使用(SELECT ABS(-20);).
+        3. 使用方式: SP 內可以使用 SP & FN; 但FN內無法使用SP.
+      
+      -Advance-
+        4. 在查詢結果的重覆運用上, "資料表值函數(table valued)" 較 "預存程序" 優秀
+        5. 在查詢效能上, "資料表值函數(table valued)" 是個不錯的選擇. 基本上, 和"預存程序"相彷.
+            實際上, 還是要以執行計劃為準
+        6. 在確定使用筆數不高的情況下, "純量值函數(scalar)" 可以使用.
+            但在大量資料時, 則建議不用. 因為執行時間會很久.
+
+        =對 "預存程序" 及 "資料表值函數(table valued)" 的 <查詢結果>進行操作=
+          
+          + 使用 "預存程序" 查詢結果 , 無法直接產生新的資料表(須先產生) & 塞入資料
+            
+            --"預存程序"
+            ALTER PROCEDURE [dbo].[uspTable]
+              --傳入
+            AS
+            BEGIN
+              SET NOCOUNT ON;
+
+              SELECT 
+                A.ID,
+                A.Name,
+                A.Quantity,
+                A.InDate
+              FROM DBO.Inventory A
+                
+            END
+            
+            --可成功執行, 但 "tempTable" 必須先存在
+            INSERT INTO tempTable
+            EXEC uspTable
+
+            --無法成功執行, 語法有誤
+            EXEC uspTable
+            INTO tempTable
+
+          + 使用 "資料表值函數" 查詢結果, 可產生資料表 & 塞入資料
+
+            --"資料表值函數"
+            ALTER FUNCTION [dbo].[functionTable]
+            (	)
+            RETURNS TABLE 
+            AS
+            RETURN 
+            (
+              SELECT 
+              id,
+              Name,
+              Quantity,
+              InDate
+              FROM dbo.Inventory
+            )
+
+            
+            SELECT *
+            FROM DBO.FUNCTIONTABLE()
+
+            SELECT *
+            FROM DBO.FUNCTIONTABLE()
+            WHERE NAME = '100'
+
+            --Success
+            SELECT *
+            INTO tempTable
+            FROM DBO.FUNCTIONTABLE()
+            WHERE NAME = '100'
+
+            SELECT *
+            FROM tempTable
+
+            DROP TABLE tempTable
+
+
+        =對 "預存程序" 及 "資料表值函數(table valued)" 的 <執行效能> 作比較=
+
+          Question: "預存程序" 較 "資料表值函數" 的 <執行效能> 好?? 是真的嗎??
+          Answer: 經過測試, 兩者<執行效能>差異不大
+
+        =對 "預存程序" 及 "純量值函數(scalar)" 的 <執行效能> 作比較=
+
+          Question: "純量值函數(scalar)" 的 <執行效能>真的比較差嗎??
+          Answer: 經過大量筆數測試, 確實如此.
+    
+  <使用預存程序的優缺點> 
+    <Advantages and Drawbacks of Using Stored Procedures for Processing Data>
+    https://www.seguetech.com/advantages-and-drawbacks-of-using-stored-procedures-for-processing-data/
+

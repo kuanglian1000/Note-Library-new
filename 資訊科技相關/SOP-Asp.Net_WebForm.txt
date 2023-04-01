@@ -1,0 +1,791 @@
+
+考古題：多檔上傳(使用 Request.Files)
+
+ String TempFileName;
+ HttpFileCollection MyFileCollection = Request.Files;
+
+ for (int Loop1 = 0; Loop1 < MyFileCollection.Count; Loop1++)
+ {
+    // Create a new file name.
+    TempFileName = @"C:\TempFiles\File_" + Loop1.ToString();
+    // Save the file.
+    MyFileCollection[Loop1].SaveAs(TempFileName); //另存複本
+ }
+
+
+資料來源：ASP.NET Web Forms Quiz (https://docs.microsoft.com/zh-tw/archive/blogs/erikreitan/asp-net-web-forms-quiz)
+
+  1. Which type of developer would prefer the ASP.NET Web Forms framework when building a web application?
+    A. A developer that prefers patterns and principles such as test-driven development, separation of concerns, inversion of control (IoC), and dependency injection (DI). <--MVC-->
+    B. A developer that prefers a simple web development story, along the lines of PHP. Where they would create HTML pages and then add server-based code to the page. <--MVC-->
+    C. A developer that prefers a declarative, control-based programming approach with a WYSIWYG designer-driven development model. <--ASP.NET Web Forms-->
+
+  2. An ASP.NET master page can define a consistent appearance and behavior for multiple pages in your application.
+    A. True(O)
+    B. False
+
+  3. A Web.config file can be used to restrict access to pages in a folder of your Web application?
+    A. True(O)
+    B. False
+
+  4. The Global.asax file, also known as the ASP.NET application file
+     , is an optional file that contains code for responding to application-level and session-level events raised by ASP.NET or by HTTP modules.
+    A. True(正確答案)，註：任何直接存取Global.asax的URL Request都會被拒絕,外面使用者無法下載或瀏覽在Global.asax內的程式碼
+    B. False(O)
+
+  5. ASP.NET Identity allows users to log into an ASP.NET Web Forms site using which of the following credentials? Choose all that apply.
+    A. Facebook
+    B. Windows Live
+    C. Google
+    D. Twitter
+
+  6. Which of the following SQL Server Express LocalDB answers are true? Choose all that apply.
+    A. SQL Server Express LocalDB is a lightweight version of SQL Server that has many programmability features of a SQL Server database.
+    B. SQL Server Express LocalDB runs in user mode and has a fast, zero-configuration installation that has a short list of installation prerequisites.
+    C. In Microsoft SQL Server, any database or Transact-SQL code can be moved from SQL Server Express LocalDB to SQL Server and SQL Azure without any upgrade steps.
+
+  7. The ASP.NET Web Forms Application template supports HTML5.
+    A. True(O)
+    B. False
+
+  8. Modernizr is an open-source JavaScript library that can detect whether a browser supports HTML5 features, and enable them if it does not.
+    A. True(O)，註：Modernizr 可在NuGet Package內取得
+    B. False
+
+  9. Bootstrap, which is supported in Visual Studio 2013 project templates, is which of the following:
+    A. A specialized startup mini-application used to help spin up a new server containing the Web Form application.
+    B. A layout and theming framework created by Twitter.(O)
+    C. A packaging system used when porting the Web Forms application.
+    D. A JavaScript library used when handling large amounts of data.
+
+  10. The ASP.NET Web Forms Application template includes a set of NuGet packages. Which of the following is true about NuGet? Choose all that apply.
+    A. NuGet packages provide componentized functionality in the form of open source libraries and tools.
+    B. There is a wide variety of online packages to help you create and test your applications that you can add to your application directly through Visual Studio.
+    C. Developers can create and add packages to NuGet.
+
+  11. jQuery is a fast and concise JavaScript Library. The purpose of this library is to help simplify HTML document traversing, event handling, animating, and Ajax interactions. Is the jQuery library that is included in the ASP.NET Web Forms Application template by default?
+    A. True(O)
+    B. False
+
+  12. Unobtrusive validation allows the built-in validator controls to use unobtrusive JavaScript for server-side validation logic.
+    A. True
+    B. False(O)，
+       註：This significantly reduces the amount of JavaScript rendered inline in the page markup and reduces the overall page size. 
+           Unobtrusive validation is added globally to the ASP.NET Web Forms Application template based on the setting 
+           in the &lt;appSettings&gt; <appSettings> element of the Web.config file at the root of the application.
+       譯註：Unobtrusive validation設定放在 Web.config 的 <appSettings> 設定內
+
+  13. Entity Framework Code First is:
+    A. A database that you must create separately from scratch.
+    B. A framework that allows to generate a database without defining a model.
+    C. A way of creating the database portion of your application for you based on the code that you write.(O)
+    D. A way to reverse engineer a model from an existing database.
+
+  14. Language-Integrated Query (LINQ) extends powerful query capabilities to the language syntax of C# and Visual Basic so that you can implement standard, easily-learned patterns for querying and updating data.
+    A. True(O)
+    B. False
+
+  15. A data annotation attribute can be used to do which of the following? Choose all that apply.
+    A. Specify the initial value of a property.
+    B. Describe how to validate user input for a property.
+    C. Specify whether a property is required.
+    D. Specify that a property participates in optimistic concurrency checks.
+    E. Indicate whether a data field is editable.
+
+  16. Model Binding allows you to bind results using far less code and gives you the ability to reuse the functionality throughout your application. Model binding aims to simplify working with code-focused data-access logic while still retaining the benefits of a rich, data-binding framework.
+    A. True(O)
+    B. False
+
+  17. Value providers allow a Web Forms application to be quickly tested by providing test data as a source of user input.
+    A. True(O)
+    B. False(正確答案)
+
+  18. When you set the “ItemType” attribute of a data control, such as a GridView control, the data-binding expression “Item” is available in the markup of the control and the control becomes strongly typed.
+    A. True(O)
+    B. False
+
+  19. URL routing allows you to specify that only a portion of your web page will be sent to the user of your application.
+    A. True
+    B. False(O)
+
+  20. When working with an ASP.NET Web Forms application, the exception handling hierarchy executes which of the following last?
+    A. Application level(O,最上層,最後面)
+    B. Page level
+    C. Code level(正確答案)，
+       註：Application Level -> Page Level -> Code Level 
+       In addition to application, page, and code level, you can also handle exceptions at the HTTP module level and by using an IIS custom handler.
+       譯註：除了Application Level -> Page Level -> Code Level 外，程式設計人員還能控制 <HTTP module Level>,利用 <IIS Custom handler>作設定
+
+  1.(C) , 2.(A) , 3.(A) , 4.(B)<-(A) , 5.(ABCD) , 6.(ABC) , 7.(A) , 8.(A) , 9.(B) , 10.(ABC) , 11.(A) , 12.(B) , 13.(C) , 14.(A) , 15.(ABCDE) , 16.(A) , 17.(A)<-(B) , 18.(A) , 19.(B) , 20.(A)<-(C)
+
+參考書目：(ASP.NET WebForm 完整教學手冊)https://docs.microsoft.com/en-us/aspnet/web-forms/overview/getting-started/getting-started-with-aspnet-45-web-forms/create-the-project
+  =總計10章節=
+  a.Introduction and overview(OK)
+  b.Create the project(OK)
+    2.ASP.NET Identity是<身份驗證機制>，允許使用外部帳戶如 Facebook , Twitter , Windows Live and Google，登入目前網站
+      <OpenAuthProviders.ascx> 這個使用者控制項，似乎是最關鍵的項目。
+    3.SQL Server Express LocalDB
+      輕量化的SQL Server,可無痛升級至 SQL Server & SQL Azure
+    4.Master Pages
+      主版頁面, Site.Master(電腦專用) , Site.Mobile.Master(手機專用)
+    5.HTML5
+      目前主流的HTML5格式，ASP.NET Web Forms支援該格式
+    6.Modernizr
+      針對不支援HTML5的瀏覽器而設計的Open Source JavaScript Library，偵測瀏覽器是否支援HTML5，並讓它支援。
+    7.Bootstrap
+      Twitter開發的layout and theming framework , 使用 <CSS3> 提供RWD顯示機制
+    8.NuGet packages
+      管理第3方套件的工具
+      VS位置：工具->NuGet 封裝管理員
+    9.jQuery
+      JavaScript函式庫,簡化HTML文件尋找(traversing),事件控制,動態控制,及AJAX互動
+      預設已安裝在NuGet套件內，還搭配 <AspNet.ScriptManager.jQuery>
+  c.Create the Data Access Layer(OK)
+    * Entity Framework Code First
+    * LocalDB
+    * Data Annotations
+    
+    1.利用 <Entity Framework Code First> 新增資料存取類別(Models)
+      1.1. 新增資料實體類別 "/Models/Product.cs" , "/Models/Category.cs"
+    2.<Data Annotations> 資料註解 , 功能為描述如何驗證使用者輸入、指定資料格式、指定資料如何在資料庫內modeled(保存)
+      using System.ComponentModel.DataAnnotations;
+    3.<Context Class> 內容類別 , 功能提供 管理實體類別(entity Class)例:Product.cs、Category.cs , 並提供資料庫的存取 , 擔任 <實體物件> 與 <資料庫> 間中介角色
+      using System.Data.Entity;
+      <程式範例>：新增的<ProductContext> : DbContext , 須繼承 DbContext
+        //============================
+        using System.Data.Entity;
+        namespace WingtipToys.Models
+        {
+            public class ProductContext : DbContext
+            {
+                public ProductContext(): base("WingtipToys")
+                {
+                }
+                public DbSet<Product> Products { get; set; }
+                public DbSet<Category> Categories { get; set; }
+            }
+        }
+        //============================
+    4.<Initializer Class> 資料庫內容初始化用 , 通常用於塞些初始資料使用
+        //============================
+        using System.Data.Entity;
+        public class ProductDatabaseInitializer : DropCreateDatabaseIfModelChanges<ProductContext> //注意:每次執行時,是否重建資料庫的設定 , another option is <DropCreateDatabaseAlways> 每次都重建
+        {
+            protected override void Seed(ProductContext context)
+            {
+                GetCategories().ForEach(c => context.Categories.Add(c));
+                GetProducts().ForEach(p => context.Products.Add(p));
+            }
+            private static List<Category> GetCategories()
+            {
+                var categories = new List<Category>
+                {
+                    new Category
+                    { CategoryID =1,
+                      CategoryName = "Cars"
+                    },
+                    new Category
+                    {
+                        CategoryID = 2,
+                        CategoryName = "Airplanes"
+                    },
+                    new Category
+                    {
+                        CategoryID = 3,
+                        CategoryName = "Trucks"
+                    },
+                    new Category
+                    {
+                        CategoryID = 4,
+                        CategoryName = "Boats"
+                    },
+                    new Category
+                    {
+                        CategoryID = 5,
+                        CategoryName = "Rockets"
+                    }
+                };
+                return categories;
+            }
+
+            private static List<Product> GetProducts()
+            {
+                var products = new List<Product>
+                {
+                    new Product
+                    {
+                        ProductID = 1,
+                        ProductName = "新車",
+                        Description = "新車",
+                        ImagePath = "newcar.png",
+                        UnitPrice = 125.50,
+                        CategoryID = 1
+                    },
+                    new Product
+                    {
+                        ProductID = 2,
+                        ProductName = "Old-time Car",
+                        Description = "There's nothing old about this toy car,except it's looks. Compatible with other old toy cars.",
+                        ImagePath="carearly.png",
+                        UnitPrice = 15.95,
+                        CategoryID = 1
+                    },
+                    new Product
+                    {
+                    ProductID = 3,
+                    ProductName = "Fast Car",
+                    Description = "Yes this car is fast, but it also floats inwater.",
+                    ImagePath="carfast.png",
+                    UnitPrice = 32.99,
+                    CategoryID = 1
+                    },
+                    new Product
+                    {
+                    ProductID = 4,
+                    ProductName = "Super Fast Car",
+                    Description = "Use this super fast car to entertain guests.Lights and doors work!",
+                    ImagePath="carfaster.png",
+                    UnitPrice = 8.95,
+                    CategoryID = 1
+                    },new Product
+                    {
+                    ProductID = 5,
+                    ProductName = "Old Style Racer",
+                    Description = "This old style racer can fly (with userassistance). Gravity controls flight duration. No batteries required.",
+                    ImagePath = "carracer.png",
+                    UnitPrice = 34.95,
+                    CategoryID = 1
+                    },
+                    new Product
+                    {
+                    ProductID = 6,
+                    ProductName = "Ace Plane",
+                    Description = "Authentic airplane toy. Features realistic color and details.",
+                    ImagePath="planeace.png",
+                    UnitPrice = 95.00,
+                    CategoryID = 2
+                    },
+                    new Product
+                    {
+                    ProductID = 7,
+                    ProductName = "Glider",
+                    Description = "This fun glider is made from real balsa wood.Some assembly required.",
+                    ImagePath="planeglider.png",
+                    UnitPrice = 4.95,
+                    CategoryID = 2
+                    },
+                    new Product
+                    {
+                    ProductID = 8,
+                    ProductName = "Paper Plane",
+                    Description = "This paper plane is like no other paper plane.Some folding required.",
+                    ImagePath="planepaper.png",
+                    UnitPrice = 2.95,
+                    CategoryID = 2
+                    },
+                    new Product
+                    {
+                    ProductID = 9,
+                    ProductName = "Propeller Plane",
+                    Description = "Rubber band powered plane features two wheels.",
+                    ImagePath="planeprop.png",
+                    UnitPrice = 32.95,
+                    CategoryID = 2
+                    },
+                    new Product
+                    {
+                    ProductID = 10,
+                    ProductName = "Early Truck",
+                    Description = "This toy truck has a real gas powered engine.Requires regular tune ups.",
+                    ImagePath= "truckearly.png",
+                    UnitPrice = 15.00,
+                    CategoryID = 3
+                    },
+                    new Product
+                    {
+                    ProductID = 11,
+                    ProductName = "Fire Truck",
+                    Description = "You will have endless fun with this one quarter sized fire truck.",
+                    ImagePath="truckfire.png",
+                    UnitPrice = 26.00,
+                    CategoryID = 3
+                    },
+                    new Product
+                    {
+                    ProductID = 12,
+                    ProductName = "Big Truck",
+                    Description = "This fun toy truck can be used to tow other trucks that are not as big.",
+                    ImagePath="truckbig.png",
+                    UnitPrice = 29.00,
+                    CategoryID = 3
+                    },
+                    new Product
+                    {
+                    ProductID = 13,
+                    ProductName = "Big Ship",
+                    Description = "Is it a boat or a ship. Let this floating vehicle decide by using its artifically intelligent computer brain!",
+                    ImagePath = "boatbig.png",
+                    UnitPrice = 95.00,
+                    CategoryID = 4
+                    },
+                    new Product
+                    {
+                    ProductID = 14,
+                    ProductName = "Paper Boat",
+                    Description = "Floating fun for all! This toy boat can be assembled in seconds.Floats for minutes! Some folding required.",
+                    ImagePath="boatpaper.png",
+                    UnitPrice = 4.95,
+                    CategoryID = 4
+                    },
+                    new Product
+                    {
+                    ProductID = 15,
+                    ProductName = "Sail Boat",
+                    Description = "Put this fun toy sail boat in the water and let it go!",
+                    ImagePath="boatsail.png",
+                    UnitPrice = 42.95,
+                    CategoryID = 4
+                    },
+                    new Product
+                    {
+                    ProductID = 16,
+                    ProductName = "Rocket",
+                    Description = "This fun rocket will travel up to a height of 200 feet.",
+                    ImagePath="rocket.png",
+                    UnitPrice = 122.95,
+                    CategoryID = 5
+                    }
+                };
+
+                return products;
+            }
+        }
+        //============================
+    5.Configuring the Application to Use the Data Model
+      要設定完成後,才能使用前幾個步驟新增的資料類別
+      5.1.設定 <Global.asax> 
+          5.1.1. Data Model初始化在 Global.asax內設定 
+          5.1.2. 用來控制應用程式面(Application)的事件(Event)或方法(Method)
+          5.1.3. // 應用程式啟動時執行的程式碼
+          5.1.4. <範例>:
+                  using System.Data.Entity;
+                  using WingtipToys.Models;
+                  namespace WingtipToys
+                  {
+                      public class Global : HttpApplication
+                      {
+                          void Application_Start(object sender, EventArgs e)
+                          {
+                              // 應用程式啟動時執行的程式碼(=範本預設=)
+                              RouteConfig.RegisterRoutes(RouteTable.Routes);
+                              BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+                              //資料庫初始化(=新增項目=)
+                              Database.SetInitializer(new ProductDatabaseInitializer());
+                          }
+                      }
+                  }
+      5.2.設定 <Web.config>
+          5.2.1. Database connectionString 連接在 Web.config內設定
+          5.2.2. 控制ASP.NET web application的相關設定
+          5.2.3. <範例>
+                  <connectionStrings> 
+                    <add name="WingtipToys" connectionString="Data Source=(LocalDb)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\WingtipToys.mdf;Integrated Security=True;" 
+                    providerName="System.Data.SqlClient"/>
+                  </connectionStrings>
+  d.UI and Navigation(OK)
+    * change UI
+    * configure and HTML5 element to include page Navigation
+    * create data-driven control
+    * display data from database using Entity Framework Code First
+    
+    1.@Page Directive
+      1.1. 頁面指示詞,可指示頁面屬性及設定資料,針對此頁面。ASP.NET使用這些指示來處理頁面。
+      1.2. 注意：頁面指示詞只提供 ASP.NET 使用，不會送至用戶端瀏覽器
+      1.3. 常見設定項目為：伺服器程式語言(C#)、頁面是single-file page or code-behind page、相關的master page位置、debugging and tracing options
+      1.4. 若在頁面內沒有設定 @Page Directive , 設定會從 Web.config or Machine.config 繼承而來
+    
+    2.Web Server controls
+      2.1. 以 <asp:XXX runat="server" id="..."> 開頭的都是 Web Server controls
+    
+    3.Server Code
+      3.1. @Page Directive內 , <CodeBehind> 屬性會指向 CodeBehind類別檔名(例:CodeBehind="Default.aspx.cs") , <Inherits> 屬性會指定 類別完整宣告名稱(例:WingtipToys._Default)
+    
+    4.Updating the Master Page
+      4.1. Master Page + Content Page = 最終輸出至用戶端的HTML
+      4.2. Master Page 功能在於提供網站一致的顯示風格(例:公司商標,個人標誌)
+      4.3. 在 Master Page 增加商標圖片，程式範例如下：
+           
+           <%--href="~/" 指定網站的ROOT,一般是Deault.aspx ; <a>把圖片包起來,讓圖片有連結效果--%>
+           <div id="TitleContent" style="text-align:center;">
+              <a runat="server" href="~/">
+                <asp:Image runat="server" ImageUrl="~/Images/logo.jpg" BorderStyle="None" />
+              </a>
+              <br />
+           </div>
+    
+    5.Master Pages
+      5.1. Master Page檔案結尾是 *.master (例:Site.master)
+      5.2. Master Page 會有 @Master Directive 指示詞 , 然而 Content Page 則是 @Page 指示詞
+      5.3. Master Page 內有 完整的HTML檔案結構 , 如 html , head , form ..，另外各頁面共用元件都會放在這裡(例:商標圖片 , 網站登入權限控制)
+      5.4. Master Page 內還有 1至多個 <asp:ContentPlaceHolder ID="MainContent" /> 
+          和 Content Page內的 <asp:Content ID="default" ContentPlaceHolderID="MainContent" />對應
+    
+    6.Adding Pages
+      6.1. 為顯示 Product List & Product Details 而新增兩個 Content Page
+    
+    7.Updating Bootstrap
+      7.1. VS2013開始使用 Bootstrap 作為 layout and theming framework created by Twitter.
+      7.2. Bootstrap 利用 CSS3 提供 RWD的效果 , 此外 Bootstrap 是透過 NuGet 作管理 , 程式碼預設放在 Content 資料夾內
+      7.3. 練習至 http://Bootswatch.com 下載 各式 Bootstrap theme(主題) , 並放在專案內
+      7.4. <注意>：在ASP.NET Web Application 內 , 使用專案根目錄內 <Bundle.config> 檔案 儲存 Bootstrap CSS 檔案路徑
+    
+    8.Modifying the Default Navigation(修改預設瀏覽列)
+      8.1. 至 <Site.master> 主版項面 新增 "產品頁面(ProductList.aspx) 路徑"
+      8.2. <注意>：(~) 在 <href> 屬性內使用會指向 "專案根目標(the root of the project)"
+    
+    9.Adding a Data Control to Display Navigation Data(增加產品類別分頁)
+      9.1. 至 <Site.master> 主版項面 新增 "ListView 顯示產品類別(撈取資料庫 Category Table)"
+      9.2. ListView 內的 "ItemType" -> 指向 Models/內資料實體類別(例:"WingtipToys.Models.Category")
+      9.3. ListView 內的 "SelectMothod" -> 指向 <Site.master.cs> 內回傳實體列表的方法(例:"GetCategories")
+           <注意>:存取資料庫,要透過 "中介層(DbContext)" , 詳: Line 137 說明
+
+      9.4. 在上面兩點均資料繫結(data-binding)設定完成後 , 就能 利用 Item 這個物件了
+      9.5. 資料繫結語法：<%#: Item.xxx %> , 在 <%# 後面加上 : 能讓data-binding expression 變成 HTML-encoded , 防止 XSS and HTML injection 攻擊
+    
+    10.Linking the Data Control to the Database
+      10.1. 新增 <Site.master.cs> 內回傳實體列表的方法(例:"GetCategories") , 對應 ListView 內的 "SelectMothod"
+      10.2. 程式範例：
+              using System.Linq;
+              using WingtipToys.Models;
+
+              //取得產品種類資料
+              public IQueryable<Category> GetCategories()
+              {
+                  var _db = new WingtipToys.Models.ProductContext();
+                  IQueryable<Category> query = _db.Categories;
+                  return query;
+              }
+    
+    11.Running the Application and Creating the Database(回顧)
+      11.1. (回顧) 之前新增一個類別(新增初始資料用) 詳:Line 157 , 並且在 Global.asax.cs 內於 Application_Start函式(應用程式啟動時執行的程式碼) 時執行 詳:Line 369
+      11.2. 成功執行的話 , 資料庫會新增在 App_Data 資料夾內
+
+    12.Reviewing the Database
+      12.1. 開啟 Web.config , connectionString值內的 "AttachDbFilename=|DataDirectory|\WingtipToys.mdf;" , |DataDirectory| 保留值 指的就是 "專案內的App_Data資料夾"
+      12.2. 利用伺服器總管 , 可以瀏覽資料庫內的資料
+  e.Display Data Items and details(OK)
+    * 本章重點在 
+        > <UI呈現> , 
+        > <Model Binding> : ItemType , SelectMethod , <%#: Item.Property %> , using System.Web.ModelBinding;
+        > <Value providers> :  <-- [QueryString("xxx")] or Session or ViewState ...
+    * 完成 <ProductList.aspx> 顯示類別下的所有產品
+    * 完成 <ProductDetail.aspx> 顯示產品明細資料
+    ===============================================
+    * how to add a data control to display products from the database
+    * how to connect a data control to the selected data.
+    * how to add a data control to display product details from the database
+    * how to retrieve a value from the query string and use the value to limit the data that's retrieved from the database
+
+    1.add a data control to display products
+      1.1. 繫結資料至Server Control , 最常見有3種方式:
+        a. Use <Data Source Control> to Bind data (例:SQLDataSource , LINQDataSource...) , 自動化程式最高 , 直接將 Server-side Control 與 DataSource Control 作連結
+        b. <Coding by hand> to Bind Data , 彈性最高 , 用於必須維持 <資料存取邏輯> 的完全控制時 , 在各個步驟都須自己來 , 讀值、檢查空值、值轉型、確認轉型是否成功及使用值作查詢...
+        c. !!(本教學使用)!! Use <Model Binding> to Bind Data , 利用 <Entity Framework> 這類資料繫結架構(ORM) , 可簡化/減少 在<資料存取邏輯>程式撰寫量
+
+    2.Display Products
+      2.1. Use Model Binding to bind data. 
+        2.1.1. 查詢資料時 , 要設定控制項的 <SelectMethod> 屬性 , 對應至 CodeBehind類別 的方法名稱(Method)
+        2.1.2. 不再需要 , 明確呼叫 DataBind 方法 . data control 會再適當時機呼叫方法並繫結資料
+      2.2. Adding Code to Display Products
+        2.2.0. 利用 <ListView> 顯示所有產品資料
+        2.2.1. 範例程式碼：詳 ProductList.aspx 加入前端資料繫結及頁面顯示用程式碼
+        2.2.2. 範例程式碼：詳 ProductList.aspx.cs 加入後端存取資料庫用程式碼
+                //===============================
+                using WingtipToys.Models;
+                using System.Web.ModelBinding;
+
+                public IQueryable<WingtipToys.Models.Product> productList_GetData([QueryString("id")] int? categoryId)
+                {
+                    var _db = new WingtipToys.Models.ProductContext();
+                    IQueryable<Product> query = _db.Products;
+                    if (categoryId.HasValue && categoryId > 0)
+                    {
+                        query = query.Where(p => p.CategoryID == categoryId);
+                    }
+
+                    return query;
+                }
+                //===============================
+
+      2.3. Adding a Data Control to Display Product Details
+        2.3.0. 利用 <FormView> 顯示產品明細資料 , 用於顯示單筆資料(a single record)
+        2.3.1. 範例程式碼：詳 ProductDetail.aspx 加入前端資料繫結及頁面顯示用程式碼
+        2.3.2. 範例程式碼：詳 ProductDetail.aspx.cs 加入後端存取資料庫用程式碼
+                //===============================
+                using WingtipToys.Models;
+                using System.Web.ModelBinding;
+
+                public IQueryable<WingtipToys.Models.Product> productDetail_GetItem([QueryString("productID")] int? productId)
+                {
+                    var _db = new WingtipToys.Models.ProductContext();
+                    IQueryable<Product> query = _db.Products;
+                    if (productId.HasValue && productId > 0)
+                    {
+                        query = query.Where(p => p.ProductID == productId);
+                    }
+                    else
+                    {
+                        query = null;
+                    }
+
+                    return query;
+                }
+
+                //===============================
+
+  f.Shopping Cart(OK)
+    [本章重點在]
+    * Entity Framework Code First
+    * Data Annotations
+    * strongly Typed data controls
+    * Model binding
+    ===============================
+    [本章可學到]
+    * 如何新增購物車
+    * 如何讓使用者在購物車內新增商品
+    * 如何利用 GirdView 顯示購物車內的商品
+    * 如何計算和顯示訂單總計
+    * 如何移除或更新購物車內的商品
+    * 如何加入購物車計數器
+
+    1.Creating a Shopping Cart
+      1.1. 注意：利用 Session 機制記錄使用者資訊(方便)，但誤用 Session(In-Process on the web server hosting) 對大型網站而言會造成效能負擔
+           大型網站服務會 另外提供多個實體伺服器來儲存 Session , 例:Windows Azure Cache Service(微軟自推產品)
+      1.2. 分配給每個客戶一個 GUID 作為購物車識別用，並把 GUID 存放在 Session內
+      1.3. Add CartItem as a Model Class , 管理購物車商品
+        1.3.1. 程式範例：CartItem.cs
+          using System.ComponentModel.DataAnnotations;
+          namespace WingtipToys.Models
+          {
+              public class CartItem
+              {
+                  [Key]
+                  public string ItemId { get; set; } //加入[Key]後, EF產生Table時,會作為PrimaryKey
+
+                  public string CartId { get; set; } //For Every Customer GUID
+
+                  public int Quantity { get; set; }
+
+                  public System.DateTime DateCreated { get; set; }
+
+                  public int ProductId { get; set; }
+
+                  public virtual Product Product { get; set; }
+              }
+          }
+      1.4. Update the Product Context , /Models , 因為會跟資料庫作連接 , 所以也要更新 "ProductContext" : DbContext
+        1.4.0. 注意：為什麼能利用 Entity Framework 呢？ 因為 using System.Data.Entity;
+        1.4.1. 程式範例：ProductContext.cs
+          public DbSet<CartItem> ShoppingCartItems { get; set; } //多加1行
+      1.5. Managing the Shopping Cart Business logic , /Logic
+        1.5.1. 新增商業邏輯類別 , /Logic/ShoppingCartActions.cs , 負責 (1)新增商品,(2)移除商品,(3)取得購物車編號,(4)存取購物車商品,(5)購物車商品金額總計,(6)更新購物車資料 的邏輯處理
+          1.5.1.0. 程式範例內 , 用了兩次 GUID , 1次作為 每個User唯一識別碼 CartId , 另1次則是 每次商品加入購物車時的 ItemId
+          1.5.1.1. 程式範例：ShoppingCartActions.cs
+            using WingtipToys.Models;
+            namespace WingtipToys.Logic
+            {
+                public class ShoppingCartActions : IDisposable //釋放 Unmanaged 資源的機制
+                {
+                    public string ShoppingCartId { get; set; }
+
+                    private ProductContext _db = new WingtipToys.Models.ProductContext();
+
+                    public const string CartSessionKey = "CartId";
+
+                    public void AddToCart(int id)
+                    {
+                        //取得CartID from Session["CartId"]
+                        ShoppingCartId = GetCartId();
+
+                        var cartItem = _db.ShoppingCartItems.SingleOrDefault(c => c.CartId == ShoppingCartId && c.ProductId == id); //確認同一台ShoppingCart裡有沒有該商品
+                        if (cartItem == null)
+                        {
+                            cartItem = new CartItem
+                            {
+                                ItemId = Guid.NewGuid().ToString(),
+                                ProductId = id,
+                                CartId = ShoppingCartId,
+                                Product = _db.Products.SingleOrDefault(p => p.ProductID == id),
+                                Quantity = 1,
+                                DateCreated = DateTime.Now
+                            };
+                            _db.ShoppingCartItems.Add(cartItem);
+                        }
+                        else
+                        {
+                            cartItem.Quantity++; //同一台ShoppingCart裡有該商品,則數量+1
+                        }
+                        _db.SaveChanges(); //存到資料庫
+                    }
+
+                    public void Dispose()
+                    {
+                        if (_db != null)
+                        {
+                            _db.Dispose();
+                            _db = null;
+                        }
+                    }
+
+                    //取出Session["CartId"]值
+                    private string GetCartId()
+                    {
+                        if (HttpContext.Current.Session[CartSessionKey] == null)
+                        {
+                            if(!string.IsNullOrWhiteSpace(HttpContext.Current.User.Identity.Name))
+                            {
+                                HttpContext.Current.Session[CartSessionKey] = HttpContext.Current.User.Identity.Name;
+                            }
+                            else
+                            {
+                                Guid tempCartId = Guid.NewGuid(); //產生新的GUID
+                                HttpContext.Current.Session[CartSessionKey] = tempCartId;
+                            }
+                        }
+                        return HttpContext.Current.Session[CartSessionKey].ToString();
+                    }
+
+                    public List<CartItem> GetCartItems()
+                    {
+                        ShoppingCartId = GetCartId();
+
+                        return _db.ShoppingCartItems.Where(c => c.CartId == ShoppingCartId).ToList();
+                    }
+                }
+            }
+      1.6. Creating the Add-To-Cart functionality
+        1.6.1. 新增加入購物車頁 , /AddToCart.aspx , 提供給 ProductList.aspx & ProductDetail.aspx 頁面 , 新增商品用(功能頁面,毋須畫面顯示)
+
+      1.7. Creating the Shopping Cart UI
+        1.7.1. 新增購物車商品頁 , /ShoppingCart.aspx , 負責顯示 目前購物車的商品資訊(項目、數量、小計) 以及 刪除功能
+        1.7.2. 使用 GridView 呈現購物車商品
+      
+      1.8. Retrieving the Shopping Cart Items
+        1.8.1. 修改購物車商品頁 , /ShoppingCart.aspx.cs , 撰寫 GridView SelectMethod對應的函式 , 使用 /Logic/ShoppingCartActions.cs (4)存取購物車商品
+      
+      1.9. Adding Products to the Shopping Cart
+        1.9.1. 在 ProductList.aspx & ProductDetail.aspx 頁面 , 加上 AddToCart.aspx 加入購物車功能
+      
+      1.10. Calculating and Displaying the Order Total
+        1.10.1. 撰寫 /Logic/ShoppingCartActions.cs (5)購物車商品金額總計
+        1.10.2. TODO: LINQ 真的是必學
+        1.10.3. TODO: int? 稱為 Nullable types , 可以是 int or null (詳閱：http://msdn.microsoft.com/library/2cf62fcy(v=vs.110).aspx)
+        1.10.4. 修改購物車商品頁 , /ShoppingCart.aspx.cs , 取用 (5)購物車商品金額總計 函式,並顯示在頁面
+      
+      1.11. Adding Update and Checkout Buttons to the Shopping Cart
+        1.11.0. 修改商業邏輯類別 , /Logic/ShoppingCartActions.cs , 增加 (2)移除購物車商品,(6)更新購物車資料 的邏輯處理
+        1.11.1. 新增購物車商品頁 , /ShoppingCart.aspx , 增加 更新鈕
+          1.11.1.1. 程式範例：ShoppingCart.aspx.cs , 這種寫法之前也沒看過
+
+      1.12. Adding a Shopping Cart Counter
+        1.12.1. 在首頁(Site.master)新增購物車商品計數 & 連接
+          注意：Page_PreRender事件發生在 Page Rendert to HTML之前.在這個事件內存取商品數量後,即設值給控制項.
+
+  g.Checkout and Payment with PayPal
+    此章可學到
+    * 限制使用者存取特定頁面
+    * 從暱名購物車(anonymous)轉換為已知購物車(known)
+    * 利用PayPal測試環境 , 模擬使用者購物流程
+    * 在 DetailView 內 , 顯示PayPal提供的明細
+    * 更新至資料庫內 , 將PayPal提供的明細
+
+    1.Adding Order Tracking
+      1.1. 新增兩個類別 , 1個記錄客戶訂購資訊(Orders.cs) , 1個記錄訂單明細資訊(例:運送地址、訂購金額 & 付款資訊)(OrderDetail.cs)
+
+    2.Addding Checkout Access
+      2.1. Add a Checkout folder and Pages(CheckoutStart.aspx, CheckoutComplelte.aspx, CheckoutCancel.aspx, CheckoutError.aspx, CheckoutReview.aspx)
+      2.2. Add a Web.config File(in Checkout folder) <--這是重點，利用 Web.config(Web組態檔) 可以限制使用者存取-->
+        註:It’s important to note that ASP.NET configuration follows a hierarchy, where each Web.config file 
+        applies configuration settings to the folder that it is in and to all of the child directories below it. 
+        註釋:Web.config套用至所在資料夾及子資料夾內的所有檔案.
+
+        2.2.1. 新增設定 
+          <authorization>
+            <deny users="?" /> 
+          </authorization>
+      
+      3.Enabling Logins from other Sites Using <OAuth> and <OpenID>
+        3.1. Identity
+        3.2. OAuth providers (FactBook , Twitter , Windows Live)
+          When you add an OAuth provider (Facebook, Twitter, or Windows Live) to your ASP.NET Web 
+          Forms application, you must <set the application ID (key) value and an application secret value.> 
+          You add these values to the <Startup.Auth.cs> file in your Web Forms application. 
+          Additionally, you must <create an application on the external site> (Facebook, Twitter, or Windows Live). 
+          When you create the application on the external site you can get the application keys that you'll need in order to invoke the login feature for those sites.  
+          Note 
+          Windows Live applications only accept a live URL for a working website, so you cannot use a 
+          local website URL for testing logins.  
+
+        3.3. OpenID providers (Google)
+
+
+
+      1.13. 
+        1.11.2. 新增購物車商品頁 , /ShoppingCart.aspx , 增加 結帳鈕
+  h.Membership and Administration
+  i.URL routing
+  j.ASP.NET Error handling
+
+資料來源：ASP.NET Page Life Cycle(頁面生命週期) (https://docs.microsoft.com/en-us/previous-versions/aspnet/ms178472(v=vs.100)?redirectedfrom=MSDN)
+  1.上揭資料官方說明已不再維護了。(感覺ASP.NET Web Form可能不再成為主流，但還是很重要)
+
+  4.ASP.NET頁面生命週期為何？(參考書目:進入IT產業必讀的200個.NET面試決勝題 ISBN:978-986-201-602-2)
+    大致上可區分為4大類
+    1.初始化(PreInit,Init,InitComplete)：初始化類別物件,主題主頁面等,判斷是否為初次訪問
+    2.載入資料及頁面(LoadState,ProcessPostData,PreLoad,Load,ProcessPostData-第2次):ProcessPostData-第1次確認頁面載入前,所有資料從頁面被載入
+    3.觸發事件(ChangedEvents,PostBackEvent):比較前後ViewState內容,判斷哪些事件須被觸發,再檢查PostBack事件
+    4.保存狀態並呈現頁面(SaveState,SaveStateComplete,Render):編碼後的ViewState資料存到hidden內,再轉換為HTML,回傳給用戶端
+
+參考書目：ASP.NET 專題實務II：進階範例應用 (2022/05/27 最近的ASP.NET 已經沒有使用 MasterPage & ContentPage 的寫法了, 改為 MVC 架構)
+
+  CH1-MasterPage(主版頁面)
+    1.*.aspx 會自動匹配 *.master ，兩者的Content是兩兩對應的。
+      1.1.aspx內的<asp:Content ContentPlaceHolderID > 會對應 master內 <asp:ContentPlaceHolder>
+    
+    2.自動切換手機版 MasterPage (*.Mobile.master)
+      2.1. *.master 專門給電腦使用；*.Mobile.master 則是行動用戶使用 (自動套用)
+      2.2. 自動套用的三要素
+        <%@ Register Src="~/ViewSwitcher.ascx" TagPrefix="friendlyUrls" TagName="ViewSwitcher" %>
+        <meta name = "viewport" Content="width=device-width">
+        <friendlyUrls:ViewSwitcher ID="ViewSwitcher1" runat="server" />
+    
+    3.如何從 ContentPage 內存取放在 MasterPage 內的控制項(控制項不能放在ContentPlaceHolder內哦)？
+      TextBox box = (TextBox)Master.FindControl("txtBox1");
+
+
+  CH13-Session使用
+    1. <%@ Page Language=... EnableSessionState="false" ... %> //關閉Session使用,例:公開網頁
+    2. <%@ Page Language=... EnableSessionState="ReadOnly" ... %> //常用於登入才開放的網頁,例:會員專屬瀏覽區,只會讀取Session內容並檢查,不異動
+    3. 建議作法：
+      3.1. 在Web.Config內，全數關閉 Session
+        <system.web>
+          <page enableSessionState="false">...</page>
+      3.2. 在須使用 Session 的網頁,個別開啟即可。
+        <%@ Page Language=... EnableSessionState="ReadOnly" ... %>
+
+  CH16-Windows AD(Single SignOn) & 網銀用的 CA憑證
+
+  ===========================================================
+
+  CH20-Master Detail關聯式訂單-一頁搞定
+
+  CH21-購物車範例，自訂資料庫-一頁搞定
+
+  CH22-LinqDataSource控制項與DataContext類別
+
+  CH23-Model Binding & Web Form
+
+  CH24-ASP.NET 輸出快取、OutputCache與PartialCachingAttribute類別
+
+  CH25-Visual Studio 「專案」與「網站」之異同、IIS網站部署

@@ -34,4 +34,7 @@ CH2
     git difftool 
         #呼叫設定的比較工具
 
-    
+如何移除LOCAL的儲存庫
+  0. backup files to another folder
+  1. 'git commit -a' , 將所有變更簽入.
+  2. remove folder .git , 這時就能刪除 .git 儲存庫資料夾了.    
