@@ -4,20 +4,21 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
   CSS - 用來造網站的特殊風格
   JavaScript - 用來增加網站的互動功能
 
-  準備開發環境(靜態)
+  # 準備開發環境(靜態)
     設定本機測試伺服器(https://developer.mozilla.org/en-US/docs/Learn/Common_questions/set_up_a_local_testing_server)
     1. 安裝python 3
     2. cd 至HTML檔案目錄 (範例專案路徑: C:\Projects\Projects_HTML\bread)
     3. 開啟http服務 "python -m http.server" , 預設會 listen port 8000
       若 port 8000 已被佔用, 也可以指其他port, 例: 7800 "python -m http.server 7800"
     4. 測試連接 http://localhost:8000
+    5. 終止 python 的服務, exit() or Ctrl+Z(大寫)
 
-  準備開發環境(動態)
+  # 準備開發環境(動態)
     (TODO:註: 有點偏離主題, 先不作這個)
     例: Python 使用 Django, JavaScript 使用 Node.js, PHP 使用內建的SERVER
     https://developer.mozilla.org/en-US/docs/Learn/Common_questions/set_up_a_local_testing_server#running_server-side_languages_locally
 
-  你的網站看起來會是什麼樣子?
+  # 你的網站看起來會是什麼樣子?
     規劃:
     1. 主題 => 烘焙 or (海景旅遊 / 山景旅遊)
     2. 資訊深度 => 如何製作 or 如何前往
@@ -41,21 +42,20 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
         </style>
       </head>
 
-
-    注意網站檔案結構
+  # 注意網站檔案結構(檔案好找, 命名清楚, 請用小寫, 不要用空格命名)
     1. 放在好找的地方且命名清楚
     2. 留意大小與空格, WebServer區分大小寫, 千萬不要用空格來命名
         官方建議, 請用小寫且不要用空格命名
 
-  與各式各樣檔案打交道
-    一般的網站架構
+  # 與各式各樣檔案打交道
+    {一般的網站架構}
     1. index.html 首頁
     2. images 資料夾: 放置圖片
     3. styles 資料夾: 放置CSS碼(例: 設定文字與背景顏色)
     4. scripts 資料夾: 放置JS碼(例: 可與使用者端互動的程式碼)
 
-    路徑的規則
-    1. 要連結一個目標檔案到在同一個目錄下的 HTML 檔案，只需要檔案名稱就可以了。
+    {路徑的規則}
+    1. 要連結一個目標檔案到在{同一個目錄下的 HTML 檔案}，只需要檔案名稱就可以了。
       例: my-image.jpg
     
     2. 為了要參照到在子目錄下的檔案，在路徑前面加上該目錄的名稱，並接著加上一個斜線(/)。
@@ -70,7 +70,7 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
     5. 在Windows檔案系統內, 傾向於使用反斜線(\)
       例: C:\windows, 但是在HTML檔案內, 還是要用正斜線(/)
 
-  HTML 基礎
+  # HTML 基礎
     HTML 到底是什麼？
     1. HTML 包含了一系列的元素（elements），
         而元素包含了標籤（tags (en-US)）與內容（content），
@@ -81,39 +81,39 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
 
     HTML 元素(element)的組成
     <p>My house is in ILan.</p> 
-    這就是一個完整的element, 從起始標籤到結束標籤+內容
+    這就是一個完整的element, 從起始標籤到結束標籤+內容, 元素就是<p>
 
     <p class="editor-note">My house is in ILan.</p> 
-    屬性包含了屬性名稱與值，你可以利用屬性設定這個元素的色彩、對齊方式、圖表的格線等等
+    屬性包含了屬性名稱與值，你可以利用屬性設定這個元素的色彩、對齊方式、圖表的格線等等, 這個屬性就是 "editor-note"
 
-    屬性的組成包含：
+    * 屬性的組成包含：
     1. 在元素名稱和屬性之間有一個空格（如果有多個屬性，屬性之間也需要有空格）
     2. 屬性名稱後面接著等於符號「=」
     3. 屬性包在起始標籤裡面，如上範例所示
 
-    巢狀元素
+    * 巢狀元素
     元素裡面可以在放進元素，我們稱之為「巢狀元素（nesting element）」。
     <p>My cat is <strong>very</strong> grumpy.</p>
 
-    空元素
+    * 空元素
     有些元素沒有內容，我們稱為「空元素（empty elements）」。 
     例: 圖片就是空元素, <img src="images/firefox-icon.png" alt="My test image">
 
-    清單 (list)
+    * 清單 (list)
       <ul>
         <li>無順序</li>
-        <li>的清單</li>
+        <li>清單</li>
       </ul>
 
       <ol>
         <li>有順序</li>
-        <li>的清單</li>
+        <li>清單</li>
       </ol>
 
-    連結 (link) 
+    * 連結 (link) 
       <a href="https://www.nsysu.edu.tw">中山大學首頁</a>
 
-  CSS 基礎
+  # CSS 基礎
     CSS 是 風格頁面語言（style sheet language）  
     
     新增CSS檔案放置 styles 目錄內.
@@ -123,7 +123,7 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
       <link rel="stylesheet" href="./styles/style.css">
       註: 路徑要正確, 不然效果跑不出來.
 
-    解析 CSS ruleset(規則集 or 規則)
+    * 解析 CSS ruleset(規則集 or 規則)
       p{
         color: red
       } 
@@ -133,7 +133,7 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
       屬性 => color
       屬性值 => red
 
-    注意CSS ruleset語法其他重要的部分：  
+    * 注意CSS ruleset語法其他重要的部分：  
       1. 每一個規則當中，除了選擇器名稱以外，其他都必須被大括號（{}）給包住.
       2. 在每一個宣告裡面，屬性跟屬性值之間必須用冒號(:) 做區分。
       3. 在每一個規則裡面可以包含有許多宣告，但不同的宣告之間必須使用分號 (;) 來區分。
@@ -150,9 +150,10 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
         color: red;
       }
 
-    選擇器的不同類型(多種方式挑出想要的項目)
-      (註1: 單一HTML頁面中，每個ID只能綁定一個元素, 每個ID都是唯一的, 不得重覆)
-      (註2: 單一HTML頁面中，class 屬性可以被多個元素使用, class可以共用)
+    <= VIP重要觀念 =>
+    # 選擇器的不同類型(多種方式挑出想要的項目) 
+      !!(註1: 單一HTML頁面中，每個ID只能綁定一個元素, 每個ID都是唯一的, 不得重覆)
+      !!(註2: 單一HTML頁面中，class 屬性可以被多個元素使用, class可以共用)
       
       選擇器名 	                                   => 選取/控制什麼 	                      => 範例
       =========================================================================================
@@ -165,7 +166,7 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
       屬性選擇器（Attribute selector） 	          => 指定頁面上的特定屬性元素 	                     => img[src] 控制 <img src="myimage.png"> 但不控制 <img>
       虛擬 class 選擇器（Pseudo-class selector） 	=> 在特定的情況下，指定頁面的元素，例如懸停時。 	   => a:hover 控制 <a>, 但只有在滑鼠游標停留在連結上時. 
 
-    CSS: 和塊(BOX)密不可分
+    * CSS: 和塊(BOX)密不可分
       CSS 佈局主要基於 BOX模型, 在頁面空間的每個 box 都有下列屬性：
       1. padding: 內容(content)周圍的空格 <= 內縮
       2. border: 位於矩形內容(content)外部的實線
@@ -178,20 +179,20 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
       7. text-shadow:在元素內的文字上設置陰影
       8. display: 設置元素的顯示模式（後面會詳細介紹）
 
-    改變頁面顏色
+    * 改變頁面顏色
       html{
         /* 放入先前決定好的主題色 */
         background-color: #EAD289;
         
       }
 
-    CSS未生效的問題??
+    * CSS未生效的問題??
       Web server可能會出現304的ERROR, 表示狀態未變更.
       主要原因在於瀏覽器快取未清除, 強制清除再重載即可生效.
       例: firefox的強制清除快取, (Ctrl+F5)
       資料來源: https://en.wikipedia.org/wiki/Wikipedia:Bypass_your_cache
 
-    設定 body 的風格(styling)
+    * 設定 body 的風格(styling)
       /* 針對 margin, padding屬性, 
         1. 設定兩個屬性值時, 第1值為上下, 第2值為左右.
         2. auto 是個特殊值, 在可用的空間中平均分配.
@@ -204,7 +205,7 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
         border: 5px solid black; /*外框*/
       }
 
-    設定主頁面標題的位置(Positioning)和風格(styling)
+    * 設定主頁面標題的位置(Positioning)和風格(styling)
       h1{
         /*DynaPuff is open source font from Google Fonts*/
         font-family:'DynaPuff', 'Arial Narrow', Arial, sans-serif;
@@ -243,23 +244,24 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
       https://blog.miniasp.com/post/2007/12/17/Introduce-faviconico-and-important-concept
       http://www.favicon.cc/ <= 到這個網站自己生一個, 放在網站根目錄下.
 
-  JavaScript 基礎
-    JavaScript 是一個成熟的動態程式語言，應用於 HTML 文件（document）上時，就可以為網頁提供動態的互動功能。
+  # JavaScript 基礎
+    * JavaScript 是一個成熟的動態程式語言，應用於 HTML 文件（document）上時，就可以為網頁提供動態的互動功能。
 
-    JavaScript 提供的工具包括:
+    * JavaScript 提供的工具包括:
     1. 內建在瀏覽器內的應用程式介面（Application Programming Interfaces，APIs）
       提供了多樣化的功能，像是動態產生 HTML 以及設定 CSS 樣式、擷取以及處理從使用者的網路攝影機錄下的影像、製作立體圖形或是聲音樣本。
+    
     2. 第三方 API 允許開發者將他們的網頁與其他如 Twitter 或 Facebook 提供的內容合併在一起。
-    3. 第三方框架和函式庫允許您將這些元件套用在您的 HTML 文件內，
-      讓您可以迅速地建立網頁或應用程式。
+    
+    3. 第三方框架和函式庫允許您將這些元件套用在您的 HTML 文件內，讓您可以迅速地建立網頁或應用程式。
 
     HelloWorld應用程式
-    1. 在 scripts 資料夾內, 新增 main.js 檔案.
-    2. 在 主頁面內, 在 </body>結束標籤前 引用 scripts/main.js 連接.
-      <script scr="scripts/main.js"></script>
-    3. 在 main.js 檔案內, 加入下列程式碼變更元素內容.
-      var myHeading = document.querySelector('h2');
-      myHeading.textContent = 'Hello World';
+      1. 在 scripts 資料夾內, 新增 main.js 檔案.
+      2. 在 主頁面內, 在 </body>結束標籤前 引用 scripts/main.js 連接.
+        <script scr="scripts/main.js"></script>
+      3. 在 main.js 檔案內, 加入下列程式碼變更元素內容.
+        var myHeading = document.querySelector('h2');
+        myHeading.textContent = 'Hello World';
 
     備註： 我們選擇將 <script> 元素放在接近 HTML 檔案底部的原因，
       是因為瀏覽器是依照程式碼存在檔案中的順序來讀取 HTML 檔案的。
@@ -267,41 +269,44 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
       但有時候卻行不通，因為她比應該產生改變的 HTML 還要早被讀取到。
       因此，把她放在接近檔案底部的位置，通常都會是一個不錯的策略。
 
+    解決方式: JavaScript 功能未生效的問題
+      => 參閱 <# 利用 <defer> or <async> 解決外部JS載入問題及之間差異> 章節.
+
     什麼是瀏覽器開發工具(What are browser developer tools?)
-    1. 按F12可以叫出來
+    1. 按 <F12> 可以叫出來
     2. 可以在 DOM Inspector 打開所有的元素
-    3. 你可以作任何變更, 但無法儲存
+    3. 你可以在 <瀏覽器開發工具> 作任何變更, 但無法儲存
 
-    Exploring the CSS editor(探索CSS編輯器, 超好用的, 可以立刻看出變更前後的結果)
+    Exploring the CSS editor(F12 => {樣式編輯器}Tab)
+    1. {樣式編輯器}, 超好用的, 可以立刻看出變更前後的結果
 
-    JavaScript 偵錯器(F12 => 除錯器Tab)
+    JavaScript 偵錯器(F12 => [除錯器]Tab)
     1. 瀏覽器必須要打開來, 來源與大綱窗格 = JS程式碼 = 中斷點窗格.
     2. 可以設中斷點逐步偵錯.
 
-    宣告變數
-    1. let 宣告區域變數, 在一定範圍內, 如同一{..內}.
-    2. var 宣告全域變數, 在同一Function內.
-    3. 變數名稱有分大小寫.
+    * 宣告變數
+      1. let 宣告區域變數, 在一定範圍內, 如同一{..內}.
+      2. var 宣告全域變數, 在同一Function內. 註: 儘量少用var, 多用 const & let.
+      3. 變數名稱有分大小寫.
 
-    let myVariable; //宣告變數
-    myVariable = 'Bob'; //指定變數值
-    myVariable; //呼叫取變數值
-    let myVar2 = 'Bill'; //一次作完
+      let myVariable; //宣告變數
+      myVariable = 'Bob'; //指定變數值
+      myVariable; //呼叫取變數值
+      let myVar2 = 'Bill'; //一次作完
 
-    變數型態, 隱藏起來, 但實際存在.
-    1. let varStr = 'Jill';
-    2. let varNum = 10;
-    3. let varBol = true;
-    4. let varArray = [1, 'Judy', 2, 'Kevin']; varArray[0];
+    * 變數型態, 隱藏起來, 但實際存在.
+      1. let varStr = 'Jill';
+      2. let varNum = 10;
+      3. let varBol = true;
+      4. let varArray = [1, 'Judy', 2, 'Kevin']; varArray[0];
     
-    注意(VIP): 在JavaScript內所有東西都可以是個<物件>, 
-      而且可以被放在<變數>裡.
-    let h2Heading = document.querySelector('h2');
+    * 注意(VIP): 在JavaScript內所有東西都可以是個 <物件>, 而且可以被放在 <變數> 裡.
+      let h2Heading = document.querySelector('h2');
 
     /* 多行註解 */ 
     // 單行註解
 
-    函式（Functions）
+    * 函式（Functions）
       函式（Functions (en-US)）是一種將需要重複使用的功能打包裝起來的方法，所以當要再次執行這些功能的時候，
       就可以呼叫這個函式來達成，而不是一再的重新撰寫程式碼。
 
@@ -315,7 +320,7 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
       multiply(2,3);
       multiply(20,20);
 
-    事件（Events）
+    * 事件（Events）
       如果要在網頁上創造真正的互動功能，您將會需要事件（Events） — 
       這是一種可以監聽瀏覽器發生了什麼事情的程式碼結構，
       接著她會允許您執行其他程式碼以回應這些事件。
@@ -332,7 +337,7 @@ Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting
 
       範例1: 動態切換圖片檔
         <img id="lighthouse" src="./images/richCornerLightHouse.jpg" alt="這是一張富貴角燈塔圖片">  
-        <!-- document.querySelector('#lighthouse'); 注意挑選方式是直接使用 #id 挑. -->
+        <!-- document.querySelector('#lighthouse'); 注意挑選方式是採用 [CSS選取id] 的方式挑選直接使用 #id 挑. -->
         
         var imgLighthouse = document.querySelector('#lighthouse');
         imgLighthouse.onclick = 
@@ -396,7 +401,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
     }
 
     return 會回傳計算結果, 也會終止函式執行.
-    在JavaScript內, 你必須一定回傳 某個東西, 不然函式會回傳 'undefined'.
+    在JavaScript內, 你必須一定回傳 某個東西(something), 不然函式會回傳 'undefined'.
 
   2. Strings
   
@@ -462,11 +467,11 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
     新式寫法(請用這種): .substring(x, y);
 
     摘要:
-    a. A substring is a part or a portion of a string.
-    b. string.substring(indexStart, indexEnd) is used to return a portion of the string.
-    c. indexStart: the position of the first character you'd like to include.
-    d. indexEnd: the position of the first character you'd like to ignore.
-    e. the indexEnd argument is optional which means you can leave it out.
+      a. A substring is a part or a portion of a string.
+      b. string.substring(indexStart, indexEnd) is used to return a portion of the string.
+      c. indexStart: the position of the first character you'd like to include.(包含在內)
+      d. indexEnd: the position of the first character you'd like to ignore.(忽略在外)
+      e. the indexEnd argument is optional which means you can leave it out.
 
   5. Plus operator 加號運算子(+)
 
@@ -479,7 +484,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
     let name = "Hello ";
     name += "KL"; // Hello KL //另外一種加總寫法.
 
-  6. Template strings(JS的字串插補), 必須先加註 `` 符號, `{variable name}` , 同C#的字串插補 $"I am a {variable name}."
+  6. Template strings(JS的字串插補), 必須先加註 `` 符號, `${variable name}` , 同C#的字串插補 $"I am a {variable name}."
 
     `This is a template string.`
 
@@ -493,9 +498,9 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
       `I am learning ${language}`;
     
     摘要:    
-    1. A template string is a string created with the backtick character: `
-    2. Template strings can span multiple lines
-    3. Template strings support interpolation with the ${variableName} syntax
+      1. A template string is a string created with the backtick character: `
+      2. Template strings can span multiple lines
+      3. Template strings support interpolation with the ${variableName} syntax
 
     實例1: 利用 JS Template strings(JS的字串插補) 輸出 HTML + Value結果.
       //File1: nutrition.js
@@ -514,7 +519,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
         let htmlForProtein = renderTableRow("Protein", "19g");
         let htmlForFat = renderTableRow("Fat", "5g");
 
-        const tbody = document.querySelector("#nutrition-table tbody");
+        const tbody = document.querySelector("#nutrition-table tbody"); //挑選 id=nutrition-table 內的 tbody 元素
         tbody.insertAdjacentHTML("beforeend", htmlForCarbs);
         tbody.insertAdjacentHTML("beforeend", htmlForProtein);
         tbody.insertAdjacentHTML("beforeend", htmlForFat);
@@ -541,7 +546,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
         return `${lowerletter.substring(0,1).toUpperCase() + lowerletter.substring(1)}`;
       }
 
-    實例3: 複習所有字串常用函式, 字元個數, 第1個字元, 最後1個字元, 全小寫, 全大寫, 首字大寫
+    實例3: 複習所有字串常用函式, 字元個數/字串長度, 第1個字元, 最後1個字元, 全小寫, 全大寫, 首字大寫
       /** @param {string} name */
       export function getNumberOfChars(name) {
           // number of characters in: name
@@ -601,6 +606,8 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
     20. Template strings support interpolation with the ${variableName} syntax
 
   7. Numbers 數值
+  數值轉字串, 可利用 `${ numVariable }`, 不要用 numVariable.toString();
+  數值轉字串專用函式, .toString(), <不常用>. 例: let answer = 42; answer.toString(); //"42"
 
     所有的正負數值在JS內, 都歸類為 numbers.
       例: 1, 2, -5, 3.5, 2000, 2021, -23.51
@@ -624,35 +631,68 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
       b. NaN stands for Not a Number
       c. NaN is often a sign of a bug.
 
-  數值轉字串專用函式, .toString(), 不常用. 例: let answer = 42; answer.toString(); //"42"
+  8. 字串轉數值 Number() <= 用這組就好了...
+    
+    a.Unary plus: 
+      +x does exactly the number coercion steps explained above to convert x.
+        使用範例:
+          const x = 1;
+          const y = -1;
 
-  8. 字串轉數值 Number.parseInt(string, radix) 
-  Number.parseInt("要轉換的字串值", 進位類別: 10進位, 2進位, 建議要寫不要用預設值10, 不然可能出現意料之外的錯誤)
+          console.log(+x);
+          // Expected output: 1
 
-    let str = "42";
-    Number.parseInt(str, 10); // 42
+          console.log(+y);
+          // Expected output: -1
 
-    可以省略 radix 不輸入嗎? 可以, 但建議要寫不要用預設值10, 不然可能出現意料之外的錯誤.
+          console.log(+'');
+          // Expected output: 0
 
-    過時寫法: parseInt(string, radix) 不要用.
+          console.log(+true);
+          // Expected output: 1
 
-    使用案例: 字串轉數值 Number.parseInt(string, radix) 
-      a. 使用者在文字方塊輸入數值時, 要記得用 Number.parseInt(string, radix)
-      b. 數值是從DOM中讀取而來時, 要記得用 Number.parseInt(string, radix)
+          console.log(+false);
+          // Expected output: 0
 
-      c. 如果忘記使用 Number.parseInt(string, radix)
-        let a = 10; let b = "20"; a + b; //1020, 而不是30
-      
-      d. 記得使用 Number.parseInt(string, radix)的好處時, 它會試著將字串轉為數值, 並保留可轉換為數值部分.
-        Number.parseInt("123abc", 10); // 123
-        Number.parseInt("5 meters", 10); // 5
-        Number.parseInt("abc 123", 10); // NaN, #注意# , 如果字串放前面會出現NaN
+          console.log(+'hello');
+          // Expected output: NaN
 
-    摘要:    
-      1. Convert from string to number Number.parseInt(value, 10).
-      2. Number.parseInt() is the name of the function you're calling.
-      3. 10 is the radix which you should specify.
-      4. Make sure to always specify the radix to avoid unpleasant surprises.
+    b.The Number() function: 
+      Number(x) uses the same algorithm to convert x, except that BigInts don't throw a TypeError, but return their number value, with possible loss of precision.
+
+    c.Number.parseInt(string, radix) => 只認整數
+      Number.pareseInt("3.14", 10);
+      answer is 3
+
+    d.Number.pareseFloat() => 可認小數
+      Number.pareseFloat("3.14", 10);
+      answer is 3.14
+
+    e.Number.parseInt("要轉換的字串值", 進位類別: 10進位, 2進位, 建議要寫<進位類別>, 不要用省略<預設值給10>, 不然可能出現意料之外的錯誤)
+      let str = "42";
+      Number.parseInt(str, 10); // 42
+
+      * 可以省略 radix 不輸入嗎? 可以, 建議要寫進位類別, 不要用省略<預設值給10>, 不然可能出現意料之外的錯誤.
+
+      過時寫法: parseInt(string, radix) 不要用.
+
+      使用案例: 字串轉數值 Number.parseInt(string, radix) 
+        a. 使用者在文字方塊輸入數值時, 要記得用 Number.parseInt(string, radix)
+        b. 數值是從DOM中讀取而來時, 要記得用 Number.parseInt(string, radix)
+
+        c. 如果忘記使用 Number.parseInt(string, radix)
+          let a = 10; let b = "20"; a + b; //1020, 而不是30
+        
+        d. 記得使用 Number.parseInt(string, radix)的好處時, 它會試著將字串轉為數值, 並保留可轉換為數值部分.
+          Number.parseInt("123abc", 10); // 123
+          Number.parseInt("5 meters", 10); // 5
+          Number.parseInt("abc 123", 10); // NaN, #注意# , 如果字串放前面會出現NaN
+
+      摘要:    
+        1. Convert from string to number Number.parseInt(value, 10).
+        2. Number.parseInt() is the name of the function you're calling.
+        3. 10 is the radix which you should specify.
+        4. Make sure to always specify the radix to avoid unpleasant surprises.
 
   9. Operator 
 
@@ -665,7 +705,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
       7 / 2; //3.5
 
     數學函數
-      Math.round(); // Math.round(7 / 2); //result is 4.
+      Math.round(); // Math.round(7 / 2); //result is 4. // 取四捨五入值
       Math.min(); // 取最小值
       Math.max(); // 取最大值
 
@@ -1367,8 +1407,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
 
   2022/09/02 15:00 完成免費課程, 接下來要 US75美金, 約2千多元, 先考慮一下吧~~~
 
-(學習中)JavaScript — 動態的客戶端指令(初階)
-資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript
+(學習中)JavaScript — 動態的客戶端指令(初階) 資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript
 
   JavaScript 初探(第一步)
   https://developer.mozilla.org/zh-TW/docs/Learn/JavaScript/First_steps
@@ -1548,7 +1587,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
                   一直到所有 HTML 載入完成。
                   在擁有許多 JavaScript 的大型網站中，這樣會導致(嚴重的效能問題)，拖慢你的網站
 
-          # 利用 (defer or async) 解決外部JS載入問題及之間差異
+          # 利用 <defer> or <async> 解決外部JS載入問題及之間差異
             0. defer & async 都能閃過(避開) Script 被擋住的問題.
             1. <script defer> or <script async>兩個屬性都是用來告訴browser使用獨立Process來下載Script,
               同時間頁面的其他部分(如DOM)也在下載, 因此頁面載入不會受腳本影響.
