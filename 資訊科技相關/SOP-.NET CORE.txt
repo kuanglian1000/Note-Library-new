@@ -857,6 +857,25 @@ Program.cs：程式的起始點
                   </tbody>
               </table>
 
+            # 問題: 出現 warning CS8618: 退出建構函式時，不可為 Null 的 屬性 'Name' 必須包含非 Null 值
+            # 官方說明: https://learn.microsoft.com/zh-tw/dotnet/csharp/language-reference/compiler-messages/nullable-warnings
+
+            解決方案1: 將 'Name' 宣告為 Nullable 型別
+            public class Products
+            {
+              public int Id{get;set;} //ProductID
+              public string? Name{get;set;} //ProductName
+              public int? Price{get;set;} //ProductPrice
+            }
+
+            解決方案2: 給 'Name' 預設""值
+            public class Products
+            {
+              public int Id{get;set;} //ProductID
+              public string? Name{get;set;} = string.Empty; //ProductName
+              public int? Price{get;set;} = string.Empty; //ProductPrice
+            }
+
             # 問題: 出現 warning CS8602: 可能 null 參考的取值 (dereference) 警告 #
             https://docs.microsoft.com/en-us/ef/core/miscellaneous/nullable-reference-types
 
