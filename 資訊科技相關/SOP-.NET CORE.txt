@@ -2,10 +2,18 @@
 Introduction to Identity on ASP.NET Core(登入驗證功能) <== 有需要再重新估一遍.
 https://docs.microsoft.com/zh-tw/aspnet/core/security/authentication/identity?view=aspnetcore-6.0&tabs=netcore-cli
 
-與全網站相關設定的 "檔案位置: Properties/launchSettings.json"
+與全網站相關設定的 "檔案位置: 專案資料夾/Properties/launchSettings.json"
 1. 啟動網站設定 (網址埠號, 網站伺服器設定, 登入驗證方式)
 2. 在 ASP.NET Core 中使用多個環境的設定(開發, 測試, 正式環境)
   https://docs.microsoft.com/zh-tw/aspnet/core/fundamentals/environments?view=aspnetcore-6.0
+3. 關於多個環境設定(開發, 測試, 正式環境)的參數為 "ASPNETCORE_ENVIRONMENT"
+  例: "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+
+個別開發環境的設定 "檔案位置: 專案資料夾/appsettings.Development.json or 專案資料夾/appsettings.json"
+1. 從上面檔案名稱可得知, "appsettings.Development.json" 是給開發環境使用.
+2. "appsettings.json" 則是正式環境使用.
 
 <使用 "EF Core" 還是 "EF6" Entity Framework 6.0>
   The recommendation is to use EF Core if:
