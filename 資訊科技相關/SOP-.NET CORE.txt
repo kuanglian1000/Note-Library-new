@@ -1347,6 +1347,11 @@ Program.cs：程式的起始點
           dotnet add package Microsoft.EntityFrameworkCore.SqlServer
           dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
 
+      > 安裝 ASP.NET Core Scaffolding 引擎  #!-- 安裝工具或套件時, 千萬要注意是否跟 .NET SDK 版本 相容--#
+        (自動產生程式碼, 只適用於命令列cmd環境下)
+          dotnet tool uninstall -g dotnet-aspnet-codegenerator
+          dotnet tool install -g dotnet-aspnet-codegenerator --version 6.0.10 //指定安裝6.0.10版
+
       > {新增Model後}, 產生對應的Controller & View (ORM套件要先裝, 不然程式碼生不出來)
           dotnet-aspnet-codegenerator controller 
           -name JobsController 
