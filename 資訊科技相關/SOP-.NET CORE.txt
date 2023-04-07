@@ -1339,13 +1339,13 @@ Program.cs：程式的起始點
                 });
             }
         
-      > 安裝ORM套件(EntityFrameworkCore)
-          dotnet tool install --global dotnet-ef
-          dotnet tool install --global dotnet-aspnet-codegenerator
-          dotnet add package Microsoft.EntityFrameworkCore.Design
+      > 安裝ORM套件(EntityFrameworkCore) #!-- 安裝工具或套件時, 千萬要注意是否跟 .NET SDK 版本 相容--#
+          dotnet tool install --global dotnet-ef  //抓最新版安裝
+          dotnet tool install --global dotnet-ef --version 6.0.10  //指定安裝6.0.10版
+          dotnet add package Microsoft.EntityFrameworkCore.Design //專案引用套件
           dotnet add package Microsoft.EntityFrameworkCore.SQLite
-          dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
           dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+          dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
 
       > {新增Model後}, 產生對應的Controller & View (ORM套件要先裝, 不然程式碼生不出來)
           dotnet-aspnet-codegenerator controller 
@@ -1429,12 +1429,13 @@ Program.cs：程式的起始點
         * 調整首頁 Views > Home > Index.cshtml
         * 調整共用版面 Views > Shared > _Layout.cshtml
 
-      3. 安裝ORM套件(EntityFrameworkCore)
-          dotnet tool install --global dotnet-ef
-          dotnet tool install --global dotnet-aspnet-codegenerator
-          dotnet add package Microsoft.EntityFrameworkCore.Design
+      3. 安裝ORM套件(EntityFrameworkCore) #!-- 安裝工具或套件時, 千萬要注意是否跟 .NET SDK 版本 相容--#
+          dotnet tool install --global dotnet-ef  //抓最新版安裝
+          dotnet tool install --global dotnet-ef --version 6.0.10  //指定安裝6.0.10版
+          dotnet add package Microsoft.EntityFrameworkCore.Design //專案引用套件
           dotnet add package Microsoft.EntityFrameworkCore.SQLite
           dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+          dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
           
           // 自動產生程式碼範本用
           dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
