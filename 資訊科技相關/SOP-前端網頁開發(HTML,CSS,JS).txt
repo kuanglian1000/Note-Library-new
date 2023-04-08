@@ -722,7 +722,11 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
 
   10. Variables 變數
 
-    let(區域變數, 指定後, 內容可再變更) & const(不算是常數?? 確定指定後, 內容值再不可變更)
+    let(區域變數, 指定後, 內容可再變更) 
+    & const(區域可視範圍的常數, 宣告時要有初始值, 初始值指定後不可變更, 不能重複指定初值 or 另一個物件, 不能重複宣告[同名])
+    & var(全域變數, 建議不要再用了, 容易因<變數可視範圍>而出現異常.)
+    
+    const 詳細說明(範例寫的詳細): https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements/const
 
       let language = "C++"; 
       language = "JavaScript"; //OK, reassign OK.
@@ -730,16 +734,17 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
       const language = "C++"; // assign only once
       language = "Python"; // Error
 
-    #注意: 關於 const 變數內的元素是可變更的, 不能變更的是 const 變數#
+    # 注意: 關於 const 變數內的元素<element>是可變更的, 不能變更的是 <const 變數指定的物件> #
       An important note about const is that it does not create a Constant or an Immutable value. 
       This will be thoroughly explained once we learn about arrays & objects. 
       What you need to know, for now, is that you can only use the equal sign once, 
       but you can still change elements inside an array or object.
 
     #注意: let vs const, 何時要用let宣告, 何時要用const宣告呢?#
-      1. 原則上, 優先使用 const 進行宣告.
+      1. 原則上, 優先使用 const 進行宣告, 常用於 元素<element> 連接宣告.
       2. 除非, 明確清楚變數值可能改變, 則使用 let 進行宣告.
       3. 再來, 在 array 型態上以 const 進行宣告, 可以放心 variable 一定是個 array, 而使用 array 相關函式.
+         儘管 array 用const宣告, array內的元素一樣可以變動, 而且能確保它使用 array 相關函式.
          The benefit of using const is that once a variable is an array, 
          it will always be an array (but as you will see later on, the elements inside the array might change). 
          This allows you to confidently use array methods on that variable because you know it will always be of type array.
@@ -750,12 +755,12 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
         before uncovering the legacy and it has worked quite well for most of our students!
 
     # 本節摘要    
-      1. When you use a variable for the first time in JavaScript, you need to declare it with either let or const.
-      2. Use let for variables that you will need to re-assign later on (as in changing their value)
-      3. Use const for variables that you won't need to re-assign later on.
+      1. When you use a variable for the first time in JavaScript, you need to declare it with either <let> or <const>.
+      2. Use <let> for variables that you will need to re-assign later on (as in changing their value)
+      3. Use <const> for variables that you won't need to re-assign later on.
       4. Variables declared with const are not constant. (註: 變數以 const 宣告, 該變數並不是 常數 哦.. #)
         We will see why later in this course.
-      5. Variables declared with const cannot be re-assigned (註: 變數以 const 宣告, 內容值初始化再不可變更哦.. #)
+      5. Variables declared with <const> cannot be re-assigned (註: 變數以 const 宣告, 內容值初始化再不可變更哦.. #)
         so you cannot have the = next to that variable name after declaring it.
       6. If you see var, it's from the old version of JavaScript. 
         You can convert it to let (sometimes const if the variable is not re-assigned).
@@ -765,6 +770,7 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
         (註: 變數以 let or const 宣告, 表示它是區域變數, 可用範圍侷限在特定區塊內. "block scoped")
 
   11. Condition 條件判斷 >=, <=, === or !==(嚴格比較, 先比型別, 再比值), == or != (一般比較, 自動轉型), Object.is (Object.is 會和嚴格相等做同樣的事，但會將 NaN、-0 和 +0 獨立處理)
+  # 試著去掉else or 使用 early return. #
 
     簡單來說，比較有三種.
     1. 一般比較(==)會將型別一致化後比較；
@@ -829,14 +835,30 @@ Learn JavaScript (內容寫的確實不錯, 網站介面也作的很漂亮, 作�
         (註: 總是使用嚴格比較===, 當比較兩個值時.)
 
     綜合範例: 輸入值可能為空值、文字或數字, 若為'空值、文字'則回傳0, 若為'數字'則回傳輸入值+1.
+      // Number (方式1)
+      function getNextAge(age){
+        let a = Number(age); //NaN or Number
+        if (Object.is(a, NaN)) return 0;
+        return a + 1;
+      }
+
+      // Unary plus (方式2)
+      function getNextAge(age){
+        let a = +age; //NaN or Number
+        if (Object.is(a, NaN)) return 0;
+        return a + 1;
+      }
+
+      // (方式3)
       function getNextAge(age) {
-        let a = Number.parseInt(age); //先將輸入值試著轉為數值. 若為文字, 則 a is NaN.
+        let a = Number.parseInt(age,10); //先將輸入值試著轉為數值. 若為文字, 則 a is NaN.
         if (Object.is(a, NaN)){
             return 0;
         }else{
             return a + 1;
         }
       }
+
 
   12. Returning booleans 回傳布林值. 單純回傳布林值(true/false), 直接 return 判斷式即可. 不須再用 if(判斷式) {return true;} else {return false;}
 
