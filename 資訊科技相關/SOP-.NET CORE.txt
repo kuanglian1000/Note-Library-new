@@ -2,10 +2,24 @@
 Introduction to Identity on ASP.NET Core(登入驗證功能) <== 有需要再重新估一遍.
 https://docs.microsoft.com/zh-tw/aspnet/core/security/authentication/identity?view=aspnetcore-6.0&tabs=netcore-cli
 
-與全網站相關設定的 "檔案位置: Properties/launchSettings.json"
+程式啟動設定檔 "檔案位置: 專案資料夾/Properties/launchSettings.json"
 1. 啟動網站設定 (網址埠號, 網站伺服器設定, 登入驗證方式)
 2. 在 ASP.NET Core 中使用多個環境的設定(開發, 測試, 正式環境)
   https://docs.microsoft.com/zh-tw/aspnet/core/fundamentals/environments?view=aspnetcore-6.0
+3. 關於多個環境設定(開發, 測試, 正式環境)的參數為 "ASPNETCORE_ENVIRONMENT"
+  例: "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+
+開發環境設定檔 "檔案位置: 專案資料夾/appsettings.Development.json or 專案資料夾/appsettings.json"
+1. 從上面檔案名稱可得知, "appsettings.Development.json" 是給開發環境使用.
+2. "appsettings.json" 則是正式環境使用.
+3. 儲存環境變數的地方，例: 資料庫連接字串.
+
+程式主要設定檔 "檔案位置: 專案資料夾/Program.cs"
+Startup.cs：程式的組態檔，服務需要從這邊註冊(DI), 此檔在.NET 6.0後就消失了...
+Program.cs：程式的起始點
+* #! 從 .NET 6.0 開始, 這2個檔案設定已合併至 Program.cs !#
 
 <使用 "EF Core" 還是 "EF6" Entity Framework 6.0>
   The recommendation is to use EF Core if:
@@ -1069,6 +1083,25 @@ https://learn.microsoft.com/zh-tw/aspnet/core/tutorials/first-mvc-app/adding-mod
                   </tbody>
               </table>
 
+            # 問題: 出現 warning CS8618: 退出建構函式時，不可為 Null 的 屬性 'Name' 必須包含非 Null 值
+            # 官方說明: https://learn.microsoft.com/zh-tw/dotnet/csharp/language-reference/compiler-messages/nullable-warnings
+
+            解決方案1: 將 'Name' 宣告為 Nullable 型別
+            public class Products
+            {
+              public int Id{get;set;} //ProductID
+              public string? Name{get;set;} //ProductName
+              public int? Price{get;set;} //ProductPrice
+            }
+
+            解決方案2: 給 'Name' 預設""值
+            public class Products
+            {
+              public int Id{get;set;} //ProductID
+              public string? Name{get;set;} = string.Empty; //ProductName
+              public int? Price{get;set;} = string.Empty; //ProductPrice
+            }
+
             # 問題: 出現 warning CS8602: 可能 null 參考的取值 (dereference) 警告 #
             https://docs.microsoft.com/en-us/ef/core/miscellaneous/nullable-reference-types
 
@@ -1551,13 +1584,18 @@ https://learn.microsoft.com/zh-tw/aspnet/core/tutorials/first-mvc-app/adding-mod
                 });
             }
         
-      > 安裝ORM套件(EntityFrameworkCore)
-          dotnet tool install --global dotnet-ef
-          dotnet tool install --global dotnet-aspnet-codegenerator
-          dotnet add package Microsoft.EntityFrameworkCore.Design
+      > 安裝ORM套件(EntityFrameworkCore) #!-- 安裝工具或套件時, 千萬要注意是否跟 .NET SDK 版本 相容--#
+          dotnet tool install --global dotnet-ef  //抓最新版安裝
+          dotnet tool install --global dotnet-ef --version 6.0.10  //指定安裝6.0.10版
+          dotnet add package Microsoft.EntityFrameworkCore.Design //專案引用套件
           dotnet add package Microsoft.EntityFrameworkCore.SQLite
-          dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
           dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+          dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
+
+      > 安裝 ASP.NET Core Scaffolding 引擎  #!-- 安裝工具或套件時, 千萬要注意是否跟 .NET SDK 版本 相容--#
+        (自動產生程式碼, 只適用於命令列cmd環境下)
+          dotnet tool uninstall -g dotnet-aspnet-codegenerator
+          dotnet tool install -g dotnet-aspnet-codegenerator --version 6.0.10 //指定安裝6.0.10版
 
       > {新增Model後}, 產生對應的Controller & View (ORM套件要先裝, 不然程式碼生不出來)
           dotnet-aspnet-codegenerator controller 
@@ -1641,12 +1679,13 @@ https://learn.microsoft.com/zh-tw/aspnet/core/tutorials/first-mvc-app/adding-mod
         * 調整首頁 Views > Home > Index.cshtml
         * 調整共用版面 Views > Shared > _Layout.cshtml
 
-      3. 安裝ORM套件(EntityFrameworkCore)
-          dotnet tool install --global dotnet-ef
-          dotnet tool install --global dotnet-aspnet-codegenerator
-          dotnet add package Microsoft.EntityFrameworkCore.Design
+      3. 安裝ORM套件(EntityFrameworkCore) #!-- 安裝工具或套件時, 千萬要注意是否跟 .NET SDK 版本 相容--#
+          dotnet tool install --global dotnet-ef  //抓最新版安裝
+          dotnet tool install --global dotnet-ef --version 6.0.10  //指定安裝6.0.10版
+          dotnet add package Microsoft.EntityFrameworkCore.Design //專案引用套件
           dotnet add package Microsoft.EntityFrameworkCore.SQLite
           dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+          dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
           
           // 自動產生程式碼範本用
           dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
