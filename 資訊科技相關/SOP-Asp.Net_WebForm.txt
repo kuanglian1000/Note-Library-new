@@ -1,3 +1,96 @@
+/* 先產生一個簡化版的大學網站範例(進階範例) SDK版本 .NET Core 5.0 */
+  Tutorial: Get started with EF Core in an ASP.NET MVC web app | Microsoft Learn
+  https://learn.microsoft.com/en-us/aspnet/core/data/ef-mvc/intro?view=aspnetcore-6.0
+  
+  # 新增網站應用程式 #
+    專案資料夾: C:\Projects\Projects_ASP.NET_Core\MvcContosoUniversity
+    切換至專案資料夾, 執行新增專案指令(強制以 .NET SDK 5.0.408 新增): dotnet new mvc -f net5.0
+  
+  # 設定網站風格(menu, layout, homepage) #
+    Views/Shared/_Layout.cshtml
+    1. 將 MvcContosoUniversity 改成 指定名稱, 例: TSC
+    2. 增加 menu 項目, 例: About, Students, Courses, Instructors 及 Departments
+    3. 刪除 menu 項目, 例: Privacy
+
+  # 安裝套件至專案中 #
+    dotnet add package Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore --version 5.0.17 (安裝.NET SDK 5.0適用, This middleware helps to detect and diagnose errors with EF Core migrations.)
+    dotnet add package Oracle.EntityFrameworkCore --version 5.21.90 (安裝.NET SDK 5.0適用, Oracle Data Provider for .NET (ODP.NET) Entity Framework Core for Oracle Database.)
+    dotnet add package Microsoft.EntityFrameworkCore.Design --version 5.0.17
+    dotnet add package Microsoft.EntityFrameworkCore.Sqlite --version 5.0.17
+    dotnet add package Microsoft.EntityFrameworkCore.Tools --version 5.0.17
+    dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version 5.0.2 (自動產生程式碼範本用)
+
+  # 新增資料實體(Data Model)類別 #
+    三個資料實體(Data Model)類別
+    1. Student(StudentID, LastName, FirstName, EnrollmentDate, [Enrollments]<多筆>) # 1名學生可以選多堂課, one-to-many #
+    2. Course(CourseID, Title, Credits, [Enrollments]<多筆>) # 1堂課程可以被多人選, one-to-many #
+    3. Enrollment(EnrollmentID, StudentID, CourseID, Grade, Course, Student) # 1筆選課紀錄只能對應 1名學生 & 1堂課程, 所以只能放入 one Student Entity & one Course Entity #
+    4. The [Enrollments] property is a navigation property. 
+       Navigation properties hold other entities that are related to this entity.
+       a. If a navigation property can hold multiple entities:
+          The type must be a list, such as ICollection<T>, List<T>, or HashSet<T>.
+          Entities can be added, deleted, and updated.
+       b. Many-to-many and one-to-many navigation relationships can contain multiple entities. 
+       c. When ICollection<T> is used, EF creates a HashSet<T> collection by default.
+
+    5. Code example
+       程式碼路徑: C:\Projects\Projects_ASP.NET_Core\MvcContosoUniversity\Models\ 的
+       a. Course.cs
+       b. Enrollment.cs
+       c. Student.cs
+
+  # 利用 aspnet-codegenerator 自動新增 dataContext, 新增 Controller, 新增 View(CRUD), 新增SQLite用連接字串(@appsettings.json), 
+  新增註冊服務-使用資料庫(@Startup.cs) .#
+
+    dotnet aspnet-codegenerator controller -name StudentsController -m Student -dc SchoolContext -outDir Controllers -sqlite -scripts -udl
+    dotnet aspnet-codegenerator controller -name EnrollmentsController -m Enrollment -dc SchoolContext -outDir Controllers -sqlite -scripts -udl
+    dotnet aspnet-codegenerator controller -name CoursesController -m Course -dc SchoolContext -outDir Controllers -sqlite -scripts -udl
+
+    新增SQLite用連接字串, 在開發環境設定檔(appsettings.json).
+      1. aspnet-codegenerator 工具執行後, 它會自動產生SQLite用連接字串.
+      2. aspnet-codegenerator 工具執行前, 程式員也可以先行寫入指定連接字串.
+
+  # 第1次新增專案時, 記得要 執行<資料庫移轉用 或 資料庫結構(Schema)自動產生> 工具
+    "資料庫及資料表" 才會產生. # 2023/04/10
+
+    dotnet tool install --global dotnet-ef --version 6.0.10 (註: 安裝執行<資料庫移轉用 或 資料庫結構(Schema)自動產生> 工具)
+    dotnet ef migrations add InitialCreate (註: 依照慣例, 第1次移轉的取名為 InitialCreate; 之後可以改為 add Column_Desc..)
+    dotnet ef database update (註: 使用最近1次移轉, 執行移轉內的 Up 方法, 來新增資料庫檔案或資料庫結構.)
+
+    執行 "dotnet ef migrations add InitialCreate" 後, 產生移轉程式碼 C:\Projects\Projects_ASP.NET_Core\MvcContosoUniversity\Migrations
+    執行 "dotnet ef database update" 後, 產生資料庫並內含資料表 C:\Projects\Projects_ASP.NET_Core\MvcContosoUniversity\SchoolContext-Development.db
+      在<開發環境>下, 連接字串會依序讀取 "appsettings.Development.json" or "appsettings.json" 內的"ConnectionStrings" 參數值.
+      順序1(找不到才會往下找): "appsettings.Development.json" 取 "ConnectionStrings" 參數值, 
+      順序2: "appsettings.json" 取 "ConnectionStrings" 參數值.
+
+  # 註冊服務-使用資料庫(aspnet-codegenerator 工具會自動新增, 這裡說明新增位置在哪)
+
+    * .net5 @ Startup.cs
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            //重點1: 加入這一行(可手動加入)
+            //重點2: 利用 aspnet-codegenerator 自動新增 dataContext時(工具自動加入)
+            services.AddDbContext<SchoolContext>(options =>
+                    options.UseSqlite(Configuration.GetConnectionString("SchoolContext")));
+        }
+
+    * .net6 @ Program.cs (註: .net6 之後, Startup.cs 已經合併至 Program.cs 內)
+
+        var builder = WebApplication.CreateBuilder(args);
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddDbContext<MvcMovieContext>(options =>
+                options.UseSqlite(builder.Configuration.GetConnectionString("MvcMovieContext") ?? throw new InvalidOperationException("Connection string 'MvcMovieContext' not found.")));
+        }
+        else
+        {
+            builder.Services.AddDbContext<MvcMovieContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("ProductionMvcMovieContext") ?? throw new InvalidOperationException("Connection string 'ProductionMvcMovieContext' not found.")));
+        }
+
+
 
 考古題：多檔上傳(使用 Request.Files)
 
@@ -11,7 +104,6 @@
     // Save the file.
     MyFileCollection[Loop1].SaveAs(TempFileName); //另存複本
  }
-
 
 資料來源：ASP.NET Web Forms Quiz (https://docs.microsoft.com/zh-tw/archive/blogs/erikreitan/asp-net-web-forms-quiz)
 

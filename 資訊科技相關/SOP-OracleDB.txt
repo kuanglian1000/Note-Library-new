@@ -1,5 +1,8 @@
 SOP-OracleDB安裝筆記
 
+  Oracle 官方基本教學, 很受用.
+  https://www.oracle.com/webfolder/technetwork/tutorials/obe/db/12c/r1/odb_quickstart/odb_quick_start.html
+
   <快捷鍵>
     1. 登入: sqlplus sys/54878916@//localhost:1521/XE as sysdba
     2. 安裝軟體位置: G:\我的軟體\OracleXE184_Win64 (註: 21c無法裝在Window7上面)
@@ -12,7 +15,6 @@ SOP-OracleDB安裝筆記
       4. OracleVssWriterXE
 
   <開始安裝>
-  
     Oracle 11c Express Edition
 
     installed folder: C:\Oracle\product\18.0.0
@@ -23,11 +25,21 @@ SOP-OracleDB安裝筆記
     Pluggable database: localhost:1521/XEPDB1
     EM Express URL: https://localhost:5500/em (註: require Flash to login, 所以先不用了.)
 
-  <如何連接> (註: 請仔細看語法)
-    -- Connect string format: [username]/[password]@//[hostname]:[port]/[DB service name] [AS SYSDBA]
-    -- To connect to the Container Database (CDB) use:
-      ex: sqlplus sys/54878916@//localhost:1521/XE as sysdba
+  <.NET Core 新增 Oracle連接字串>
+     var ora_conn = "User Id=xyz;Password=pwd;Data Source=(DESCRIPTION =(ADDRESS_LIST =(ADDRESS = (PROTOCOL = TCP)(HOST = ORA01)(PORT =         
+1521)))(CONNECT_DATA =(SERVICE_NAME = ora1)))";
+     services.AddDbContext<BloggingContext>(options => options.UseOracle(ora_conn));
 
+  <如何連接> (註: 請仔細看語法)
+    -- 連線字串Connect string format: [username]/[password]@//[hostname]:[port]/[DB service name] [AS SYSDBA]
+    -- 快速連接CDB資料庫 To connect to the Container Database (CDB) use:   sqlplus sys/54878916@//localhost:1521/XE as sysdba
+    -- 快速連接PDB資料庫 To connect to the first Pluggable Database (PDB) use:  sqlplus sys/54878916@//localhost:1521/XEPDB1 as sysdba
+    -- 一步步連接資料庫
+            	1. 啟動SQL Plus
+	2. "connect"
+	3. user-name: "sys as sysdba"; password: "54878916"
+	4. 顯示目前資料庫: "show con_name"
+   
       (註: 表示服務未開啟 或 已關閉)
       ERROR:
       ORA-12514: TNS:listener does not currently know of service requested in connect
@@ -36,9 +48,7 @@ SOP-OracleDB安裝筆記
       OracleServiceXE(資料庫服務)
       OracleXETNSListener(資料庫窗口服務)
 
-    -- To connect to the first Pluggable Database (PDB) use:
-      sqlplus sys/54878916@//localhost:1521/XEPDB1 as sysdba
-
+    
     -- 各種語言連接說明
       https://www.oracle.com/tw/database/technologies/appdev/xe/quickstart.html
 
@@ -54,7 +64,7 @@ SOP-OracleDB安裝筆記
           CATEGORYID,
           CATEGORYDS
       FROM
-          BEERSTYLESEXAMPLE.CATEGORIES //Schema要記得加上去
+          BEERSTYLESEXAMPLE.CATEGORIES //Owner要記得加上去
       WHERE
           CATEGORYID = NUMBER;
     
