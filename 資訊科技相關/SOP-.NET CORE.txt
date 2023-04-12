@@ -351,7 +351,7 @@
 
 /*== Learn 範例 (2022/06/21~ 進行中..)==*/
 
-  ={進行中}=
+={進行中}=
 
     Create a web API with ASP.NET Core controllers (2022/06/21~ 進行中..)
     https://docs.microsoft.com/en-us/learn/modules/build-web-api-aspnet-core/
@@ -494,9 +494,6 @@
     Upload files in ASP.NET Core (for 訪視照片檔案上傳用)
     https://docs.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-5.0
 
-    Host ASP.NET Core on Windows with IIS (for 佈署上線)
-    https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/?view=aspnetcore-5.0
-
     使用 ASP.NET Core、最小 API 和 .NET 6 建立 Web 應用程式和服務
     https://docs.microsoft.com/en-us/learn/modules/build-web-api-minimal-api/4-advanced-commands
 
@@ -557,9 +554,11 @@
             "id" = 1,
           }
 
-  ={完成}=
+{完成}-Host ASP.NET Core on Windows with IIS (for 佈署上線)
+    https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/?view=aspnetcore-5.0
+    C:\Users\p10154383\Documents\個人資料夾\筆記-圖書館-new\資訊科技相關\SOP-.NET CORE_部署.txt
 
-    [MVC 初階學習 Get started with ASP.NET Core MVC (MVC架構完整RUN一次) => ProjectName: MvcMovie] 2022/05/30 完成.
+{完成}-[MVC 初階學習 Get started with ASP.NET Core MVC (MVC架構完整RUN一次) => ProjectName: MvcMovie] 2022/05/30 完成.
     https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/start-mvc?view=aspnetcore-5.0&tabs=visual-studio
 
       Part 2, add a controller to an ASP.NET Core MVC app (OK)
@@ -1376,7 +1375,7 @@
             [ValidateAntiForgeryToken]
             public async Task<IActionResult> Delete(int id, bool notUsed)
 
-    ASP.NET Core MVC 概觀 (MVC > Overview) (2021/07/08)
+{完成}-ASP.NET Core MVC 概觀 (MVC > Overview) (2021/07/08)
     https://docs.microsoft.com/en-us/aspnet/core/mvc/overview?view=aspnetcore-5.0
       > 什麼是MVC模式?
         1. M = Model(模型), V = View(檢視), C = Controller(控制器).
@@ -1695,7 +1694,7 @@
 
       > 其他資源
 
-    ASP.NET Core MVC with EF Core (加強資料庫工具應用.) => ProjectName: ILanUniversity (2021/07/13)
+{完成}-ASP.NET Core MVC with EF Core (加強資料庫工具應用.) => ProjectName: ILanUniversity (2021/07/13)
     https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/?view=aspnetcore-5.0
 
       1. Create web app
@@ -2162,7 +2161,7 @@
             "AllowedHosts": "*"
           }      
 
-    Entity Framework Core(資料庫工具) => ProjectName: EFGetStarted (2021/07/12)
+{完成}-Entity Framework Core or dotnet-ef (資料庫工具) => ProjectName: EFGetStarted (2021/07/12)
     https://docs.microsoft.com/en-us/ef/core/get-started/overview/first-app?tabs=netcore-cli
 
       {基本觀念}
@@ -2301,124 +2300,123 @@
                 .ToTable("AspNetUsers",t => t.ExcludeFromMigrations());
             }
 
-    Introduction to Identity on ASP.NET Core(登入驗證功能) => ProjectName: MvcIdentity (2021/07/12)
-    dotnet new mvc --auth Individual
-    https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-5.0&tabs=visual-studio
+={延後}=
 
-      * 新增登入驗證功能的MVC專案
-        dotnet new mvc --auth Individual
+  Introduction to Identity on ASP.NET Core(登入驗證功能) => ProjectName: MvcIdentity (2021/07/12)
+  dotnet new mvc --auth Individual
+  https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-5.0&tabs=visual-studio
 
-      * 套用移轉, 產生資料庫DB
-        dotnet tool install --global dotnet-ef
-        dotnet ef database update
-      
-      * 註冊身分驗證服務 @Startup.cs
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDatabaseDeveloperPageExceptionFilter();
+    * 新增登入驗證功能的MVC專案
+      dotnet new mvc --auth Individual
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddControllersWithViews();
+    * 套用移轉, 產生資料庫DB
+      dotnet tool install --global dotnet-ef
+      dotnet ef database update
+    
+    * 註冊身分驗證服務 @Startup.cs
+      public void ConfigureServices(IServiceCollection services)
+      {
+          services.AddDbContext<ApplicationDbContext>(options =>
+              options.UseSqlite(
+                  Configuration.GetConnectionString("DefaultConnection")));
+          services.AddDatabaseDeveloperPageExceptionFilter();
 
-            // 設定身分驗證服務
-            services.Configure<IdentityOptions>(options =>
-            {
-                  // Password settings.
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireNonAlphanumeric = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequiredLength = 6;
-                options.Password.RequiredUniqueChars = 1;
+          services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+              .AddEntityFrameworkStores<ApplicationDbContext>();
+          services.AddControllersWithViews();
 
-                // Lockout settings.
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.AllowedForNewUsers = true;
+          // 設定身分驗證服務
+          services.Configure<IdentityOptions>(options =>
+          {
+                // Password settings.
+              options.Password.RequireDigit = true;
+              options.Password.RequireLowercase = true;
+              options.Password.RequireNonAlphanumeric = true;
+              options.Password.RequireUppercase = true;
+              options.Password.RequiredLength = 6;
+              options.Password.RequiredUniqueChars = 1;
 
-                // User settings.
-                options.User.AllowedUserNameCharacters =
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-                options.User.RequireUniqueEmail = false;
-            });
+              // Lockout settings.
+              options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+              options.Lockout.MaxFailedAccessAttempts = 5;
+              options.Lockout.AllowedForNewUsers = true;
 
-      * 啟用身分驗證服務 @Startup.cs
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseMigrationsEndPoint();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
+              // User settings.
+              options.User.AllowedUserNameCharacters =
+              "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+              options.User.RequireUniqueEmail = false;
+          });
 
-            app.UseRouting();
+    * 啟用身分驗證服務 @Startup.cs
+      public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+      {
+          if (env.IsDevelopment())
+          {
+              app.UseDeveloperExceptionPage();
+              app.UseMigrationsEndPoint();
+          }
+          else
+          {
+              app.UseExceptionHandler("/Home/Error");
+              // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+              app.UseHsts();
+          }
+          app.UseHttpsRedirection();
+          app.UseStaticFiles();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+          app.UseRouting();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapRazorPages();
-            });
-        }
+          app.UseAuthentication();
+          app.UseAuthorization();
 
-      * 測試身分驗證功能 @XXController.cs
+          app.UseEndpoints(endpoints =>
+          {
+              endpoints.MapControllerRoute(
+                  name: "default",
+                  pattern: "{controller=Home}/{action=Index}/{id?}");
+              endpoints.MapRazorPages();
+          });
+      }
 
-        using Microsoft.AspNetCore.Authorization; //重點
+    * 測試身分驗證功能 @XXController.cs
 
-        namespace MvcIdentity.Controllers
-        {
-            public class HomeController : Controller
-            {
-                private readonly ILogger<HomeController> _logger;
+      using Microsoft.AspNetCore.Authorization; //重點
 
-                public HomeController(ILogger<HomeController> logger)
-                {
-                    _logger = logger;
-                }
+      namespace MvcIdentity.Controllers
+      {
+          public class HomeController : Controller
+          {
+              private readonly ILogger<HomeController> _logger;
 
-                public IActionResult Index()
-                {
-                    return View();
-                }
+              public HomeController(ILogger<HomeController> logger)
+              {
+                  _logger = logger;
+              }
 
-                [Authorize] //重點: 登入後才能瀏覽.
-                public IActionResult Privacy()
-                {
-                    return View();
-                }
+              public IActionResult Index()
+              {
+                  return View();
+              }
 
-                [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-                public IActionResult Error()
-                {
-                    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-                }
-            }
-        }
+              [Authorize] //重點: 登入後才能瀏覽.
+              public IActionResult Privacy()
+              {
+                  return View();
+              }
 
-  ={延後}=
+              [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+              public IActionResult Error()
+              {
+                  return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+              }
+          }
+      }
 
-    Introduction to Identity on ASP.NET Core(登入驗證功能) <== 尚未學到.
-    https://docs.microsoft.com/zh-tw/aspnet/core/security/authentication/identity?view=aspnetcore-6.0&tabs=netcore-cli
+  Introduction to Identity on ASP.NET Core(登入驗證功能) <== 尚未學到.
+  https://docs.microsoft.com/zh-tw/aspnet/core/security/authentication/identity?view=aspnetcore-6.0&tabs=netcore-cli
 
-    Persist and retrieve relational data with Entity Framework Core (加強資料庫工具應用 => 使用 Azure 環境, 不好實作, 先不作了 2021/07/13)
-    https://docs.microsoft.com/en-us/learn/modules/persist-data-ef-core/?view=aspnetcore-5.0
+  Persist and retrieve relational data with Entity Framework Core (加強資料庫工具應用 => 使用 Azure 環境, 不好實作, 先不作了 2021/07/13)
+  https://docs.microsoft.com/en-us/learn/modules/persist-data-ef-core/?view=aspnetcore-5.0
 
-    Secure an ASP.NET Core web app with the Identity framework (登入驗證功能實作 => 使用 Azure 環境, 不好實作, 先不作了 2021/07/13)
-    https://docs.microsoft.com/en-us/learn/modules/secure-aspnet-core-identity/?view=aspnetcore-5.0
-
+  Secure an ASP.NET Core web app with the Identity framework (登入驗證功能實作 => 使用 Azure 環境, 不好實作, 先不作了 2021/07/13)
+  https://docs.microsoft.com/en-us/learn/modules/secure-aspnet-core-identity/?view=aspnetcore-5.0

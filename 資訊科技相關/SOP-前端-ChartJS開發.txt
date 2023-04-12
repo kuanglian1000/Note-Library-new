@@ -1,10 +1,9 @@
-import ¶×¤J¼Ò²Õ (°Ñ¦Ò¸ê®Æ: https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements/import)
+import åŒ¯å…¥JavaScriptæ¨¡çµ„ (åƒè€ƒè³‡æ–™: https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Statements/import)
 
   import Chart from 'chart.js/auto'
-    Chart ¨S¦³¥[¤W {}, ªí¥Ü¥¦¬O chart.js/auto ¹w³](default)ªº export
-
+    Chart æ²’æœ‰åŠ ä¸Š {}, è¡¨ç¤ºå®ƒæ˜¯ chart.js/auto é è¨­(default)çš„ export
 
   import { CubejsApi } from '@cubejs-client/core';
 
   '@cubejs-client/core'
-    @¥Îªk => «ü©w±q§ä¥X "cubejs-client/core" ¸ê®Æ§¨¤¤, §ä¥X "CubejsApi" module, µM«á¶×¤J.
+    @ç”¨æ³• => æŒ‡å®šå¾žæ‰¾å‡º "cubejs-client/core" è³‡æ–™å¤¾ä¸­, æ‰¾å‡º "CubejsApi" module, ç„¶å¾ŒåŒ¯å…¥.

@@ -1,4 +1,4 @@
-/* 先產生一個簡化版的大學網站範例(進階範例) SDK版本 .NET Core 5.0 */
+/* 產生簡化版大學網站範例(進階範例), 作為部署練習使用 [SDK版本 .NET Core 5.0] */
   Tutorial: Get started with EF Core in an ASP.NET MVC web app | Microsoft Learn
   https://learn.microsoft.com/en-us/aspnet/core/data/ef-mvc/intro?view=aspnetcore-6.0
   
@@ -89,8 +89,6 @@
             builder.Services.AddDbContext<MvcMovieContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("ProductionMvcMovieContext") ?? throw new InvalidOperationException("Connection string 'ProductionMvcMovieContext' not found.")));
         }
-
-
 
 考古題：多檔上傳(使用 Request.Files)
 
