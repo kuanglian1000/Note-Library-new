@@ -1,3 +1,171 @@
+連猴子都能懂的GIT入門指南(初階)
+資料來源: https://backlog.com/git-tutorial/tw/
+
+  # Git 基本介紹
+    1.Git解決多人編輯相同檔案出現覆蓋的問題
+    2.利用Git管理檔案, 更新歷史會保留在Git, 故不需要複製備用檔案.
+    
+    =使用數據庫(Repository)管理歷史記錄=
+      * Git的數據庫分為遠端數據庫和本地端數據庫。
+        1. 遠端數據庫: 配有專用的伺服器，為了讓多人共享而建立的數據庫。
+        2. 本地端數據庫：為了方便用戶個人使用，在自己的機器上配置的數據庫。
+
+      * 建立數據庫, 建立本地端數據庫的方法有兩種:
+        1. 重建本地端數據庫(Build)
+        2. 複製遠端數據庫(Fork)
+
+    =記錄修改的提交(commit)=
+      * 執行提交後，數據庫裡會產生上次提交狀態與現在狀態的差異記錄（稱為Revision）
+      # 重點提示 #
+        1. 錯誤修復(Fix Bug)或功能添加(Add new Function)之類不同含義的更改，
+           #!--要[分開提交]，方便事後從歷史記錄裡找出特定修改內容。
+        
+        2. 執行提交時，務必輸入 [提​​交訊息]
+           提交訊息是查看其他人提交的修改內容或自己檢查歷史記錄時重要的資料。
+           #!--要[用心填寫]，讓人容易理解的提交訊息。
+        
+        3. 標準[提​​交訊息]格式
+           第1行: 提交時修改內容摘要
+           第2行: 空行
+           第3行後: 修改理由
+
+    =工作目錄(Working Tree)與索引(Index)=
+      * 工作目錄（Working Tree）是保存您目前正在處理檔案的目錄，Git 相關的操作都會在這個目錄下完成。
+      * 索引(Index)位於工作目錄和數據庫之間，是為了向數據庫提交作準備的暫存區域。(又稱 [暫存區 Staging Changed])
+      # 重點提示 #
+        1. 沒有加入索引(Index) or 未放入[暫存區 Staging Changed]的檔案無法被提交(commit)
+
+  # 教學1 開始使用GIT
+    =安裝GIT=
+      * 安裝git(在主控台[CMD]下操作GIT) https://git-scm.com/
+        1. 確認是否安裝成功. 
+          # git --version
+          output: git version 2.30.0.windows.1
+
+    =初始設定=
+      * Git的設定會被記錄在用戶的目錄首頁下的.gitconfig檔案裡
+      * 安裝後
+        1. 請設定用戶名稱和電子郵件地址.
+          # git config --global user.name "使用者名稱" 註: 有輸入"使用者名稱"會覆蓋現值, 沒輸入則列出現值
+          # git config --global user.email "電子信箱" 註: 有輸入"使用者名稱"會覆蓋現值, 沒輸入則列出現值
+        
+        2. 設定GIT輸出(output)結果顏色
+          # git config --global color.ui auto
+        
+        3. 設定GIT命名別名, 例: checkout => co
+          # git config --global alias.co checkout
+
+        4. 排除中文檔名顯示亂碼"\346\226\260\350\246..."的異常
+          # git config --global core.quotepath off
+      
+        5. 檢查設定值(所有有值的設定)
+          # git config --list
+        
+        6. 檢視某個設定目前的值
+          # git config user.name
+
+      # 重點提示 #
+        1. Windows使用主控台時不可以輸入中文
+        2. 提交訊息時要使用中文的話，不要使用 -m 參數，要用<外部編輯器>來輸入.
+        3. <外部編輯器>必須使用文字編碼為 "UTF-8"，並使用換行字元為 "LF"
+          # git config --global core.editor "\"[外部編輯器的路徑]\""
+          git config --global core.editor "'C:/Program Files/Microsoft VS Code/Code.exe' -multiInst -nosession"
+          git config --global core.editor "'C:/Program Files (x86)/Notepad++/notepad++.exe' -multiInst -nosession"
+
+    =新建數據庫(Repository)=
+      * 在本地端建立新的數據庫。
+        建立一個名稱為「tutorial」的空目錄，
+        把它放在Git的管理之下。
+          $ cd C:\Projects\Projects_Git
+          $ mkdir tutorial
+          $ cd tutorial
+          $ git init # 新建數據庫(Repository) @tutorial 資料夾
+            Initialized empty Git repository in C:/Projects/Projects_Git/tutorial/.git/
+
+    =提交(commit)檔案=
+      * 在「tutorial」目錄下, 新增文字檔 Sample.txt
+      * 在Git管理目錄下, 確認狀態
+        $ git status
+          On branch master
+          No commits yet
+          Untracked files: (指出 Sample.txt 未被追蹤, 只要加入索引, 即列入追蹤)
+            (use "git add <file>..." to include in what will be committed)
+                  Sample.txt (字體為紅色)
+          nothing added to commit but untracked files present (use "git add" to track)
+      
+      * 加入索引指令
+        $ git add <file>... # 單檔案.
+        $ git add <file1> <file2> # 多檔以空白鍵隔開即可.
+
+      # 重點提示 #
+        $ git add . #表示把當前目錄下所有檔案加入索引.
+        $ git status #確認檔案狀態, 新增的3個檔案都加入索引(追蹤)
+          On branch master
+          No commits yet
+          Changes to be committed:
+            (use "git rm --cached <file>..." to unstage)
+                  new file:   Sample.txt (字體為綠色)
+                  new file:   Second.txt
+                  new file:   Third.txt
+
+      * 加入索引後, 可正式提交(commit)
+        $ git commit -m "<提交訊息, 說明本次提交變更>"
+        $ git commit -m "first commit"
+          [master (root-commit) a5b29bd] first commit
+          3 files changed, 5 insertions(+)
+          create mode 100644 Sample.txt
+          create mode 100644 Second.txt
+          create mode 100644 Third.txt
+        $ git status #確認檔案狀態
+          On branch master
+          nothing to commit, working tree clean #毋須提交項目, 工作目錄是乾淨的
+
+      * 檢視歷史提交紀錄
+        $ git log
+          commit a5b29bd35a731b773ebe63a99b6f984e5128e567 (HEAD -> master)
+          Author: kl.cheng <kuanglian546@outlook.com>
+          Date:   Thu Apr 13 09:51:33 2023 +0800
+
+              first commit
+
+      # 重點提示 #
+        1. 檢視歷史提交紀錄的方式有兩個
+          a. git log #在命令列中檢視
+          b. gitk #使用GUI介面檢視
+             $ gitk
+
+  # 共享數據庫
+    =Push到遠端數據庫=
+
+    =複製遠端數據庫=
+
+    =從遠端數據庫執行Pull=
+
+  # 教學2 共享數據庫
+    =在貝格樂(backlog)上建立遠端數據庫=
+
+    =Push到遠端數據庫=
+
+    =複製遠端數據庫=
+
+    =在複製的本地端數據庫執行Push=
+
+    =從遠端數據庫執行Pull=
+
+  # 合併修改紀錄
+    =合併修改紀錄=
+
+    =解決衝突=
+
+  # 教學3 合併修改紀錄
+    =製造衝突=
+
+    =解決衝突=
+
+30 天精通 Git 版本控管(進階)
+資料來源: https://github.com/doggy8088/Learn-Git-in-30-days/blob/master/zh-tw/README.md
+
+
 CH1
     git add <file name>
         #暫存變更(增加索引index)
