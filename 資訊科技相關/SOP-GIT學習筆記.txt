@@ -33,7 +33,7 @@
       * 工作目錄（Working Tree）是保存您目前正在處理檔案的目錄，Git 相關的操作都會在這個目錄下完成。
       * 索引(Index)位於工作目錄和數據庫之間，是為了向數據庫提交作準備的暫存區域。(又稱 [暫存區 Staging Changed])
       # 重點提示 #
-        1. 沒有加入索引(Index) or 未放入[暫存區 Staging Changed]的檔案無法被提交(commit)
+        1. 沒有加入索引(放入暫存區變更Staged_Changes)(Index) or 未放入[暫存區 Staging Changed]的檔案無法被提交(commit)
 
   # 教學1 開始使用GIT
     =安裝GIT=
@@ -88,18 +88,18 @@
         $ git status
           On branch master
           No commits yet
-          Untracked files: (指出 Sample.txt 未被追蹤, 只要加入索引, 即列入追蹤)
+          Untracked files: (指出 Sample.txt 未被追蹤, 只要加入索引(放入暫存區變更Staged_Changes), 即列入追蹤)
             (use "git add <file>..." to include in what will be committed)
                   Sample.txt (字體為紅色)
           nothing added to commit but untracked files present (use "git add" to track)
       
-      * 加入索引指令
+      * 加入索引(放入暫存區變更Staged_Changes)指令
         $ git add <file>... # 單檔案.
         $ git add <file1> <file2> # 多檔以空白鍵隔開即可.
 
       # 重點提示 #
-        $ git add . #表示把當前目錄下所有檔案加入索引.
-        $ git status #確認檔案狀態, 新增的3個檔案都加入索引(追蹤)
+        $ git add . #表示把當前目錄下所有檔案加入索引(放入暫存區變更Staged_Changes).
+        $ git status #確認檔案狀態, 新增的3個檔案都加入索引(放入暫存區變更Staged_Changes)(追蹤)
           On branch master
           No commits yet
           Changes to be committed:
@@ -108,7 +108,7 @@
                   new file:   Second.txt
                   new file:   Third.txt
 
-      * 加入索引後, 可正式提交(commit)
+      * 加入索引(放入暫存區變更Staged_Changes)後, 可正式提交(commit)
         $ git commit -m "<提交訊息, 說明本次提交變更>"
         $ git commit -m "first commit"
           [master (root-commit) a5b29bd] first commit
@@ -136,21 +136,141 @@
 
   # 共享數據庫
     =Push到遠端數據庫=
+      * 執行Push之後，本地端的修改歷史會被上傳到遠端數據庫。
+      * 遠端數據庫的修改歷史就會和本地端數據庫的修改歷史保持同步。
 
-    =複製遠端數據庫=
+    =複製(Clone)遠端數據庫 (第1次新增專案時)=
+      * 遠端數據庫中有其他人的修改歷史，那麼把它完整地複製下來，您就可以接著進行工作了。
+      * 執行複製(Clone)後，可以把遠端數據庫裡的內容全部下載下來，之後您可以在另一台機器的本地數據庫上進行操作。
+      
+      # 重點提示 #
+        * 遠端數據庫修改歷史也會被複製到本地數據庫裡，
+          所以和原本的數據庫一樣，可以查看歷史記錄和提交了。
 
-    =從遠端數據庫執行Pull=
+    =從遠端數據庫執行Pull (與多人共同開發同一專案後)=
+      * 若是共享遠端數據庫由多人同時作業，那麼作業完畢後所有人都會把修改歷史push到遠端數據庫。
+      * 所以需要同步其他人push的修改內容到自己的本地端數據庫。
+      * 欲同步遠端數據庫以更新本地端數據庫，請使用Pull(拉取)。
+      * 執行pull後，會從遠端數據庫(下載最新的修改歷史)，將其(同步到本地端數據庫)。
+
+      # 重點提示 #
+        * Pull === 下載遠端數據庫(下載最新的修改歷史)，將其(同步到本地端數據庫)
+        * Clone === 複製遠端數據庫, 作為本地端數據庫使用.
 
   # 教學2 共享數據庫
     =在貝格樂(backlog)上建立遠端數據庫=
+      * 註冊貝格樂(backlog)免費空間 https://backlog.com/tw/pricing/
+        貝格樂(backlog)
+          ID:kuanglian546@outlook.com
+          Password:0809Apple
+
+        1. Your info(Name:KL, Email:kuanglian546@outlook.com,UserID:kuanglian546 Password:0809Apple)
+        2. Your org's info(Organization:EquipmentDep, SpaceID(subdomain):kl546.backlog.com)
+        3. Create Project(ProjectName:BackLOG_GIT, ProjectKey:BACKLOG_GIT)
+      * 開啟GIT功能
+        1. Dashboard > Projects > Projects Settings
+        2. General Tab > Enable Git(勾選)
+      * 新增遠端數據庫
+        1. Back to "BackLOG_GIT" 專案首頁
+        2. 點選左側 Git 選單, 新增數據庫(Repository)
+        3. Repository Name:tutorial, Description:Git學習使用.
+          [HTTP] https://kl546.backlog.com/git/BACKLOG_GIT/tutorial.git
+          [SSH] kl546@kl546.git.backlog.com:/BACKLOG_GIT/tutorial.git
+        
+        4. 註: 本地端數據庫路徑 C:\Projects\Projects_Git\tutorial
 
     =Push到遠端數據庫=
+      * 將本地端數據庫 C:\Projects\Projects_Git\tutorial push 至遠端數據庫前, 建立之間的連接.
+        $ git remote add <name> <url>
 
-    =複製遠端數據庫=
+      * 為遠端數據庫取個適合的別名或暱稱，這樣以後push的時候
+        就不需要每次都輸入冗長的遠端數據庫的地址了。
+        在本次教學, 遠端數據庫名稱註冊為 "origin"
+        
+        $ git remote add origin https://kl546.backlog.com/git/BACKLOG_GIT/tutorial.git
+      
+      # 重點提示(慣例) #
+        * 在主控台, 執行push或pull命令時想省略遠端數據庫名稱的話，會使用 "origin" 名稱作為遠端數據庫。
+        * 因此一般都會為遠端數據庫命名為 "origin"
 
-    =在複製的本地端數據庫執行Push=
+      * Push到遠端數據庫
+        $ git push <repository> <refspec>...
+        ** <repository>指定要push的地址, <refspec>指定要push的分支 # 進階課程 #
 
-    =從遠端數據庫執行Pull=
+        $ git push -u origin master
+        ** origin 指定要push的地址, master 指定要push的分支
+
+          Enumerating objects: 8, done.
+          Counting objects: 100% (8/8), done.
+          Delta compression using up to 4 threads
+          Compressing objects: 100% (4/4), done.
+          Writing objects: 100% (8/8), 599 bytes | 199.00 KiB/s, done.
+          Total 8 (delta 1), reused 0 (delta 0), pack-reused 0
+          To https://kl546.backlog.com/git/BACKLOG_GIT/tutorial.git
+          * [new branch]      master -> master
+          Branch 'master' set up to track remote branch 'master' from 'origin'.
+
+      # 重點提示 #
+        * 執行提交時指定參數 -u 項目，之後就可省略指定分支名稱。
+        * 但當push到空白的遠端數據庫時，您就必須指定遠端數據庫和分支的名稱，千萬不能省略
+
+    =複製遠端數據庫(目前資料夾: "tutorial_UserB", 要Pull Remote Repository回來開發.)=
+      * 假設自己是其他的用戶來複製遠端數據庫，請在別的目錄下複製「tutorial_UserB」
+      * 使用clone命令來複製遠端數據庫，<repository>指定遠端數據庫的URL, <directory>指定要複製至本地端目錄名稱。
+        $ git clone <repository> <directory>
+      * 切換至本地端目錄的上一層
+        $ cd C:\Projects\Projects_Git
+        $ git clone https://kl546.backlog.com/git/BACKLOG_GIT/tutorial.git tutorial_UserB
+          Cloning into 'tutorial_UserB'...
+          remote: Enumerating objects: 8, done.
+          remote: Counting objects: 100% (8/8), done.
+          remote: Compressing objects: 100% (4/4), done.
+          remote: Total 8 (delta 1), reused 0 (delta 0), pack-reused 0
+          Unpacking objects: 100% (8/8), 756 bytes | 5.00 KiB/s, done.
+
+    =(目前資料夾: "tutorial_UserB")在複製(Clone)的本地端數據庫執行Push=
+      * 修改Clone至 "tutorial_UserB" 的 "Sample.txt" 檔案內容
+        => 增加內容 "add 修改加入書籤"
+        $ git add Sample.txt # 放入暫存區變更Staged_Changes
+      
+      * 提交至 "本地端數據庫"
+        $ git commit -m "增加add說明"
+          [master 2e6c255] 增加add說明
+          1 file changed, 3 insertions(+), 1 deletion(-)
+
+      * Push到遠端數據庫
+        $ git push
+          Enumerating objects: 5, done.
+          Counting objects: 100% (5/5), done.
+          Delta compression using up to 4 threads
+          Compressing objects: 100% (3/3), done.
+          Writing objects: 100% (3/3), 384 bytes | 128.00 KiB/s, done.
+          Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+          To https://kl546.backlog.com/git/BACKLOG_GIT/tutorial.git
+            e8bc033..2e6c255  master -> master
+
+      # 重點提示 #
+        * 在複製(Clone)的本地端數據庫執行Push，可以省略數據庫和分支的名稱
+
+    =(目前資料夾: "tutorial")從遠端數據庫執行Pull=
+      * 現在遠端數據庫已經與 「tutorial_UserB」修改內容同步，我們來試試pull修改內容到「tutorial」
+      
+      # 重點提示 #
+        * 使用pull命令時, 若省略 <repository> 數據庫名稱, 預設對 origin命名的 <repository> 數據庫執行pull.
+        * $ git pull <repository> <refspec>...
+
+      * (目前資料夾: "tutorial"), 切換至本地端工作目錄
+        $ cd C:\Projects\Projects_Git\tutorial
+        $ git pull origin master
+          From https://kl546.backlog.com/git/BACKLOG_GIT/tutorial
+          * branch            master     -> FETCH_HEAD
+          Updating e8bc033..000a00c
+          Fast-forward
+          Sample.txt | 6 ++++--
+          1 file changed, 4 insertions(+), 2 deletions(-)
+
+        $ git log #確認歷史紀錄
+
 
   # 合併修改紀錄
     =合併修改紀錄=
@@ -164,7 +284,6 @@
 
 30 天精通 Git 版本控管(進階)
 資料來源: https://github.com/doggy8088/Learn-Git-in-30-days/blob/master/zh-tw/README.md
-
 
 CH1
     git add <file name>
