@@ -1,6 +1,8 @@
 連猴子都能懂的GIT入門指南(初階)
 資料來源: https://backlog.com/git-tutorial/tw/
 
+[入門篇]
+
   # Git 基本介紹
     1.Git解決多人編輯相同檔案出現覆蓋的問題
     2.利用Git管理檔案, 更新歷史會保留在Git, 故不需要複製備用檔案.
@@ -271,16 +273,164 @@
 
         $ git log #確認歷史紀錄
 
-
   # 合併修改紀錄
     =合併修改紀錄=
+      * 您上次push到執行下一次push的期間，如果有其他人push更新了遠端數據庫，
+        而您沒有更新本地端數據庫，那麼您的push會被拒絕.
+      * 需要進行合併(Merge)導入其他人修改歷史，不然你的push都會被拒絕.
+      * 若沒有先合併(Merge)直接覆蓋歷史記錄的話，其他人push修改內容（如圖提交C）會消失. # 很嚴重 #
+
+      # 重點提示 #
+        ** Git執行合併時, 可能會有 "自動合併" 的部分. (註: 變更非同一行時, 即可 "自動合併" 成功.)
+        ** 變更同一行會出現衝突, 則無法 "自動合併". (註: Git不能自動判斷, 則會發生錯誤.)
 
     =解決衝突=
+      # 重點提示 #
+        ** 衝突會用 "<<<<<<<<" & ">>>>>>>>" 夾起來.
+          <<<<<<<<
+          我是衝突-新增(本地端數據庫)
+          =========
+          我被衝突-已存(遠端數據庫)
+          >>>>>>>>
+        ** 用"========="分隔
+          上方是本地端數據庫的編輯內容，
+          下方是遠端數據庫的編輯內容
+
+      * 修改所有衝突的地方, 再執行Commit & Push到遠端數據庫
+        例: 保留 "我被衝突-已存(遠端數據庫)" 內容
 
   # 教學3 合併修改紀錄
     =製造衝突=
+      * 本地端數據庫(tutorial)下操作GIT
+        1.修改Sample.txt內容 "commit 記錄索引的狀態"
+        2.提交至本地端數據庫(tutorial), 訊息: "add commit 說明"
+          $ git add Sample.txt
+          $ git commit -m "add commit 說明"
+      
+      * 本地端數據庫(tutorial_UserB)下操作GIT
+        1.修改Sample.txt內容 "pull 取得遠端數據庫內容"
+        2.提交至本地端數據庫(tutorial_UserB), 訊息: "add pull 說明"
+        3.Push到遠端數據庫(Success)
+          $ git add Sample.txt
+          $ git commit -m "add pull 說明"
+          $ git push
+      
+      # 重點提示 #
+        ** 遠端數據庫(BackLOG_GIT)
+          1.確認歷史紀錄: "add pull 說明"
+          2.現在，遠端數據庫的第三行即為「pull 取得遠端數據庫的內容」啦
+
+      * 本地端數據庫(tutorial)下操作GIT
+        1.#!-注意-!#, 遠端數據庫(BackLOG_GIT)內容已變更.
+        2.Push到遠端數據庫(Failed, 超詳細提示內容, 告訴更新被拒絕, 因為目前分支是落後, 再次 git push 前先 git pull)
+          $ git push
+            ! [rejected]        master -> master (non-fast-forward)
+            error: failed to push some refs to 'https://kl546.backlog.com/git/BACKLOG_GIT/tutorial.git'
+            hint: Updates were rejected because the tip of your current branch is behind
+            hint: its remote counterpart. Integrate the remote changes (e.g.
+            hint: 'git pull ...') before pushing again.
+            hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 
     =解決衝突=
+      * 本地端數據庫(tutorial)下操作GIT
+        1.以遠端數據庫 對 本地端數據庫 執行合併
+          (註: $ git pull <遠端數據庫 or 遠端數據庫別名> <分支名稱>)
+          $ git pull origin master
+            From https://kl546.backlog.com/git/BACKLOG_GIT/tutorial
+            * branch            master     -> FETCH_HEAD
+            Auto-merging Sample.txt
+            CONFLICT (content): Merge conflict in Sample.txt
+            Automatic merge failed; fix conflicts and then commit the result.
+        
+        2.Sample.txt 檔案內容出現變化 (註: VSCode功能真的太強了, 還幫忙加註並比較)
+          Accept Current Change | Accept Incoming Change | Accept Both Change | Compare Changes                
+          <<<<<<< HEAD (Current Change)
+          commit 記錄索引的狀態
+          =======
+          pull 取得遠端數據庫內容
+          >>>>>>> e6d41613d273b938481714e066e711f4753d4a3f (Incoming Change)
+
+        3.Accept Both Change 導入雙方變更
+          Line 7 commit 記錄索引的狀態
+          Line 8 pull 取得遠端數據庫內容
+          $ git add Sample.txt
+          $ git commit -m "合併tutorial & tutorial_UserB間衝突"
+          $ git push
+
+      * 本地端數據庫(tutorial_UserB)下操作GIT
+        1.以遠端數據庫同步本地端數據庫(tutorial_UserB)
+          $ git pull origin master
+            From https://kl546.backlog.com/git/BACKLOG_GIT/tutorial
+            * branch            master     -> FETCH_HEAD
+            Updating e6d4161..0f67ce6
+            Fast-forward
+            Sample.txt | 3 ++-
+            1 file changed, 2 insertions(+), 1 deletion(-)
+        
+        2.檔案Sample.txt與遠端數據庫同步
+            第1次加入的文字檔...
+
+            連猴子都懂的Git命令
+
+            add 修改加入書籤
+
+            commit 記錄索引的狀態
+            pull 取得遠端數據庫內容
+
+        3.Push到遠端數據庫(什麼都沒有修改)
+          $ git push
+            Everything up-to-date
+
+[進階篇] 
+
+  # 分支
+    =什麼是分支=
+    =分支的運用=
+    =分支的切換=
+    =分支的合併=
+    =Topic分支 & Integration分支的運用實例=
+
+  # 教學1 使用分支
+    =事前準備=
+    =建立分支=
+    =切換分支=
+    =合併分支=
+    =刪除分支=
+    =平行操作=
+    =解決合併衝突=
+    =用rebase合併=
+
+  # 遠端數據庫
+    =Pull=
+    =Fetch=
+    =Push=
+
+  # 標籤
+    =標籤=
+  
+  # 教學2 使用標籤
+    =事前準備=
+    =添加"輕量標籤"=
+    =添加"標示標籤"=
+    =刪除標籤=
+  
+  # 改寫提交
+    =修改最近的提交=
+    =取消過去的提交=
+    =放棄提交=
+    =提取提交=
+    =改寫提交的記錄=
+    =匯合分支上的提交一同合併=
+  
+  # 教學3 改寫提交
+    =Commit --amend=
+    =Revert=
+    =Reset=
+    =Cherry-pick=
+    =使用 rebase -i 合併提交=
+    =使用 rebase -i 修改提交=
+    =Merge --squash=
+
 
 30 天精通 Git 版本控管(進階)
 資料來源: https://github.com/doggy8088/Learn-Git-in-30-days/blob/master/zh-tw/README.md
@@ -324,4 +474,22 @@ CH2
 如何移除LOCAL的儲存庫
   0. backup files to another folder
   1. 'git commit -a' , 將所有變更簽入.
-  2. remove folder .git , 這時就能刪除 .git 儲存庫資料夾了.    
+  2. remove folder .git , 這時就能刪除 .git 儲存庫資料夾了.
+
+如何移除本機端GIT儲存庫(responsity)
+  1. 先備份檔案至別的資料夾
+  2. 刪除該資料夾的檔案, .git會刪不掉
+  3. git commit -a
+  4. 最後, 就能把 .git 刪掉了
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch master
+# Changes to be committed:
+#	deleted:    AFile.txt.txt
+#
+
+
+
+就會將版本控制的檔案清除，這樣就回到最原始的乾淨的資料夾
