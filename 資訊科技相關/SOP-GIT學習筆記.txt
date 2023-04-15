@@ -506,11 +506,112 @@
             可先在topic分支上使用 rebase，再將topic分支上的變更合併到integration分支.
 
     =Topic分支 & Integration分支的運用實例=
+      * 講解關於topic分支和integration分支的操作方法
+        1.案例: 在[開發功能的topic分支]操作的途中，需要進行錯誤的修改
+        2.這時，integration分支還是處於開發功能之前的狀態。
+        3.在[integration分支]新建[修改錯誤用的topic分支]，就可以從開發功能的作業獨立出來，以便開始新的操作。
+        4.完成修復錯誤工作後，再將[修改錯誤用的topic分支]導入到原本[integration分支]後, 就可以發佈。
+        5.回到原本的[開發功能的topic分支]繼續進行開發功能的操作。
+        6.繼續進行開發功能的操作時, 
+          發現如果需要之前錯誤修復內容和提交 X 的內容[修改錯誤用的topic分支]，
+          就要導入提交 X 的內容，可用 [直接 merge] 或 [rebase 導入提交 X] 的合併分支的方法。
+        7.使用[rebase 導入提交 X 的合併分支]方法, 
+          [開發功能的topic分支]會與[修改錯誤用的topic分支]匯入[integration分支]後的提交,
+          產生新的「合併提交」
+      
+      # 重點提示 #
+        1.只要有效地運用分支，就可以同時進行不同作業了呦。
+        2.強烈建議您閱讀「A successful Git branching model」一文。它列出了現在最常用來管理Git分支的方法。
+          A successful Git branching model 英文原文網址: http://nvie.com/posts/a-successful-git-branching-model/
+          分支可分為4類, 根據不同用途及角色:
+          (1)Main分支(Master分支+Develop分支)
+          (2)Feature分支(Topic分支)
+          (3)Release分支
+          (4)HotFix分支
+
+          ** (1)Main分支(Master分支 + Develop分支(Integration分支))
+              ~ Master分支
+                Master分支只負責管理發布的狀態。
+                當準備好發佈指定版本時，最後的提交會給予一個發布版本標籤。
+              ~ Develop分支(Integration分支)
+                Develop分支(Integration分支)是針對日常開發用的分支。
+                所有新功能開發最終都會合併到這裡，
+                類似剛才已經講解過的integration分支的功用。
+
+          ** (2)Feature分支(Topic分支)
+              ~ Feature分支就是Topic分支
+                Feature分支在於 [功能開發] 或 [問題修復]時, 從 Develop 分支 (Integration分支) 分出來的.
+                  Feature分支通常不會分享(團隊成員開發用), 所以不會在遠端數據庫建立分支,
+                  開發完成後, 必須合併回 Develop分支(Integration分支) 後再發佈(Release).
+
+          ** (3)Release分支
+              ~ Release分支名稱最前面會加上"release-"
+                Release分支主要目的是做發佈(Release)前, 最後錯誤修復所建立的分支。
+                  成員可以在Release分支裡進行最後的調整，
+                  而其他成員依舊在 "Develop分支(Integration分支) > Topic分支" 上進行功能開發，
+                  不會相互干擾而影響最後發布.
+              
+              # 重點提示 => [確認發佈時] #
+                1.將[Release分支]合併到[Master分支]，並在合併提交裡添加release版本號標籤.
+                2.將[Release分支]合併到[Develop分支(Integration分支)]，
+                  以確保 [Master分支] & [Develop分支(Integration分支)] 擁有[Release分支]最新錯誤修復/變更.
+
+          ** (4)HotFix分支
+              ~ HotFix分支名稱最前面會加上"hotfix-"
+                HotFix分支是在發佈產品作緊急修改時，從 [Master分支] 建立的分支.
+                  例: [Develop分支(Integration分支)]的開發進度還不完整, 需作緊急修改,
+                    從[Develop分支(Integration分支)]建立可發佈版本還需一段時間,
+                    最快方式從 [Master分支] 建立分支進行修改, 再合併回[Develop分支(Integration分支)]
+
+              # 重點提示 => [緊急修改並修正後] #
+                1.[HotFix分支]要合併回[Develop分支(Integration分支)]
+                2.[HotFix分支]毋須合併回[Master分支], 因為[HotFix分支]是從[Master分支] 建立的分支, 所以 [Master分支] 已是最新狀態.
+                3.[HotFix分支] 和 [Release分支] 是兩條獨立分支, 互不相干, 因為功能不同.
+                  但相同的是都要和 [Main分支(Master分支 + Develop分支(Integration分支))] 保持一致.
 
   # 教學1 使用分支
     =事前準備=
+      $ mkdir tutorial_branch
+      $ cd tutorial_branch
+      $ git init
+      create a new file "myFile.txt" in tutorial_branch
+      file content "連猴子都能懂的Git命令"
+      $ git add myFile.txt
+      $ git commit -m "first commit"
+
     =建立分支=
+      $ git branch <branch_name> # 透過branch命令來建立分支
+      $ git branch # 不給任何參數直接執行 branch 命令的話，可以顯示分支列表。前面有 * 的就是現在的分支。
+      
+      $ git branch issue1 # 建立 issue1 分支
+      $ git branch # 檢查新增結果
+        issue1
+      * master (目前分支, HEAD指向這裡)
+
     =切換分支=
+      $ git checkout <branch_name> # 切換分支
+      $ git checkout issue1 # 切換至 issue1分支 or VSCode左下角有顯示目前Branch, 也可以從這裡切換分支.
+        Switched to branch 'issue1'
+      $ git branch # 檢查切換結果
+      * issue1 (目前分支, HEAD指向這裡)
+        master
+
+      # 重點提示 => [同時建立分支和切換] #
+        $ git checkout -b <branch_name> #同時建立分支和切換
+
+      * 切換到 issue1分支的狀態下提交，歷史記錄會被記錄到 issue1分支。
+        1.編輯 "myFile.txt" ,新增內容 "切換到 issue1分支的狀態下提交，歷史記錄會被記錄到 issue1 分支".
+        2.用 add 命令增加 myfile.txt 檔案後再提交。
+          $ git add myFile.txt
+          $ git commit -m "切換到issue1分支下, 編輯 "myFile.txt"內容後提交"
+        3.提交後, 
+          > Master分支會落後 issue1分支 1代.
+          > HEAD指向目前分支 issue1分支.
+          $ git log --graph --oneline 
+            # 檢查歷史紀錄, 由下列看出 HEAD 目前指在 issue1分支上, issue2分支 & Master分支是落後1代的.
+            * ac6c101 (HEAD -> issue1) 切換到issue1分支下, 編輯 myFile.txt內容後提交
+            * 56ce8ba (master, issue2) first commit
+
     =合併分支=
     =刪除分支=
     =平行操作=
