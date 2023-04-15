@@ -579,31 +579,31 @@
       $ git add myFile.txt
       $ git commit -m "first commit"
 
-    =建立分支=
+    =建立分支(git branch <branch_name>)=
       $ git branch <branch_name> # 透過branch命令來建立分支
       $ git branch # 不給任何參數直接執行 branch 命令的話，可以顯示分支列表。前面有 * 的就是現在的分支。
       
       $ git branch issue1 # 建立 issue1 分支
       $ git branch # 檢查新增結果
-        issue1
-      * master (目前分支, HEAD指向這裡)
+          issue1
+        * master (目前分支, HEAD指向這裡)
 
-    =切換分支=
+    =切換分支(git checkout <branch_name>)=
       $ git checkout <branch_name> # 切換分支
       $ git checkout issue1 # 切換至 issue1分支 or VSCode左下角有顯示目前Branch, 也可以從這裡切換分支.
         Switched to branch 'issue1'
       $ git branch # 檢查切換結果
-      * issue1 (目前分支, HEAD指向這裡)
-        master
-
-      # 重點提示 => [同時建立分支和切換] #
-        $ git checkout -b <branch_name> #同時建立分支和切換
+        * issue1 (目前分支, HEAD指向這裡)
+          master
 
       * 切換到 issue1分支的狀態下提交，歷史記錄會被記錄到 issue1分支。
-        1.編輯 "myFile.txt" ,新增內容 "切換到 issue1分支的狀態下提交，歷史記錄會被記錄到 issue1 分支".
+        1.編輯 "myFile.txt" 
+          新增內容 "切換到 issue1分支的狀態下提交，歷史記錄會被記錄到 issue1 分支".
+
         2.用 add 命令增加 myfile.txt 檔案後再提交。
           $ git add myFile.txt
           $ git commit -m "切換到issue1分支下, 編輯 "myFile.txt"內容後提交"
+
         3.提交後, 
           > Master分支會落後 issue1分支 1代.
           > HEAD指向目前分支 issue1分支.
@@ -612,11 +612,259 @@
             * ac6c101 (HEAD -> issue1) 切換到issue1分支下, 編輯 myFile.txt內容後提交
             * 56ce8ba (master, issue2) first commit
 
-    =合併分支=
-    =刪除分支=
+    # 重點提示 => [同時建立分支和切換] #
+      $ git checkout -b <branch_name> #同時建立分支和切換
+
+    =合併分支(git merge <branch_name>)=
+      * 案例: 將 issue1 分支的修改合併到 master 分支
+        $ git merge <branch_name> # 執行 merge 命令以合併分支
+
+        1.切換到master分支(HEAD指向master分支)
+          $ git checkout master
+        
+        2.確認myFile.txt檔案內容
+          Line1 "連猴子都能懂的Git命令"
+        
+        3.合併issue1分支
+          $ git merge issue1
+        
+        4.確認myFile.txt檔案內容
+          Line1 "連猴子都能懂的Git命令"
+          Line2 "切換到 issue1分支的狀態下提交，歷史記錄會被記錄到 issue1 分支"
+
+        5.檢查歷史紀錄, 由下列看出 HEAD 目前指在 master及issue1分支上, 
+          只剩 issue2分支 落後1代.
+          這種合併稱之為 "fast-forward(快轉)"
+          $ git log --graph --oneline 
+            * ac6c101 (HEAD -> master, issue1) 切換到issue1分支下, 編輯 myFile.txt內容後提交
+            * 56ce8ba (issue2) first commit
+        
+      # 重點提示 #
+        1.合併分支, 會將指定分支合併至當前使用的分支(HEAD指向目前分支)
+
+    =刪除分支(git branch -d <branch_name>)=
+      * 案例: issue1分支的內容已合併到master分支，我們就可以刪除 issue1分支.
+        $ git branch -d <branch_name> # 欲刪除分支，請執行branch -d 命令。
+
+        1.刪除 issue1 分支
+          $ git branch -d issue1
+          Deleted branch issue1 (was ac6c101).
+        
+        2.用"git branch"命令來確認分支是否已被刪除
+          $ git branch
+            issue2
+          * master
+        
+        3.檢查歷史紀錄
+          $ git log --graph --oneline 
+            * ac6c101 (HEAD -> master) 切換到issue1分支下, 編輯 myFile.txt內容後提交
+            * 56ce8ba (issue2) first commit
+
+        4.刪除 issue2 分支
+          $ git branch -d issue2
+          Deleted branch issue2 (was 56ce8ba).
+
+        5.檢查歷史紀錄
+          $ git log --graph --oneline
+            * ac6c101 (HEAD -> master) 切換到issue1分支下, 編輯 myFile.txt內容後提交
+            * 56ce8ba first commit
+
+      # 重點提示 #
+        1.刪除分支, 只有分支本身被刪除.
+        2.刪除分支, 歷史紀錄會保留.
+
     =平行操作=
-    =解決合併衝突=
+      * 案例:建立2個分支(issue2 & issue3)來嘗試平行操作.
+        1.建立 issue2 分支和 issue3 分支，並切換到 issue2 分支
+          $ git branch issue3 # create branch issue3
+          $ git checkout -b issue2 # create branch issue2 & switch to branch-issue2
+        
+        2.檢查切換結果
+          $ git branch
+            * issue2
+              issue3
+              master
+
+        3.[在issue2分支]myFile.txt新增內容後提交
+          新增內容: "案例:建立2個分支(issue2 & issue3)來嘗試平行操作."
+          $ git add myFile.txt
+          $ git commit -m "切換到issue2分支下, 編輯 myFile.txt內容後提交"
+
+        4.[在issue3分支]myFile.txt新增內容後提交
+          新增內容: "[在issue3分支]myFile.txt新增內容後提交"
+          $ git checkout issue3
+          $ git add myFile.txt
+          $ git commit -m "切換到[issue3分支]下, 編輯 myFile.txt內容後提交"
+
+      * 案例:修改最近的提交(最近1次的提交內容或註解)
+        > 方式1: 要先關檔
+          $ git commit --amend
+        > 方式: 不用關檔(直接修改最近1次提交註解)
+          $ git commit --amend -m "更正註解"
+        
+    =解決合併衝突(使用merge合併)=
+      * 案例: 把 issue2 分支和 issue3 分支的修改合併到 master分支.
+        1.myFile.txt內容
+          > [master分支]
+            連猴子都能懂的Git命令
+            切換到 issue1分支的狀態下提交，歷史記錄會被記錄到 issue1 分支
+
+          > [issue2分支]
+            連猴子都能懂的Git命令
+            切換到 issue1分支的狀態下提交，歷史記錄會被記錄到 issue1 分支
+            案例:建立2個分支(issue2 & issue3)來嘗試平行操作.
+
+          > [issue3分支]
+            連猴子都能懂的Git命令
+            切換到 issue1分支的狀態下提交，歷史記錄會被記錄到 issue1 分支
+            [在issue3分支]myFile.txt新增內容後提交
+
+        2.切換到[master分支], 合併[issue2分支], # 不會有衝突, GIT會自動執行fast-forward合併 #
+          $ git checkout master
+          $ git merge issue2 # 不會有衝突, GIT會自動執行fast-forward合併 #
+              Updating ac6c101..65a8134
+              Fast-forward
+              myFile.txt | 3 ++-
+              1 file changed, 2 insertions(+), 1 deletion(-)
+
+        3.接著再合併[issue3分支], # 會發生衝突 #
+          $ git branch # 確認在 [master分支]
+                issue2
+                issue3
+              * master
+          $ git merge issue3 # 會發生衝突 #
+              Auto-merging myFile.txt
+              CONFLICT (content): Merge conflict in myFile.txt
+              Automatic merge failed; fix conflicts and then commit the result.
+        
+        4.衝突處理
+          > VSCode檔案上會出現下列提示
+            Accept Current Change | Accept Incoming Change | Accept Both Change | Compare Changes
+            <<<<<<< HEAD (Current Change)
+            案例:建立2個分支(issue2 & issue3)來嘗試平行操作.
+            =======
+            [在issue3分支]myFile.txt新增內容後提交
+            >>>>>>> issue3 (Incoming Change)
+          
+          > 點選"Accept Both Change"功能後, 
+            a.檔案內容合併
+            b.VSCode 自動將檔案加入 "Merge Changes" 區
+            c.VSCode 自動填入 "Merge branch 'issue3'" message
+            
+          > 再次提交
+            $ git add myFile.txt
+            $ git commit -m "Merge branch 'issue3'"
+
+          > 檢查歷史紀錄
+            這次合併產生衝突，必須修改衝突的部分，所以會建立新的提交記錄表示修改的[合併提交-354b8e5]。
+            然而, HEAD指向 => [合併提交-354b8e5]
+            發生衝突的合併非fast-forward合併，而是non fast-forward合併
+            
+            $ git log --graph --oneline
+              *   354b8e5 (HEAD -> master) Merge branch 'issue3'
+              |\
+              | * 0933de2 (issue3) 切換到[issue3分支]下, 編輯 myFile.txt內容後提交
+              * | 65a8134 (issue2) 切換到issue2分支下, 編輯 myFile.txt內容後提交
+              |/
+              * ac6c101 切換到issue1分支下, 編輯 myFile.txt內容後提交
+              * 56ce8ba first commit
+
     =用rebase合併=
+      * 案例: 使用rebase合併, 讓歷史紀錄單純/簡單點
+        0.目前在[Master分支]
+          $ git branch
+            issue2
+            issue3
+          * master
+        
+        1.取消之前的"Merge branch 'issue3'"
+          $ git reset --hard HEAD~ # 回到前1代
+            HEAD is now at 65a8134 切換到issue2分支下, 編輯 myFile.txt內容後提交
+        
+        2.檢查檔案內容(myFile.txt)
+          原本合併 [issue3分支]的內容被刪除了.
+        
+        3.檢查歷史紀錄([issue2分支]已合併, [issue3分支]未合併)
+          $ git log --graph --oneline
+            * 65a8134 (HEAD -> master, issue2) 切換到issue2分支下, 編輯 myFile.txt內容後提交
+            * ac6c101 切換到issue1分支下, 編輯 myFile.txt內容後提交
+            * 56ce8ba first commit
+
+        4.切換到 [issue3分支] 後，對 [master分支] 執行 rebase
+          $ git checkout issue3
+          $ git rebase master
+            error: could not apply 0933de2... 切換到[issue3分支]下, 編輯 myFile.txt內容後提交
+            Resolve all conflicts manually, mark them as resolved with
+            "git add/rm <conflicted_files>", then run "git rebase --continue".
+            You can instead skip this commit: run "git rebase --skip".
+            To abort and get back to the state before "git rebase", run "git rebase --abort".
+            Could not apply 0933de2... 切換到[issue3分支]下, 編輯 myFile.txt內容後提交
+            Auto-merging myFile.txt
+            CONFLICT (content): Merge conflict in myFile.txt
+
+            # 利用 rebase 合併發生衝突後的三種作法:
+              1. 手動解決所有衝突 -> "git add/rm <conflicted_files>" -> "git rebase --continue"
+              2. 跳過這次提交 -> "git rebase --skip"
+              3. 取消這次 rebase 合併並返回 -> "git rebase --abort" #
+
+        5.發生衝突, 點選"Accept Both Change"功能後, 
+          a.檔案內容合併
+          b.VSCode 自動將檔案加入 "Merge Changes" 區
+          c.VSCode 自動填入 "Merge branch 'issue3'" message
+            
+        6.Rebase 再次提交
+          $ git add myFile.txt
+          $ git commit -m "Merge branch 'issue3'" # Error: 這裡會出錯.
+          $ git rebase --continue # Success: 必須使用這個指令
+            [detached HEAD d5ebbdc] 切換到[issue3分支]下, 編輯 myFile.txt內容後提交
+            1 file changed, 2 insertions(+), 1 deletion(-)
+            Successfully rebased and updated refs/heads/issue3.
+
+        7.檢查歷史紀錄(目前指在[issue3分支])
+          $ git log --graph --oneline
+            * d5ebbdc (HEAD -> issue3) 切換到[issue3分支]下, 編輯 myFile.txt內容後提交
+            * 65a8134 (master, issue2) 切換到issue2分支下, 編輯 myFile.txt內容後提交
+            * ac6c101 切換到issue1分支下, 編輯 myFile.txt內容後提交
+            * 56ce8ba first commit
+
+        8.接著在 [master分支] 下, 就可以對 [issue3分支]作 fast-forward 合併.
+          $ git checkout master
+          $ git merge issue3
+            Updating 65a8134..d5ebbdc
+            Fast-forward
+            myFile.txt | 3 ++-
+            1 file changed, 2 insertions(+), 1 deletion(-)
+
+        9.檢查歷史紀錄(目前指在[master分支])
+          $ git log --graph --oneline
+            * d5ebbdc (HEAD -> master, issue3) 切換到[issue3分支]下, 編輯 myFile.txt內容後提交
+            * 65a8134 (issue2) 切換到issue2分支下, 編輯 myFile.txt內容後提交
+            * ac6c101 切換到issue1分支下, 編輯 myFile.txt內容後提交
+            * 56ce8ba first commit
+          
+          註1: myfile.txt 的最終內容 rebase 和 merge 是一樣的
+          註2: 但是歷史紀錄比較簡單
+            [Merge合併]
+              *   354b8e5 (HEAD -> master) Merge branch 'issue3'
+              |\
+              | * 0933de2 (issue3) 切換到[issue3分支]下, 編輯 myFile.txt內容後提交
+              * | 65a8134 (issue2) 切換到issue2分支下, 編輯 myFile.txt內容後提交
+              |/
+              * ac6c101 切換到issue1分支下, 編輯 myFile.txt內容後提交
+              * 56ce8ba first commit
+
+            [Rebase合併]
+              * d5ebbdc (HEAD -> master, issue3) 切換到[issue3分支]下, 編輯 myFile.txt內容後提交
+              * 65a8134 (issue2) 切換到issue2分支下, 編輯 myFile.txt內容後提交
+              * ac6c101 切換到issue1分支下, 編輯 myFile.txt內容後提交
+              * 56ce8ba first commit
+
+    # 重點提示 #
+      1.Merge合併, 會切換到 [Master分支] 把 <其他分支> 合併進來
+      2.Rebase合併, 
+        要先切換到 <其他分支> 對 [Master分支] 作Rebase合併, 
+        再切回 [Master分支] 對 <其他分支> 作Merge合併.
+      3.註: [Rebase合併] 感覺超麻煩..
 
   # 遠端數據庫
     =Pull=
