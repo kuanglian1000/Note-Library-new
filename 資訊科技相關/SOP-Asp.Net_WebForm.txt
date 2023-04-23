@@ -1,3 +1,82 @@
+/* ASP.NET WebForm Deploy 至IIS 設定 */
+  1. 先測試開發環境能否利用 Local IIS作測試
+    Project\Properties\Web
+    Servers段落, 選擇 "Local IIS", Project Url "http://localhost/<Project_Name>".
+    Create virtual Directory(新增虛擬目錄)存檔後, VisualStudio自動在IIS Default Site下, 新增 <Project_Name> 應用程式.
+    檢查IIS設定
+      > 驗證只使用 "匿名驗證", 匿名使用者識別 特定使用者 "IUSR", 
+      > 專案資料夾 "安全性", 有 "Authenticated Users", 並沒有額外新增 "IUSR" & "IIS_IUSRS"
+
+    Q: 執行 Debug(F5), 出現HTTP錯誤 500.21-Internal Server Error, 處理常式 "ManagedPipelineHandler"的錯誤訊息,
+    A: 要重新安裝 asp.net 4.0
+      C:\windows\Microsoft.NET\Framework64\v4.0.30319>aspnet_regiis.exe -i
+      再執行1次 Debug(F5).
+
+/* Solution Configuration 和 Publish Settings 是不相關的 */
+  > Solution Configuration
+    路徑: Build /Configuration Manager/ Project Contexts
+    說明: 此設定與編譯和偵錯相關, 但與"發佈(Publish)設定"無關.
+
+    如果偵錯時, 挑選 "Release" 設定, 它會跳出訊息跟你說中斷點不斷停下來.
+        
+
+  > Publish Settings "發佈(Publish)設定"
+    設定路徑: Build / Publish Web / Profile
+    存放路徑: 專案 / Properties / PublishProfiles 資料夾內
+    說明: 它是MSBuild工具會讀取的檔案.
+
+/* ASP.NET WebForm Web.config環境切換, 配合[佈署設定檔]加入或替換不同環境(開發/測試/正式)參數(連接字串) */
+  1. 發佈時, 可以挑選自訂設定檔 {Web.debug.config} or {Web.release.config}
+  2. 自訂設定檔, 可設定"發佈方式", "發佈目的地", "發佈設定檔", 最後再按下"發佈(Publish)".
+  3. 仔細看下列 {Web.config} & {Web.debug.config} & {Web.release.config} 間的差異,
+    
+    a.{Web.config}是預設值, 裡面<所有設定值>發佈後一定會有, 除非<被替代值>或<額外新增值>
+
+    b.{Web.config}有, {Web.release.config} 規則 "無", 使用發佈設定檔(release), 
+      直接Copy {Web.config} <= 開發用.(未更動)
+    
+    c.{Web.config}有, {Web.release.config} 規則 "有", 使用發佈設定檔(release), 
+      以 {Web.release.config} 內容值替換後, 才產出最終 {Web.config}.
+  
+  {Web.config} <= 開發用
+
+    <configuration>
+      <connectionStrings>
+        <add name="ConnectionName" connectionString="開發環境ConnectionString"/>
+      </connectionStrings>
+      <appSettings>
+        <add key="Environment" value="開發環境"/>
+      </appSettings>
+    </configuration>
+
+  {Web.debug.config} <= 測試用
+
+    <configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+      <connectionStrings>
+        <add name="ConnectionName"
+          connectionString="測試環境的ConnectionString"
+          xdt:Transform="SetAttributes" xdt:Locator="Match(name)"/>
+      </connectionStrings>
+      <appSettings>
+        <add key="Environment" value="測試環境"
+        xdt:Transform="SetAttributes" xdt:Locator="Match(key)"/>
+      </appSettings>
+    </configuration>
+
+  {Web.release.config} <= 正式用
+
+    <configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+      <connectionStrings>
+        <add name="ConnectionName"
+          connectionString="正式環境的ConnectionString"
+          xdt:Transform="SetAttributes" xdt:Locator="Match(name)"/>
+      </connectionStrings>
+      <appSettings>
+        <add key="Environment" value="正式環境"
+        xdt:Transform="SetAttributes" xdt:Locator="Match(key)"/>
+      </appSettings>
+    </configuration>
+
 /* 產生簡化版大學網站範例(進階範例), 作為部署練習使用 [SDK版本 .NET Core 5.0] */
   Tutorial: Get started with EF Core in an ASP.NET MVC web app | Microsoft Learn
   https://learn.microsoft.com/en-us/aspnet/core/data/ef-mvc/intro?view=aspnetcore-6.0

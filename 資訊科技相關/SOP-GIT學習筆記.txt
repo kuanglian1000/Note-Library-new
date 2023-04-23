@@ -521,7 +521,7 @@
       
       # 重點提示 #
         1.只要有效地運用分支，就可以同時進行不同作業了呦。
-        2.強烈建議您閱讀「A successful Git branching model」一文。它列出了現在最常用來管理Git分支的方法。
+        2.(GIT使用慣例)強烈建議您閱讀「A successful Git branching model」一文。它列出了現在最常用來管理Git分支的方法。
           A successful Git branching model 英文原文網址: http://nvie.com/posts/a-successful-git-branching-model/
           分支可分為4類, 根據不同用途及角色:
           (1)Main分支(Master分支+Develop分支)
@@ -859,34 +859,215 @@
               * ac6c101 切換到issue1分支下, 編輯 myFile.txt內容後提交
               * 56ce8ba first commit
 
-    # 重點提示 #
+    # 重點提示 => 說明 Merge合併 及 Rebase合併 兩種合併方式的執行步驟..#
       1.Merge合併, 會切換到 [Master分支] 把 <其他分支> 合併進來
       2.Rebase合併, 
         要先切換到 <其他分支> 對 [Master分支] 作Rebase合併, 
         再切回 [Master分支] 對 <其他分支> 作Merge合併.
-      3.註: [Rebase合併] 感覺超麻煩..
-
+      3.註: [Rebase合併]方式, 作起來感覺超麻煩..
 
   # 遠端數據庫
-    =Pull=
-    =Fetch=
-    =Push=
+    =Pull(取得遠端數據庫的歷史記錄, 並合併至本地數據庫)=
+      * 執行 pull 命令可以取得遠端數據庫的歷史記錄
+        1.遠端數據庫的提交紀錄比本地端數據庫還前面，且遠端數據庫包含本地端數據庫的歷史紀錄.
+          @遠端數據庫 A -> B -> X -> Y(origin/master)
+          @本地數據庫 A -> B(master)
+        
+        2.Case1: @本地數據庫-[master分支]沒有新的歷史紀錄，@遠端數據庫-[origin/master分支] 未被更新
+          a. @遠端數據庫 A -> B -> X -> Y(origin/master)
+          b. @本地數據庫 A -> B(master)  # {無} 新的歷史紀錄
+          c. 在 "@本地數據庫" 執行pull後，會從遠端數據庫(下載最新的修改歷史)，將其(同步到本地端數據庫).
+             沒衝突, 則會使用 (fast-forward 合併).
+          d. @遠端數據庫 A -> B -> X -> Y(origin/master)
+          e. @本地數據庫 A -> B -> X -> Y(master)
+          
+        3.Case2: @本地數據庫-[master分支] 有了新的歷史紀錄，@遠端數據庫-[origin/master分支] 未被更新
+          a. @遠端數據庫 A -> B -> X -> Y(origin/master) # 未被更新
+          b. @本地數據庫 A -> B -> C -> D(master) # {有} 新的歷史紀錄
+          c. 在 "@本地數據庫" 執行pull後，會從遠端數據庫(下載最新的修改歷史)，將其(同步到本地端數據庫).
+             沒衝突, 則會 (自動建立合併提交),
+             有衝突, 須手動解決衝突, 再 (手動提交).
+          d. @遠端數據庫 A -> B -> X -> Y(origin/master) # 未被更新
+          e. @本地數據庫 A -> B -> C -> D -> E(master) # E(合併提交) 已合併, 且包含遠端數據庫的變更. 
+    
+    =Fetch(僅查閱遠端數據庫的歷史記錄, 不合併)=
+      * 執行 pull，遠端數據庫的內容會自動合併
+      * 執行 Fetch
+        1.目的: 只想確認遠端數據庫內容, 卻不想合併
+        2.後果: 可以取得遠端數據庫的最新歷史記錄。
+          取得的提交會導入在自動建立的分支中，
+          並可以切換這個名為 "FETCH_HEAD" 的分支。
+        3.執行後, 發現歷史記錄原本指向 遠端數據庫origin/master 卻消失了??
+      * 執行 pull，遠端數據庫的內容會自動合併
+    
+    # 重點提示(FETCH_HEAD) #
+      * FETCH_HEAD 合併後，歷史記錄會和執行pull操作的結果相同。
+      * 實際上，pull的內容就是fetch + merge的內容所組成的。
+      * FETCH效果, 目前作不出來??
+
+    =Push(將本地數據庫歷史紀錄 & 變更, 提交至遠端數據庫)=
+      * 從本地端數據庫 push 到遠端數據庫時，Git會把 push 的分支與遠端數據庫以 fast-forward 合併
+      * push被拒絕的兩種情況:
+        1.本地端與遠端發生衝突
+        2.push 要以 non-fast-forward 合併遠端數據庫時, Git也會拒絕您的push，以防止覆蓋以前的提交.
+      * push被拒絕的解決: 
+        1.先pull最新的遠端變更 (註: git pull )
+        2.解決本地端與遠端衝突
+        3.再push一次
+      
+      * 實例驗證:
+        ** 檢查歷史紀錄
+          $ git log --graph --oneline
+          *   ca07d27 (HEAD -> master, origin/master) Merge branch 'master' of https://kl546.backlog.com/git/BACKLOG_GIT/tutorial
+          |\
+          | * 089215e 測試PUSH功能, 發生衝突時, 先pull最新的遠端變更
+          , 再進行一次push
+          * | 8012088 遠端GIT資料已變更, 必須修正衝突
+          |/
+          * 155f603 測試FETCH功能, 查看遠端資料變更
+          * 7691c2c 提交後,上傳至Backlog
+          *   0f67ce6 合併tutorial & tutorial_UserB間衝突
+          |\
+          | * e6d4161 add pull 說明
+          * | 9a600ac add commit 說明
+          |/
+          * 000a00c 另存為UTF8編碼
+          * 2e6c255 增加add說明
+          * e8bc033 增加第2行
+          * a5b29bd first commit
+
+        ** tutorial_UserB 製造衝突後上傳至BACK_LOG(遠端數據庫)
+          * 85ade8c (HEAD -> master, origin/master, origin/HEAD) 在U
+          serB製造第2次衝突
+          *   ca07d27 Merge branch 'master' of https://kl546.backlog.com/git/BACKLOG_GIT/tutorial
+          |\
+          | * 089215e 測試PUSH功能, 發生衝突時, 先pull最新的遠端變更
+          , 再進行一次push
+          * | 8012088 遠端GIT資料已變更, 必須修正衝突
+          |/
+          * 155f603 測試FETCH功能, 查看遠端資料變更
+          * 7691c2c 提交後,上傳至Backlog
+          *   0f67ce6 合併tutorial & tutorial_UserB間衝突
+          |\
+          | * e6d4161 add pull 說明
+          * | 9a600ac add commit 說明
+          |/
+          * 000a00c 另存為UTF8編碼
+          * 2e6c255 增加add說明
+          * e8bc033 增加第2行
+
+    # 重點提示(Push) #
+      * 遠端數據庫共享的提交，基本上是不能修改的。
+      * 如果修改的話，和遠端數據庫同步的其他數據庫的歷史記錄會變得很奇怪。
 
   # 標籤
     =標籤=
-  
+      * 標籤是用於標記特定的點/提交的歷史，通常用來標記發布版本的名稱/號碼（如：v1.0）。
+      * 標籤有點類似分支，但打上標籤的提交是[固定的]，[不能隨意的變更位置]。
+      * 標籤有兩種類型：輕量標籤(lightweight tag)和標示標籤(annotated tag)
+        1.輕量標籤(lightweight tag)
+          > 不可變更的暫時標籤
+          > 可以添加名稱
+        2.標示標籤(annotated tag)
+          > 可以添加打標簽者的名稱、email及日期
+          > 可以添加名稱
+          > 可以添加註解
+          > 可以添加簽名
+      * [標籤]一般作法
+        1.輕量標籤(lightweight tag)
+          常用在本地端作為<暫時性使用>或<一次性使用>。
+        2.標示標籤(annotated tag)
+          會用在<較重要提交>，如<發布提交>上可以使用標示標籤來增加註解或簽名。
+    
+    # 重點提示(tag) #
+      * 標籤可以與 checkout(切換分支) 及 reset(取消分支合併) 命令搭配使用（詳細於稍候說明），可以簡單的使用標籤指向特定的提交
+
   # 教學2 使用標籤
-    =事前準備=
+    =事前準備= 
+      1.建立一個空白名為 tutorial 的目錄, 在裡面建立新的數據庫
+        $ mkdir tutorial_tag
+        $ cd tutorial_tag
+        $ git init
+      2.在 tutorial 目錄建立 myFile.txt 為名的檔案
+      3."連猴子都懂的Git命令" >> myFile.txt
+      4.提交 myFile.txt
+        $ git add myFile.txt
+        $ git commit -m "第1次提交"
+      5.檢查歷史紀錄
+        $ git log
+
     =添加"輕量標籤"=
+      * 使用tag命令來添加標籤，在 <tagname> 給予標籤的名稱.
+        在 HEAD 指向的提交上, 增加名為 <tagname> 的標籤
+        $ git tag <tagname> # 添加"輕量標籤"
+
+      * 在 HEAD 指向的提交上, 增加名為 "apple" 的標籤
+        $ git tag apple
+
+      * 顯示包含標籤資料的歷史記錄
+        $ git log --decorate
+
     =添加"標示標籤"=
+      * 添加"標示標籤":
+        $ git tag -a <tagname> # 添加"標示標籤", 利用編輯器增加註解
+
+      * 在 HEAD 指向的提交上, 增加名為 "banana" 的"標示標籤", 一併增加註解
+        $ git tag -am "我是標籤註解" banana
+
     =刪除標籤=
+      * 刪除標籤:
+        $ git tag -d <tagname>
   
+    # 重點提示(標籤通用指令) #
+      * 顯示標籤列表
+        $ git tag
+
+      * 顯示標籤列表 & 註解
+        $ git tag -n
+
   # 改寫提交
-    =修改最近的提交=
-    =取消過去的提交=
-    =放棄提交=
-    =提取提交=
+    =修改最近的(最近1次)提交(--amend)=
+      * 欲修改同一個分支最近的(最近1次)提交內容或註解，
+        可以在提交命令時加上 "--amend" 參數執行
+
+      * 主要使用的場合
+        1.增加最近(最近1次)提交時漏掉的檔案
+        2.修改最近(最近1次)提交內容或註解
+
+    =取消過去的提交(Revert)=
+      * 取消過去的提交的三種方式:
+        1.使用 Revert 指令
+        2.rebase -i
+        3.reset # 取消或放棄
+      
+      * 已發佈的提交, 原則上不能隨便取消.
+      
+      * 主要使用的場合
+        1.安全取消過去發佈的提交
+        
+    =放棄提交(Reset)=
+      * 放棄不需要的提交: reset
+      * 須根據影響範圍指定不同模式, 決定是否復原索引或工作目錄內容.
+                      HEAD位置指向  索引              工作目錄
+                      (Commit)     (Staged_Changes)  (Working folder)
+        1.soft        '更動'       '不改變'           '不改變'
+        2.mixed(預設) '更動'        '更動'            '不改變'
+        3.hard        '更動'       '更動'             '更動'
+
+      * 主要使用的場合
+        1.soft: 只取消提交(Commit)
+        2.mixed(預設): 復原修改後的索引狀態
+        3.hard: 徹底取消最近1次提交(Commit)
+
+    =提取提交(Cherry-pick)=
+      * 提取其他分支指定提交, 導入目前分支: Cherry-pick
+
+      * 主要使用的場合
+        1.把弄錯的提交, 移至正確位置
+        2.把其他分支的提交, 也加入目前分支
+
     =改寫提交的記錄=
+
     =匯合分支上的提交一同合併=
   
   # 教學3 改寫提交
@@ -956,7 +1137,5 @@ CH2
 # Changes to be committed:
 #	deleted:    AFile.txt.txt
 #
-
-
 
 就會將版本控制的檔案清除，這樣就回到最原始的乾淨的資料夾
