@@ -1,11 +1,42 @@
-/* ASP.NET WebForm Deploy 至IIS 設定 */
+/* IIS 7.x 應用程式集區的識別身分與 ASP.NET 應用程式的身分驗證 (續) */
+  https://dotblogs.com.tw/caubekimo/2010/09/19/17805
+
+  1.每個網站會掛在一個應用程式集區(ApplicationPool)下, 應用程式集區識別身分(identity)的預設值為 "ApplicationPoolIdentity"
+  2.網站對應的實體資料夾(網站應用程式放置路徑), 必須開權限給 "Authenticated Users"
+  3.網站應用程式才能成功被IIS所執行, 否則會出現錯誤 "顯示發生了 HTTP 500.19 錯誤, 並且可以看到 web.config 有設定錯誤「無法讀取設定檔案，因為權限不足」"
+  
+  =重視資安上的作法, 比較好的作法=
+  4.直接指定檔案安全性授權給某個 ApplicationPool
+  5.網站對應的實體資料夾(網站應用程式放置路徑), 開權限給 "IIS AppPool\<Name of ApplicationPool>"
+  6.網站應用程式同樣可以成功被IIS所執行.
+
+  =結論=
+  7.在 IIS 識別的設定上，使用了 Authenticated Users 雖然比較簡便，但是很容易牽一髮動全身。
+  8."某個資料夾" 只想讓 ApplicationPool_FontPage 的 Application 存取，
+    但不想讓其它 ApplicationPool_ManagePage 的 Application 存取的狀況之下，
+    如果 "某個資料夾" 都使用 "Authenticated Users" 識別，會變得很難管理，
+  9.相對地, 採用 "IIS AppPool\應用程式集區名稱" | "IIS AppPool\<Name of ApplicationPool>" 
+    的識別身分會是比較恰當的。
+
+/* ASP.NET 如何將檔案寫入到區網<分享目錄> */
+  https://blog.miniasp.com/post/2007/11/10/How-to-write-file-to-net-share-folder-using-ASPNET
+
+  1. 利用 "Web.config" 中的<identity impersonate="true" userName="<userName>" password="<password>" />
+    模擬 <userName> 執行 ASP.NET 應用程式
+  2. IIS驗證中的 "ASP.NET模擬" 會去讀取 "Web.config" <identity> 設定值
+  3. 區網<分享目錄>開放寫入權限給 <userName>.
+
+/* ASP.NET WebForm 利用本機IIS 進行偵錯的設定*/
+  https://ithelp.ithome.com.tw/articles/10190926
+
+/* ASP.NET WebForm Deploy 至 本機IIS 設定 */
   1. 先測試開發環境能否利用 Local IIS作測試
     Project\Properties\Web
     Servers段落, 選擇 "Local IIS", Project Url "http://localhost/<Project_Name>".
     Create virtual Directory(新增虛擬目錄)存檔後, VisualStudio自動在IIS Default Site下, 新增 <Project_Name> 應用程式.
     檢查IIS設定
       > 驗證只使用 "匿名驗證", 匿名使用者識別 特定使用者 "IUSR", 
-      > 專案資料夾 "安全性", 有 "Authenticated Users", 並沒有額外新增 "IUSR" & "IIS_IUSRS"
+      > 專案資料夾 "安全性", 有 "Authenticated Users", 並不用額外新增 "IUSR" & "IIS_IUSRS"
 
     Q: 執行 Debug(F5), 出現HTTP錯誤 500.21-Internal Server Error, 處理常式 "ManagedPipelineHandler"的錯誤訊息,
     A: 要重新安裝 asp.net 4.0
