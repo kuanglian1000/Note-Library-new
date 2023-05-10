@@ -1,0 +1,155 @@
+$ Laravel
+  1.MVC架構
+  2.擴充性高
+  3.重複使用不同架構, 幫助網頁開發
+  4.整合豐富功能
+
+  # Composer(套件管理工具)
+    1.Composer is a tool which includes all the dependencies and libraries.
+    2.All the dependencies are noted in {composer.json} file 
+      which is placed in the {source} folder.
+
+  # Artisan/artisan(cmd介面)
+    1.It includes a set of commands which assists in building a web application.
+
+$ Laravel 特性
+  # Modularity(模組化)
+    1.Laravel provides 20 built in libraries and modules which helps in enhancement of the application. 
+    2.Every module is integrated with {Composer} dependency manager which eases updates.
+
+  # Testability(可測試性)
+    1.Laravel includes features and helpers which helps in testing through various {test cases}. 
+    2.This feature helps in maintaining the code as per the requirements.
+
+  # Routing(路由)
+    1.Laravel provides a flexible approach to the user to {define routes} in the web application. 
+    2.{Routing} helps to scale the application in a better way and increases its performance.
+
+  # Configuration Management(設定管理, 開發-測試-正式)
+    1.A web application designed in Laravel will be running on different environments, 
+    which means that there will be a constant change in its configuration.
+
+  # Query Builder and ORM(資料庫查詢工具與ORM中介層)
+    1.Laravel incorporates a {query builder} which helps in querying databases using various simple chain methods. 
+    2.It provides ORM (Object Relational Mapper) and {ActiveRecord} implementation called {Eloquent}.
+
+  # Schema Builder(資料庫結構工具, 保留資料庫定義及結構, 也保留資料庫移轉時的變更)
+    1.{Schema Builder} maintains the {database definitions and schema} in PHP code. 
+    2.It also maintains a track of changes with respect to database migrations.
+
+  # Template Engine(共用頁面範本)
+    1.Laravel uses the {Blade Template} engine, 
+      a lightweight template language used to design hierarchical blocks and layouts with predefined blocks 
+      that include dynamic content
+
+  # E-mail(寄送Email)
+    1.Laravel includes a {mail} class which helps in sending mail with rich content and attachments 
+      from the web application.
+
+  # Authentication(註冊 & 認證)
+    1.User authentication is a common feature in web applications. 
+    2.Laravel eases designing authentication as it includes features 
+      such as {register}, {forgot password} and {send password reminders}.
+
+  # Redis(Session管理)
+    1.Laravel uses Redis to connect to an existing session and general-purpose cache. 
+    2.Redis interacts with session directly.
+
+  # Queues(工作排程服務, 寄送Email OR 執行 {Cron} 工作)
+    1.Laravel includes queue services like emailing large number of users or a specified {Cron} job. 
+    2.These queues help in completing tasks in an easier manner without waiting for the previous task to be completed.
+
+  # Event and Command Bus(用來執行指令或觸發事件)
+    1.Laravel 5.1 includes {Command Bus} which helps in executing commands and dispatch events in a simple way. 
+    2.The commands in Laravel act as per the application’s lifecycle.
+
+$ Laravel 安裝
+
+  # Step 0- Install {PHP} on windows
+
+    https://ithelp.ithome.com.tw/articles/10264432
+    * 推薦是裝 Thread Safe 的版本，因為 Apache 上必須使用線程安全的 PHP，雖然現在沒有要裝 Apache，但還是免得以後麻煩要重新裝過
+
+    https://windows.php.net/download#php-8.2
+    * VS16 x64 Thread Safe (2023-May-09 16:37:30)
+    * 要找 zip 檔案下載，其他的都不是。
+      > https://windows.php.net/downloads/releases/php-8.2.6-Win32-vs16-x64.zip
+
+    * 下載成功後, 解壓至你想要的資料夾
+    * 將PHP路徑, 加入環境變數 > 系統變數 > Path內.
+    * 檢查PHP是否設定成功.
+      > php -v
+
+      //別人的VSCode設定, 可參考..
+      {
+          // 文字大小
+          "editor.fontSize": 18,
+          // 自動格式化
+          "editor.formatOnPaste": true,
+          "editor.formatOnSave": true,
+          "editor.formatOnType": true,
+          // 顯示那些你看不見的空白符號
+          "editor.renderWhitespace": "all",
+          // 平滑捲動
+          "editor.smoothScrolling": true,
+          // 用 tab 也能自動補全
+          "editor.tabCompletion": "on",
+          // Code Runner 在終端機運行
+          "code-runner.runInTerminal": true,
+          // 自動儲存
+          "files.autoSave": "afterDelay",
+          // 使用 Unix 風格的換行
+          "files.eol": "\n",
+          // 大括號 { 會在行尾，而不是下一行
+          "intelephense.format.braces": "k&r",
+          // 設定 php 可執行檔位置
+          "php.validate.executablePath": "C:\\php-7.4.23\\php.exe",
+          // 設定 php 的格式化工具
+          "[php]": {
+              "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
+          },
+      }
+
+  # Step 1 − Visit the following URL and download {composer} to install it on your system.
+
+    https://getcomposer.org/download/
+    * Windows Installer.(安裝成功)
+      > 必須重開CMD, 讓 {composer} 安裝成功的設定生效.
+      > 如果有必要, 必須重新開機.
+
+    * 檢查{composer}是否安裝成功.
+      > composer
+
+    * 利用{composer}, 新增第1個Laravel專案
+      > cd C:\Projects\Projects_PHP\Laravel-HelloWorld
+      > composer create-project laravel/laravel test dev-develop (安裝開發中版本, 失敗. Could not find package laravel/laravel with version dev-develop.)
+      > composer create-project laravel/laravel --prefer-dist (安裝穩定版本. 出現一些問題無法解決~~)
+
+      > composer create-project laravel/laravel {project_name} --prefer-dist --ignore-platform-req=ext-fileinfo (OK, 先略過問題, 暫時安裝成功)
+      > composer create-project laravel/laravel example-app --prefer-dist --ignore-platform-req=ext-fileinfo
+      
+    * 測試執行, 第1個Laravel專案
+      > cd example-app (切換至專案目錄下)
+      > php artisan serve (啟動網站指令)
+        新版已經不會出現 {Laravel server started on http://localhost:8000/}
+
+    * 直接瀏覽即可
+      > 網址不變: http://localhost:8000/
+
+$ Laravel Request lifecycle
+  https://laravel.com/docs/10.x/lifecycle
+
+$ Laravel Configuration
+  https://laravel.com/docs/10.x/configuration
+
+$ Laravel Directory Structure
+  https://laravel.com/docs/10.x/structure
+
+$ Laravel Frontend
+  https://laravel.com/docs/10.x/frontend
+
+$ Laravel container
+  https://laravel.com/docs/10.x/container
+
+$ Laravel Facades
+  https://laravel.com/docs/10.x/facades
