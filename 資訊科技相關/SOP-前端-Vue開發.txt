@@ -1,105 +1,144 @@
 =學習來源: 到底要怎麼開始開發網站? --- 從入門到使用Vue, Firebase製作老闆交代的網站系列 = https://ithelp.ithome.com.tw/articles/10233792
 
-下載程式儲存庫Respository(by git)
+  npm(Node.JS 套件管理程式), 下載Vue也是透過npm #注意: npm install 要搭配 package.json使用, 不然它不知道要下載什麼.
+
+    1.下載 Node.JS # 記得將安裝路徑加入系統變數中, npm才能到處執行
+    2.npm install 尋找 package.json 內定義, 下載所需套件項目.
+
+  切換至專案路徑, 下載必要套件 ex. C:\Projects\Projects_NodeJS\30days-challange
+
+    1.cd C:\Projects\Projects_NodeJS\30days-challange
+    2.檢查專案路徑有沒有 package.json
+    3.執行下載作業 npm install 
   
-  1. cd 至 <本機Respository儲存路徑> ex. cd C:\Projects\Projects_NodeJS
-  2. git clone <Respository 網址> ex. git clone https://github.com/kuanglian1000/hello-world.git
+/* 資料來源: W3schools Vue Tutorial */ https://www.w3schools.com/vue/index.php
 
-更新程式最新版內容 git pull
-  3. git pull 
-    註: 指令必須在<本機Respository儲存路徑>下,
-        不然會出現異常訊息 
+  Get a Free Vue WebServer on W3schools
+  https://klcheng546.w3spaces.com/
 
-    異常: "fatal: not a git repository (or any of the parent directories): .git"
-    正常: Already up to date.
-    正常: Fast-forward
-          aNewFile.txt | 1 +
-          1 file changed, 1 insertion(+)
-          create mode 100644 aNewFile.txt
-
-檢查本地端與GIT端的檔案狀態 git status
-  4. git status 
+  # Vue Introduction
+    * 使用JavaScript Framework的優點
+      > In normal JavaScript we need to write HOW HTML and JavaScript is connected, 
+      but in Vue we simply need to make sure that {there IS a connection}
+      and let Vue take care of the rest.
+      > It allows for a more efficient development process with {a template-based syntax}, 
+      {two-way data binding}, and a {centralized state management}.
     
-    [本地端(aNewFile.txt)內容變動, GIT端未更新, 執行 git status 後的訊息]
-      ==Commnad==
-      git status
-      ==Message==
-      On branch main
-      Your branch is up to date with 'origin/main'.
+    * My first Vue page    
+      1. Start with a basic HTML file.
+      2. Add a <div> tag with id="app" for Vue to connect with.
+      3. Tell the browser how to handle Vue code by adding a <script> tag with a link to Vue.
+      4. Add a <script> tag with the Vue instance inside.
+      5. Connect the Vue instance to the <div id="app"> tag.
+      6. Display Vue message with Text Interpolation.
+        
+        <html> //Step1
+          <body>
+            <div id="app">
 
-      Changes not staged for commit: #注意, 表示檔案內容已變更, 告訴你可以 [追蹤變更](git add <file>) 或是 [捨棄變更](git restore <file>)#
-        (use "git add <file>..." to update what will be committed)
-        (use "git restore <file>..." to discard changes in working directory)
-              modified:   aNewFile.txt
+              {{ message }} //Step6
 
-      no changes added to commit (use "git add" and/or "git commit -a")
+            </div> //Step2
+          </body>
 
-追蹤變更 git add -A
-  5. [追蹤變更](git add <file>) #注意: 只要放入{暫存區staged}, git會開始追蹤在工作區{Working Folder}內的每次變更.
+          <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> //Step3
+          <script>
+            const app = Vue.createApp( //Step4
+              dunction() {
+                return {
+                  message: "Hello Vue" //分號 ';' 不可加.
+                }
+              }
+            ); //分號 ';' 可加可不加.
 
-      git add aNewFile.txt #只將aNewFile.txt的變更放入{暫存區staged}
-      git add -A #所有變更檔案都放入{暫存區staged}
+            app.mount(#app); //Step5
 
-      ==Commnad==
-      git add -A 
-      
-      ==Message(git status)==
-      On branch main
-      Your branch is up to date with 'origin/main'.
+          </script>
+        </html>
 
-      Changes to be committed: #注意: 放入{暫存區staged}後, 可以 [取消變更追蹤](git restore --staged <file>), 就是git不會理你怎麼改了..#
-        (use "git restore --staged <file>..." to unstage)
-              modified:   aNewFile.txt
+    * JavaScript in Text Interpolation
+      > Simple JavaScript expressions can also be written inside the double curly braces {{ }}.
 
-捨棄變更/清除變更 git restore 
-  6. [捨棄變更](git restore <file>) #注意: 將{本地端檔案變更}內容清除, 恢復為儲存庫Respository內容, 執行前須十分小心
+      <div id="app">
+        {{'Random number: ' + Math.ceil(Math.random()*6) }}
+        <!--可執行的.-->
+      </div>
 
-      ==Commnad==
-      git restore aNewFile.txt #捨棄aNewFile.txt的變更, 恢復為儲存庫Respository內容
+  # Vue Directives (Vue 指令, 如同 asp.net web form 也有自創HTML屬性值, 例: bind=(#...))
+    * Vue directives are special HTML attributes with the prefix 'v-' 
+      that give the HTML tag extra functionality.
+    * Vue directives connect to the Vue instance to create dynamic and reactive user interfaces.
+    * With Vue, creating responsive pages is much easier and 
+      requires less code compared to traditional JavaScript methods.
 
-取消變更追蹤
-  7. [取消變更追蹤](git restore --staged <file>) #注意: 移出{暫存區staged}後, git就不會理你要怎麼改了..
+    * 不同的 Vue Directives
+      > v-bind
+        Connects an attribute in an HTML tag to a data variable inside the Vue instance.
+        ex. 
+        <div id="app">
+          <div v-bind:class="vueClass">I am A pink Pig </div>
+        </app>
+        <style>
+          .pinkPig { //挑出class="pinkPig" 的HTML element套進去
+            color: pink;
+          }
+          #blackPig { //挑出 id="blackPig" 的HTML element套進去
+            color: pink;
+          }
+          p { //挑出所有 <p></p> 的HTML element套進去
+            color: pink;
+          }
+        </style>
+        <script>
+          const app = Vue.createApp(
+            data(){
+              return {
+                vueClass: "pinkPig"
+              }
+            }
+          );
+        </script>
 
-      ==Commnad==
-      git restore --staged aNewFile.txt #移出{暫存區staged}, 內容不會變動.
+      > v-if
+        Creates HTML tags depending on a condition. 
+        Directives {v-else-if} and {v-else} are used together with the {v-if} directive.
 
-版本提交
-  8. [版本提交](git commit -m "版本資訊...")
+      > v-show
+        Specifies if an HTML element should be visible or not depending on a condition.
 
-      ==Commnad==
-      git commit -m "這個版本改了什麼東西" #{暫存區staged}內所有變動作為一版提交.
+      > v-for
+        Creates a list of tags based on an array in the Vue instance using a for-loop.
 
-      ==Message==
-      [main 0504425] add new words..
-      1 file changed, 8 insertions(+)
+      > v-on
+        Connects an event on an HTML tag to a JavaScript expression or a Vue instance method. 
+        We can also define more specifically how our page should react to a certain event 
+        by using event-modifiers.
 
-送入儲存庫/送至線上的GitHub
-  9.[送入儲存庫](git push origin <branch_name>)
-
-      ==Commnad==
-      git push origin main
-
-      ==Message==
-      Enumerating objects: 5, done.
-      Counting objects: 100% (5/5), done.
-      Delta compression using up to 4 threads
-      Compressing objects: 100% (3/3), done.
-      Writing objects: 100% (3/3), 327 bytes | 65.00 KiB/s, done.
-      Total 3 (delta 1), reused 0 (delta 0), pack-reused 0
-      remote: Resolving deltas: 100% (1/1), completed with 1 local object.
-      To https://github.com/kuanglian1000/hello-world.git
-        0504425..aaa1639  main -> main
-
-npm(Node.JS 套件管理程式), 下載Vue也是透過npm #注意: npm install 要搭配 package.json使用, 不然它不知道要下載什麼.
-
-  1.下載 Node.JS # 記得將安裝路徑加入系統變數中, npm才能到處執行
-  2.npm install 尋找 package.json 內定義, 下載所需套件項目.
-
-切換至專案路徑, 下載必要套件 ex. C:\Projects\Projects_NodeJS\30days-challange
-
-  1.cd C:\Projects\Projects_NodeJS\30days-challange
-  2.檢查專案路徑有沒有 package.json
-  3.執行下載作業 npm install 
+      > v-model
+        Used in HTML forms with tags like <form>, <input> and <button>. 
+        Creates a two way binding between an input element and a Vue instance data property.
   
+  # Vue v-bind Directive (說明的更詳細)
+
+    * 語法, 注意div 沒有id 值)
+      <div v-bind:[attribute]="[Vue data]"></div> 
+
+        例: <img v-bind:src="url"> 
+      
+      (It Works)
+      <div id="app">
+        <div v-bind:class="vueClass">I am A pink Pig </div>
+      </app>
+
+      (注意: Not Working)
+      <div id="app" v-bind:class="vueClass">
+        <div>I am A pink Pig </div>
+      </app>
+
+    * CSS Binding
+      > Bind style
+       <div v-bind:style="{ fontSize: size }"> //註: size變數是vue要替換項目.
+
+       <script></script>
 
 
