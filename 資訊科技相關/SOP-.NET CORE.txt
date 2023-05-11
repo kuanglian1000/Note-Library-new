@@ -9,25 +9,24 @@
           "ASPNETCORE_ENVIRONMENT": "Development"
         }
 
-開發環境設定檔(appsettings.json)
-  "檔案位置: 專案資料夾/appsettings.Development.json or 專案資料夾/appsettings.json"
-  1. 從檔名得知, "appsettings.Development.json" 是給開發環境使用.
-  2. "appsettings.json" 則是正式環境使用.
-  3. 儲存環境變數的地方，例: 資料庫連接字串.
+環境設定檔(appsettings.json) => "檔案位置: 專案資料夾/appsettings.Development.json or 專案資料夾/appsettings.json"
+  1.儲存環境變數的地方，例: 資料庫連接字串.
+  2.從檔名得知, "appsettings.Development.json" 給{開發環境}用.
+  3."appsettings.json" 給{正式環境}用.
 
-程式主要設定檔(Program.cs) 
-  "檔案位置: 專案資料夾/Program.cs"
-  Startup.cs：程式的組態檔，服務需要從這邊註冊(DI), 此檔在.NET 6.0後就消失了...
-  Program.cs：程式的起始點
-  * #! 從 .NET 6.0 開始, 這2個檔案設定已合併至 Program.cs !#
-
-<使用 "EF Core" 還是 "EF6" Entity Framework 6.0>
-  The recommendation is to use EF Core if:
+程式主要設定檔(Program.cs) => "檔案位置: 專案資料夾/Program.cs"
+  1.Program.cs：程式的起始點
+    > #! 從 .NET 6.0 開始, Startup.cs 被合併至 Program.cs !#
+  
+  2.Startup.cs：程式的組態檔，服務需要從這邊註冊(DI), 此檔在.NET 6.0後就消失了...
+  
+<使用 "EF Core" 還是 "EF6 = Entity Framework 6.0" >
+  The recommendation is to use {EF Core} if:
     The app needs the capabilities of .NET.
     EF Core supports all of the features that the app requires.
   
   Consider using EF6 if both of the following conditions are true:
-    The app will run on Windows and .NET Framework 4.0 or later.
+    The app will run on Windows and .NET Framework 4.0 or later.(EF6可相容到 .NET Framework 4.0 or later)
     EF6 supports all of the features that the app requires.  
 
 <!#--將模型新增至 ASP.NET Core MVC 應用程式 [2023/04/05 ~ 2023/04/05]--#>
@@ -37,218 +36,6 @@
   0. 使用 "程式碼產生工具 <codegenerator>" 的前置作業, 新增全域工具, 必要套件加入專案等設定步驟.
   1. 如何把 "<Model> + <Controller> + <View>" 串起來.
   2. 程式碼異動後, 如何將 "變更移轉到資料庫結構(Code First)".
-
-/*==從實作學習ASP.NET Core - 30天的購物網站系列 <.NET 6> [2023/04/05 ~ ]==*/ 資料來源: https://ithelp.ithome.com.tw/articles/10258872
-註:學習歷程相同, 採用<VSCode + Sqlite(測試環境) + Oracle XE 11g Express(正式環境)>, 非範例使用的右例工具 <VSCommunity 2019 + SQL Server 2019 Express with Management Studio>
-    
-  Day1: 新增asp.net core web app(MVC)
-    ProjectName: OnlineShopCMS (我的專案名稱: NET6_MvcShopping)
-    .Net Version: .NET 5.0 (我的.NET SDK 版本: .NET 6.0)
-
-    * 新增方案資料夾 C:\Projects\Projects_ASP.NET_Core\NET6_MvcShopping
-    * CMD路徑切換至方案資料夾
-    * 新增MVC架構網站 => dotnet new mvc
-    * 測試編譯 => dotnet build
-    * 信任測試環境簽章(https用) => dotnet dev-certs https --trust
-    * 測試執行 => dotnet run
-      1. 第1次建置要花比較久的時間, 接下來產生<bin> & <obj> 兩個資料夾
-      2. 產生兩個網址, 一個有https憑證, 另一個沒有
-        info: Microsoft.Hosting.Lifetime[14]
-              Now listening on: https://localhost:7254
-        info: Microsoft.Hosting.Lifetime[14]
-              Now listening on: http://localhost:5276
-        info: Microsoft.Hosting.Lifetime[0]
-              Application started. Press Ctrl+C to shut down.
-        info: Microsoft.Hosting.Lifetime[0]
-              Hosting environment: Development
-        info: Microsoft.Hosting.Lifetime[0]
-              Content root path: C:\Projects\Projects_ASP.NET_Core\NET6_MvcShopping\
-
-  Day2: 說明MVC的架構
-    https://imgur.com/xbA1MZq.jpg
-    
-    * 從作者引用的圖可以發現, 雖然使用者看到的是<View>的呈現結果
-      但要求都會 "先送至" <Controller>, 
-      再由<Controller>負責去<Model>取資料或交給<View>作呈現.
-
-      > Controller：負責商業邏輯處理，管控流程和回應，並以路由傳遞資料
-      > Model：負責資料存儲，處理資料與資料庫之間的操作
-      > View：負責前端畫面與邏輯顯示，就是使用者會看到的介面
-
-    * MVC網站專案目錄      
-      > Controllers、Models、Views 資料夾：我們程式的主角
-      > appsettings.json：儲存環境變數的地方，例如資料庫連接字串
-      > Program.cs：程式的起始點
-      > Startup.cs：程式的組態檔，服務需要從這邊註冊。(註: 從.NET 6開始已合併至Program.cs)
-
-        註: 從.NET 6之後 <Startup.cs> 消失了, "服務註冊作業(DI)" 被合併至 <Program.cs>.
-        詳細說明參閱連結, https://stackoverflow.com/questions/70952271/startup-cs-class-is-missing-in-net-6
-
-  Day3: Controller 控制器
-    https://imgur.com/CJXZGiK.jpg
-
-    * 觀念介紹
-      > 路由, 就是 <網址路徑> 的規則.
-      > 使用者需要用<網址路徑>來向程式發出請求.
-      > MVC預設網址路徑為: https://[你的網路位置:port]/[Controller名稱]/[Action名稱]
-      > MVC預設網址路徑規則定義在: "Program.cs" 檔案內. 
-        app.MapControllerRoute(
-          name: "default",
-          pattern: "{controller=Home}/{action=Index}/{id?}");
-
-    * 手動 新增控制器(Controller)
-
-      > 新增 HelloWorldController by 自動產生程式碼工具<dotnet aspnet-codegenerator>
-
-        dotnet aspnet-codegenerator controller -name HelloWorldController -outDir Controllers -scripts -udl
-
-      > 透過 Welcome Action, 向 HomeController 傳遞參數, 再回傳值.
-
-        # Program.cs檔案內, 預設<路由規則>-寫法1 #
-          app.MapControllerRoute(
-            name: "default",
-            pattern: "{controller=Home}/{action=Index}/{id?}");
-
-        # Program.cs檔案內, 預設<路由規則>-寫法2 #
-          app.MapDefaultControllerRoute(); //功能跟寫法1相同, 但更簡潔.(使用路由範本預設 Home 控制器和 Index 動作)
-
-        # 增加另一個 "Welcome Action" , name 則是選擇性參數.
-          https://localhost:7254/Home/Welcome/KL
-
-        # 範例沒有問題, 它用的是 <?> 作為參數分隔符號, 要指定參數名稱(Name)非使用預設路由規則名稱(id)
-        # 這不符合目前 <路由規則> 以 </> 作為分隔符號, 所以抓不到傳入值.
-          https://localhost:7254/Home/Welcome?KL (X)
-          https://localhost:7254/Home/Welcome/KL (O)
-
-        public string Welcome(string? name){
-            return "This is Welcome Action of Home Controller: 你好嗎? " + name;
-        }
-    
-    * 自動 新增控制器(Controller) & 檢視(View) & DbContext(ORM) & ConnectionStrings(連線字串) by 資料模型(Data/Model)
-      
-      > #! VIP: 使用 <dotnet aspnet-codegenerator> 快速 "新增控制器(Controller) & 檢視(View) by 資料模型(Data/Model)" 前, 一定要執行下列前置作業, 否則會出現錯誤.
-        
-        " <命令列環境>下使用 <dotnet aspnet-codegenerator> 工具的前置作業 "
-
-      範例1: 使用 資料模型(Data/Model)的超完整範例 
-      
-        a.資料模型(Data/Model): "Product.cs"
-        
-          using System;
-          using System.Collections.Generic;
-
-          namespace NET6_MvcShopping.Models;
-
-          public class Product
-          {
-              public int ProductID {get;set;} //系統指定ID, 無法變更
-              public string? Name {get;set;}
-              public decimal? Price {get;set;}
-              public int? Stock {get;set;}
-          }
-
-        b.執行 <dotnet aspnet-codegenerator> Scaffolding 程式碼產生工具
-          dotnet aspnet-codegenerator controller -name ProductsController -m Product -dc StoreContext -outDir Controllers -sqlite -scripts -udl
-
-          自動完成下列作業: <= 超強 =>
-            1.自動新增控制器(\Controllers) & 
-            2.新增檢視(\Views) & 
-            3.新增DbContext(\Data) & 
-            4.新增ConnectionStrings(@appsettings.json) &
-              註1: 如果ConnectionStrings未新增, 工具會加在"appsettings.json"檔案內.
-              註2: 如果ConnectionStrings已新增, 工具會保留ConnectionStrings原值不異動.
-            5.註冊Database服務(@Program.cs)
-          
-      範例2: 只產生 控制器(Controller), 沒有 檢視(View).
-          dotnet aspnet-codegenerator controller 
-          -name HelloWorldController 
-          -outDir Controllers (O, 指定相對輸出檔案夾路徑)
-        
-      範例3: 只產生 控制器(Controller), 沒有 檢視(View), 而且把 控制器(Controller)直接加在專案資料夾下.
-          dotnet aspnet-codegenerator controller 
-          -name HelloWorldController (X, 直接加在專案資料夾, 刪掉)
-
-      > 新增控制器(Controller)指令用法 => "dotnet aspnet-codegenerator controller -h"
-        Generator Options:
-          --controllerName|-name [#!-必填欄位-#] : (控制器名稱)Name of the controller
-          --useAsyncActions|-async            : (產生非同步actions)Switch to indicate whether to generate async controller actions
-          --noViews|-nv                       : (產生CRUD檢視)Switch to indicate whether to generate CRUD views
-          --restWithNoViews|-api              : (API專用控制器, 預設noViews & 忽略所有檢視設定)Specify this switch to generate a Controller with REST style API, noViews is assumed and any view related options are ignored
-          --readWriteActions|-actions         : (產生讀/寫用actions)Specify this switch to generate Controller with read/write actions when a Model class is not used
-          --model|-m                          : Model class to use
-          --dataContext|-dc                   : DbContext class to use
-          --referenceScriptLibraries|-scripts : Switch to specify whether to reference script libraries in the generated views
-          --layout|-l                         : Custom Layout page to use
-          --useDefaultLayout|-udl             : Switch to specify that default layout should be used for the views
-          --force|-f                          : Use this option to overwrite existing files
-          --relativeFolderPath|-outDir        : Specify the relative output folder path from project where the file needs to be generated, if not specified, file will be generated in the project folder
-          --controllerNamespace|-namespace    : Specify the name of the namespace to use for the generated controller
-          --useSqlite|-sqlite                 : Flag to specify if DbContext should use SQLite instead of SQL Server.
-
-      > 新增視圖(View)指令用法 => "dotnet aspnet-codegenerator view -h"
-
-        Generator Arguments:(這兩個參數一定要給)
-          viewName     : Name of the view
-          templateName : The view template to use, supported view templates: 'Empty|Create|Edit|Delete|Details|List'
-
-        Generator Options:
-          --model|-m                          : Model class to use
-          --dataContext|-dc                   : DbContext class to use
-          --referenceScriptLibraries|-scripts : Switch to specify whether to reference script libraries in the generated views
-          --layout|-l                         : Custom Layout page to use
-          --useDefaultLayout|-udl             : Switch to specify that default layout should be used for the views
-          --force|-f                          : Use this option to overwrite existing files
-          --relativeFolderPath|-outDir        : Specify the relative output folder path from project where the file needs to be generated, if not specified, file will be generated in the project folder
-          --controllerNamespace|-namespace    : Specify the name of the namespace to use for the generated controller
-          --partialView|-partial              : Generate a partial view, other layout options (-l and -udl) are ignored if this is specified
-          --useSqlite|-sqlite                 : Flag to specify if DbContext should use SQLite instead of SQL Server.
-
-        Day3.5: 如何使用 .NET CLI 快速產生 ASP․NET Core 的 Controllers 與 Views 程式碼
-
-    資料來源: https://blog.miniasp.com/post/2020/09/09/Create-Controller-and-Views-with-dotnet-aspnet-codegenerator
-    重點在於: 
-      1.必須先有 <資料表結構> 的程式碼
-        建立 Data 相關程式碼(C:\Projects\Projects_ASP.NET_Core\MvcMovie\Models\Movie.cs)
-          using System.ComponentModel;
-          using System.ComponentModel.DataAnnotations;
-          using System.ComponentModel.DataAnnotations.Schema;
-
-          namespace MvcMovie.Models
-          {
-            public class Movie
-            {
-              public int Id {get; set;}
-              
-              [DisplayName("片名"), StringLength(10, MinimumLength =3)]
-              public string? Title {get; set;}
-
-              [DisplayName("發售日期"), DataType(DataType.Date)]
-              public DateTime ReleaseDate {get; set;}
-              
-              [DisplayName("類別"), StringLength(20, MinimumLength =3)]
-              public string? Genre {get; set;}
-              
-              [DisplayName("售價"), DataType(DataType.Currency), Range(1,150), Column(TypeName = "decimal(18, 2)")]
-              public decimal Price {get; set;}
-
-              [DisplayName("評價"), StringLength(5), RegularExpression(@"^[A-Z]+[a-z]+[0-9]*$")]
-              public string? Rating {get;set;}
-
-            }
-          }
-
-      2. 參閱 <Dependency injection 關注點注入, 這就是DI> 章節內容 <= 觀念介紹 =>
-         MVC中的 "Model" = 由1個實體類別(/Model/Movie.cs) + 1個Context Object(/Data/MvcMovieContext.cs)所組成的, 它代表資料庫中的一個Session.
-
-      3. 快速建立 DepartmentsController 控制器（包含 Views 頁面與使用現有 Layout 版面）
-          dotnet aspnet-codegenerator controller -name DepartmentsController 
-          -async -scripts -udl 
-          -m Department -dc ContosoUniversityContext -outDir Controllers
-
-  Day4: View 視圖
-    https://imgur.com/rqnct3l.jpg
-
-    * 新增View
 
 /*== .NET CORE 常用指令(Only for Command Line, 命令列工具)==*/
 
@@ -289,6 +76,8 @@
     新增MVC架構網站(預設會使用最新版)
   dotnet new mvc -f net5.0
   
+  dotnet new webapp -o {ProjectName} # Razor Pages Site #
+
   dotnet new webapi -f net6.0
     新增webapi專案(強制使用6.0 SDK)
 
@@ -349,9 +138,629 @@
       可能需要卸載 aspnet-codegenerator 以解決問題。 例如，如果您已安裝 的 aspnet-codegenerator 預覽版本，請先將其卸載，再安裝發行的版本。
       上列命令會卸載 dotnet aspnet-codegenerator 工具，並安裝最新的穩定版本：
 
-/*== Learn 範例 (2022/06/21~ 進行中..)==*/
+{進行中}
 
-={進行中}=
+TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} in ASP.NET Core */
+  學習網址: https://learn.microsoft.com/en-us/aspnet/core/data/ef-rp/intro?view=aspnetcore-7.0&tabs=visual-studio
+  ProjectPath => C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage
+  課程重點: 說明 {EFCore} 重要觀念及如何使用.
+
+    1.By default, EF Core interprets a property that's named {ID} or {classnameID} as the primary key. 
+      So the alternative automatically recognized name for the Student class primary key is {StudentID}. 
+      For more information, see EF Core - Keys
+      
+      (註: 預設, EFCore 會使用 {ID} or {classnameID} 作為主鍵. 
+        例: Student 類別中, 如果沒有 {ID} 屬性, 就要有 {StudentID} 屬性.)
+
+    2.The {Enrollments} property is a {navigation property}. 
+      {Navigation properties} hold other entities that are related to this entity.
+      
+      (註: Student 類別中, public ICollection<Enrollment> Enrollments{get;set;} 就是瀏覽屬性
+        在瀏覽屬性中, 會保存與這個實體關聯的其他實體.)
+    
+    3.When ICollection<Enrollment> is used, EF Core creates a {HashSet<Enrollment>} collection by default.
+
+      (註: ICollection<Enrollment> 可以是 List<Enrollment> or HashSet<Enrollment>.
+        預設, EFCore 會使用 HashSet<Enrollment>.)
+
+    4.EFCore interprets a property as a # 外部鍵 #
+      foreign key if it's named {<navigation property name><primary key property name>}. # 第1種 #
+        For example,StudentID is the foreign key for the Student navigation property, 
+        since the Student entity's primary key is ID. 
+      Foreign key properties can also be named {<primary key property name>}. # 第2種 #
+        For example, CourseID since the Course entity's primary key is CourseID.
+
+      (註: EFCore 轉譯外部鍵{FK} 方式有兩種 => 
+        例: 在 Enrollment 類別裡, {StudentID} & {CourseID} 有兩個 {FK}
+          (1)Student 類別裡, PK is ID # 第1種-解譯法 #
+          (2)Course 類別裡, PK is CourseID. # 第2種-解譯法 #)
+
+    5.EFCore 不要自動給定PK值的設定
+      using System.ComponentModel.DataAnnotations.Schema;
+      namespace EFCore_RazorPage.Models
+      {
+        public class Course
+        {    
+          [DatabaseGenerated(DatabaseGeneratedOption.None)] //新增資料時, 不要自動遞增或給值.
+          public int CourseID{ get; set;}
+        }
+      }
+
+    6.EFCore 給定欄位值範圍 & 未給值顯示訊息的設定
+      using System.ComponentModel.DataAnnotations;
+      namespace EFCore_RazorPage.Models
+      {
+        public enum Grade
+        {
+          A, B, C, D, F
+        }
+
+        public class Enrollment
+        {
+          public int EnrollmentID{ get; set;}
+          public int StudentID {get;set;}
+          public int CourseID {get;set;}
+          
+          [DisplayFormat(NullDisplayText = "No Grade")]
+          public Grade? Grade {get;set;}
+
+          // 選課紀錄可對應學生實體
+          public Student Student{get;set;}
+          // 選課紀錄可對應課程實體
+          public Course Course{get;set;}
+        }  
+      }
+
+    7.出現 {warning CS8618: 退出建構函式時，不可為 Null 的 屬性} 時, 如何處理?
+      a.To eliminate the warnings from nullable reference types, 
+        remove the following line from the {ContosoUniversity.csproj} file: <Nullable>enable</Nullable>
+        
+        (註: 移除專案檔中, {<Nullable>enable</Nullable>} 的設定)
+      
+      b.The scaffolding engine currently does not support nullable reference types, 
+        therefore the models used in scaffold can't either.
+        Remove the ? nullable reference type annotation from public string? RequestId { get; set; } in Pages/Error.cshtml.cs 
+        so the project builds without compiler warnings.
+
+        {修改前}
+        public class ErrorModel : PageModel
+        {
+          public string? RequestId { get; set; }
+
+        {修改後}
+        public class ErrorModel : PageModel
+        {
+          public string RequestId { get; set; }
+    =2023/05/10 進度=
+
+    8.Scaffold Student pages(利用Scaffold工具自動產生對應 {異動資料庫實體的 "Pages" } & {作為Pages和DB中介的 "DbContext" })
+      
+      a.新增 Scaffold工具 所需套件 (版本必須與 .NET 相符)
+          dotnet add package Microsoft.EntityFrameworkCore.SQLite
+          dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+          dotnet add package Microsoft.EntityFrameworkCore.Design
+          dotnet add package Microsoft.EntityFrameworkCore.Tools
+          dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version 6.0.10
+          dotnet add package Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore
+
+          (註: The {Microsoft.VisualStudio.Web.CodeGeneration.Design} package is required for scaffolding. 
+            Although the app won't use SQL Server, the scaffolding tool needs the {SQL Server} package.)
+
+      b.新增 Pages\Students 資料夾
+          mkdir Students
+
+      c.安裝 Scaffold 工具 (版本必須與 .NET 相符)
+          dotnet tool uninstall -g dotnet-aspnet-codegenerator
+          dotnet tool install -g dotnet-aspnet-codegenerator --version 6.0.10 //指定安裝6.0.10版
+
+      d.透過 aspnet-codegenerator, 新增Pages-新增DbContext-新增DbContext相依性插入(DI)於 {Program.cs}-新增DB connectionString於 {appsettings.json}
+          
+          dotnet aspnet-codegenerator razorpage -m Student -dc EFCore_RazorPage.Data.SchoolContext -udl -outDir Pages\Students -scripts -sqlite
+          dotnet aspnet-codegenerator razorpage -m Course -dc EFCore_RazorPage.Data.SchoolContext -udl -outDir Pages\Courses -scripts -sqlite
+          dotnet aspnet-codegenerator razorpage -m Enrollment -dc EFCore_RazorPage.Data.SchoolContext -udl -outDir Pages\Enrollments -scripts -sqlite
+          
+          上面指令作了什麼事？
+            1.新增Pages
+              Added DbContext : '\Data\SchoolContext.cs'
+              Added Razor Page : \Pages\Students\Create.cshtml
+              Added PageModel : \Pages\Students\Create.cshtml.cs
+              Added Razor Page : \Pages\Students\Edit.cshtml
+              Added PageModel : \Pages\Students\Edit.cshtml.cs
+              Added Razor Page : \Pages\Students\Details.cshtml
+              Added PageModel : \Pages\Students\Details.cshtml.cs
+              Added Razor Page : \Pages\Students\Delete.cshtml
+              Added PageModel : \Pages\Students\Delete.cshtml.cs
+              Added Razor Page : \Pages\Students\Index.cshtml
+              Added PageModel : \Pages\Students\Index.cshtml.cs
+            2.新增DbContext
+              using System;
+              using System.Collections.Generic;
+              using System.Linq;
+              using System.Threading.Tasks;
+              using Microsoft.EntityFrameworkCore;
+              using EFCore_RazorPage.Models;
+
+              namespace EFCore_RazorPage.Data
+              {
+                  public class SchoolContext : DbContext
+                  {
+                      public SchoolContext (DbContextOptions<SchoolContext> options)
+                          : base(options)
+                      {
+                      }
+
+                      public DbSet<EFCore_RazorPage.Models.Student> Student { get; set; } = default!;
+                  }
+              }
+            3.新增DbContext相依性插入(DI)於 {Program.cs}
+              builder.Services.AddDbContext<SchoolContext>(options =>
+                  options.UseSqlite(builder.Configuration.GetConnectionString("SchoolContext") ?? throw new InvalidOperationException("Connection string 'SchoolContext' not found.")));
+            4.新增DB connectionString於 {appsettings.json}
+                "ConnectionStrings": {
+                  "SchoolContext": "Data Source=EFCore_RazorPage.Data.db"
+                }            
+
+      e.微調 ConnectionStrings SqliteDB名稱於 {appsettings.json}(註: 目前DB尚未產生, 預設值很長.)
+        
+        變更前:
+          "ConnectionStrings": {
+            "SchoolContext": "Data Source=EFCore_RazorPage.Data.db"
+          }
+        
+        變更後:
+          "ConnectionStrings": {
+            "SchoolContextSQLite": "Data Source=CU.db"
+          }
+
+      e.更新 DbContext class 內容
+        1.The {main class} that coordinates EF Core functionality for a given {data model} is the database context class. 
+          (註: {DbContext class} 就是作為 {data model} 與 {DB} 間溝通最重要的媒介)
+        2.The context is derived from {Microsoft.EntityFrameworkCore.DbContext}. 
+        3.The context specifies which entities are included in the {data model}.
+
+        {修改前}
+          using EFCore_RazorPage.Models;
+
+          namespace EFCore_RazorPage.Data
+          {
+              public class SchoolContext : DbContext
+              {
+                  public SchoolContext (DbContextOptions<SchoolContext> options)
+                      : base(options)
+                  {
+                  }
+
+                  public DbSet<EFCore_RazorPage.Models.Student> Student { get; set; } = default!; //不能給預設值
+              }
+          }
+
+        {修改後}
+          using EFCore_RazorPage.Models;
+          
+          namespace EFCore_RazorPage.Data
+          {
+              public class SchoolContext : DbContext
+              {
+                  public SchoolContext (DbContextOptions<SchoolContext> options)
+                      : base(options)
+                  {
+                  }
+
+                  public DbSet<Student> Students { get; set; } = default!; //不能給預設值
+                  public DbSet<Course> Courses { get; set; } = default!; //不能給預設值
+                  public DbSet<Enrollment> Enrollments { get; set; } = default!; //不能給預設值
+
+                  protected override void OnModelCreating(ModelBuilder modelBuilder) //資料庫初始化時, 使用.
+                  {
+                    modelBuilder.Entity<Student>().ToTable("Student");
+                    modelBuilder.Entity<Course>().ToTable("Course");
+                    modelBuilder.Entity<Enrollment>().ToTable("Enrollment");
+                  }
+              }
+          }
+
+        4.The preceding code changes from the singular {DbSet<Student> Student} to the plural {DbSet<Student> Students}. 
+          To make the Razor Pages code match the new DBSet name, 
+          make a global change from: {_context.Student.} to: {_context.Students}.
+          (註: DbSet<modelClassName> 通常會包含多個實體entities, 程式設計人員習慣將其命名為複數, ex: Students)
+
+        5.{Line 334}: 上面程式碼說明了
+          a.Creates a DbSet<TEntity> property for each entity set. In EF Core terminology:
+            > An entity set typically corresponds to a database table.
+              (註: DbSet<TEntity> 會對應特定資料表.)
+            > An entity corresponds to a row in the table.
+              (註: 實體則對資料表內的一筆記錄.)
+          b.Calls OnModelCreating. OnModelCreating:
+            > Is called when SchoolContext has been initialized, 
+              but before the model has been locked down and used to initialize the context.
+            > Is required because later in the tutorial the Student entity will have references to the other entities.
+
+      f.Program.cs 服務註冊處 (註冊Database服務 & 異常處理方式 & 新增資料庫,若它不存在的話{EnsureCreated} )
+        1.ASP.NET Core is built with dependency injection{DI}.
+          (註:ASP.NET Core 是建構DI基礎上的)
+        
+        2.The scaffolding tool automatically registered the context class with the dependency injection container.
+          (註:使用database服務, 同樣要註冊才能使用.)
+        
+        3.The name of the {connection string} is passed in to the context by calling a method on a {DbContextOptions} object. 
+          For local development, the ASP.NET Core configuration system reads the connection string 
+          from the {appsettings.json} or the {appsettings.Development.json}file.
+          (註:連接字串設定值來源.)
+        
+          {scaffolding tool 自動加入的CODE}
+            using Microsoft.EntityFrameworkCore;
+            using EFCore_RazorPage.Data;
+
+            // Add services to the container.
+            builder.Services.AddDbContext<SchoolContext>(options =>
+                options.UseSqlite(builder.Configuration.GetConnectionString("SchoolContextSQLite") ?? 
+                  throw new InvalidOperationException("Connection string 'SchoolContextSQLite' not found.")));
+
+          {程式碼: 測試環境DB 與 正式環境DB 如何切換? / 如何切換不同環境}
+
+            builder.Services.AddRazorPages();
+
+            if (builder.Environment.IsDevelopment())
+            {   //測試環境DB
+                builder.Services.AddDbContext<SchoolContext>(options =>
+                    options.UseSqlite(builder.Configuration.GetConnectionString("SchoolContextSQLite-Development")));
+            }
+            else
+            {   //正式環境DB
+                builder.Services.AddDbContext<SchoolContext>(options =>
+                    options.UseSqlServer(builder.Configuration.GetConnectionString("SchoolContextSQLite-Production")));
+            }
+
+            var app = builder.Build();
+
+        4.Add the database exception filter
+          
+          # 請先加入套件 {Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore} 後再服用, 否則會出現下列錯誤.
+          error CS1061: 'IServiceCollection' 未包含 'AddDatabaseDeveloperPageExceptionFilter' 的定義
+          error CS1061: 'WebApplication' 未包含 'UseMigrationsEndPoint' 的定義
+
+          # 指令碼: dotnet add package Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore --version 6.0.10
+
+          Add {AddDatabaseDeveloperPageExceptionFilter} and {UseMigrationsEndPoint}
+
+          (註1:資料庫異常篩選, 測試環境可顯示, 但正式環境千萬不行)
+          (註2:The {Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore} NuGet package 
+            provides ASP.NET Core middleware for Entity Framework Core error pages. 
+            This middleware helps to detect and diagnose errors with {Entity Framework Core migrations}.
+          (註3:The {AddDatabaseDeveloperPageExceptionFilter} provides helpful error information 
+            in the development environment for {EF migrations errors}.))
+
+          {程式碼: builder新增服務 + app使用服務內容}
+
+            builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+            if(!app.Environment.IsDevelopment())
+            {
+              ...//正式環境
+            }
+            else
+            {
+              //測試環境
+              app.UseDeveloperExceptionPage();
+              app.UseMigrationsEndPoint();
+            }
+
+        5.Cretae Database by EnsureCreated() //常用於開發階段
+
+          程式碼:
+            using(var scope = app.Services.CreateScope())
+            {
+              var services = scope.ServiceProvider;
+              var context = services.GetRequiredService<SchoolContext>();
+              context.Database.EnsureCreated();
+              // DbInitializer.Initialize(context);
+            }
+
+            //以上是新增程式碼.
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+          > The {EnsureCreated} method takes no action if a database for the context exists. 
+            If no database exists, it creates the database and schema.
+            
+            (註: 如果資料庫已存在, 不管Model內的欄位怎麼異動, 都不會異動database and schema and data.)
+            (X)If the database has existed, no matter how columns in model changed, the database and schema and data won't be changed.
+            (O)If the database already exists, no matter how the fields in the model change, the database and schema and data will not be changed.
+
+          > EnsureCreated() enables the following workflow for handling data model changes:
+            1 Delete the database. Any existing data is lost.
+            2 Change the data model. For example, add an EmailAddress field.
+            3 Run the app.
+            4 EnsureCreated creates a database with the new schema.
+
+          > Later in the tutorial series, 
+            the database is deleted that was created by EnsureCreated and migrations is used. 
+            A database that is created by EnsureCreated can't be updated by using migrations.
+            (註: 在本教程系列的後面部分，
+            將刪除由 EnsureCreated 創建的資料庫並使用遷移。
+            無法使用遷移更新由 EnsureCreated 建立的資料庫。)
+          
+          > EnsureCreated 快速產生樣本網站使用, 不會保留任何資料.
+            網站穩定後, 資料必須被妥善保存, 要使用 migrations 作資料庫異動
+
+      g.塞入虛擬資料 (觸發時點: 程式啟動時, 所以要去 Program.cs 服務處 註冊)
+        程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Models\DBInitializer.cs
+
+    9.Asynchronous EF methods in ASP.NET Core web apps (非同步程式是 ASP.NET Core and EF Core 預設模式)
+      a.Asynchronous programming is the default mode for ASP.NET Core and EF Core.
+      b.Asynchronous code does introduce a small amount of overhead at run time. (非同步程式是有成本的)
+      c.For low traffic situations, the performance hit is negligible, (低流量時, 效能影響可忽略不計, 甚微)
+        while for high traffic situations, the potential performance improvement is substantial. (高流量時, 潛在效能改善是實質可計)
+
+      非同步程式碼樣式:
+        public async Task OnGetAsync()
+        {
+          Students = await _context.Students.ToListAsync();
+        }
+      
+        > The {async} keyword tells the compiler to:
+          Generate callbacks for parts of the method body.
+          Create the Task object that's returned.
+        > The {Task} return type represents ongoing work.
+        > The {await} keyword causes the compiler to split the method into two parts. 
+          1.The first part ends with the operation that's started asynchronously. 
+          2.The second part is put into a callback method that's called when the operation completes.
+        > {ToListAsync} is the asynchronous version of the ToList extension method.
+
+      #重點在這: {使用 EFCore 撰寫非同步程式}#
+      d.使用 EFCore 撰寫非同步程式
+        > 只要會送至資料庫執行的statements, 以非同步方式執行即可.
+          例: ToListAsync(取回清單), SingleOrDefaultAsync(取回單筆), FirstOrDefaultAsync(取回第1筆), SaveChangesAsync(儲存變更)
+        
+        > 並不包括單純改變 IQueryable 的statements.
+          例: var students = context.Students.Where(s => s.LastName == "Joy");
+        
+        > An EF Core context isn't thread safe: don't try to do multiple operations in parallel.
+          (註: EFCore context 非執行緒安全, 不要試著平行執行多個作業)
+        
+        > To take advantage of the performance benefits of async code, 
+          verify that library packages (such as for paging) use async 
+          if they call EFCore methods that send queries to the database.
+          (註: 利用非同步程式帶來的效能優點, 例如換頁時使用非同步)
+
+    10.Performance considerations (效能考量)
+      a.通常，網頁不應載入任意數量的行。查詢應使用{分頁}或{限制}方法。
+        例如，下列查詢可以使用Take來限制返回的行：
+      
+      b.程式碼(使用非同步函式, 再限制返回10筆)
+        public async Task OnGetAsync()
+        {
+            Student = await _context.Students.Take(10).ToListAsync();
+        }
+      
+      c.Enumerating a large table in a view could return a partially constructed {HTTP 200} response 
+        if a database exception occurs part way through the enumeration.
+        (註: 如果在枚舉過程中發生資料庫異常，則枚舉視圖中的大型表可能會返回部分構造的 HTTP 200 回應。)
+    =2023/05/11 進度=
+
+  Part 2, Razor Pages with EF Core in ASP.NET Core - CRUD
+    1.No repository 沒有中介層在UI(Razor Pages) 和 Data access Layer. 
+      > 如果有就是MVC.
+      > 這個範例著重在 EFCore 的教學, 所以它把 Model 掛在UI下面使用. 跟之前的 WebForm 很像.
+    
+    2.Update the Details page 把 Enrollment資料加到 Students\Details頁面.
+      
+
+  /*==從實作學習ASP.NET Core - 30天的購物網站系列 <.NET 6> [2023/04/05 ~ 未完成]==*/ 
+    第1次沒有作完, 就去台半上班了. 2023/05/09從台半離職後, 再來把它作完
+    資料來源: https://ithelp.ithome.com.tw/articles/10258872
+    註:學習歷程相同, 採用<VSCode + Sqlite(測試環境) + Oracle XE 11g Express(正式環境)>, 非範例使用的右例工具 <VSCommunity 2019 + SQL Server 2019 Express with Management Studio>
+        
+      Day1: 新增asp.net core web app(MVC)
+        ProjectName: OnlineShopCMS (我的專案名稱: NET6_MvcShopping)
+        .Net Version: .NET 5.0 (我的.NET SDK 版本: .NET 6.0)
+
+        * 新增方案資料夾 C:\Projects\Projects_ASP.NET_Core\NET6_MvcShopping
+        * CMD路徑切換至方案資料夾
+        * 新增MVC架構網站 => dotnet new mvc
+        * 測試編譯 => dotnet build
+        * 信任測試環境簽章(https用) => dotnet dev-certs https --trust
+        * 測試執行 => dotnet run
+          1. 第1次建置要花比較久的時間, 接下來產生<bin> & <obj> 兩個資料夾
+          2. 產生兩個網址, 一個有https憑證, 另一個沒有
+            info: Microsoft.Hosting.Lifetime[14]
+                  Now listening on: https://localhost:7254
+            info: Microsoft.Hosting.Lifetime[14]
+                  Now listening on: http://localhost:5276
+            info: Microsoft.Hosting.Lifetime[0]
+                  Application started. Press Ctrl+C to shut down.
+            info: Microsoft.Hosting.Lifetime[0]
+                  Hosting environment: Development
+            info: Microsoft.Hosting.Lifetime[0]
+                  Content root path: C:\Projects\Projects_ASP.NET_Core\NET6_MvcShopping\
+
+      Day2: 說明MVC的架構
+        https://imgur.com/xbA1MZq.jpg
+        
+        * 從作者引用的圖可以發現, 雖然使用者看到的是<View>的呈現結果
+          但要求都會 "先送至" <Controller>, 
+          再由<Controller>負責去<Model>取資料或交給<View>作呈現.
+
+          > Controller：負責商業邏輯處理，管控流程和回應，並以路由傳遞資料
+          > Model：負責資料存儲，處理資料與資料庫之間的操作
+          > View：負責前端畫面與邏輯顯示，就是使用者會看到的介面
+
+        * MVC網站專案目錄      
+          > Controllers、Models、Views 資料夾：我們程式的主角
+          > appsettings.json：儲存環境變數的地方，例如資料庫連接字串
+          > Program.cs：程式的起始點
+          > Startup.cs：程式的組態檔，服務需要從這邊註冊。(註: 從.NET 6開始已合併至Program.cs)
+
+            註: 從.NET 6之後 <Startup.cs> 消失了, "服務註冊作業(DI)" 被合併至 <Program.cs>.
+            詳細說明參閱連結, https://stackoverflow.com/questions/70952271/startup-cs-class-is-missing-in-net-6
+
+      Day3: Controller 控制器
+        https://imgur.com/CJXZGiK.jpg
+
+        * 觀念介紹
+          > 路由, 就是 <網址路徑> 的規則.
+          > 使用者需要用<網址路徑>來向程式發出請求.
+          > MVC預設網址路徑為: https://[你的網路位置:port]/[Controller名稱]/[Action名稱]
+          > MVC預設網址路徑規則定義在: "Program.cs" 檔案內. 
+            app.MapControllerRoute(
+              name: "default",
+              pattern: "{controller=Home}/{action=Index}/{id?}");
+
+        * 手動 新增控制器(Controller)
+
+          > 新增 HelloWorldController by 自動產生程式碼工具<dotnet aspnet-codegenerator>
+
+            dotnet aspnet-codegenerator controller -name HelloWorldController -outDir Controllers -scripts -udl
+
+          > 透過 Welcome Action, 向 HomeController 傳遞參數, 再回傳值.
+
+            # Program.cs檔案內, 預設<路由規則>-寫法1 #
+              app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            # Program.cs檔案內, 預設<路由規則>-寫法2 #
+              app.MapDefaultControllerRoute(); //功能跟寫法1相同, 但更簡潔.(使用路由範本預設 Home 控制器和 Index 動作)
+
+            # 增加另一個 "Welcome Action" , name 則是選擇性參數.
+              https://localhost:7254/Home/Welcome/KL
+
+            # 範例沒有問題, 它用的是 <?> 作為參數分隔符號, 要指定參數名稱(Name)非使用預設路由規則名稱(id)
+            # 這不符合目前 <路由規則> 以 </> 作為分隔符號, 所以抓不到傳入值.
+              https://localhost:7254/Home/Welcome?KL (X)
+              https://localhost:7254/Home/Welcome/KL (O)
+
+            public string Welcome(string? name){
+                return "This is Welcome Action of Home Controller: 你好嗎? " + name;
+            }
+        
+        * 自動 新增控制器(Controller) & 檢視(View) & DbContext(ORM) & ConnectionStrings(連線字串) by 資料模型(Data/Model)
+          
+          > #! VIP: 使用 <dotnet aspnet-codegenerator> 快速 "新增控制器(Controller) & 檢視(View) by 資料模型(Data/Model)" 前, 一定要執行下列前置作業, 否則會出現錯誤.
+            
+            " <命令列環境>下使用 <dotnet aspnet-codegenerator> 工具的前置作業 "
+
+          範例1: 使用 資料模型(Data/Model)的超完整範例 
+          
+            a.資料模型(Data/Model): "Product.cs"
+            
+              using System;
+              using System.Collections.Generic;
+
+              namespace NET6_MvcShopping.Models;
+
+              public class Product
+              {
+                  public int ProductID {get;set;} //系統指定ID, 無法變更
+                  public string? Name {get;set;}
+                  public decimal? Price {get;set;}
+                  public int? Stock {get;set;}
+              }
+
+            b.執行 <dotnet aspnet-codegenerator> Scaffolding 程式碼產生工具
+              dotnet aspnet-codegenerator controller -name ProductsController -m Product -dc StoreContext -outDir Controllers -sqlite -scripts -udl
+
+              自動完成下列作業: <= 超強 =>
+                1.自動新增控制器(\Controllers) & 
+                2.新增檢視(\Views) & 
+                3.新增DbContext(\Data) & 
+                4.新增ConnectionStrings(@appsettings.json) &
+                  註1: 如果ConnectionStrings未新增, 工具會加在"appsettings.json"檔案內.
+                  註2: 如果ConnectionStrings已新增, 工具會保留ConnectionStrings原值不異動.
+                5.註冊Database服務(@Program.cs)
+              
+          範例2: 只產生 控制器(Controller), 沒有 檢視(View).
+              dotnet aspnet-codegenerator controller 
+              -name HelloWorldController 
+              -outDir Controllers (O, 指定相對輸出檔案夾路徑)
+            
+          範例3: 只產生 控制器(Controller), 沒有 檢視(View), 而且把 控制器(Controller)直接加在專案資料夾下.
+              dotnet aspnet-codegenerator controller 
+              -name HelloWorldController (X, 直接加在專案資料夾, 刪掉)
+
+          > 新增控制器(Controller)指令用法 => "dotnet aspnet-codegenerator controller -h"
+            Generator Options:
+              --controllerName|-name [#!-必填欄位-#] : (控制器名稱)Name of the controller
+              --useAsyncActions|-async            : (產生非同步actions)Switch to indicate whether to generate async controller actions
+              --noViews|-nv                       : (產生CRUD檢視)Switch to indicate whether to generate CRUD views
+              --restWithNoViews|-api              : (API專用控制器, 預設noViews & 忽略所有檢視設定)Specify this switch to generate a Controller with REST style API, noViews is assumed and any view related options are ignored
+              --readWriteActions|-actions         : (產生讀/寫用actions)Specify this switch to generate Controller with read/write actions when a Model class is not used
+              --model|-m                          : Model class to use
+              --dataContext|-dc                   : DbContext class to use
+              --referenceScriptLibraries|-scripts : Switch to specify whether to reference script libraries in the generated views
+              --layout|-l                         : Custom Layout page to use
+              --useDefaultLayout|-udl             : Switch to specify that default layout should be used for the views
+              --force|-f                          : Use this option to overwrite existing files
+              --relativeFolderPath|-outDir        : Specify the relative output folder path from project where the file needs to be generated, if not specified, file will be generated in the project folder
+              --controllerNamespace|-namespace    : Specify the name of the namespace to use for the generated controller
+              --useSqlite|-sqlite                 : Flag to specify if DbContext should use SQLite instead of SQL Server.
+
+          > 新增視圖(View)指令用法 => "dotnet aspnet-codegenerator view -h"
+
+            Generator Arguments:(這兩個參數一定要給)
+              viewName     : Name of the view
+              templateName : The view template to use, supported view templates: 'Empty|Create|Edit|Delete|Details|List'
+
+            Generator Options:
+              --model|-m                          : Model class to use
+              --dataContext|-dc                   : DbContext class to use
+              --referenceScriptLibraries|-scripts : Switch to specify whether to reference script libraries in the generated views
+              --layout|-l                         : Custom Layout page to use
+              --useDefaultLayout|-udl             : Switch to specify that default layout should be used for the views
+              --force|-f                          : Use this option to overwrite existing files
+              --relativeFolderPath|-outDir        : Specify the relative output folder path from project where the file needs to be generated, if not specified, file will be generated in the project folder
+              --controllerNamespace|-namespace    : Specify the name of the namespace to use for the generated controller
+              --partialView|-partial              : Generate a partial view, other layout options (-l and -udl) are ignored if this is specified
+              --useSqlite|-sqlite                 : Flag to specify if DbContext should use SQLite instead of SQL Server.
+
+            Day3.5: 如何使用 .NET CLI 快速產生 ASP․NET Core 的 Controllers 與 Views 程式碼
+
+        資料來源: https://blog.miniasp.com/post/2020/09/09/Create-Controller-and-Views-with-dotnet-aspnet-codegenerator
+        重點在於: 
+          1.必須先有 <資料表結構> 的程式碼
+            建立 Data 相關程式碼(C:\Projects\Projects_ASP.NET_Core\MvcMovie\Models\Movie.cs)
+              using System.ComponentModel;
+              using System.ComponentModel.DataAnnotations;
+              using System.ComponentModel.DataAnnotations.Schema;
+
+              namespace MvcMovie.Models
+              {
+                public class Movie
+                {
+                  public int Id {get; set;}
+                  
+                  [DisplayName("片名"), StringLength(10, MinimumLength =3)]
+                  public string? Title {get; set;}
+
+                  [DisplayName("發售日期"), DataType(DataType.Date)]
+                  public DateTime ReleaseDate {get; set;}
+                  
+                  [DisplayName("類別"), StringLength(20, MinimumLength =3)]
+                  public string? Genre {get; set;}
+                  
+                  [DisplayName("售價"), DataType(DataType.Currency), Range(1,150), Column(TypeName = "decimal(18, 2)")]
+                  public decimal Price {get; set;}
+
+                  [DisplayName("評價"), StringLength(5), RegularExpression(@"^[A-Z]+[a-z]+[0-9]*$")]
+                  public string? Rating {get;set;}
+
+                }
+              }
+
+          2. 參閱 <Dependency injection 關注點注入, 這就是DI> 章節內容 <= 觀念介紹 =>
+            MVC中的 "Model" = 由1個實體類別(/Model/Movie.cs) + 1個Context Object(/Data/MvcMovieContext.cs)所組成的, 它代表資料庫中的一個Session.
+
+          3. 快速建立 DepartmentsController 控制器（包含 Views 頁面與使用現有 Layout 版面）
+              dotnet aspnet-codegenerator controller -name DepartmentsController 
+              -async -scripts -udl 
+              -m Department -dc ContosoUniversityContext -outDir Controllers
+
+      Day4: View 視圖
+        https://imgur.com/rqnct3l.jpg
+
+        * 新增View
+
+  /*== Learn 範例 (2022/06/21~ 進行中..)==*/
 
     Create a web API with ASP.NET Core controllers (2022/06/21~ 進行中..)
     https://docs.microsoft.com/en-us/learn/modules/build-web-api-aspnet-core/
@@ -2162,7 +2571,7 @@
           }      
 
 {完成}-Entity Framework Core or dotnet-ef (資料庫工具) => ProjectName: EFGetStarted (2021/07/12)
-    https://docs.microsoft.com/en-us/ef/core/get-started/overview/first-app?tabs=netcore-cli
+  https://docs.microsoft.com/en-us/ef/core/get-started/overview/first-app?tabs=netcore-cli
 
       {基本觀念}
         新增專案
@@ -2300,7 +2709,7 @@
                 .ToTable("AspNetUsers",t => t.ExcludeFromMigrations());
             }
 
-={延後}=
+{延後}
 
   Introduction to Identity on ASP.NET Core(登入驗證功能) => ProjectName: MvcIdentity (2021/07/12)
   dotnet new mvc --auth Individual

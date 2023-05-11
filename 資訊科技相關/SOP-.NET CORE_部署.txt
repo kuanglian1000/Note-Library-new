@@ -1,7 +1,8 @@
 
 =開發階段=
 1.在 ASP.NET Core 中使用多個環境
-(以下內容僅適用於開發環境, 正式環境的 系統環境變數<environment variable> 會寫在 "Web.config" 設定檔裡面)
+  (以下內容僅適用於開發環境, )
+  (正式環境的 {系統環境變數<environment variable>} 會寫在 "Web.config" 設定檔裡面)
   https://learn.microsoft.com/zh-tw/aspnet/core/fundamentals/environments?view=aspnetcore-7.0
 
     dotnet run --environment Production (直接在命令列上指定 "執行環境變數<hosting environment>", 但系統環境變數<environment variable> "ASPNETCORE_ENVIRONMENT" 值不會改變, 因為它是固定的. )
@@ -11,8 +12,8 @@
       IIS ：未啟動網頁伺服器。 IIS 預期可供使用。
       Project ：啟動 Kestrel 。
 
-      --系統環境變數<environment variable>
-        # launchSettings.json 程式片段(此檔僅適用在開發環境) #
+      --[測試環境]的啟動設定值(註: 裡面可決定目前要讀取哪個環境變數..例: 開發, 測試..)
+        # launchSettings.json 程式片段(launchSettings.json 只會在開發環境內使用, 正式環境吃的是 "Web.config") #
           "NET6_MvcShopping": {
             "commandName": "Project",
             "dotnetRunMessages": true,
