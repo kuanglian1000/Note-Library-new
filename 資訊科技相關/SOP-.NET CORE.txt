@@ -144,6 +144,7 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
   學習網址: https://learn.microsoft.com/en-us/aspnet/core/data/ef-rp/intro?view=aspnetcore-7.0&tabs=visual-studio
   ProjectPath => C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage
   課程重點: 說明 {EFCore} 重要觀念及如何使用.
+  Part 1, Razor Pages with Entity Framework Core in ASP.NET Core - Tutorial 1 of 8 (2023/05/11 Completed)
 
     1.By default, EF Core interprets a property that's named {ID} or {classnameID} as the primary key. 
       So the alternative automatically recognized name for the Student class primary key is {StudentID}. 
@@ -231,8 +232,7 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
         public class ErrorModel : PageModel
         {
           public string RequestId { get; set; }
-    =2023/05/10 進度=
-
+    
     8.Scaffold Student pages(利用Scaffold工具自動產生對應 {異動資料庫實體的 "Pages" } & {作為Pages和DB中介的 "DbContext" })
       
       a.新增 Scaffold工具 所需套件 (版本必須與 .NET 相符)
@@ -536,15 +536,103 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
       c.Enumerating a large table in a view could return a partially constructed {HTTP 200} response 
         if a database exception occurs part way through the enumeration.
         (註: 如果在枚舉過程中發生資料庫異常，則枚舉視圖中的大型表可能會返回部分構造的 HTTP 200 回應。)
-    =2023/05/11 進度=
 
-  Part 2, Razor Pages with EF Core in ASP.NET Core - CRUD
+  Part 2, Razor Pages with EF Core in ASP.NET Core - CRUD (2023/05/12 Completed)
     1.No repository 沒有中介層在UI(Razor Pages) 和 Data access Layer. 
       > 如果有就是MVC.
       > 這個範例著重在 EFCore 的教學, 所以它把 Model 掛在UI下面使用. 跟之前的 WebForm 很像.
     
-    2.Update the Details page 把 Enrollment資料加到 Students\Details頁面.
+    2.(OK)Update the Details page 把 Enrollment資料加到 Students\Details頁面.
+  
+      Route data vs. query string
+      https://localhost:7164/Students/Details?id=1 預設使用 query string, 在 XX.cshtml @page 後面是空白的.
+      https://localhost:7164/Students/Details/1 使用 Route data, 在 XX.cshtml @page 後面 => 加上 "{id:int?}" 即可
+
+    3.(OK)Update the Create page 
+
+    4.(OK)避免OVERPOSTING攻擊的方式(To protect from overposting attacks) (註: 防禦 OVERPOSTING攻擊 的方式 {TryUpdateModelAsync} or {View model})
+      see https://aka.ms/RazorPagesCRUD
+
+      > 方式一: Using {TryUpdateModelAsync} to update fields with posted values is a {security best practice} because it prevents overposting
+        範例程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Students\Create.cshtml.cs 的 OnPostAsync() 函式.
+
+      > 方式二: Using {View model}, The view model contains only the properties needed for the UI page.
+        範例程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Models\StudentVM.cs
+        範例程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Students\Create.cshtml.cs 的 OnPostAsync2() 函式.
+
+      > 兩相比較下
+        方式二: Using {View model} 比較直覺, 直接把 ViewModel 抓回來的值塞入 context 即可, 語法相對單純.
+        方式一: Using {TryUpdateModelAsync} 看太不懂, 存檔時要逐一指定屬性值 
+          TryUpdateModelAsync<TModel>(TModel, String, IValueProvider)
+          
+      > {TryUpdateModelAsync} 並沒有存檔DB哦 !!
+        註1: 使用 valueProvider 和 prefix 更新指定的 model 實例
+        註2: 白話來說, 就是把頁面拿到的值放入 model 實例中, 再使用 {_context.SaveChangesAsync()} 塞回DB.
+        註3: 放入 model 實例後, _context再根據 {id是否有值 & Entity States}, 決定它要作新增、修改或刪除.
+
+        例: TryUpdateModelAsync<Student>(emptyStudent,"student",
+              s => s.FirstName, s => s.LastName, s=> s.EnrollmentDate, s => s.Phone //指定要寫入DB的頁面屬性.)
+            _context.Student.Add(emptyStudent);
+            await _context.SaveChangesAsync();
+
+    5.(OK)Update the Edit page, 
+      > OnPostAsync() <= 這種寫法不能放在Edit頁面, 會出現編輯頁可新增的靈異現象
+      > OnPostAsync(int id) <= 正常寫法
+
+      > OnGetAsync(int? id) 的存取效率
+        * FirstOrDefaultAsync(m => m.ID == id), 有必要 include 相關資料時, 只能用這種(預設)
+        * FindAsync(id), 不用 include 相關資料, 用 FindAsync(id) 更有效率.
+
+    6.(OK)Entity States(實體狀態)
+      > The database context keeps track of whether entities in memory are in sync with their corresponding rows in the database. 
+        This tracking information{Entity States(實體狀態)} determines what happens 
+        when {SaveChangesAsync} is called.
       
+      > An entity may be in one of the following states:
+        * {Added}: The entity doesn't yet exist in the database. 
+          The SaveChanges method issues an {INSERT statement}.
+        
+        * {Unchanged}: No changes need to be saved with this entity. 
+          An entity has this status when it's read from the database.
+
+        * {Modified}: Some or all of the entity's property values have been modified. 
+          The SaveChanges method issues an {UPDATE statement}.
+
+        * {Deleted}: The entity has been marked for deletion. 
+          The SaveChanges method issues a {DELETE statement}.
+
+        * {Detached}: The entity isn't being tracked by the database context.
+
+      > (對桌面應用程式而言)In a desktop app, state changes are typically set automatically. 
+        An entity is read, changes are made, and the entity state is automatically changed to Modified. 
+        Calling {SaveChanges} generates a SQL {UPDATE statement} that updates only the changed properties.
+
+      > (對網頁應用程式而言)In a web app, the DbContext that reads an entity 
+        and displays the data is disposed after a page is rendered. 
+        
+        When a page's {OnPostAsync method} is called, 
+        a new web request is made and with a new instance of the DbContext. 
+        Rereading the entity in that new context simulates desktop processing.
+
+    7.(OK)Update the Delete page
+      程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Students\Delete.cshtml.cs
+      程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Students\Delete.cshtml
+
+      > Adds Logging.
+      > Adds the optional parameter {saveChangesError} to the OnGetAsync method signature. 
+        {saveChangesError} indicates whether the method was called after a failure to delete the student object.
+      
+      > The delete operation might fail because of transient network problems. 
+      > Transient network errors are more likely {when the database is in the cloud}. 
+      > The {saveChangesError} parameter is false 
+        when the Delete page OnGetAsync is called from the UI. 
+      > When OnGetAsync is called by OnPostAsync because the delete operation failed, 
+        the saveChangesError parameter is true.
+
+  TODO: Part 3, Razor Pages with EF Core in ASP.NET Core - Sort, Filter, Paging
+
+
+https://learn.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-7.0&tabs=visual-studio-code#url-generation-for-pages
 
   /*==從實作學習ASP.NET Core - 30天的購物網站系列 <.NET 6> [2023/04/05 ~ 未完成]==*/ 
     第1次沒有作完, 就去台半上班了. 2023/05/09從台半離職後, 再來把它作完
