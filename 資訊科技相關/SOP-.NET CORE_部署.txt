@@ -43,63 +43,79 @@
         -->
 
 =佈署階段=
-1. 先安裝 or 啟用Server 的IIS服務
+1. 安裝 .NET Core 裝載套件組件 "Host ASP.NET Core on Windows with IIS"
+	https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/?view=aspnetcore-7.0#iis-configuration
+	https://learn.microsoft.com/en-us/aspnet/core/tutorials/publish-to-iis?source=recommendations&view=aspnetcore-7.0&tabs=visual-studio
 
-2. 安裝 .NET Core 裝載套件組件 "Host ASP.NET Core on Windows with IIS"
-https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/?view=aspnetcore-7.0#iis-configuration
-  0. 下載 dotnet-hosting-7.0.4-win.exe 安裝檔
-  1. 安裝前, 停用 "IIS服務"
-  2. 安裝 the ASP.NET Core Module/Hosting Bundle(Microsoft .NET 7.0.4 Windows Server Hosting)
-  3. 安裝後, 重啟 "IIS服務"
+	> 下載 dotnet-hosting-7.0.4-win.exe 安裝檔 (OK)
+	> 安裝前, 停用 "IIS服務"，下指令 {iisreset /stop} (OK)
+	> 安裝 the ASP.NET Core Module/Hosting Bundle(Microsoft .NET 7.0.4 Windows Server Hosting) (OK)
+	> 安裝後, 重啟 "IIS服務" ，下指令 {iisreset /start} (OK)
+
+2. 先安裝 or 啟用Server 的IIS服務(OK)
+	
+    > Run the installer on the IIS server. (OK)
   
-3. 發佈ASP.NET Core 網站至 IIS "Publish an ASP.NET Core app to IIS"
-https://learn.microsoft.com/en-us/aspnet/core/tutorials/publish-to-iis?source=recommendations&view=aspnetcore-7.0&tabs=visual-studio
+3.建立IIS網站
+    > 新增資料夾, 作為[發佈目的端資料夾], 例:  C:\Projects\WebSites\EFCore_RazorPage
+    > 在[IIS管理員]新增網站, 
+        指定站台名稱, 例: EFCore_RazorPage
+        指定實體路徑, 例: C:\Projects\WebSites\EFCore_RazorPage
+        變更繫結連接埠, 例: 8080, 不要跟預設網站*.80衝突即可
+	
+	# 資料夾新增執行權限 #
+		> 一般作法: 
+			a.站台新增後點選 [編輯權限]
+			b.[安全性頁籤]給予 "Authenticated Users" 群組允許 [讀取和執行], [列出資料夾內容], [讀取]的權限.
+		> 重視資安作法:
+			a.站台新增後點選 [編輯權限]
+			b.[安全性頁籤]給予 "IIS AppPool\<應用程式集區名稱>" 群組允許 [讀取和執行], [列出資料夾內容], [讀取]的權限.
+				例: "IIS AppPool\EFCore_RazorPage"
 
-  This tutorial covers the following subjects:
-    1.Install the .NET Core Hosting Bundle on Windows Server.
-    2.Create an IIS site in IIS Manager.
-    3.Deploy an ASP.NET Core app.
+4. Create an ASP.NET Core Razor Pages app
+	https://learn.microsoft.com/en-us/aspnet/core/getting-started/?view=aspnetcore-7.0
+		例: dotnet new webapp -o DeployTesting
+		
+5. Publish and deploy the app
+	> Publish(發佈=編譯) an app means to produce a compiled app that can be hosted by a server. 
+	> Deploy(佈署=放到IIS Server上) an app means to move the published app to a hosting system.
+	
+		註: 預設 builder.Environment 值給定 "Production" (正式環境)
+			1.Program.cs 會讀取 與"Production" 相關設定
+			2.使用 {appsettings.json} 的設定, 而非 {appsettings.Development.json} 設定檔
+			3.產生 Web.config & 編譯所需檔案
+			4.{待佈署檔案} 寫至預設路徑 { bin/Release/{TARGET FRAMEWORK}/publish } 
+			5.移動 {待佈署檔案} 至IIS網站的實體路徑下. 
+		
+		注意:
+			a. "dotnet publish" 指令 不會發佈 "測試用 Sqlite 檔".
+			b. 如果想在[正式環境]使用[Sqlite 檔], 自行複製過去.
+			c. 一般而言, [正式環境]會連上資料庫, 不會使用 [Sqlite 檔]
+		
+		a. dotnet publish --configuration Release 
+			#方式一: 發佈預設資料夾
+			
+		b. dotnet publish /p:Configuration=Release /p:EnvironmentName=Production 
+			#方式二: 給定環境名稱(開發, 測試, 正式)
+			https://learn.microsoft.com/zh-tw/aspnet/core/fundamentals/environments?view=aspnetcore-7.0 (在 ASP.NET Core 中使用多個環境)
+			
+			註: 發佈至不同環境時使用, 就像台半有兩台.35(Testing) & .36(Production)機器, 才會這麼玩.
+				1.EnvironmentName的預設值
+					> Development： launchSettings.json 檔案會在本機電腦上設定 ASPNETCORE_ENVIRONMENT 為 Development 
+					> Staging
+					> Production：如果 DOTNET_ENVIRONMENT 和 ASPNETCORE_ENVIRONMENT(設定在系統上的全域變數) 尚未設定，則為預設值
 
-    預先準備
-      1. .NET Core SDK installed on the development machine. (OK)
-      2. Windows Server configured with the Web Server (IIS) server role. 
-        If your server isn't configured to host websites with IIS, 
-        follow the guidance in the 
-        IIS configuration section of the "Host ASP.NET Core on Windows with IIS" article 
-        and then return to this tutorial.
-
-    建立IIS網站
-      1. 新增資料夾, 作為[發佈目的端資料夾], ex. C:\Projects\Projects_ASP.NET_Core\NET6_MvcShopping_website
-      2. 在[IIS管理員]新增網站, 
-        指定站台名稱[NET6_MvcShopping], 
-        指定實體路徑[C:\Projects\Projects_ASP.NET_Core\NET6_MvcShopping_website],
-        變更繫結連接埠, 例: [1722]. 註: 不要跟預設網站*.80衝突.
-      3. 站台新增後[編輯權限], 在[安全性頁籤]給予 [IIS_IUSRS]群組允許 [讀取和執行], [列出資料夾內容], [讀取]的權限.
-
-    建立ASP.NET Core 應用程式
-      1. 應用程式路徑: C:\Projects\Projects_ASP.NET_Core\NET6_MvcShopping
-
-    #(重點在這) 發佈及部署應用程式 #
-      1. 步驟: 採用［資料夾］部署方式
-        a. 應用程式發佈至［資料夾］
-        b. 將［資料夾］內容移動至 [發佈目的端資料夾]
-      
-      2. 實作: 
-        a. # (Bad) 產生 Web.config 設定檔 & 佈署所需檔案, 但沒有 "ASPNETCORE_ENVIRONMENT" 變數 #
-              "dotnet publish --configuration Release"
-
-          # (Better) 產生 Web.config 設定檔 & 佈署所需檔案, 指定 "ASPNETCORE_ENVIRONMENT" 變數值 "Production" #
-              "dotnet publish /p:Configuration=Release /p:EnvironmentName=Production"
-
-          # (最好方式) 產生 Web.config 設定檔 & 佈署所需檔案, 
-                指定 "ASPNETCORE_ENVIRONMENT" 變數值 "Production", 
-                直接輸出指定資料夾(覆蓋) #
-              "dotnet publish /p:Configuration=Release /p:EnvironmentName=Production --force -o C:\Projects\Projects_ASP.NET_Core\NET6_MvcShopping_website"
-
-      3. 注意:
-        a. "dotnet publish" 指令 不會發佈 "測試用 Sqlite 檔".
-        b. 如果想測試功能是否正常, 須自行將 "測試用 Sqlite 檔" 複製到 [正式環境].
-        c. 正式環境會直接連上資料庫.
-      
+        c. dotnet publish /p:Configuration=Release --force -o "指定輸出路徑(覆蓋)"
+			#方式三: 發佈指定輸出路徑
+			例: 
+				dotnet publish /p:Configuration=Release --force -o "C:\Projects\WebSites\EFCore_RazorPage"
+		    
+6. 佈署後Browse the website, 出現錯誤訊息為  HTTP Error 500.30  怎麼辦?
+	https://marcus116.blogspot.com/2019/05/netcore-aspnet-core-http-error-50030.html    
+	
+	> 修改 Web.config, 
+		開啟 stdoutLogEnabled="true", 預設是關閉的, 
+		stdoutLogFile=".\logs\stdout", 異常log檔存放路徑.
+  
 4.使用 dotnet 命令列工具發行 .NET 6 專案 <黑暗執行緒>
   https://blog.darkthread.net/blog/dotnet6-publish-notes/

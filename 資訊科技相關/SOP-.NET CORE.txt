@@ -630,6 +630,82 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
         the saveChangesError parameter is true.
 
   TODO: Part 3, Razor Pages with EF Core in ASP.NET Core - Sort, Filter, Paging
+    程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Students\Index.cshtml.cs
+    程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Students\Index.cshtml
+
+    1.Add sorting (點選標題欄可切換{由小至大}或{由大至小}的資料排序, 修改異動學生實體的 Index.cshtml & Index.cshtml.cs)
+    
+      > The method uses {LINQ to Entities} to specify the column to sort by.     
+
+      > When an IQueryable is created or modified, no query is sent to the database. 
+      > The query isn't executed until the IQueryable object is converted into a collection. 
+        IQueryable are converted to a collection by calling a method such as {ToListAsync}. 
+
+        程式碼:
+          IQueryable<Student> studentsIQ = from s in _context.Students select s;
+          studentsIQ = studentsIQ.OrderByDescending(s => s.LastName); {這時候查詢還未送至 DB}
+
+          public IList<Student> Students { get;set; } = default!;
+          Students = await studentsIQ.AsNoTracking().ToListAsync(); {真正觸發DB查詢的時點}
+
+      > Add column heading hyperlinks to the Student Index page {網頁加上連接}
+      
+    2.Add filtering
+      > A {text box} and a {submit button} is added to the Razor Page. 
+      > The text box supplies a {search string} on {the first or last name}.
+      > The {page model is updated} to use the text box value.
+
+      IQueryable(不分大小寫) vs. IEnumerable(區分大小寫)
+        > When Contains is called on an {IEnumerable} collection, the {.NET Core implementation} is used. 
+            the .NET Framework implementation of Contains performs a {case-sensitive} comparison by default
+            SQLite defaults to {case-sensitive}. 
+            (註: C# & SQLite 預設都是區分大小寫, 而使用 {IEnumerable}, 它會採 {.NET Core implementation})
+        
+        > When Contains is called on an {IQueryable} object, the {database implementation} is used.
+            In SQL Server, 
+            Contains case-sensitivity is determined by the collation setting of the SQL Server instance. 
+            SQL Server defaults to {case-insensitive}.
+
+        > 如何使用 IEnumerable(區分大小寫) 或 SQLite 下, 達成(不分大小寫)的目的呢？
+
+            Where(s => s.LastName.ToUpper().Contains(searchString.ToUpper()));
+
+            不過, 呼叫 ToUpper() 會有成本損耗.
+            There's a performance penalty for calling ToUpper. 
+            The ToUpper code adds a function in the WHERE clause of the TSQL SELECT statement. 
+            The added function prevents the optimizer from using an index. 
+            Given that SQL is installed as case-insensitive, 
+            {it's best to avoid the ToUpper call when it's not needed}.
+
+      GET or POST
+
+        > The following preceding code uses the <form> tag helper to add the search text box and button. 
+          By default, the <form> tag helper submits form data with a POST. 
+          With POST, the parameters are passed in the HTTP message body and not in the URL. 
+        > When HTTP GET is used, the form data is passed in the URL as query strings. 
+        > Passing the data with query strings enables users to bookmark the URL. 
+        > The W3C guidelines recommend that GET should be used when the action doesn't result in an update.
+          註: 
+            1.預設, the <form> tag helper submits form data with a POST. 
+            2.使用 POST, 參數會包在 HTTP message body and not in the URL 作傳遞
+            3.使用 GET, 參數會利用 URL內的 query strings 作傳遞
+            4.W3C建議沒有更新時, 使用 GET.
+        
+        程式碼: 
+        <form asp-page="./Index.cshtml" method="get">
+            <div class="form-actions no-color">
+                <p>
+                    Find by name:
+                    <input type="text" name="SearchString" value="@Model.CurrentFilter">
+                    <input type="submit" value="Search" class="btn btn-primary">
+                    <a asp-page="./Index.cshtml">Back to full list</a>
+                </p>
+            </div>
+        </form>
+
+    3.Add paging
+
+    4.Grouping
 
 
 https://learn.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-7.0&tabs=visual-studio-code#url-generation-for-pages
