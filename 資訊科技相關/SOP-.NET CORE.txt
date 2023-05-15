@@ -241,12 +241,12 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
           dotnet add package Microsoft.EntityFrameworkCore.Design
           dotnet add package Microsoft.EntityFrameworkCore.Tools
           dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version 6.0.10
-          dotnet add package Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore
+          dotnet add package Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore --version 6.0.10
 
           (註: The {Microsoft.VisualStudio.Web.CodeGeneration.Design} package is required for scaffolding. 
             Although the app won't use SQL Server, the scaffolding tool needs the {SQL Server} package.)
 
-      b.新增 Pages\Students 資料夾
+      b.新增 Pages\Students 資料夾(此步驟可省略)
           mkdir Students
 
       c.安裝 Scaffold 工具 (版本必須與 .NET 相符)
@@ -300,18 +300,25 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
                   "SchoolContext": "Data Source=EFCore_RazorPage.Data.db"
                 }            
 
-      e.微調 ConnectionStrings SqliteDB名稱於 {appsettings.json}(註: 目前DB尚未產生, 預設值很長.)
+      e.微調 ConnectionStrings SqliteDB名稱於 (註: 目前DB尚未產生, 預設值很長.)
         
-        變更前:
-          "ConnectionStrings": {
-            "SchoolContext": "Data Source=EFCore_RazorPage.Data.db"
-          }
-        
-        變更後:
-          "ConnectionStrings": {
-            "SchoolContextSQLite": "Data Source=CU.db"
-          }
+        {appsettings.json} <= 正式環境
+          變更前:
+            "ConnectionStrings": {
+              "SchoolContext": "Data Source=EFCore_RazorPage.Data.db"
+            }
+          
+          變更後:
+            "ConnectionStrings": {
+              "SchoolContextSQLite": "Data Source=CU-Production.db"
+            }
 
+        {appsettings.Development.json} <= 測試環境
+          新增:
+            "ConnectionStrings": {
+              "SchoolContextSQLite": "Data Source=CU-Development.db"
+            }
+          
       e.更新 DbContext class 內容
         1.The {main class} that coordinates EF Core functionality for a given {data model} is the database context class. 
           (註: {DbContext class} 就是作為 {data model} 與 {DB} 間溝通最重要的媒介)
