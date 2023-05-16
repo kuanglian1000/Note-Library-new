@@ -144,6 +144,19 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
   學習網址: https://learn.microsoft.com/en-us/aspnet/core/data/ef-rp/intro?view=aspnetcore-7.0&tabs=visual-studio
   ProjectPath => C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage
   課程重點: 說明 {EFCore} 重要觀念及如何使用.
+
+  Part 0, Razor Pages UI 與 CS 間如何傳值與溝通
+
+    UI:
+      <a asp-page="./Index" asp-route-sortOrder="@Model.NameSort">
+      <input type="text" name="SearchString" value="@Model.CurrentFilter">
+    
+    CS:
+      public async Task OnGetAsync(string sortOrder, string searchString)
+
+    註: Request 傳至後至 IIS後, 
+      ASP.NET Core 會把 asp-route-'sortOrder' or name="SearchString" 與 OnGetAsync 或 OnPostAsync 的傳入參數自動對應.
+
   Part 1, Razor Pages with Entity Framework Core in ASP.NET Core - Tutorial 1 of 8 (2023/05/11 Completed)
 
     1.By default, EF Core interprets a property that's named {ID} or {classnameID} as the primary key. 
@@ -408,12 +421,12 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
             builder.Services.AddRazorPages();
 
             if (builder.Environment.IsDevelopment())
-            {   //測試環境DB
+            {   //測試環境: 使用Sqlite
                 builder.Services.AddDbContext<SchoolContext>(options =>
                     options.UseSqlite(builder.Configuration.GetConnectionString("SchoolContextSQLite-Development")));
             }
             else
-            {   //正式環境DB
+            {   //正式環境: 使用SqlServer
                 builder.Services.AddDbContext<SchoolContext>(options =>
                     options.UseSqlServer(builder.Configuration.GetConnectionString("SchoolContextSQLite-Production")));
             }
@@ -545,17 +558,80 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
         (註: 如果在枚舉過程中發生資料庫異常，則枚舉視圖中的大型表可能會返回部分構造的 HTTP 200 回應。)
 
   Part 2, Razor Pages with EF Core in ASP.NET Core - CRUD (2023/05/12 Completed)
-    1.No repository 沒有中介層在UI(Razor Pages) 和 Data access Layer. 
+    https://learn.microsoft.com/en-us/aspnet/core/data/ef-rp/crud?view=aspnetcore-7.0
+
+    1.{No repository} 在這個教學中, 沒有使用中介層在UI(Razor Pages) 和 Data access Layer. 
       > 如果有就是MVC.
-      > 這個範例著重在 EFCore 的教學, 所以它把 Model 掛在UI下面使用. 跟之前的 WebForm 很像.
+      > 這個範例著重在 EFCore 的教學, 所以它把 Model 掛在UI{page model classes}下面使用. 跟之前的 WebForm 類似.
     
-    2.(OK)Update the Details page 把 Enrollment資料加到 Students\Details頁面.
+    2.(OK)Update the Details page, 把 {Enrollment資料} 加到 Students\Details頁面.
+
+      var student = await _context.Students
+            .Include(s => s.Enrollments)
+            .ThenInclude(e => e.Course)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(m => m.ID == id);
+
+      > The {Include} and {ThenInclude} methods cause the context to load the Student.Enrollments 
+        navigation property, 
+        and within each enrollment the {Enrollment.Course} navigation property.
+        註1: {Include} 載入 Student.Enrollments 瀏覽屬性(navigation property) 
+        註2: {ThenInclude} 載入 Student.Enrollments 中 Enrollment.Course 瀏覽屬性(navigation property)
+
+      > The {AsNoTracking} method improves performance in scenarios 
+        where the entities returned are not updated in the current context.
+        註: {AsNoTracking} 改善效率, 針對毋須更新的實體停止追蹤狀態
   
-      Route data vs. query string
+      > Ways to read one entity {讀取1筆實體的方式}
+          
+          {FirstOrDefaultAsync} 讀取1筆實體 & {關聯資料} 的最好方式
+          {FindAsync} 讀取1筆實體 & {毋須關聯資料} 的最好方式
+
+        1.{FirstOrDefaultAsync} 找不到回傳 {null}, 找到多筆回傳 {第1筆}
+          This method returns {null} if nothing is found; 
+          otherwise, it returns {the first row} found that satisfies the query filter criteria
+
+        2.{SingleOrDefaultAsync} 找到多筆回傳 {異常}, 而且它會試著存取多筆資料, 這些額外工作是不需要的
+          Throws an exception if there's more than one entity that satisfies the query filter. 
+          To determine if more than one row could be returned by the query, 
+          SingleOrDefaultAsync tries to fetch multiple rows. 
+          This extra work is unnecessary if the query can only return one entity, 
+          as when it searches on a {unique key}.
+
+        3.{FindAsync} 沒有讀取 navigation properties 需求時, {FindAsync}是最有效率.
+          Finds an entity with the {primary key} (PK). 
+          If an entity with the PK is being tracked by the context, 
+          it's returned without a request to the database. 
+          This method is optimized to look up a single entity, but {you can't call Include with FindAsync}
+      
+      > Route data vs. query string
       https://localhost:7164/Students/Details?id=1 預設使用 query string, 在 XX.cshtml @page 後面是空白的.
       https://localhost:7164/Students/Details/1 使用 Route data, 在 XX.cshtml @page 後面 => 加上 "{id:int?}" 即可
 
     3.(OK)Update the Create page 
+
+      var emptyStudent = new Student();
+      if(await TryUpdateModelAsync<Student>(
+          emptyStudent,
+          "student", //不分大小寫
+          s => s.FirstName, s => s.LastName, s => s.EnrollmentDate))
+      {
+          _context.Students.Add(emptyStudent);
+          await _context.SaveChangesAsync();
+          return RedirectToPage("./Index");    
+      }
+
+      > The {TryUpdateModelAsync} method:
+        * Uses the posted form values from the PageContext property in the PageModel.
+        * Updates only the properties listed (s => s.FirstMidName, s => s.LastName, s => s.EnrollmentDate).
+        * Looks for form fields with a "student" prefix. 
+          For example, Student.FirstMidName. {It's not case sensitive}.
+          註: 尋找 "student" 開頭的指定欄位值
+
+        * Uses the {model binding} system to convert form values from strings to the types in the Student model. 
+          For example, EnrollmentDate is converted to DateTime.
+          註: 再利用 {model binding} system 將 指定欄位值(字串) 轉為 Student 欄位型態後, 
+            再塞入 emptyStudent
 
     4.(OK)避免OVERPOSTING攻擊的方式(To protect from overposting attacks) (註: 防禦 OVERPOSTING攻擊 的方式 {TryUpdateModelAsync} or {View model})
       see https://aka.ms/RazorPagesCRUD
@@ -621,7 +697,7 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
         a new web request is made and with a new instance of the DbContext. 
         Rereading the entity in that new context simulates desktop processing.
 
-    7.(OK)Update the Delete page
+    7.(OK)Update the Delete page(增加 Logging & {saveChangesError}參數, 防止刪除失敗時{OnPostAsync}, 重回初始畫面{OnGetAsync})
       程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Students\Delete.cshtml.cs
       程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Students\Delete.cshtml
 
@@ -635,6 +711,13 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
         when the Delete page OnGetAsync is called from the UI. 
       > When OnGetAsync is called by OnPostAsync because the delete operation failed, 
         the saveChangesError parameter is true.
+
+    8.(OK)RedirectToPage vs RedirectToAction 的差異
+      > RedirectToPage, 切換頁面
+        例: return RedirectToPage("./Index");
+
+      > RedirectToAction, 切換頁面外, 還會加上參數, 讓頁面執行Action
+        例: return RedirectToAction("./Delete", new {id, saveChangesError = true});
 
   TODO: Part 3, Razor Pages with EF Core in ASP.NET Core - Sort, Filter, Paging
     程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Students\Index.cshtml.cs
@@ -662,27 +745,26 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
       > The text box supplies a {search string} on {the first or last name}.
       > The {page model is updated} to use the text box value.
 
-      IQueryable(不分大小寫) vs. IEnumerable(區分大小寫)
-        > When Contains is called on an {IEnumerable} collection, the {.NET Core implementation} is used. 
-            the .NET Framework implementation of Contains performs a {case-sensitive} comparison by default
-            SQLite defaults to {case-sensitive}. 
-            (註: C# & SQLite 預設都是區分大小寫, 而使用 {IEnumerable}, 它會採 {.NET Core implementation})
-        
-        > When Contains is called on an {IQueryable} object, the {database implementation} is used.
-            In SQL Server, 
-            Contains case-sensitivity is determined by the collation setting of the SQL Server instance. 
-            SQL Server defaults to {case-insensitive}.
+    3.IQueryable(不分大小寫) vs. IEnumerable(區分大小寫)
+      > When Contains is called on an {IQueryable} object, the {database implementation} is used.
+          In SQL Server, 
+          Contains case-sensitivity is determined by the collation setting of the SQL Server instance. 
+          SQL Server defaults to {case-insensitive}.
 
-        > 如何使用 IEnumerable(區分大小寫) 或 SQLite 下, 達成(不分大小寫)的目的呢？
+      > When Contains is called on an {IEnumerable} collection, the {.NET Core implementation} is used. 
+          the .NET Framework implementation of Contains performs a {case-sensitive} comparison by default
+          SQLite defaults to {case-sensitive}. 
+          (註: C# & SQLite 預設都是區分大小寫, 而使用 {IEnumerable}, 它會採 {.NET Core implementation})
 
-            Where(s => s.LastName.ToUpper().Contains(searchString.ToUpper()));
+      > 如何使用 IEnumerable(區分大小寫) 或 SQLite 下, 達成(不分大小寫)的目的呢？
+          Where(s => s.LastName.ToUpper().Contains(searchString.ToUpper()));
 
-            不過, 呼叫 ToUpper() 會有成本損耗.
-            There's a performance penalty for calling ToUpper. 
-            The ToUpper code adds a function in the WHERE clause of the TSQL SELECT statement. 
-            The added function prevents the optimizer from using an index. 
-            Given that SQL is installed as case-insensitive, 
-            {it's best to avoid the ToUpper call when it's not needed}.
+          不過, 呼叫 ToUpper() 會有成本損耗.
+          There's a performance penalty for calling ToUpper. 
+          The ToUpper code adds a function in the WHERE clause of the TSQL SELECT statement. 
+          The added function prevents the optimizer from using an index. 
+          Given that SQL is installed as case-insensitive, 
+          {it's best to avoid the ToUpper call when it's not needed}.
 
       GET or POST
 
@@ -710,9 +792,31 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
             </div>
         </form>
 
-    3.Add paging
+    3.1 IQueryable 基於效能, 篩選作業發生DB端, 再回傳結果 (效能較佳)
+    3.2 IEnumerable 則是所有資料從DB端回傳後, 再作處理.
 
-    4.Grouping
+    4.Add paging
+      程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\PaginatedList.cs
+      > The {CreateAsync} method is used to create the PaginatedList<T>. 
+      > A constructor can't create the PaginatedList<T> object; 
+      > constructors can't run asynchronous code.
+      註: 從程式碼中, 看出只有 {CreateAsync} method 可新增 {PaginatedList<T>}
+
+    4.1 新增 PaginatedList 類別, 實作分頁功能. 它會利用 "Skip" & "Take" 作業篩選DB資料, 再回傳結果.
+    4.2 新增 {上一頁} & {下一頁} 兩個按鈕.
+    4.3 PaginatedList 類別中, 每頁筆數記錄在 configuration 中, 方便調整. {appsettings.json}
+      > 使用 Microsoft.Extensions.Configuration 讀取 configuration
+
+    5.Grouping (新增 about 頁面 & ViewModel, 呈現 Grouping 資料)
+      > Create a view model for the data used by the About page.
+      > Update the About page to use the view model.
+
+      > 程式碼: 
+        C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Models\SchoolViewModels\EnrollmentDateGroup.cs
+        C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\About.cshtml
+        C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\About.cshtml.cs
+        
+
 
 
 https://learn.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-7.0&tabs=visual-studio-code#url-generation-for-pages
