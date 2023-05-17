@@ -719,7 +719,7 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
       > RedirectToAction, 切換頁面外, 還會加上參數, 讓頁面執行Action
         例: return RedirectToAction("./Delete", new {id, saveChangesError = true});
 
-  TODO: Part 3, Razor Pages with EF Core in ASP.NET Core - Sort, Filter, Paging
+  Part 3, Razor Pages with EF Core in ASP.NET Core - Sort, Filter, Paging
     程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Students\Index.cshtml.cs
     程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Students\Index.cshtml
 
@@ -815,8 +815,93 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
         C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Models\SchoolViewModels\EnrollmentDateGroup.cs
         C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\About.cshtml
         C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\About.cshtml.cs
-        
 
+  Part 4, Razor Pages with EF Core in ASP.NET Core - migrations(正式資料庫移轉, 資料庫綱要異動)
+
+    > The {EF Core Migrations} feature solves this problem 
+      by enabling EF Core to update the DB schema
+      instead of creating a new database. //利用{EF Core Migrations}更新DBSchema, 而不是新增DB
+
+    > Rather than dropping and recreating the database when the data model changes, 
+      migrations updates the schema and retains existing data.
+
+    > Sqlite在{EF Core Migrations}上的限制
+      If a migration is created to remove a column, //移除欄位不支援
+      the {ef migrations add} command succeeds //成功
+      but the {ef database update} command fails. //失敗
+
+    > 因應Sqlite在{EF Core Migrations}上的限制, 遭遇下列情況時, 針對 Up and Down 函式作程式改寫      
+      * Creating a new table.
+      * Copying data from the old table to the new table.
+      * Dropping the old table.
+      * Renaming the new table.
+
+    1.Drop the database
+
+      dotnet tool install --global dotnet-ef //安裝 EFCore 工具
+
+      dotnet ef database drop --force //刪除資料庫
+        Dropping database 'main' on server 'CU-Development.db'.
+        Database 'main' did not exist, no action was taken.
+
+    2.Create an initial migration
+
+      > dotnet ef migrations add InitialCreate //第1次建置
+      > dotnet ef database update
+          利用migrations移轉來新增DB
+          1.多一個資料表 "__EFMigrationsHistory", 除了Model應對應的資料表外.
+          2.多一個資料庫 "EFCore_RazorPage.Data.db", 內容卻是空的??
+
+      > Remove {EnsureCreated}
+        EnsureCreated doesn't create a {migrations history table} and so can't be used with migrations. 
+        It's designed for testing or rapid prototyping where the database is dropped and re-created frequently.
+
+        @Program.cs
+          // context.Database.EnsureCreated();
+
+    3.Up and Down methods
+      > The EF Core {migrations add} command generated code to create the database. 
+      > This migrations code is in the {Migrations\<timestamp>_InitialCreate.cs} file. 
+      > The {Up} method of the {InitialCreate} class creates the database tables that correspond to the data model entity sets. 
+      > The {Down} method deletes them, as shown in the following example:
+
+        指令碼: dotnet ef migrations add InitialCreate //自動產生程式碼, Create Table or Drop Table用
+        指令碼: dotnet ef database update //執行上一個指令碼產生的程式碼內容.
+
+      > dotnet ef migrations add "<自行命名本次DB移轉的目的>"
+        例: dotnet ef migrations add AddDepartmentTable //新增部門資料表
+
+    4.The migrations history table
+        
+      > TableName: __EFMigrationsHistory
+        * 用途: 記錄移轉歷史
+
+    5.The data model snapshot
+      > 用途: 記錄當下的data model, 以備還原移轉時使用
+      > 位置: Migrations/SchoolContextModelSnapshot.cs
+        * 例: Migrations/<ContextName>ModelSnapshot.cs
+        
+      > Because the snapshot file tracks the state of the data model, 
+          a migration cannot be deleted by deleting the <timestamp>_<migrationname>.cs file. 
+        To back out the most recent migration, use the {migrations remove} command. 
+        {migrations remove} deletes the migration and ensures the snapshot is correctly reset.
+            
+        * 例: dotnet ef migrations remove AddDepartmentTable
+
+      > See {Resetting all migrations} to remove all migrations.
+        https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/managing?tabs=dotnet-core-cli#resetting-all-migrations
+
+    6.Applying migrations in production
+      > We recommend that production apps not call {Database.Migrate} at application startup.
+        //Migrate 不適用於正式環境
+        
+      > Database migration should be done as part of deployment, and in a controlled way. 
+      > Production database migration approaches include:
+        * Using migrations to create SQL scripts and using the SQL scripts in deployment.
+        * Running dotnet ef database update from a controlled environment.
+          //正式環境DB資料異動, 應該在可控環境下, 產生 SQL scripts 的方式來執行.
+
+        https://learn.microsoft.com/en-us/ef/core/cli/dotnet#dotnet-ef-migrations-script
 
 
 https://learn.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-7.0&tabs=visual-studio-code#url-generation-for-pages
@@ -2602,6 +2687,8 @@ https://learn.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-7.0&t
               public static void Initialize(SchoolContext context)
               {
                 // 每次都會刪除資料庫再重新建立, 僅適用於<測試階段>
+                // MVC範例放在塞資料的類別內有點怪
+                // RazorPages範例則是放在 Program.cs 內, 當作一個服務來用, 不要時, 直接在那裡MARK最快.
                 context.Database.EnsureCreated();
 
                 // Look for any students.
