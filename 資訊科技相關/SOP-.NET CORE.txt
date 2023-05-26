@@ -1,3 +1,53 @@
+/* ASP.NET 的新東西 */
+  
+  @Html.Raw("htmlContent") <= ASP.NET會編譯為 HTML/JavaScript.., 而不是 字串.
+
+    * 少用 @Html.Raw("htmlContent"), 會被 XSS 插入攻擊
+    * 可用 @Html.AntiXssRaw(htmlFromDb), 可避免被 XSS 插入攻擊
+    淺談 ASP.NET WebForm / MVC 內嵌 HTML 時的 XSS 防護
+    https://blog.darkthread.net/blog/antixss-in-aspnet/
+
+  .AsNoTracking()
+    ^ 只能用於OnGetAsync() //查詢或顯示頁面用.
+    ^ .AsNoTracking() 用在 OnPostAsync(), 抓出來的Entity會沒有EntityState
+      導致 await _context.SaveChangesAsync() Update DB時會失敗
+      因為EFCore無法依EntityState, 判斷要insert or update.
+
+  {Many-TO-Many 關係異動}
+    * 參考用程式碼:
+      ^ (新增) C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Instructors\Create.cshtml.cs
+      ^ (刪除) C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Instructors\Delete.cshtml.cs
+    
+    ^ Instructor & Course 是多對多關係, EFCore會產生DB時, 會生出一個{Join Table}, 以記錄之間的關聯性.
+    ^ 刪除任何一邊實體時, 必須使用 eager loading (.include)把另一邊JOIN進來, 不然關聯性會遺留在{Join Table}內.
+    
+      public class Course
+      {
+          ...
+          public ICollection<Instructor> Instructors {get;set;} //navigation property(可以是NULL, 所以未加入FK)
+          ...
+      }
+      public class Instructor
+      {
+        ...
+        public ICollection<Course> Courses {get;set;} //1名老師可上多門課
+        ...
+      }
+    
+  {資料檢查}
+    > 後端 {ComponentModel.DataAnnotations} 與 前端{asp-validation-for} 必須相互配合
+      ^ 以 後端 {ComponentModel.DataAnnotations} 為主.
+      ^ 換句話說, 有加檢查 前端{asp-validation-for}欄位, 但後端 {ComponentModel.DataAnnotations} 非必填欄位也沒用.
+
+      Case1.後端 DataModel Property 無[Required]
+          , 前端加上 {asp-validation-for}
+          , 結果 => 前端檢查不生效力.
+      Case2.後端 DataModel Property 有[Required]/ 無[Display(Name="入職日")]
+          , 前端加上 {asp-validation-for}
+          , 結果 => 檢查生效, 異常訊息顯示 Property Name.
+      Case2.後端 DataModel Property 有[Required]/ 有[Display(Name="入職日")]
+          , 前端加上 {asp-validation-for}
+          , 結果 => 檢查生效, 異常訊息顯示 "入職日".
 
 "開發環境"程式啟動設定檔(launchSettings.json) => "檔案位置: 專案資料夾/Properties/launchSettings.json"
   0. 適用於本機電腦開發環境
@@ -156,6 +206,29 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
 
     註: Request 傳至後至 IIS後, 
       ASP.NET Core 會把 asp-route-'sortOrder' or name="SearchString" 與 OnGetAsync 或 OnPostAsync 的傳入參數自動對應.
+
+  Part 0, @Html.DisplayNameFor(顯示名稱) & @Html.DisplayFor(顯示值) 的差異在哪裡?
+
+    UI: Delete.cshtml
+      @Html.DisplayNameFor(model => model.Course.DepartmentID) //DisplayNameFor, 要求前端顯示 "開課科系"
+      @Html.DisplayFor(model => model.Course.Department.Name) //DisplayFor, 要求前端顯示 Course 關聯實體 Department.Name 的值.
+
+    CS: Delete.cshtml.cs
+      DeleteModel 用到 Course 類別如下: 
+      
+      public class Course
+      {
+          ...
+          [Display(Name ="開課科系")]
+          public int DepartmentID {get;set;} //FK
+          public Department Department {get;set;} //navigation property(不能為NULL, 所以須加入FK DepartmentID)
+          ...
+      }
+
+
+
+
+
 
   Part 1, Razor Pages with Entity Framework Core in ASP.NET Core - Tutorial 1 of 8 (2023/05/11 Completed)
 
@@ -1508,8 +1581,242 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
 
           g.Adds a table of student enrollments for the selected course.
 
-
   Part 7, Razor Pages with EF Core in ASP.NET Core - Update Related Data
+
+    1.Update the Course Create and Edit pages
+      * The drop-down should show the Department name, 
+        so both of these pages need a list of department names. 
+        To provide that list, use a base class for the Create and Edit pages.
+
+      > Create a base class for Course Create and Edit
+        * 程式碼: Pages/Courses/DepartmentNamePageModel.cs
+
+      > Update the Course Create page model
+        * A Course is assigned to a Department. 
+          The base class for the Create and Edit pages provides a SelectList for selecting the department. 
+          The drop-down list that uses the SelectList sets the Course.DepartmentID foreign key (FK) property. 
+          {EF Core uses the Course.DepartmentID FK to load the Department navigation property}.
+        
+        * 程式碼: Pages/Courses/Create.cshtml.cs
+
+        * 上面程式碼作了下列變更
+          a.Derives from {DepartmentNamePageModel} other than default {PageModel}
+          b.Uses {TryUpdateModelAsync} to prevent overposting.
+          c.Removes ViewData["DepartmentID"]. 
+          d.The {DepartmentNameSL} SelectList is a strongly typed model and will be used by the Razor page. 
+            Strongly typed models are preferred over weakly typed. 
+            For more information, see Weakly typed data (ViewData and ViewBag).
+
+      > Update the Course Create Razor page
+        * 程式碼: Pages/Courses/Create.cshtml
+
+        * 上面程式碼作了下列變更
+          a.Changes the caption from DepartmentID to Department.
+          b.Replaces "ViewBag.DepartmentID" with DepartmentNameSL (from the base class).
+          c.Adds the "Select Department" option. 
+            This change renders "Select Department" in the drop-down when no department has been selected yet, 
+            rather than the first department.
+          d.Adds a validation message when the department isn't selected.
+
+      > Update the Course Edit page model
+        * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Courses\Edit.cshtml.cs
+        
+        * 上面程式碼作了下列變更
+          a.The changes are similar to those made in the Create page model. (Line: 1530-1536)
+          b.{PopulateDepartmentsDropDownList} passes in the department ID, 
+            which selects that department in the drop-down list.
+      
+      > Update the Course Edit Razor page
+        * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Courses\Edit.cshtml
+
+        * 上面程式碼作了下列變更        
+          a.Displays the course ID. 
+            Generally the Primary Key (PK) of an entity isn't displayed. 
+            PKs are usually meaningless to users. 
+            In this case, the PK is the course number.
+          b.Changes the caption for the Department drop-down from DepartmentID to Department.
+            
+            <label asp-for="Course.DepartmentID" class="control-label"></label>
+            [Display(Name ="開課科系")]
+            public int DepartmentID {get;set;} //FK
+
+            //Label 顯示結果是 "開課科系"
+
+          c.Replaces "ViewBag.DepartmentID" with DepartmentNameSL, which is in the base class.
+
+          d.The page contains a hidden field (<input type="hidden">) for the course number. 
+            Adding a <label> tag helper with asp-for="Course.CourseID" doesn't eliminate the need for the hidden field. 
+            <input type="hidden"> is required for the course number to be included in the posted data 
+            when the user selects Save.
+
+            //資料POST至後端時, 抓的是 <input>值, 而不是 <label>值, 儘管它們擁有相同asp-for值="Course.CourseID"
+              <input type="hidden" asp-for="Course.CourseID" />
+              <label asp-for="Course.CourseID" class="control-label"></label>
+
+            //瀏覽器的原始碼: {注意 <label> 的ID 消失了, 不會跟 <input> 重覆}
+            <input type="hidden" data-val="true" data-val-required="The 課程編號 field is required." id="Course_CourseID" name="Course.CourseID" value="1045" />
+            <div class="form-group">
+                <label class="control-label" for="Course_CourseID">課程編號</label>
+                <div>1045</div>
+            </div>
+
+    2.Update the Course page models 
+    (連同 Delete.cshtml.cs & Details.cshtml.cs 都加上 AsNoTracking, 改善查詢效率, 因為這些頁面毋須追蹤狀態)
+      * Update {Pages/Courses/Delete.cshtml.cs} and {Pages/Courses/Details.cshtml.cs} 
+        by adding {AsNoTracking} to the {OnGetAsync} methods:
+
+      * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Courses\Details.cshtml.cs
+      * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Courses\Delete.cshtml.cs
+
+    3.Test the Course pages
+
+    4.Update the instructor Create and Edit pages
+    {異動多對多關聯的方式}
+      * Instructors may teach any number of courses.
+      * 新增或修改講師名單時, 利用 checkbox 挑選多個授課類別.(check or uncheck)
+      * 如果課程數量更多時, 使用別於 checkbox UI 會是更佳選擇. 
+        @* 在此, 異動多對多關聯的方式 是不變的 *@
+
+      * 新增或刪除關聯, 必須操縱 JOIN 實體.
+      * Note: The approach taken here to edit instructor course data works well 
+        when there's a limited number of courses. 
+        For collections that are much larger, a different UI and a different updating method 
+        would be more useable and efficient.
+      * _context.Instructors.Add(newInstructor) creates a new Instructor 
+        using many-to-many relationships without explicitly mapping the join table. 
+        Many-to-many was added in {EF 5.0}.
+
+      > Create a class for assigned courses data
+        * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Models\SchoolViewModels\AssignedCourseData.cs
+        * The AssignedCourseData class contains data 
+          to create the checkboxes for courses assigned to an instructor.
+
+      > Create an Instructor page model base class
+        * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Instructors\InstructorCoursesPageModel.cs
+        * The InstructorCoursesPageModel is the base class for the Edit and Create page models. 
+          PopulateAssignedCourseData reads all Course entities to populate AssignedCourseDataList. 
+          For each course, the code sets the CourseID, title, and whether or not the instructor is assigned to the course. 
+        * A HashSet is used for efficient lookups. 
+          //HashSet 常用於【有效率的查閱上】
+
+      > Handle office location
+        * Another relationship the edit page has to handle is the one-to-zero-or-one relationship 
+          that the Instructor entity has with the OfficeAssignment entity.
+        
+        * The instructor edit code must handle the following scenarios: 
+          //講師編輯頁面邏輯, 必須處理下列情境, 以符合上述{one-to-zero-or-one}關聯
+          
+          a.If the user clears the office assignment, delete the OfficeAssignment entity.
+            //如果清除 講師 office assignment, 刪除 OfficeAssignment 實體.
+          b.If the user enters an office assignment and it was empty, create a new OfficeAssignment entity.
+            //如果輸入 講師 office assignment & OfficeAssignment 實體 不存在, 新增 OfficeAssignment 實體.
+          c.If the user changes the office assignment, update the OfficeAssignment entity.
+            //如果變更 講師 office assignment & OfficeAssignment 實體 存在, 更新 OfficeAssignment 實體.
+
+    5.Update the Instructor Edit page model
+      
+      > Update the Instructor Edit Razor page
+        * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Instructors\Edit.cshtml.cs
+          a. 上面程式碼作了下列變更
+            ^ Gets the current Instructor entity from the database 
+              using eager loading for the OfficeAssignment and Courses navigation properties.
+              //使用 .Include 函式, 實作eager loading
+            ^ Updates the retrieved Instructor entity with values from the model binder. 
+              {TryUpdateModelAsync} prevents overposting.
+            ^ If the office location is blank, sets Instructor.OfficeAssignment to null. 
+              {When Instructor.OfficeAssignment is null}, 
+              the related row in the OfficeAssignment table is deleted.
+              //EFCore 預設會採取 {遞迴刪除} 作法, 針對 {非允許空值 FK} & {多對多關係} 的情況.
+              //設定為 NULL, 則會 {遞迴刪除}.
+            ^ Calls {PopulateAssignedCourseData} in OnGetAsync to provide information for the checkboxes using the AssignedCourseData view model class.
+            ^ Calls {UpdateInstructorCourses} in OnPostAsync to apply information from the checkboxes to the Instructor entity being edited.
+            ^ Calls PopulateAssignedCourseData and UpdateInstructorCourses in OnPostAsync 
+              if TryUpdateModelAsync fails. 
+              These method calls restore the assigned course data entered on the page 
+              when it is redisplayed with an error message.
+          b. 為什麼要另外寫 UpdateInstructorCourses 函式？
+            Since the Razor page doesn't have a collection of Course entities, 
+            the model binder can't automatically update the Courses navigation property. 
+
+            Instead of using the model binder to update the Courses navigation property, 
+            that's done in the new {UpdateInstructorCourses} method. 
+
+            Therefore you need to exclude(排除) the Courses property from model binding. 
+
+            This doesn't require any change to the code that calls {TryUpdateModelAsync}
+            because you're using the overload with declared properties and Courses isn't in the include list.
+            //{TryUpdateModelAsync} 只針對 Instructor 實體屬性異動, 
+            // Instructor 關聯屬性(Courses)異動, 就交由 {UpdateInstructorCourses} 處理
+
+        * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Instructors\Edit.cshtml
+          a. 上面程式碼作了什麼
+            ^ The preceding code creates an HTML table that has three columns. 
+            ^ Each column has a checkbox and a caption containing the course number and title. 
+            ^ The checkboxes all have the same name ("selectedCourses"). 
+            ^ Using the same name informs the model binder to treat them as a group. 
+            ^ The value attribute of each checkbox is set to CourseID. 
+            ^ When the page is posted, 
+              the model binder passes an array that consists of the CourseID values for only the checkboxes that are selected.
+
+      > Update the Instructor Create page
+        * Update the Instructor Create page model and with code similar to the Edit page:
+        * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Instructors\Create.cshtml.cs
+        * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Instructors\Create.cshtml
+
+          a. 上面程式碼作了下列變更(Create.cshtml.cs)
+            ^ Adds logging for warning and error messages.
+            ^ Calls {Load}, which fetches all the Courses in one database call. 
+              For small collections this is an optimization when using {FindAsync}. 
+              FindAsync returns the tracked entity without a request to the database.          
+
+              // 大量資料用 _context.Courses.Load(); //回DB重撈
+              // 使用 .Load() 功能, 必須 using Microsoft.EntityFrameworkCore;
+              // 小量資料用 _context.Courses.FindAsync(courseID); //直接抓追蹤中的資料
+
+            ^ _context.Instructors.Add(newInstructor) creates a new Instructor 
+              using many-to-many relationships without explicitly mapping the join table. 
+              Many-to-many was added in EF 5.0.
+
+          b. 上面程式碼作了下列變更(Create.cshtml)
+            ^ 參考Edit.cshtml, 加入 OfficeAssignment輸入欄位 & selectedCourses勾選欄位
+
+      > Update the Instructor Delete page
+        * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Instructors\Delete.cshtml.cs
+
+          Instructor instructor = await _context.Instructors
+              .Include(i => i.Courses) //重點1:講師關聯課程必須JOIN進來, 作為講師的完整資訊.
+              .SingleAsync(i => i.ID == id);
+          if (instructor == null)
+          {
+              return RedirectToPage("./Index");
+          }
+          _context.Instructors.Remove(instructor); //重點1:講師被刪除時, 課程才會被一併刪除
+          
+          var departments = await _context.Departments
+              .Where(d => d.InstructorID == id)
+              .ToListAsync();
+          departments.ForEach(d => d.InstructorID = null); //重點2:如果被刪除講師被指定為任何部門管理員時, 也要從這些部門移除講師指派關係.
+          
+          await _context.SaveChangesAsync();
+
+        ^ Uses eager loading for the Courses navigation property. 
+          Courses must be included or they aren't deleted when the instructor is deleted.
+          //講師關聯課程必須JOIN進來, 作為講師的完整資訊. 
+          //講師被刪除時, 課程才會被一併刪除.
+          //在此的 {多對多關係} 關係, 就會採取 {遞迴刪除} 作法, 把課程實體一併刪除.
+          //EFCore 預設會採取 {遞迴刪除} 作法, 針對 {非允許空值 FK} & {多對多關係} 的情況.
+          
+          To avoid needing to read them, configure {cascade delete} in the database.
+          //為避免需要讀取它們，請在資料庫中配置級聯刪除
+
+        ^ If the instructor to be deleted is assigned as administrator of any departments, 
+          removes the instructor assignment from those departments.
+          //如果被刪除講師被指定為任何部門管理員時, 也要從這些部門移除講師指派關係.
+
+        =={cascade delete}===============================================================
+        * 注意1: By convention, EF Core enables {cascade delete} 
+          for {non-nullable FKs} and {for many-to-many relationships}. 
+          //EFCore 預設會採取 {遞迴刪除} 作法, 針對 {非允許空值 FK} & {多對多關係} 的情況.
 
   Part 8, Razor Pages with EF Core in ASP.NET Core - Concurrency
 

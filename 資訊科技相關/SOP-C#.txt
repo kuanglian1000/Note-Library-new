@@ -1,8 +1,13 @@
 /* C# 7.0 後出現的新東西 */
   {default} <= 給型別的Null 常值或可能的 Null 值
 
-  {default!} <= 給型別的Null值, 注意後面多一個驚嘆號 '!'
-    string str = default!;
+  {default!} <= 注意後面多一個驚嘆號 '!', 一元運算的後置!功能(null-forgiving), 表示這個運算式不是NULL.
+    string str = default!; // default!, 表示這個運算式不是NULL.
+
+  0. 一元運算的後置!功能(null-forgiving), 表示這個運算式不是NULL. 
+  例: string? Title = ""; Title變數是 nullable. 
+      如果使用 Title 時, 明確加上 Title! 表示跟編譯器說, 這時候它不是NULL
+      https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/null-forgiving
 
 /*新的運算子*/
   '=>' 運算子
@@ -11,6 +16,20 @@
     
     public bool HasPreviousPage => PageIndex > 1; //是否有前頁(member => expression;運算式主體定義)
   
+  .ForEach 運算子 //2023-05-26 新發現
+    forEach() 方法會將陣列內的每個元素，皆傳入並執行給定的函式一次。
+
+    departments 是陣列
+    departments.ForEach(d => d.InstructorID = null); //C#
+
+    此用法在JS也有{Array.prototype.forEach()}
+    const array1 = ['a', 'b', 'c'];
+    array1.forEach(element => console.log(element));
+    // Expected output: "a"
+    // Expected output: "b"
+    // Expected output: "c"
+
+
   {?.} 運算子 //2023-05-24 新發現
     語法: nullableVariable ?. expression
     說明: 評估 nullableVariable 這個ARRAY 是否為NULL
