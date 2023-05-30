@@ -1818,7 +1818,376 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
           for {non-nullable FKs} and {for many-to-many relationships}. 
           //EFCore 預設會採取 {遞迴刪除} 作法, 針對 {非允許空值 FK} & {多對多關係} 的情況.
 
-  Part 8, Razor Pages with EF Core in ASP.NET Core - Concurrency
+  Part 8, Razor Pages with EF Core in ASP.NET Core - Concurrency(如何處理DB同筆資料,同步更新的問題)
+    >
+      *
+        ^
+    
+    > Concurrency conflicts(並行衝突)
+      * A concurrency conflict occurs when:
+        ^ A user navigates to the edit page for an entity.
+        ^ Another user updates the same entity 
+          before the first user's change is written to the database.
+
+      * Pessimistic concurrency(悲觀並行 == 資料庫鎖定)
+        ^ One way to prevent concurrency conflicts is to use database locks.(資料庫鎖定)
+          This is called {pessimistic concurrency}. 
+          Before the app reads a database row that it intends to update, it requests a lock. 
+          Once a row is locked for update access, no other users are allowed to lock the row 
+          until the first lock is released.
+        ^ Managing locks has disadvantages.(缺點)
+          It can be complex to program and can cause performance problems 
+          as the number of users increases. 
+        ^ Entity Framework Core provides no built-in support for pessimistic concurrency.
+          (EFCore 未提供內建的悲觀並行機制)
+
+      * Optimistic concurrency(樂觀並行)
+        ^ Optimistic concurrency allows concurrency conflicts to happen, 
+          and then reacts appropriately when they do. 
+        ^ For example, 
+          1.Jane visits the Department edit page and changes the {budget}
+            for the English department from $350,000.00 to $0.00.
+          2.Before Jane clicks Save, John visits the same page and changes the {Start Date} field 
+            from 9/1/2007 to 9/1/2013.
+          3.Jane clicks Save first and sees her change take effect, 
+            since the browser displays the Index page with zero as the Budget amount.
+          4.John clicks Save on an Edit page that still shows a budget of $350,000.00.
+            (the {budget} field has been changed to $0.00 by Jane)
+        
+        ^ What happens next is determined by {how you handle concurrency conflicts}
+          (Jane & John 更新不同欄位, 但John是否頁面未更新的舊值是否會覆蓋DB內的新值呢??)
+
+          方式1: {Keep track of which property a user has modified} and update only the corresponding columns in the database.
+            (追蹤使用者修改屬性, 只更新資料庫內的對應欄位)
+
+            In the scenario, no data would be lost. 
+            Different properties were updated by the two users. 
+            The next time someone browses the English department, they will see both Jane's and John's changes. 
+            
+            This method of updating can reduce the number of conflicts that could result in data loss. 
+            This approach has some disadvantages:(此方式缺點)
+              1.Can't avoid data loss if competing changes are made to the same property.
+              2.Is generally not practical in a web app. It requires maintaining significant state in order to keep track of all fetched values and new values. Maintaining large amounts of state can affect app performance.
+              3.Can increase app complexity compared to concurrency detection on an entity.
+
+          方式2: Let John's change overwrite Jane's change.
+            (後者全贏, 完全沒作並行控制, 以最新1次更新為準)
+
+            The next time someone browses the English department, 
+            they will see 9/1/2013 and the fetched $350,000.00 value. 
+            
+            This approach is called a {Client Wins} or {Last in Wins} scenario. 
+            All values from the client take precedence over what's in the data store. 
+            
+            The scaffolded code does no concurrency handling, 
+            {Client Wins} happens automatically.
+
+          方式3: Prevent John's change from being updated in the database.
+            (防止後者在資料庫的更新, 以顯示異常訊息的方式, 因為資料狀態已改變.)
+          
+            Typically, the app would:
+              1.Display an error message.
+              2.Show the current state of the data.
+              3.Allow the user to reapply the changes.
+
+            This is called a {Store Wins} scenario. 
+            The data-store values take precedence over the values submitted by the client. 
+            The Store Wins scenario is used in this tutorial. 
+            This method ensures that no changes are overwritten without a user being alerted.
+            (此方法可確保在未向使用者發出警報的情況下覆蓋任何更改。)
+
+    > Conflict detection in EF Core(EFCore 的衝突偵測, 利用RowVersion or GUID欄位值是否相符作為)
+      * Properties configured as concurrency tokens are used to implement optimistic concurrency control. 
+        When an update or delete operation is triggered by SaveChanges or SaveChangesAsync, 
+        {the value of the concurrency token in the database is compared against 
+        the original value read by EF Core}:
+        
+        ^ If the values match, the operation can complete.
+        ^ If the values do not match, 
+          EF Core assumes that another user has performed a conflicting operation, 
+          aborts the current transaction, and throws a DbUpdateConcurrencyException.
+
+      * On relational databases EF Core checks for the value of the concurrency token 
+        in the WHERE clause of UPDATE and DELETE statements to detect a concurrency conflict.
+      
+      * The {data model must be configured to enable conflict detection} 
+        by including a tracking column 
+        that can be used to determine when a row has been changed. 
+        
+      * EF provides two approaches for concurrency tokens:
+        ^ Applying [ConcurrencyCheck] or IsConcurrencyToken to a property on the model. 
+          This approach is not recommended. (不建議用此法, 解決並行衝突的問題)
+          For more information, see {Concurrency Tokens in EF Core}.
+          https://learn.microsoft.com/en-us/ef/core/modeling/concurrency
+
+        ^ Applying {TimestampAttribute or IsRowVersion} to a concurrency token in the model. 
+          This is the approach used in this tutorial. (建議用此法, 解決並行衝突的問題)
+
+          1.SQL Server approach, 使用的是增加{TimestampAttribute}欄位.
+          2.SQLite approach, 使用的是增加{IsRowVersion}欄位, 欄位型態為 GUID, 給定預設值 = Guid.NewGuid();
+          
+          程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Models\Department.cs 
+            (增加{IsRowVersion}欄位)
+          程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Data\SchoolContext.cs
+            (指定{IsRowVersion}欄位為 IsConcurrencyToken(), 指定Department的{ConcurrencyToken}屬性, 作為判斷並行衝突用的標識)
+
+        ^ {IsConcurrencyToken} configures the property as a concurrency token. 
+          On updates, the concurrency token value in the database is compared to the original value 
+          to ensure it has not changed since the instance was retrieved from the database. 
+          If it has changed, a {DbUpdateConcurrencyException} is thrown and changes are not applied.
+
+        ^ In the code that updates the entity, update the value of the concurrency token. 
+          In this sample, the method that updates the entity uses the following code. 
+          This step will be done later in the tutorial.
+
+          {departmentToUpdate.ConcurrencyToken = Guid.NewGuid();}
+
+            @*  針對 SQLite 更新 ConcurrencyToken 方式1
+            
+              departmentToUpdate.ConcurrencyToken = Guid.NewGuid(); 
+              //Only for SQLite, 資料新增或更新時, 須給定新的GUID值.
+              
+              *@
+            
+            @*  針對 SQLite 更新 ConcurrencyToken 方式2: SQLite and EF Core Concurrency Tokens
+              https://www.bricelam.net/2020/08/07/sqlite-and-efcore-concurrency-tokens.html
+
+              1.增加{IsRowVersion}欄位, 方式同LINE: 1929
+                public class Cutomer
+                {
+                  public int id {get;set;}
+                  public string Name {get;set;}
+                  public int Version {get;set;} //增加{IsRowVersion}欄位
+                }
+
+              2.指定{IsRowVersion}欄位為 IsConcurrencyToken(), 指定Department的{ConcurrencyToken}屬性, 作為判斷並行衝突用的標識
+                方式與LINE: 1932 微不同
+
+                //網路範例作法
+                modelBuilder.Entity<Cutomer>().ToTable(nameof(Cutomer))
+                    .Property(c => c.Version)
+                      .HasDefaultValue(0)
+                        .IsRowVersion(); //這裡不一樣
+                
+                //1932的作法
+                modelBuilder.Entity<Department>().ToTable(nameof(Department))
+                    .Property(d => d.ConcurrencyToken)
+                    .IsConcurrencyToken(); //指定Department的{ConcurrencyToken}屬性, 作為判斷並行衝突用的標識
+
+              3.方式1與方式2最大的不同點: 
+                # 方式1: 資料新增或更新時, 須手動給定新的 {判斷並行衝突用的標識}.
+                # 方式2: 利用Trigger在資料更新後自動異動 {判斷並行衝突用的標識}.
+
+                # 新增Trigger
+                  > If you’re using {Migrations}, 
+                    you can add this to the {Up} method of a new migration using {migrationBuilder.Sql()}.
+                  > If you’re using {EnsureCreated}, 
+                    you can create it using {dbContext.Database.ExecuteSqlCommand()} 
+                    whenever EnsureCreated returns {true}.
+
+                  > CREATE TRIGGER UpdateCustomerVersion
+                    AFTER UPDATE ON Customers
+                    BEGIN
+                        UPDATE Customers
+                        SET Version = Version + 1
+                        WHERE rowid = NEW.rowid;
+                    END;
+
+              *@
+
+            //如果用SQL Server approach, 使用的是增加{TimestampAttribute}欄位.
+            b.Property<byte[]>("ConcurrencyToken")
+              .IsConcurrencyToken()
+              .ValueGeneratedOnAddOrUpdate() //SQL Server會自動產生, 最好的方式, 但前提是要有 SQL Server
+              .HasColumnType("rowversion");
+
+        ^ 模擬並行衝突發生!
+          using (var db = new MyDbContext)
+          {
+            var customer = db.Customers.Find(1);
+
+            // Simulate a concurrent update
+            using (var concurrendb = new MyDbContext)
+            {
+              var concurrenCustomer = concurrendb.Customers.Find(1);
+              concurrenCustomer.Name = "David";
+              concurrendb.SaveChanges();
+            }
+
+            // Throws DbUpdateConcurrencyException
+            customer.Name = "Dubi";
+            db.SaveChanges();
+          }
+
+    > Add a migration
+      * Adding the ConcurrencyToken property changes the data model, which requires a migration.
+        ^ 異動項目如下:
+          1. public Guid ConcurrencyToken {get;set;} = Guid.NewGuid();
+          2. modelBuilder.Entity<Department>().ToTable(nameof(Department))
+              .Property(d => d.ConcurrencyToken)
+              .IsConcurrencyToken(); //指定Department的{ConcurrencyToken}屬性, 作為判斷並行衝突用的標識
+
+        ^ 執行 migration 指令
+          1. dotnet ef migrations add RowVersion
+          2. dotnet ef database update
+
+        ^ 上面指令作了什麼事？
+          1.Creates the Migrations/{time stamp}_RowVersion.cs migration file.
+          2.Updates the Migrations/SchoolContextModelSnapshot.cs file. 
+            The update adds the following highlighted code to the BuildModel method:
+            
+            b.Property<Guid>("ConcurrencyToken")
+              .IsConcurrencyToken()
+              .HasColumnType("TEXT");
+
+    > Scaffold Department pages
+      * 執行 Scaffold 指令
+        ^ dotnet aspnet-codegenerator razorpage -m Department -dc SchoolContext -udl -outDir Pages\Departments --referenceScriptLibraries
+
+      * Add a utility class(擷取RowVersion欄位部份值)
+        ^ 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Utility.cs
+        ^ 利用directive 寫成 SQLite & SqlServer 可在同一個檔內維護
+          
+    > Update the Index page
+      * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Departments\Index.cshtml
+      * 上述程式碼作下列調整:
+        ^ Replace Index with Departments.
+        ^ Change the code containing ConcurrencyToken to show just the last few characters.
+        ^ Replace FirstMidName with FullName.
+
+    > Update the Edit page model
+      * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Departments\Edit.cshtml.cs
+        //{寫法2}-將資料寫入清單供使用者選擇: 直接寫在修改或新增頁面.
+      
+      * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Courses\Create.cshtml.cs
+        //{寫法1}-將資料寫入清單供使用者選擇: 寫在{頁面底層}, 修改或新增頁面再繼承頁面底層.
+
+      * The concurrency updates
+        ^ OriginalValue is updated with the ConcurrencyToken value from the entity 
+          when it was fetched in the OnGetAsync method. 
+        ^ EF Core generates a SQL UPDATE command 
+          with a WHERE clause containing the original ConcurrencyToken value. 
+        
+        ^ If {no rows are affected by the UPDATE command}, 
+          a {DbUpdateConcurrencyException exception} is thrown.
+          
+          /* 狀況1: 
+            SELECT * Where ConcurrencyToken = OriginalValue(最原始從DB查出來的值) 有資料.
+            但是 
+            Update xxx Where ConcurrencyToken = OriginalValue(最原始從DB查出來的值)去更新DB, 
+            卻沒有任何行被更新, 會丟出{DbUpdateConcurrencyException exception}
+          */
+          
+        ^ No rows are affected by the UPDATE command 
+          when no rows have the original ConcurrencyToken value.
+
+          /* 狀況2: 
+            SELECT * Where ConcurrencyToken = OriginalValue(最原始從DB查出來的值) 沒有任何資料.
+          */
+
+        @* 額外補充: https://learn.microsoft.com/en-us/ef/ef6/saving/change-tracking/property-values
+            ^ Entity Framework keeps track of two values for each property of a tracked entity. 
+            1.The {current value} is, as the name indicates, 
+              the current value of the property in the entity. (Entity裡面的值, 可能是前端回傳值)
+            2.The {original value} is the value that the property had 
+              when the entity was queried from the database or attached to the context. (最原始從DB查出來的值)
+        
+         *@
+
+      * SQL Server vs SQLite code differences
+
+        + using System;    // For GUID on SQLite
+        // Set ConcurrencyToken CurrentValue(給予新的版本值, 並行控制的關鍵)
+        + departmentToUpdate.ConcurrencyToken = Guid.NewGuid(); // For GUID on SQLite
+
+        // Set ConcurrencyToken to value read in OnGetAsync(取載入時版本值, 並行控制的關鍵)
+        _context.Entry(departmentToUpdate)
+            .Property(d => d.ConcurrencyToken).OriginalValue = Department.ConcurrencyToken;
+
+        - Department.ConcurrencyToken = (byte[])dbValues.ConcurrencyToken; 
+        + Department.ConcurrencyToken = dbValues.ConcurrencyToken; // For GUID on SQLite
+
+      * Update the Edit Razor page
+        ^ 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Departments\Edit.cshtml
+
+      * Test concurrency conflicts with the Edit page
+        ^ Open {two browsers instances} of Edit on the English department:
+          1.Run the app and select Departments.
+          2.Right-click the Edit hyperlink for the English department and select Open in new tab.
+          3.In the first tab, click the Edit hyperlink for the English department.
+
+    > Update the Delete page model 
+      * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Departments\Delete.cshtml.cs
+
+        ^ The Delete page detects concurrency conflicts 
+          when the entity has changed after it was fetched. 
+        ^ Department.ConcurrencyToken is the row version 
+          when the entity was fetched. 
+        ^ When EF Core creates the SQL DELETE command, 
+          it includes a WHERE clause with ConcurrencyToken. 
+        ^ If the SQL DELETE command results in zero rows affected:
+          1.The ConcurrencyToken in the SQL DELETE command doesn't match ConcurrencyToken in the database.
+          2.A DbUpdateConcurrencyException exception is thrown.
+          3.OnGetAsync is called with the concurrencyError.
+
+      * Update the Delete Razor page
+        ^ 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Pages\Departments\Delete.cshtml
+        
+        ^ 上面程式碼作了下列變更:
+          1.Updates the page directive from @page to @page "{id:int}".
+          2.Adds an error message.
+          3.Replaces FirstMidName with FullName in the Administrator field.
+          4.Changes ConcurrencyToken to display the last byte.
+          5.Adds a hidden row version. //重點在這裡//
+            ConcurrencyToken must be added so postback binds the value.
+      
+      * Test concurrency conflicts
+
+        ^ 無法測出DELETE的 concurrency conflicts.
+          找到原因了:
+          1.測試方法有問題. 
+            同一筆資料, 第1個User先刪, 第2個User再刪.
+            第2個User刪除時, if (await _context.Departments.AnyAsync(m => m.DepartmentID == id)) 找不到, 
+            沒有執行比對RowVersion再刪除動作, 當然不會觸發 {DbUpdateConcurrencyException}
+          
+          2.針對同筆資料
+            ~ 先刪除，後刪除：不會引發DbUpdateConcurrencyException
+            ~ 先修改，後刪除：會引發DbUpdateConcurrencyException
+              While the above examples discussed updates to existing entities. 
+              EF also throws {DbUpdateConcurrencyException} 
+              when attempting to delete a row that has been concurrently modified. 
+              //重點1: 準備刪除的資料已被並行修改, EFCore同樣會觸發{DbUpdateConcurrencyException}
+              
+              However, this exception is never thrown when adding entities; 
+              while the database may indeed raise a unique constraint violation 
+              if rows with the same key are being inserted, 
+              this results in a provider-specific exception being thrown, 
+              and not DbUpdateConcurrencyException.
+              //重點2: 新增資料不會觸發{DbUpdateConcurrencyException}, 
+                  而是{違反PK重複的限制}.
+          
+            try
+            {
+                if (await _context.Departments.AnyAsync(
+                    m => m.DepartmentID == id))
+                {
+                    // Department.ConcurrencyToken value is from when the entity
+                    // was fetched. If it doesn't match the DB, a
+                    // DbUpdateConcurrencyException exception is thrown.
+                    _context.Departments.Remove(Department);
+                    await _context.SaveChangesAsync();
+                }
+                return RedirectToPage("./Index");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return RedirectToPage("./Delete",
+                    new { concurrencyError = true, id = id });
+            }
+
+
+        
+    > Additional resources
 
 Introduction to Razor Pages in ASP.NET Core
 https://learn.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-7.0&tabs=visual-studio-code#url-generation-for-pages
