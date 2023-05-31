@@ -1,3 +1,8 @@
+2023/05/31 
+  準備去新公司報到前, 發現 .NET Core BazorPage {竟然沒有內建驗證功能} !!
+  太扯了吧, 從05/09從台半離開到05/31現在, 都在花時間學習 {.NET Core}.
+  氣死我了, 以後不玩了啦...
+
 /* ASP.NET 的新東西 */
   
   @Html.Raw("htmlContent") <= ASP.NET會編譯為 HTML/JavaScript.., 而不是 字串.
@@ -143,7 +148,7 @@
     Microsoft.NETCore.App 6.0.4 [C:\Program Files\dotnet\shared\Microsoft.NETCore.App]
     Microsoft.WindowsDesktop.App 6.0.4 [C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App]
 
-  ## <命令列環境>下使用 <dotnet aspnet-codegenerator> 工具的前置作業. ##
+  ## <命令列環境>下使用 <dotnet aspnet-codegenerator> 工具的前置作業 ##
     https://learn.microsoft.com/zh-tw/aspnet/core/tutorials/first-mvc-app/adding-model?view=aspnetcore-7.0&tabs=visual-studio-code
     重點在這裡 # 新增 NuGet 套件 #
 
@@ -159,6 +164,7 @@
       dotnet tool uninstall --global dotnet-ef
       dotnet tool install --global dotnet-ef --version 6.0.10
 
+      # <資料庫結構(Schema)自動產生> 套件 加入專案內 #
       dotnet add package Microsoft.EntityFrameworkCore.Design
       dotnet add package Microsoft.EntityFrameworkCore.SQLite
       dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 6.0.10
@@ -188,13 +194,11 @@
       可能需要卸載 aspnet-codegenerator 以解決問題。 例如，如果您已安裝 的 aspnet-codegenerator 預覽版本，請先將其卸載，再安裝發行的版本。
       上列命令會卸載 dotnet aspnet-codegenerator 工具，並安裝最新的穩定版本：
 
-{進行中}
-
-TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} in ASP.NET Core */
-  學習網址: https://learn.microsoft.com/en-us/aspnet/core/data/ef-rp/intro?view=aspnetcore-7.0&tabs=visual-studio
-  ProjectPath => C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage
-  課程重點: 說明 {EFCore} 重要觀念及如何使用.
-
+/* Razor Pages with Entity Framework Core {EFCore} in ASP.NET Core <= Razor Pages - EFCore DB 中階班 => */ 
+(完成第1次-2023/05/11-2023/05/29；課程重點: 說明 {EFCore} 重要觀念及如何使用)
+  > 學習網址: https://learn.microsoft.com/en-us/aspnet/core/data/ef-rp/intro?view=aspnetcore-7.0&tabs=visual-studio
+  > ProjectPath => C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage
+  
   Part 0, Razor Pages UI 與 CS 間如何傳值與溝通
 
     UI:
@@ -224,11 +228,6 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
           public Department Department {get;set;} //navigation property(不能為NULL, 所以須加入FK DepartmentID)
           ...
       }
-
-
-
-
-
 
   Part 1, Razor Pages with Entity Framework Core in ASP.NET Core - Tutorial 1 of 8 (2023/05/11 Completed)
 
@@ -2184,16 +2183,327 @@ TODO(Deadline : 2023/05/11) /* Razor Pages with Entity Framework Core {EFCore} i
                 return RedirectToPage("./Delete",
                     new { concurrencyError = true, id = id });
             }
-
-
-        
+     
     > Additional resources
 
-Introduction to Razor Pages in ASP.NET Core
-https://learn.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-7.0&tabs=visual-studio-code#url-generation-for-pages
 
-Tutorial: Get started with Razor Pages in ASP.NET Core
-https://learn.microsoft.com/en-us/aspnet/core/tutorials/razor-pages/razor-pages-start?source=recommendations&view=aspnetcore-7.0&tabs=visual-studio
+{進行中}
+/* Tutorial: Get started with Razor Pages in ASP.NET Core <= Razor Pages 初階班 => */
+  https://learn.microsoft.com/en-us/aspnet/core/tutorials/razor-pages/razor-pages-start?source=recommendations&view=aspnetcore-7.0&tabs=visual-studio
+  練習專案路徑: C:\Projects\Projects_ASP.NET_Core\EWeb_RazorPage
+  >
+    *
+      ^
+
+  [Part 1, Introduction] (OK, 2023/05/30)
+    1.Prerequisites
+    2.Create a Razor Pages web app
+    3.Run the app
+    4.Examine the project files
+
+      > Pages folder
+        * Contains Razor pages and supporting files. Each Razor page is a pair of files:
+          ^ A .cshtml file that has HTML markup with C# code using Razor syntax.
+          ^ A .cshtml.cs file that has C# code that handles page events.
+
+        * Supporting files have names that begin with an underscore. //支援檔案通常以 _ 開頭.
+          For example, the {_Layout.cshtml} file configures UI elements common to all pages. 
+          {_Layout.cshtml} sets up the navigation menu at the top of the page and the copyright notice at the bottom of the page.
+
+      > wwwroot folder
+        * Contains {static assets}, like {HTML files, JavaScript files, and CSS files}. 
+          For more information, see {Static files in ASP.NET Core}.
+
+      > appsettings.json
+        * Contains {configuration data}, like {connection strings}. //包含設定值, 例: 連接字串
+          For more information, see Configuration in ASP.NET Core.
+
+      > Program.cs //重點: APP可以使用的服務, 必須在此註明(DI)
+        * 程式碼片段
+          var builder = WebApplication.CreateBuilder(args);
+          builder.Services.AddRazorPages(); // Add services to the container.
+          var app = builder.Build();
+
+        * 上面程式碼作了什麼事
+          1.create a WebApplicationBuilder with preconfigured defaults.
+          2.add Razor Pages support to the Dependency Injection (DI) container.
+          3.builds the app:
+
+        * 程式碼片段
+          // Configure the HTTP request pipeline.
+          if (!app.Environment.IsDevelopment())
+          {
+              app.UseExceptionHandler("/Error");
+              // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+              app.UseHsts();
+          }
+        
+        * 上面程式碼作了什麼事
+          1.sets the exception endpoint to {/Error}
+          2.enables HTTP Strict Transport Security Protocol (HSTS) 
+            when the app is not running in development mode
+          //非正式環境時, 設定異常處理地點 & 強制使用 HTTP Strict Transport Security Protocol (HSTS)
+
+        * The following code enables various {Middleware}: //使用了許多 {中介程式}
+          1.app.UseHttpsRedirection(); 
+            : Redirects HTTP requests to HTTPS.
+          2.app.UseStaticFiles(); 
+            : Enables static files, such as HTML, CSS, images, and JavaScript to be served. 
+              For more information, see {Static files in ASP.NET Core}.
+          3.app.UseRouting(); 
+            : Adds route matching to the middleware pipeline. 
+              For more information, see {Routing in ASP.NET Core}
+          4.app.MapRazorPages();
+            : Configures endpoint routing for Razor Pages.
+          5.app.UseAuthorization(); 
+            : Authorizes a user to access secure resources. 
+              This app doesn't use authorization, therefore this line could be removed.
+          6.app.Run(); 
+            : Runs the app.
+
+    5.Troubleshooting with the completed sample
+    6.Next steps
+
+  [Part 2, add a model] (OK, 2023/05/31)
+    > classes are added for managing movies in a database. 
+      * The app's model classes use Entity Framework Core (EF Core) to work with the database. 
+      * EF Core is an {object-relational mapper (O/RM)} that simplifies data access. 
+      * You write the model classes first, and EF Core creates the database.
+      * The model classes are known as {POCO} classes (from "Plain-Old CLR Objects") 
+        because they don't have a dependency on EF Core. 
+        They {define the properties of the data} that are stored in the database.
+      * #EFCore #ORM #POCO #CodeFirst
+
+    1.Add a data model
+      /Models/dataModel.cs
+      * 程式碼: C:\Projects\Projects_ASP.NET_Core\EWeb_RazorPage\Models\Movie.cs
+      
+        ^ The Movie class contains:
+          1.An {ID} field to provide a primary key for the database. //PK
+          2.A [DataType] attribute to specify the type of data in the {ReleaseDate} field. 
+            With this attribute:
+            The user is not required to enter time information in the date field.
+            Only the date is displayed, not time information.
+          3.The question mark after string indicates that the property is nullable. 
+            For more information, see {Nullable reference types}.
+            例: string? Name {get;set;} //表示 Name 欄位允許NULL值
+
+      * Add NuGet packages and EF tools
+        ^ 使用 "dotnet aspnet-codegenerator" 前, 
+          請服用 "<命令列環境>下使用 <dotnet aspnet-codegenerator> 工具的前置作業".
+        ^ !! 千萬不要忘記 {.NET版本} 必須和 {dotnet-aspnet-codegenerator} 及 {dotnet-ef} 版本相符
+
+          dotnet tool uninstall --global dotnet-aspnet-codegenerator #已安裝不要再移除了#
+          dotnet tool install --global dotnet-aspnet-codegenerator --version 6.0.10
+          dotnet tool uninstall --global dotnet-ef #已安裝不要再移除了#
+          dotnet tool install --global dotnet-ef --version 6.0.10
+          dotnet add package Microsoft.EntityFrameworkCore.Design --version 6.0.10
+          dotnet add package Microsoft.EntityFrameworkCore.SQLite --version 6.0.10
+          dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version 6.0.10
+          dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 6.0.10
+          dotnet add package Microsoft.EntityFrameworkCore.Tools --version 6.0.10
+
+    2.Scaffold the movie model
+      
+      > Scaffold the movie model
+        * 指令碼(之前用過的): 
+            "dotnet aspnet-codegenerator razorpage -m Course -dc SchoolContext -udl -outDir Pages\Courses --referenceScriptLibraries"
+
+        * (Error)指令碼(範例)-.NET 7, --databaseProvider sqlite 在.NET 6會掛掉: 
+            "dotnet aspnet-codegenerator razorpage -m Movie -dc RazorPagesMovie.Data.MovieContext -udl -outDir Pages/Movies --referenceScriptLibraries --databaseProvider sqlite"
+            //注意: -dc RazorPagesMovie.Data.MovieContext, 寫的完整, 會自動加上namespace
+
+        * (OK)指令碼-.NET 6: 
+            "dotnet aspnet-codegenerator razorpage -m Movie -dc EWeb_RazorPage.Data.MovieContext -udl -outDir Pages/Movies --referenceScriptLibraries"
+            namespace EWeb_RazorPage.Pages_Movies //長的很怪, 差在 -outDir Pages/Movies
+
+            "dotnet aspnet-codegenerator razorpage -m Movie -dc EWeb_RazorPage.Data.MovieContext -udl -outDir Pages\Movies --referenceScriptLibraries"
+            namespace EWeb_RazorPage.Pages.Movies //似乎比較正常, 差在 -outDir Pages\Movies
+
+            //注意1: -dc MovieContext, 儘管未加上namespace (EWeb_RazorPage.Data.MovieContext), 路徑同樣正確.
+            //注意2: -outDir Pages/Movies, 生出來的 namespace EWeb_RazorPage.Pages_Movies 
+                     -outDir Pages\Movies, 生出來的 namespace EWeb_RazorPage.Pages.Movies
+                     個人推測 "Pages\Movies" 符合 Windows 系統路徑規則, 故 namespace 命名正常些.
+
+      > Use SQLite for development, SQL Server for production 
+        * 程式碼: C:\Projects\Projects_ASP.NET_Core\EWeb_RazorPage\Program.cs
+
+        * The preceding code doesn't call {UseDeveloperExceptionPage} in development 
+          because {WebApplication} calls {UseDeveloperExceptionPage in development mode}.
+
+      > Files created and updated
+        * The scaffold process creates the following files:
+          1.Pages/Movies: Create, Delete, Details, Edit, and Index.
+          2.Data/MovieContext.cs
+
+      > The scaffold process adds the following highlighted code to the {Program.cs} file:
+        * 以DI方式, 註冊 DbContext 服務
+        * 程式碼:
+        
+          using Microsoft.EntityFrameworkCore;
+          using Microsoft.Extensions.DependencyInjection;
+
+          builder.Services.AddDbContext<MovieContext>(options =>
+            options.UseSqlite(builder.Configuration.GetConnectionString("MovieContext") ?? throw new InvalidOperationException("Connection string 'MovieContext' not found.")));
+
+    3.Create the initial database schema using EF's migration feature
+
+      > The migrations feature in Entity Framework Core provides a way to:
+        * Create the initial database schema.
+        * Incrementally update the database schema 
+          to keep it in sync with the app's data model. 
+        * Existing data in the database is preserved. //現有資料庫內資料被保留
+
+      > 指令碼:
+        * dotnet ef migrations add InitialCreate //第1次移轉名稱慣例: InitialCreate
+        * dotnet ef database update //實際更新DB結構
+
+        * The {migrations} command generates code to create the {initial database schema}. 
+          The schema is based on the model specified in {DbContext}. 
+          The {InitialCreate} argument is used to name the migrations. //依慣例, 會依本次異動命名
+          Any name can be used, but by convention a name is selected that describes the migration. 
+
+        * The {update} command runs the {Up} method in migrations 
+          that have not been applied. 
+          In this case, update runs the Up method in the Migrations/<time-stamp>_InitialCreate.cs file, 
+          which creates the database.
+
+        * For {SQLite}, column type for the {Price} field is set to TEXT. 
+          This is resolved in a later step. //在 SQLite 沒有與 decimal 對應的DB欄位, 必須手動處理
+
+      > Examine the context registered with dependency injection
+        * 程式碼: C:\Projects\Projects_ASP.NET_Core\EWeb_RazorPage\Program.cs
+
+          ^ ASP.NET Core is built with {dependency injection}. 
+            Services, such as the {EF Core database context}, 
+            are registered with dependency injection during application startup. 
+          
+          ^ Components that require these services (such as Razor Pages) are provided via constructor parameters. 
+            The constructor code that gets a database context instance is shown later in the tutorial.
+
+        * 程式碼: C:\Projects\Projects_ASP.NET_Core\EWeb_RazorPage\Data\MovieContext.cs (簡單範例)
+        * 程式碼: C:\Projects\Projects_ASP.NET_Core\EFCore_RazorPage\Data\SchoolContext.cs (進階範例)
+        
+          ^ Derives from Microsoft.EntityFrameworkCore.DbContext.
+          ^ Specifies which entities are included in the data model. //指的是DB這個MODEL
+          ^ Coordinates EF Core functionality, 
+            such as Create, Read, Update and Delete, for the Movie model.
+          ^ 在 DbContext 內還能設定
+            1.建立資料表間的關聯性
+            2.指定資料表的並行控制欄位
+            3.資料表名稱等細節
+
+        * 程式碼片段: public DbSet<EWeb_RazorPage.Models.Movie> Movie { get; set; } = default!;
+
+          ^ The preceding code creates a DbSet<Movie> property for the entity set. 
+          ^ In Entity Framework terminology, 
+            1.an {entity set} typically corresponds to a database table. //代表1個資料表
+            2.An {entity} corresponds to a row in the table.//代表1列
+
+    4.Test the app
+    5.Troubleshooting with the completed sample
+    6.Additional resources
+
+  [Part 3, scaffolded Razor Pages in ASP.NET Core]
+
+    > This tutorial examines the Razor Pages created by scaffolding in the previous tutorial [Part 2, add a model].
+    
+    > The Create, Delete, Details, and Edit pages
+      
+      > 程式碼: C:\Projects\Projects_ASP.NET_Core\EWeb_RazorPage\Pages\Movies\Index.cshtml.cs
+
+        * Razor Pages are derived from PageModel. 
+          By convention, the PageModel derived class is named <PageName>Model. 
+          For example, the Index page is named <Index>Model.
+
+        * The constructor uses {dependency injection} to add the RazorPagesMovieContext to the page:
+          ^ 程式碼片段
+            public class IndexModel : PageModel
+            {
+                private readonly RazorPagesMovie.Data.RazorPagesMovieContext _context;
+
+                public IndexModel(RazorPagesMovie.Data.RazorPagesMovieContext context) //在這裡DI DBContext
+                {
+                    _context = context;
+                }
+
+        * When a {GET request} is made for the page, the {OnGetAsync} method returns a list of movies to the Razor Page. 
+          On a Razor Page, {OnGetAsync} or {OnGet} is called to initialize the state of the page. 
+          In this case, {OnGetAsync} gets a list of movies and displays them.
+        # 注意: 頁面狀態初始化時, 會呼叫 {OnGetAsync} or {OnGet} #
+          
+        * When {OnGet returns void} or {OnGetAsync returns Task}, 
+          no return statement is used.
+        # 注意: 回傳值為 void 或 Task, 不用明確使用 return 敘述子 #
+
+          ^ 程式碼: C:\Projects\Projects_ASP.NET_Core\EWeb_RazorPage\Pages\Privacy.cshtml.cs
+            public void OnGet()
+            {
+            }
+
+          ^ 程式碼: C:\Projects\Projects_ASP.NET_Core\EWeb_RazorPage\Pages\Movies\Index.cshtml.cs
+            public async Task OnGetAsync()
+            {
+                if (_context.Movie != null)
+                {
+                    Movie = await _context.Movie.ToListAsync();
+                }
+            }
+
+        * When the return type is {IActionResult} or {Task<IActionResult>}
+          a return statement must be provided. 
+        # 注意: 回傳值為 IActionResult 或 Task<IActionResult>, 須使用 return 敘述子 #
+          
+          ^ 程式碼: C:\Projects\Projects_ASP.NET_Core\EWeb_RazorPage\Pages\Movies\Create.cshtml.cs
+            public IActionResult OnGet()
+            {
+                return Page(); //注意事項
+            }
+            
+            public async Task<IActionResult> OnPostAsync()
+            {
+              if (!ModelState.IsValid || _context.Movie == null || Movie == null)
+                {
+                    return Page();
+                }
+
+                _context.Movie.Add(Movie);
+                await _context.SaveChangesAsync();
+
+                return RedirectToPage("./Index"); //注意事項
+            }
+
+      > The @page directive
+
+      > The @model directive
+
+      > The layout page
+
+      > ViewData and layout
+
+      > Update the layout
+
+      > The Create page model
+
+      > The Create Razor Page
+
+      > 
+
+  [Part 4, Work with a database]
+
+  [Part 5, update the generated pages in an ASP.NET Core app]
+
+  [Part 6, add search to ASP.NET Core Razor Pages]
+
+  [Part 7, add a new field to a Razor Page in ASP.NET Core]
+
+  [Part 8, Add Validation]
+
+/* Introduction to Razor Pages in ASP.NET Core (Razor Pages 概觀) <= 給 developers who are familiar with controllers and views => */ 
+(2023/05/30快速瀏覽過, 還看不太懂, 功力增強後, 須完整回顧)文章內容把 Razor Pages 總體架構作了細部但簡略的說明, 對我目前程度來說太深了.
+最後的多個額外資源連接, 有極高的參考價值.
+  https://learn.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-7.0&tabs=visual-studio-code#additional-resources
+  https://learn.microsoft.com/en-us/aspnet/core/razor-pages/?view=aspnetcore-7.0&tabs=visual-studio-code#url-generation-for-pages
 
   /*==從實作學習ASP.NET Core - 30天的購物網站系列 <.NET 6> [2023/04/05 ~ 未完成]==*/ 
     第1次沒有作完, 就去台半上班了. 2023/05/09從台半離職後, 再來把它作完
