@@ -1,0 +1,459 @@
+<從實作學習ASP.NET Core - 30天的購物網站>
+參考來源：https://ithelp.ithome.com.tw/articles/10258872
+
+專案路徑：C:\Projects\Projects_ASP.NET_Core\MvcShopping
+Day1-Create the WebSite(建立網站雛形)
+
+  dotnet new mvc -o MvcShopping # 新增MVC架構網站
+  dotnet build  # 編譯測試
+
+  dotnet dev-certs https #產生測試環境簽章(https用), message => The HTTPS developer certificate was generated successfully.
+  dotnet dev-certs https --trust #信任測試環境簽章(https用) message => A valid HTTPS certificate is already present.
+
+  dotnet run    # 啟動網站, http://localhost:5210
+
+  本日完工
+
+Day2-Mvc Structure(MVC架構簡介)
+
+  (1)Model：負責資料存儲，處理資料與資料庫之間的操作
+  (2)View：負責前端畫面與邏輯顯示，就是使用者會看到的介面
+  (3)Controller：負責商業邏輯處理，管控流程和回應，並以路由傳遞資料
+  
+  順序: User -> (3) by 路由規則 -> (1) connect to DB -> DB -> (1) fetch data from DB -> (3) data processing & put to view -> (2) return Layout & Data to User -> User
+
+  Project Directory - 專案資料夾結構
+    (1)Controllers、Models、Views 資料夾：我們程式的主角
+    (2)appsettings.json：儲存環境變數的地方，例如資料庫連接字串
+    (3)Startup.cs：程式的組態檔，服務需要從這邊註冊  #.NET 6.0後被合併到 <Program.cs> #
+    (4)Program.cs：程式的起始點
+
+  本日完工
+
+Day3-Mvc Controller(控制器-詳細說明)
+
+  可參考官網說明(如何新增控制器) => https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/adding-controller?view=aspnetcore-5.0&tabs=visual-studio
+  
+  路由
+    (1)網址規則定義, Default URL path => https://<Your HostName:port>/<Controller Name>/<Action Name>
+    (2)預設 <Action Name = Index>, 即是不輸入 <Action Name>時, 則自動導向 控制器的Index()
+
+  {完全手動} 新增控制器
+    FilePath = /Controllers/HelloWorldController.cs
+    可參考 HomeController.cs 的內容
+
+  傳遞參數給控制器
+    (1)在HelloWorldController內, 新增一個Action為(Welcome)
+    (2)Action可接收參數為(Name), 並回傳接收的參數值.
+        public string Welcome(string? Name)
+        {
+          return $"Your Name is {Name}";
+        }
+      
+      在路由規則未新增的情況下, 要寫成這樣, 才會正常顯示
+        (O)https://localhost:7231/Helloworld/Welcome?Name=KL
+        (X)https://localhost:7231/Helloworld/Welcome?KL
+        (X)https://localhost:7231/Helloworld/Welcome/KL
+
+  本日完工
+
+Day4-Mvc View(視圖-詳細說明)
+
+  可參考官網說明(如何新增視圖) => https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/adding-view?view=aspnetcore-5.0&tabs=visual-studio
+
+  {完全手動} 新增視圖
+    (1)把HelloWorldController內, Index() Action 回傳型態 string 改為 IActionResult.
+    (2)Index() Action方法內, 則回傳 View(). (註: MVC自己會去找 /Views/HelloWorld/Index.cshtml, 加入資料包好後回傳給User)
+    (3)在路徑 /Views/HelloWorld 下, 新增 Index.cshtml
+    (4)在檔案 Index.cshtml 中, 加入下列程式碼
+
+      @{
+        ViewData["Title"] = "Index";
+      }
+
+      <h2>Index</h2>
+      <p>This is our Default View of HelloWorld Controller</p>
+      <p>這是我們的HelloWorld控制器的預設檢視</p>
+  
+  ViewData & ViewBag(傳遞參數用的載具, 後端傳至前端)
+    (1)適合在頁面有需要顯示後端資料的時候使用.
+    (2)生命週期只有一個頁面，當前端把數值載入完後就會自動消失了.
+    (3)前端取值時, @ 要特別加註上去, 這是RazorPage的寫法.
+    
+    (4)使用方式 (程式範例: C:\Projects\Projects_ASP.NET_Core\MvcShopping\Views\HelloWorld\Index.cshtml)
+      
+      {後端給值}
+        a. ViewData["data_Index"] = data_Value; // ViewData["XXX"]
+        b. ViewBag.data_Index = data_Value; // ViewBag.XXX
+      
+      {前端取值}
+        c. @{
+            ViewData["Title"] = "Index"; //前端給值, 它要給共用外框標題名稱值
+          }
+          <h2>Index</h2>
+          <p>This is our Default View !</p> 
+          <p>@ViewData["mystring1"]</p> 
+          <p>@ViewBag.mystring2</p>     
+
+  本日完工
+
+Day5-Mvc Model(模型-詳細說明)
+
+  可參考官網說明(如何新增模型) => https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/adding-model?view=aspnetcore-5.0&tabs=visual-studio
+
+  服用 " <命令列環境>下使用 <dotnet aspnet-codegenerator> 工具的前置作業 "
+
+    (1) <dotnet aspnet-codegenerator> & <dotnet-ef> 兩種工具已安裝
+    (2) 安裝套件至專案中
+        # <程式碼自動產生> 套件 加入專案內 #
+          dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version 6.0.10
+        # <資料庫結構(Schema)自動產生> 套件 加入專案內 #
+          dotnet add package Microsoft.EntityFrameworkCore.Design
+          dotnet add package Microsoft.EntityFrameworkCore.SQLite
+          dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 6.0.10
+          dotnet add package Microsoft.EntityFrameworkCore.Tools --version 6.0.10
+  
+  {Code First} 三步驟
+    # 參考作法: C:\Users\p10154383\Documents\個人資料夾\筆記-圖書館-new\資訊科技相關\SOP-.NET CORE.txt
+    # 範例1: 使用 資料模型(Data/Model)的超完整範例
+
+      (1) 建立模型(Create Model by Hand)
+
+          * 資料模型(Data/Model): "Product.cs"
+            
+          using System;
+          using System.Collections.Generic;
+
+          namespace MvcShopping.Models;
+
+          public class Product
+          {
+              public int Id {get;set;} //系統指定ID, 無法變更
+              public string? ProductName {get;set;}
+              public decimal Price {get;set;}
+              public int Stock {get;set;}
+          }
+      
+      (2) 用 <Scaffold> 工具, 建立商品 CRUD 頁面及相關程式碼
+          利用 Model & <aspnet-codegenerator> 工具, 完成 Controller, View, DbContext, ConnectionString新增, Database服務註冊.
+          dotnet aspnet-codegenerator controller 
+          -m Product -name ProductsController  -dc StoreContext 
+          -outDir Controllers -sqlite -scripts -udl
+      
+      (3) 利用 <EntityFrameworkCore> 工具, 新增 資料庫移轉記錄(Migrations), 產生資料庫DB
+          > drop and re-create(快速, 適用於開發環境, 直上Table Schema & 最新Data)
+          * Delete the Migrations folder. 
+          * dotnet ef database drop --force
+            dotnet ef migrations add InitialCreate (註: 依照慣例, 第1次移轉的取名為 InitialCreate; 之後可以改為 add Column_Desc..)
+            dotnet ef database update (註: 使用最近1次移轉, 執行移轉內的 Up 方法, 來新增資料庫.)
+
+            # 出現 C:\Projects\Projects_ASP.NET_Core\MvcShopping\Models\Product.cs(9,29): warning CS8618: 
+              退出建構函式時，不可為 Null 的 屬性 'Name' 必須包含非 Null 值。
+              請考慮將 屬性 宣告為可為 Null。 [C:\Projects\Projects_ASP.NET_Core\MvcShopping\MvcShopping.csproj]
+
+            # 配合調整 Model 內的 Name 屬性, 改為 string? (nullable的型別)
+            # 再作一次資料庫更新
+            dotnet ef migrations add modify_column_NameAndType
+            dotnet ef database update
+
+          dotnet tool uninstall --global dotnet-ef #已安裝不要再移除了#
+          dotnet tool install --global dotnet-ef --version 7.0.10
+
+          成功產生 Stores-Development.db, 
+          # (appsettings.Development.json 內, "ConnectionStrings"值是我後來加上去的
+            
+            "ConnectionStrings": {
+              "StoreContext": "Data Source=Stores-Develop.db"
+            }
+
+      (4) 測試執行(OK)
+
+  本日完工
+
+Day6-Mvc Action(控制器行為-詳細說明-看懂CRUD的Action)
+
+  觀念介紹
+    (1) Model <=> DB 的溝通橋梁, 利用 Entity Framework Core
+    (2) Controller <=> View 間的表單傳值, 利用 HttpGet & HttpPost
+
+    (1) Model <=> DB 的溝通橋梁, 利用 Entity Framework Core(EFCore)
+      a.Entity Framework Core 是ORM框架
+      b.當程式碼存取DB資源時, 統一對 DBContext 作操作.
+      c.CRUD Entity(實體, 可想像一筆記錄), EFCore會自動處理RollBack & Commit
+        > 程式碼片段 <
+          _context.Add(product1);
+          _context.Add(product2);
+          _context.SaveChanges();
+
+    (2) Controller <=> View 間的表單傳值, 利用 HttpGet & HttpPost
+      a.HTTP協定中定義的方法，是用戶端和伺服器端處理傳值的方法.
+        在實務上兩者都能達到傳值的效果
+        但在本質上有所不同.
+      b.HttpGet, 資源需求低, 安全性低(明信片) => 常用於 <Read查詢資料>
+      c.HttpPost, 資源需求高, 安全性高(掛號) => 常用於 <C+U+D 表單>
+
+  程式碼對應
+    (1)開啟程式 Controllers\ProductsController.cs, 
+        發現同一個新增動作, 對應兩個同名 Create Action
+        差在 one for [HttpGet], the other for [HttpPost]
+
+
+      // GET: Products/Create
+      public IActionResult Create()
+      {
+          return View();
+      }
+
+      // POST: Products/Create
+      // To protect from overposting attacks, enable the specific properties you want to bind to.
+      // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+      [HttpPost]
+      [ValidateAntiForgeryToken]
+      public async Task<IActionResult> Create([Bind("Id,Name,Price,Stock")] Product product)
+      {
+          if (ModelState.IsValid)
+          {
+              _context.Add(product);
+              await _context.SaveChangesAsync();
+              return RedirectToAction(nameof(Index));
+          }
+          return View(product);
+      }
+
+  本日完工
+
+Day7-複雜的商品模型(正式進入後台實作), 
+  # Product資料表(新增欄位+與Category建立關聯) + Category資料表(新增資料表+與Product建立關聯)
+  # 新增異動移轉(UpdateProduct_CreateCategory) + 重建資料庫
+
+  Product資料表(新增欄位+與Category建立關聯)
+    程式路徑: Models\Product.cs
+
+  Category資料表(新增資料表+與Product建立關聯)
+    程式路徑: Models\Category.cs
+
+  新增異動移轉(UpdateProduct_CreateCategory) + 重建資料庫    
+    dotnet ef migrations add UpdateProduct_CreateCategory (註: 依照慣例, 第1次移轉的取名為 InitialCreate; 之後可以改為 add Column_Desc..)
+    dotnet ef database update (註: 使用最近1次移轉, 執行移轉內的 Up 方法, 來新增資料庫.)
+
+/*==從實作學習ASP.NET Core - 30天的購物網站系列 <.NET 6> [2023/04/05 ~ 未完成]==*/ 
+  第1次沒有作完, 就去台半上班了. 2023/05/09從台半離職後, 再來把它作完
+  資料來源: https://ithelp.ithome.com.tw/articles/10258872
+  
+  註:學習歷程相同, 採用<VSCode + Sqlite(測試環境) + Oracle XE 11g Express(正式環境)>, 
+     非範例使用的右例工具 <VSCommunity 2019 + SQL Server 2019 Express with Management Studio>
+      
+  Day1: 新增asp.net core web app(MVC)
+    ProjectName: OnlineShopCMS (我的專案名稱: NET6_MvcShopping)
+    .Net Version: .NET 5.0 (我的.NET SDK 版本: .NET 6.0)
+
+    * 新增方案資料夾 C:\Projects\Projects_ASP.NET_Core\NET6_MvcShopping
+    * CMD路徑切換至方案資料夾
+    * 新增MVC架構網站 => dotnet new mvc
+    * 測試編譯 => dotnet build
+    * 信任測試環境簽章(https用) => dotnet dev-certs https --trust
+    * 測試執行 => dotnet run
+      1. 第1次建置要花比較久的時間, 接下來產生<bin> & <obj> 兩個資料夾
+      2. 產生兩個網址, 一個有https憑證, 另一個沒有
+        info: Microsoft.Hosting.Lifetime[14]
+              Now listening on: https://localhost:7254
+        info: Microsoft.Hosting.Lifetime[14]
+              Now listening on: http://localhost:5276
+        info: Microsoft.Hosting.Lifetime[0]
+              Application started. Press Ctrl+C to shut down.
+        info: Microsoft.Hosting.Lifetime[0]
+              Hosting environment: Development
+        info: Microsoft.Hosting.Lifetime[0]
+              Content root path: C:\Projects\Projects_ASP.NET_Core\NET6_MvcShopping\
+
+  Day2: 說明MVC的架構
+    https://imgur.com/xbA1MZq.jpg
+    
+    * 從作者引用的圖可以發現, 雖然使用者看到的是<View>的呈現結果
+      但要求都會 "先送至" <Controller>, 
+      再由<Controller>負責去<Model>取資料或交給<View>作呈現.
+
+      > Controller：負責商業邏輯處理，管控流程和回應，並以路由傳遞資料
+      > Model：負責資料存儲，處理資料與資料庫之間的操作
+      > View：負責前端畫面與邏輯顯示，就是使用者會看到的介面
+
+    * MVC網站專案目錄      
+      > Controllers、Models、Views 資料夾：我們程式的主角
+      > appsettings.json：儲存環境變數的地方，例如資料庫連接字串
+      > Program.cs：程式的起始點
+      > Startup.cs：程式的組態檔，服務需要從這邊註冊。(註: 從.NET 6開始已合併至Program.cs)
+
+        註: 從.NET 6之後 <Startup.cs> 消失了, "服務註冊作業(DI)" 被合併至 <Program.cs>.
+        詳細說明參閱連結, https://stackoverflow.com/questions/70952271/startup-cs-class-is-missing-in-net-6
+
+  Day3: Controller 控制器
+    https://imgur.com/CJXZGiK.jpg
+
+    * 觀念介紹
+      > 路由, 就是 <網址路徑> 的規則.
+      > 使用者需要用<網址路徑>來向程式發出請求.
+      > MVC預設網址路徑為: https://[你的網路位置:port]/[Controller名稱]/[Action名稱]
+      > MVC預設網址路徑規則定義在: "Program.cs" 檔案內. 
+        app.MapControllerRoute(
+          name: "default",
+          pattern: "{controller=Home}/{action=Index}/{id?}");
+
+    * 手動新增控制器(Controller)
+
+      > 新增 HelloWorldController by 自動產生程式碼工具<dotnet aspnet-codegenerator>
+
+        dotnet aspnet-codegenerator controller -name HelloWorldController -outDir Controllers -scripts -udl
+
+      > 透過 Welcome Action, 向 HomeController 傳遞參數, 再回傳值.
+
+        # Program.cs檔案內, 預設<路由規則>-寫法1 #
+          app.MapControllerRoute(
+            name: "default",
+            pattern: "{controller=Home}/{action=Index}/{id?}");
+
+        # Program.cs檔案內, 預設<路由規則>-寫法2 #
+          app.MapDefaultControllerRoute(); //功能跟寫法1相同, 但更簡潔.(使用路由範本預設 Home 控制器和 Index 動作)
+
+        # 增加另一個 "Welcome Action" , name 則是選擇性參數.
+          https://localhost:7254/Home/Welcome/KL
+
+        # 範例沒有問題, 它用的是 <?> 作為參數分隔符號, 要指定參數名稱(Name)非使用預設路由規則名稱(id)
+        # 這不符合目前 <路由規則> 以 </> 作為分隔符號, 所以抓不到傳入值.
+          https://localhost:7254/Home/Welcome?KL (X)
+          https://localhost:7254/Home/Welcome/KL (O)
+
+        public string Welcome(string? name){
+            return "This is Welcome Action of Home Controller: 你好嗎? " + name;
+        }
+    
+    * 利用工具 自動 新增控制器(Controller) & 檢視(View) & DbContext(ORM) & ConnectionStrings(連線字串) by 資料模型(Data/Model)
+      
+      > #! VIP: 使用 <dotnet aspnet-codegenerator> 
+        快速 "新增控制器(Controller) & 檢視(View) by 資料模型(Data/Model)" 前, 
+        一定要執行下列前置作業, 否則會出現錯誤.
+        請服用 " <命令列環境>下使用 <dotnet aspnet-codegenerator> 工具的前置作業 "
+
+      範例1: 使用 資料模型(Data/Model)的超完整範例 
+      
+        a.Step1: 先新增資料模型(Data/Model): "Product.cs"
+        
+          using System;
+          using System.Collections.Generic;
+
+          namespace NET6_MvcShopping.Models;
+
+          public class Product
+          {
+              public int ProductID {get;set;} //系統指定ID, 無法變更
+              public string? Name {get;set;}
+              public decimal? Price {get;set;}
+              public int? Stock {get;set;}
+          }
+
+        b.Step2: 執行 <dotnet aspnet-codegenerator> Scaffolding 程式碼產生工具
+          dotnet aspnet-codegenerator controller -name ProductsController 
+            -m Product -dc StoreContext -outDir Controllers 
+            -sqlite -scripts -udl
+
+          自動完成下列作業: <= 超強 =>
+            1.自動新增控制器(\Controllers) & 
+            2.新增檢視(\Views) & 
+            3.新增DbContext(\Data) & 
+            4.新增ConnectionStrings(@appsettings.json) &
+              註1: 如果ConnectionStrings未新增, 工具會加在"appsettings.json"檔案內.
+              註2: 如果ConnectionStrings已新增, 工具會保留ConnectionStrings原值不異動.
+            5.註冊Database服務(@Program.cs)
+          
+      範例2: 只產生 控制器(Controller), 沒有 檢視(View).
+          dotnet aspnet-codegenerator controller 
+          -name HelloWorldController 
+          -outDir Controllers (O, 指定相對輸出檔案夾路徑)
+        
+      範例3: 只產生 控制器(Controller), 沒有 檢視(View), 而且把 控制器(Controller)直接加在專案資料夾下.
+          dotnet aspnet-codegenerator controller 
+          -name HelloWorldController (X, 直接加在專案資料夾, 刪掉)
+
+      > 新增控制器(Controller)指令用法 => "dotnet aspnet-codegenerator controller -h"
+        Generator Options:
+          --controllerName|-name [#!-必填欄位-#] : (控制器名稱)Name of the controller
+          --useAsyncActions|-async            : (產生非同步actions)Switch to indicate whether to generate async controller actions
+          --noViews|-nv                       : (產生CRUD檢視)Switch to indicate whether to generate CRUD views
+          --restWithNoViews|-api              : (API專用控制器, 預設noViews & 忽略所有檢視設定)Specify this switch to generate a Controller with REST style API, noViews is assumed and any view related options are ignored
+          --readWriteActions|-actions         : (產生讀/寫用actions)Specify this switch to generate Controller with read/write actions when a Model class is not used
+          --model|-m                          : Model class to use
+          --dataContext|-dc                   : DbContext class to use
+          --referenceScriptLibraries|-scripts : Switch to specify whether to reference script libraries in the generated views
+          --layout|-l                         : Custom Layout page to use
+          --useDefaultLayout|-udl             : Switch to specify that default layout should be used for the views
+          --force|-f                          : Use this option to overwrite existing files
+          --relativeFolderPath|-outDir        : Specify the relative output folder path from project where the file needs to be generated, if not specified, file will be generated in the project folder
+          --controllerNamespace|-namespace    : Specify the name of the namespace to use for the generated controller
+          --useSqlite|-sqlite                 : Flag to specify if DbContext should use SQLite instead of SQL Server.
+
+      > 新增視圖(View)指令用法 => "dotnet aspnet-codegenerator view -h"
+
+        Generator Arguments:(這兩個參數一定要給)
+          viewName     : Name of the view
+          templateName : The view template to use, supported view templates: 'Empty|Create|Edit|Delete|Details|List'
+
+        Generator Options:
+          --model|-m                          : Model class to use
+          --dataContext|-dc                   : DbContext class to use
+          --referenceScriptLibraries|-scripts : Switch to specify whether to reference script libraries in the generated views
+          --layout|-l                         : Custom Layout page to use
+          --useDefaultLayout|-udl             : Switch to specify that default layout should be used for the views
+          --force|-f                          : Use this option to overwrite existing files
+          --relativeFolderPath|-outDir        : Specify the relative output folder path from project where the file needs to be generated, if not specified, file will be generated in the project folder
+          --controllerNamespace|-namespace    : Specify the name of the namespace to use for the generated controller
+          --partialView|-partial              : Generate a partial view, other layout options (-l and -udl) are ignored if this is specified
+          --useSqlite|-sqlite                 : Flag to specify if DbContext should use SQLite instead of SQL Server.
+
+  Day3.5(內容重覆): 如何使用 .NET CLI 快速產生 ASP․NET Core 的 Controllers 與 Views 程式碼
+
+    資料來源: https://blog.miniasp.com/post/2020/09/09/Create-Controller-and-Views-with-dotnet-aspnet-codegenerator
+    重點在於: 
+      1.必須先有 <資料表結構> 的程式碼
+        建立 Data 相關程式碼(C:\Projects\Projects_ASP.NET_Core\MvcMovie\Models\Movie.cs)
+          using System.ComponentModel;
+          using System.ComponentModel.DataAnnotations;
+          using System.ComponentModel.DataAnnotations.Schema;
+
+          namespace MvcMovie.Models
+          {
+            public class Movie
+            {
+              public int Id {get; set;}
+              
+              [DisplayName("片名"), StringLength(10, MinimumLength =3)]
+              public string? Title {get; set;}
+
+              [DisplayName("發售日期"), DataType(DataType.Date)]
+              public DateTime ReleaseDate {get; set;}
+              
+              [DisplayName("類別"), StringLength(20, MinimumLength =3)]
+              public string? Genre {get; set;}
+              
+              [DisplayName("售價"), DataType(DataType.Currency), Range(1,150), Column(TypeName = "decimal(18, 2)")]
+              public decimal Price {get; set;}
+
+              [DisplayName("評價"), StringLength(5), RegularExpression(@"^[A-Z]+[a-z]+[0-9]*$")]
+              public string? Rating {get;set;}
+
+            }
+          }
+
+      2. 參閱 <Dependency injection 關注點注入, 這就是DI> 章節內容 <= 觀念介紹 =>
+        MVC中的 "Model" = 由1個實體類別(/Model/Movie.cs) + 1個Context Object(/Data/MvcMovieContext.cs)所組成的, 它代表資料庫中的一個Session.
+
+      3. 快速建立 DepartmentsController 控制器（包含 Views 頁面與使用現有 Layout 版面）
+          dotnet aspnet-codegenerator controller -name DepartmentsController 
+          -async -scripts -udl 
+          -m Department -dc ContosoUniversityContext -outDir Controllers
+
+  Day4: View 視圖
+    https://imgur.com/rqnct3l.jpg
+
+    * 新增View
+
+
+

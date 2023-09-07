@@ -1,0 +1,394 @@
+> == 環境安裝 == <
+  ^ JDK安裝 (OK)
+    java -version 
+    java version "1.8.0_91"
+    * 設定變數
+      JAVA_HOME = C:\Program Files\Java\jdk1.8.0_91
+      PATH = C:\Program Files\Java\jdk1.8.0_91\bin;%PATH%
+
+    * PATH修改後(SQL Server相關的都拿掉, 另外新增 "C:\Program Files\Java\jdk1.8.0_91\bin;%PATH%") = 
+      C:\Program Files\Java\jdk1.8.0_91\bin;%PATH%;C:\ProgramData\Oracle\Java\javapath;C:\oraclexe\app\oracle\product\11.2.0\server\bin;C:\windows\Microsoft.NET\Framework64\v4.0.30319\;C:\Program Files\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Common Files\Microsoft Shared\Windows Live;C:\windows\system32;C:\windows;C:\windows\System32\Wbem;C:\windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Toshiba\Bluetooth Toshiba Stack\sys\;C:\Program Files (x86)\Toshiba\Bluetooth Toshiba Stack\sys\x64\;C:\Program Files (x86)\Windows Live\Shared;C:\Temp\bin;C:\Program Files (x86)\Common Files\Seagate\SnapAPI\;C:\Program Files\dotnet\;C:\Program Files\Git\cmd;%USERPROFILE%\.dnx\bin;C:\Program Files\Microsoft DNX\Dnvm\;C:\Program Files\nodejs\;C:\Program Files\node-v18.15.0-win-x64;C:\php-8.2.6;C:\ProgramData\ComposerSetup\bin;C:\Program Files\Microsoft VS Code\bin;
+    
+    * PATH修改前 = 
+      C:\ProgramData\Oracle\Java\javapath;C:\oraclexe\app\oracle\product\11.2.0\server\bin;C:\windows\Microsoft.NET\Framework64\v4.0.30319\;C:\Program Files\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Common Files\Microsoft Shared\Windows Live;C:\windows\system32;C:\windows;C:\windows\System32\Wbem;C:\windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Toshiba\Bluetooth Toshiba Stack\sys\;C:\Program Files (x86)\Toshiba\Bluetooth Toshiba Stack\sys\x64\;C:\Program Files (x86)\Windows Live\Shared;C:\Temp\bin;C:\Program Files (x86)\Common Files\Seagate\SnapAPI\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\120\Tools\Binn\;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\110\Tools\Binn\;C:\Program Files (x86)\Microsoft SQL Server\120\Tools\Binn\;C:\Program Files\Microsoft SQL Server\120\DTS\Binn\;C:\Program Files (x86)\Microsoft SQL Server\120\Tools\Binn\ManagementStudio\;C:\Program Files (x86)\Microsoft SQL Server\120\DTS\Binn\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files\Git\cmd;%USERPROFILE%\.dnx\bin;C:\Program Files\Microsoft DNX\Dnvm\;C:\Program Files\nodejs\;C:\Program Files\node-v18.15.0-win-x64;C:\php-8.2.6;C:\ProgramData\ComposerSetup\bin;C:\Program Files\Microsoft VS Code\bin
+
+  ^ Apache Tomcat 安裝 (OK)
+    * 下載版本: 8.5.89
+    * 安裝路徑 => C:\apache-tomcat-8.5.89
+    * 新增系統變數 %CATALINA_HOME% => C:\apache-tomcat-8.5.89
+    
+    * 啟動Tomcat(擇一即可,兩種都行)
+      指令碼: 
+        C:\apache-tomcat-8.5.89\bin\startup.bat
+        %CATALINA_HOME%\bin\startup.bat
+      
+      1.成功執行後, 會跳出一個JavaCMD視窗
+      2.瀏覽 http://localhost:8080/ 
+
+    * 停止Tomcat(擇一即可,兩種都行)
+      指令碼: 
+        C:\apache-tomcat-8.5.89\bin\shutdown.bat
+        %CATALINA_HOME%\bin\shutdown.bat
+
+    
+    * Tomcat設定, 請參閱 https://tomcat.apache.org/
+    
+    * 查閱環境變數值 by cmd
+      echo %VARIABLE%
+      ex. echo %CATALINA_HOME%
+
+  ^ 開發工具 安裝
+    * 安裝VSCode的Extension => Extension Pack for Java
+
+  ^ Download {Apache Maven} version 3 or greater: (OK)
+    * Download Apache Maven: apache-maven-3.9.2
+    * 安裝路徑: C:\apache-maven-3.9.2
+
+  ^ Install {Apache Maven} for your local development environment: (OK)
+    https://maven.apache.org/install
+    * 設定變數(加上安裝路徑\bin)
+      PATH = %<原有內容值>%;C:\apache-maven-3.9.2\bin;
+    * 測試執行
+      mvn -v
+      + 成功的執行結果
+        Apache Maven 3.9.2 (c9616018c7a021c1c39be70fb2843d6f5f9b8a1c)
+        Maven home: C:\apache-maven-3.9.2
+        Java version: 1.8.0_91, vendor: Oracle Corporation, runtime: C:\Program Files\Java\jdk1.8.0_91\jre
+        Default locale: zh_TW, platform encoding: MS950
+        OS name: "windows 7", version: "6.1", arch: "amd64", family: "windows"
+
+  ^ Maven Users Centre:(Maven基本認識, 管理Java Web專案的工具, 負責編譯、加入參考...)
+    https://maven.apache.org/users/index.html
+    
+    * Maven in 5 Minutes (OK)
+      https://maven.apache.org/guides/getting-started/maven-in-five-minutes.html
+
+      1.Creating a CMD Project /* 執行目標: 產生CMD專案 => mvn archetype:generate -DarchetypeArtifactId=maven-archetype-quickstart -DgroupId=com.mycompany.app -DartifactId=my-app -DarchetypeVersion=1.4 -DinteractiveMode=false */
+      mvn archetype:generate -DarchetypeArtifactId=<專案類型, 例: CMD,WebApp> -DgroupId=<套件名稱(java說法) 或 命名空間(C#說法)> -DartifactId=<程式名稱> -DarchetypeVersion=<版本號碼> -DinteractiveMode=<新增專案時, 是否採互動方式, 若為true, Maven會列出所有選項要你逐一指定>
+        # 專案路徑: cd C:\Projects\Projects_Java\Struts2
+        # 指令碼: mvn archetype:generate -DarchetypeArtifactId=maven-archetype-quickstart -DgroupId=com.mycompany.app -DartifactId=my-app -DarchetypeVersion=1.4 -DinteractiveMode=false
+          /* 第1次執行, 確實下載很多東西.
+            This is because Maven is downloading the most recent artifacts (plugin jars and other files) into your local repository. 
+            You may also need to execute the command a couple of times before it succeeds.
+          */
+          /* 執行結果:
+            [INFO] ----------------------------------------------------------------------------
+            [INFO] Using following parameters for creating project from Archetype: maven-archetype-quickstart:1.4
+            [INFO] ----------------------------------------------------------------------------
+            [INFO] Parameter: groupId, Value: com.mycompany.app
+            [INFO] Parameter: artifactId, Value: my-app
+            [INFO] Parameter: version, Value: 1.0-SNAPSHOT
+            [INFO] Parameter: package, Value: com.mycompany.app
+            [INFO] Parameter: packageInPathFormat, Value: com/mycompany/app
+            [INFO] Parameter: version, Value: 1.0-SNAPSHOT
+            [INFO] Parameter: package, Value: com.mycompany.app
+            [INFO] Parameter: groupId, Value: com.mycompany.app
+            [INFO] Parameter: artifactId, Value: my-app
+            [INFO] Project created from Archetype in dir: C:\Projects\Projects_Java\Struts2\my-app
+            [INFO] ------------------------------------------------------------------------
+            [INFO] BUILD SUCCESS
+            [INFO] ------------------------------------------------------------------------
+            [INFO] Total time:  03:40 min
+            [INFO] Finished at: 2023-06-04T09:38:36+08:00
+            [INFO] ------------------------------------------------------------------------
+            [WARNING]
+            [WARNING] Plugin validation issues were detected in 2 plugin(s)
+            [WARNING]
+            [WARNING]  * org.apache.maven.plugins:maven-site-plugin:3.12.1
+            [WARNING]  * org.apache.maven.plugins:maven-archetype-plugin:3.2.1
+            [WARNING]
+            [WARNING] For more or less details, use 'maven.plugin.validation' property with one of the values (case insensitive): [BRIEF, DEFAULT, VERBOSE]
+            [WARNING]
+          */
+        # 專案路徑: cd my-app
+          The "src/main/java" directory contains the project source code, //原始碼放在"src/main/java"目錄下
+          the "src/test/java" directory contains the test source, //測試碼放在"src/test/java"目錄下
+          and the "pom.xml" file is the project's Project Object Model, or POM. //專案物件模型是"pom.xml"
+          
+          內部資料夾結構, 依 Introduction to the Standard Directory Layout 產生
+          https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html
+
+          my-app
+          |-- pom.xml
+          `-- src
+              |-- main
+              |   `-- java
+              |       `-- com
+              |           `-- mycompany
+              |               `-- app
+              |                   `-- App.java
+              `-- test
+                  `-- java
+                      `-- com
+                          `-- mycompany
+                              `-- app
+                                  `-- AppTest.java
+
+      2.The POM 專案設定檔 = pom.xml, 編譯專案時重要資訊
+        # The pom.xml file is the core of a project's configuration in Maven. 
+          It is a single configuration file that contains the majority of information required 
+          to "build a project" in just the way you want. 
+        # The POM is huge and can be daunting in its complexity, 
+          but it is not necessary to understand all of the intricacies just yet to use it effectively.
+
+      3.What did I just do?
+        # You executed the Maven goal "archetype:generate", 
+          and passed in various parameters to that goal. 
+          The "prefix archetype" is the plugin that provides the goal.
+        # This "archetype:generate" goal created a simple project based 
+          upon a "maven-archetype-quickstart" archetype. 
+        # Suffice it to say for now that a plugin is a collection of goals 
+          with a general common purpose. 
+        # For example the jboss-maven-plugin, whose purpose is "deal with various jboss items".
+        # 老實話, 看不太懂..
+
+      4.Build the Project /* 執行階段: 編譯專案 => mvn package */
+        # 指令碼: mvn package
+          編譯後的CLASS統一放在 "target" 目錄內.
+
+        # Unlike the first command executed (archetype:generate), 
+          the second is simply a single word - "package". 
+          Rather than a goal, this is a phase. 
+        # A phase is a step in the build lifecycle, which is an ordered sequence of phases. 
+          When a phase is given, Maven executes every phase in the sequence up to and including the one defined. 
+          /*
+            指定要執行階段後, maven會把該階段前的階段一併執行.
+          */
+          For example, if you execute the "compile phase", the phases that actually get executed are:
+            validate
+            generate-sources
+            process-sources
+            generate-resources
+            process-resources
+            compile
+          
+        # 測試執行: java -cp target/my-app-1.0-SNAPSHOT.jar com.mycompany.app.App
+          執行結果: Hello World!
+
+      5.Running Maven Tools /* Maven Phases, 有哪些階段可以用 */
+
+        # Maven Phases, 有哪些階段可以用 # 
+          Although hardly a comprehensive list, these are the most common default lifecycle phases executed.
+
+          * validate: validate the project is correct and all necessary information is available
+          * compile: compile the source code of the project
+          * test: test the compiled source code using a suitable unit testing framework. These tests should not require the code be packaged or deployed
+          * package: take the compiled code and package it in its distributable format, such as a JAR.
+          * integration-test: process and deploy the package if necessary into an environment where integration tests can be run
+          * verify: run any checks to verify the package is valid and meets quality criteria
+          * install: install the package into the local repository, for use as a dependency in other projects locally
+          * deploy: done in an integration or release environment, copies the final package to the remote repository for sharing with other developers and projects.
+
+          There are two other Maven lifecycles of note beyond the default list above. They are
+
+          * clean: cleans up artifacts created by prior builds
+          * site: generates site documentation for this project
+
+          Phases are actually mapped to underlying goals. 
+          The specific goals executed per phase is dependant upon the packaging type of the project. 
+          For example, 
+            package executes jar:jar if the project type is a JAR, 
+              and war:war if the project type is - you guessed it - a WAR.
+
+          An interesting thing to note is that phases and goals may be executed in sequence.
+          //階段 & 目標可以一起執行
+
+          指令碼: mvn clean dependency:copy-dependencies package
+
+            This command will 
+              * clean the project, copy dependencies, and 
+              * package the project (executing all phases up to package, of course).
+
+        # Generating the Site, 依POM.xml資訊自動產生專案資訊網站, 放在 "target/site" 目錄內.
+          指令碼: mvn site
+
+    * Maven Getting Started Guide
+      https://maven.apache.org/guides/getting-started/index.html
+  
+  ^ Maven 給定的預設值是 JRE1.5, 若使用 JDK1.8, 會出現下列異常訊息: (OK)
+    The compiler compliance specified is 1.5 but a JRE 1.8 is used
+    解決辦法: 將下列設定加入POM.xml
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.1</version>
+          <configuration>
+              <source>1.8</source>
+              <target>1.8</target>
+          </configuration>
+      </plugin>
+
+> == How To Create A {Struts 2} Web Application (2023/06/03....) == <
+  https://struts.apache.org/getting-started/how-to-create-a-struts2-web-application
+  專案路徑: C:\Projects\Projects_Java\Struts2\basic_struts
+
+  Step 1 - Create A Java Web Application, 利用 Jetty Server 執行.
+    * 專案路徑: C:\Projects\Projects_Java\Struts2\basic_struts
+
+    * 指令碼(Create A Java Web Application):
+      mvn archetype:generate -DarchetypeArtifactId=maven-archetype-webapp 
+      -DgroupId=com.errepi.jewelry 
+      -DartifactId=basic_struts 
+      -DinteractiveMode=false
+    
+    * 確認專案名稱 @pom.xml
+      <build>
+        <finalName>basic_struts</finalName>
+      </build>
+
+    * 使用 Maven 執行Java Web Application, 手動加入 jetty maven-plugin @pom.xml
+      程式路徑: C:\Projects\Projects_Java\Struts2\basic_struts\pom.xml
+        
+    * 加入 jetty maven-plugin 後, 即可使用 Maven 執行Java Web Application
+      指令碼: mvn jetty:run
+
+    * 瀏覽測試
+      http://localhost:8080/basic_struts/index.jsp (OK)
+      http://localhost:8080/basic_struts (OK)
+
+  Step 2 - Add index.jsp, 此步驟可省略
+  mvn archetype:generate -DarchetypeArtifactId=maven-archetype-webapp, 自動在 src/main/webapp 路徑下生成 index.jsp 檔案
+
+  Step 3 - Add Struts 2 Jar Files To Class Path, 重點來了..加入 Struts 2 套件.
+    * 程式路徑: C:\Projects\Projects_Java\Struts2\basic_struts\pom.xml
+    * 將下列設定加入POM.xml
+        <dependency>
+            <groupId>org.apache.struts</groupId>
+            <artifactId>struts2-core</artifactId>
+            <version>${struts2.version}</version>
+        </dependency>
+
+        例:
+          <dependency>
+            <groupId>org.apache.struts</groupId>
+            <artifactId>struts2-core</artifactId>
+            <version>6.1.2</version> <!-- 2.5.30 & 6.1.2 相容於 JDK1.8 -->
+          </dependency>
+
+  Step 4 - Add Logging
+    * To see what’s happening under the hood, 
+      the example application for this tutorial uses {log4j2}. 
+    * Setup a {log4j2.xml} configuration in the {src/main/resources} folder 
+      which contains the following
+      程式路徑: C:\Projects\Projects_Java\Struts2\basic_struts\src\main\resources\log4j2.xml
+
+    * 將下列設定加入POM.xml, pom.xml log4j dependency node
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+
+        例: log4j2.version 改為 2.19.0
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.19.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.19.0</version>
+        </dependency>
+
+
+
+
+    * 參考資料(超複雜): https://logging.apache.org/log4j/2.x/manual/configuration.html
+
+  Step 5 - Add Struts 2 Servlet Filter, 類似.NET MVC Controller的規則, 直接看 /* 要加上以下內容 BEGIN */ 即可使用
+    * To enable the Struts 2 framework to work with your web application 
+      you need to add a Servlet filter class and filter mapping to web.xml. 
+    * Below is how the {web.xml} may look after adding the filter 
+      and filter-mapping nodes. 
+    * {web.xml} is to be under {src/main/webapp/WEB-INF} folder.
+    * web.xml Servlet Filter
+        <?xml version="1.0" encoding="UTF-8"?>
+        <web-app id="WebApp_ID" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+          <display-name>Basic Struts2</display-name>
+
+        /* 要加上以下內容 BEGIN */
+          <filter>
+            <filter-name>struts2</filter-name>
+            <filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
+          </filter>
+
+          <filter-mapping>
+            <filter-name>struts2</filter-name>
+            <url-pattern>/*</url-pattern>
+          </filter-mapping>
+
+          <welcome-file-list>
+            <welcome-file>index</welcome-file>
+          </welcome-file-list>
+
+        /* 要加上以下內容 END */
+
+        </web-app>
+
+  Step 6 - Create struts.xml
+    * Struts 2 can use either an XML configuration file or annotations (or both) 
+      to specify the relationship between a URL, a Java class, and a view page (such as index.jsp). 
+    * For our basic Struts 2 application, we’ll use a minimal xml configuration. 
+    * Note the file name is {struts.xml} and it should be in the {src/main/resources} folder 
+      (struts.xml must be on the web application’s root class path).
+      程式路徑: C:\Projects\Projects_Java\Struts2\basic_struts\src\main\resources\struts.xml
+    
+    * struts.xml程式片段
+      <action name="index">
+        <result>/index.jsp</result>
+      </action>
+      //This minimal Struts 2 configuration file tells the framework 
+        that if the URL ends in {index.action} to redirect the browser to {index.jsp}
+
+  Step 7 - Build and Run the Application
+  http://localhost:8080/basic_struts/index.action
+
+https://struts.apache.org/getting-started/index.html
+
+> == 如何使用 Maven 新增 Web Project + 利用 Tomcat 執行 Web Application == <
+    
+    參考來源: https://www.tutorialspoint.com/maven/maven_web_application.htm
+    mvn archetype:generate -DarchetypeArtifactId=maven-archetype-webapp -DgroupId=com.errepi.jewelry -DartifactId=firstStruts2WebSite -DinteractiveMode=false
+
+    1.Creating a Web Project(使用MAVEN)
+      指令碼: mvn archetype:generate -DarchetypeArtifactId=maven-archetype-webapp -DgroupId=com.errepi.jewelry -DartifactId=firstStruts2WebSite -DinteractiveMode=false
+      專案路徑: C:\Projects\Projects_Java\Struts2\firstStruts2WebSite
+    
+    2.Build Web Application(mvn clean package, create a War file)
+      指令碼: mvn clean package
+      打包網站成 <專案名稱>.War
+
+    3.Deploy Web Application(run by Tomcat)
+      
+      a.上新版程式
+        佈署網站的兩種方式(擇一即可): 
+          * copy \target\XXX folder to \webserver\webapp directory
+          * copy \target\XXX.war to \webserver\webapp directory
+
+        例: 專案名稱 => firstStruts2WebSite
+          * copy C:\Projects\Projects_Java\Struts2\firstStruts2WebSite\target\firstStruts2WebSite folder 
+              to C:\apache-tomcat-8.5.89\webapps directory
+            
+            WebServer結果 => C:\apache-tomcat-8.5.89\webapps\firstStruts2WebSite
+
+          * copy C:\Projects\Projects_Java\Struts2\firstStruts2WebSite\target\firstStruts2WebSite.war 
+              to C:\apache-tomcat-8.5.89\webapps directory
+
+            C:\apache-tomcat-8.5.89\webapps\firstStruts2WebSite.war
+            
+            重啟Webserver時, Tomcat會把firstStruts2WebSite.war 解開, 
+            並生成 C:\apache-tomcat-8.5.89\webapps\firstStruts2WebSite
+
+            WebServer結果 => C:\apache-tomcat-8.5.89\webapps\firstStruts2WebSite
+
+      b.重啟Webserver
+        啟動Tomcat => %CATALINA_HOME%\bin\startup.bat
+        
+      c.瀏覽測試
+        http://localhost:8080/firstStruts2WebSite

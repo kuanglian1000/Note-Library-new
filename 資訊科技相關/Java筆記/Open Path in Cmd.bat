@@ -1,0 +1,1 @@
+start cmd.exe /K "cd C:\Users\sql2008\Documents\JavaProjects\"

@@ -1,0 +1,4549 @@
+(Java String Framework Interview Questions) 
+...(2021/05/05)加油...Java Spring Framework真的不容易, 要花時間好好理解並實作.
+出處: https://www.tutorialspoint.com/spring/spring_interview_questions.htm
+	
+	Q1.什麼是 Spring?
+		A1. 它是一套開源的企業級JavaFramework, 可用於開發任何JAVA應用程式, 但主要在於開發WEB程式
+				此架構目標在於讓J2EE開發更容易, 且推廣好的程式實務, 利用POJO開發模式.
+	
+	Q2.使用 Spring 的好處在於?
+		A2. 
+			* 輕量化(Lightweight), 架構檔案不大.
+			* 關注點分離(IOC Inversion of control), 利用IOC達到低偶合目標. 物件提供它依賴項目, 而非新增或尋找依賴的物件.
+			* 剖面導向設計(AOP Aspect oriented), 把各個程式內常用功能獨立為共用服務, 例:驗證/錯誤處理/稽核軌跡...
+			* 容器化(Container), 包含及管理應用程式物件的生命週期和設定.
+			* MVC架構, Spring Web Framework就是以 MVC架構 作設計.
+			* 交易管理(Transaction Management), 提供一致性的交易管理介面, 從本地端交易(ex.DB)到遠端交易(ex.JTA)
+			* 例外管理(Exception Handling), 提供方便的例外處理介面, 接收來自JDBC,Hibernate,JDO...的例外訊息.
+
+	Q3.Spring Framework有哪些模組?
+		A3.
+			* Core, Bean, Context, Expression Language,
+			* JDBC, ORM(物件和RDB間的對應), OXM(物件和XML間的對應), 
+			* JMS(Java Messaging Service), Transaction, Web,
+			* Web-Servlet, Web-Struts, Web-Portlet...
+
+	Q4.什麼是 Spring Configuraion 檔?
+		A4. 它是個XML檔, 內容描述類別資訊, 類別如何設定, 類別間如何溝通.
+
+	Q5.什麼是 Dependency Injection (依賴性注入)?
+		A5. DI 就是 IOC 的具體作法. 
+			主要觀念在於:
+			1.你不用新增物件, 但須描述物件如何被新增.
+			2.你不用直接將元件和服務連接在程式內, 但須在設定檔內, 描述元件需要哪些服務.
+			3.容器(IOC Container)負責幫你掛起來(hook it up)
+
+	Q6.IOC (Dependency Injection)有哪些不同型態?
+		A6. IOC型態有兩種, 
+			1.一種在物件建立時(constructor-based Dependency Injection), 建構子會傳入參數, 每個參數表示對其他類別的依賴.
+			2.一種在物件建立後設定方法時(Setter-based Dependency Injection), 呼叫無參數建構子 or 無參數靜態工廠方法後, 設定方法才會指定其他類別依賴.
+
+	Q7.建議使用哪個DI? Constructor-based DI or Setter-based DI?
+		A7. 這兩者可以混用, 建議用法為:
+			1.固定依賴, 用 Constructor-based DI, 建構時就傳入.
+			2.選用依賴, 用 Setter-based DI, 另外可利用 @Required 註解在 Setter-based DI上, 確保加入必要依賴.
+
+	Q8.IOC(DI) 的好處有哪些?
+		A8. 有下列好處:
+			1.減少程式碼數量.
+			2.讓程式易於測試. 在你的單元測試案例內, 不再任何單一實例(singletons) or JNDI查找機制(切換DB連接)
+			3.滿足低耦合目標. 以最小努力和最少侵入機制.
+			4.IOC容器支援, 服務的貪婪實例化(eager instanctiation) & 延遲載入(lazy loading)
+
+	Q9.什麼是AOP(Aspect oriented Programming)?
+		A9. 簡言之, 將許多類別內共用的相同功能/行為, 獨立並封裝起來. 
+		剖開來看, 最明顯的例子就是 驗證 & LOGGING & 交易管理.
+
+	Q10.什麼是 Spring IOC Container(IOC 容器)?
+		A10. Spring IOC Container 作許多工作耶,它負責:
+			1.新增物件
+			2.連接物件
+			3.設定物件
+			4.管理物件生命週期, 從產生到消滅
+			5.最後, IOC Container利用 DI方式 管理物件, 並建構出應用程式.
+
+	Q11.有哪些 IOC Container(IOC 容器)?
+		A11. 有兩種 IOC Container(IOC 容器)
+			1.Bean Factory Container, 最簡單, 提供基本DI支援. 常用於限制資源環境內, 
+				例:行動裝置or Applet based Application.
+			2.Spring ApplicationContext Container, 最複雜, 提供企業級DI支援. 
+				例:the ability to resolve textual messages from a properties file and the ability to publish application events to interested event listeners.
+	
+	Q12.舉出 BeanFactory 實作例子?
+		A12. XmlBeanFactory, 這個Container從XML檔讀取設定值, 使用它來新增系統or應用程式.
+
+	Q13.舉出 ApplicationContext 常見實作例子?
+		A13. 列舉三種:
+			1.FileSystemXmlApplicationContext: 這個容器從XML檔, 載入BEAN定義. 你須指定XML檔的完整路徑.
+			2.ClassPathXmlApplicationContext: 這個容器從XML檔, 載入BEAN定義. 你須設定CLASSPATH值, 它會從裡面找出XML檔的完整路徑.
+			3.WebXmlApplicationContext: 這個容器從XML檔, 載入BEAN定義. 在網頁應用程式內.
+
+	Q14.BeanFactory & ApplicationContext 間的差異?
+		A14. 主要差異:
+    	1.Application contexts provide a means for resolving text messages, including support for i18n of those messages.
+    	2.Application contexts provide a generic way to load file resources, such as images.
+			3.Application contexts can publish events to beans that are registered as listeners.
+			4.Certain operations on the container or beans in the container, which have to be handled in a programmatic fashion with a bean factory, can be handled declaratively in an application context.
+			5.The application context implements MessageSource, an interface used to obtain localized messages, with the actual implementation being pluggable.
+
+	Q15...2021/05/05(先暫停, 如果彰銀考這麼難的, 我也認了)
+
+(Java Programming Examples)
+
+	Day1(Morning)
+		* Environment(OK)
+			1. How to compile a java file ? 
+				javac xxx.java
+			
+			2. How to run a class file? (執行類別檔, 不能加上 .class, )
+				java xxx
+
+			2.1. How to set multiple classpath? (如有多個類別檔, 以 ; 分隔)
+				java -classpath c:\java\myClass1 ; c:\java\myClass2 utility.testApp.main
+				
+			3. How to debug a java file ? (加上 -g 選項)
+				javac xxx.java -g
+
+			4. How to set classpath ?
+				java -classpath c:\java\DemoClass utility.demoapp.main
+
+			5. How to view current classpath ? (執行時, 若指定classpath, 則以指定為準. 若未指定, 則以預設為準)
+				echo %CLASSPATH%
+					Result = ".;C:\Program Files\Java\jre1.6.0_03\lib\ext\QTJava.zip"
+			
+			6. How to set destination of the class file ? (指定類別檔路徑, 加上 -d <路徑>)
+				javac demo.java -d c:\myClasses
+					Result = Demo application executed.
+
+			7. How to run a compiled class file? / How to run a class file? (執行時, 不用加上 .class)
+				cd c:\jdk\demoApp
+				java First
+					Result = Demo application executed.
+
+			8. How to check version of java running on your system?
+				java -version
+
+			9. How to set classpath when class files are in .jar file?
+				java -classpath c:\java\DemoClass utility.demoapp.main
+			
+		* Strings(OK)
+			1. How to compare strings?(如何比較字串) 
+			=> compareTo , equals , ==
+				string.compareTo(anotherString); 0 or negative number.
+				string.equals(anotherString); true or false
+				string == anotherString; ture or false
+			
+			2. How to search last occurance of a substring inside a substring?(找出字串中最後一段字串)
+			=> int lastIndex = string.lastIndexOf("xxx"); -1 or indexNumber
+
+				public class SearchLastString{
+					public static void main(String[] args){
+						String strOriginal = "Hello world, Hello Reader";
+						int lastIndex = strOriginal.lastIndexOf("Hello");
+						if (lastIndex == -1)
+							System.out.println("Hello not found");
+						else
+							System.out.println("Hello is at " + lastIndex);
+					}
+				}
+
+			3. 如何移除(remove)字串中的特定字元?
+			=> indexOf
+
+				int positionRemoved = str.indexOf("W");
+				if (positionRemoved >= 0)
+				System.out.println(str.substring(0,positionRemoved) + str.substring(positionRemoved + 1 ));
+				
+			4. 如何以特定(replace)取代字串?
+			=> replace, replaceFirst , replaceAll
+
+				public class StringReplace{
+					public static void main(String[] args){
+						String str = "Hello World";
+						System.out.println( str.replace('H','K') );
+						System.out.println( str.replaceFirst("He" , "Wa") );
+						System.out.println( str.replaceAll("He", "Water") );
+					}
+				}
+
+			5. 如何反轉(reverse)字串中的字元?
+			=> StringBuffer(str).reverse().toString()
+
+				Method 1: StringBuffer
+
+					public class StringReverse_1{
+						public static void main (String[] args){
+							String string = "abcdef";
+							String strReverse = new StringBuffer(string).reverse().toString();
+							System.out.println( "before reverse:" + string );
+							System.out.println( "after reverse:" + strReverse );
+						}
+					}
+
+				Method 2: toCharArray(); read char array by for each Loop
+
+					public class StringReverse_2 {
+						public static void main (String[] args){
+							String str = "abcdef";
+							System.out.println( "before reverse:" + str );
+							System.out.print( "after reverse:" );
+							char[] aryStr = str.toCharArray();
+							for (int i = aryStr.length-1; i >=0 ; i--){
+								System.out.print(aryStr[i]);
+							}
+						}
+					}
+
+			6. 如何在字串內搜尋(search)一個字?
+			=> indexOf / contains
+
+				public class SearchString{
+					public static void main(String[] args){
+						String strOri = "Hello World";
+						int intIndex = strOri.indexOf("Hello");
+						if (intIndex == -1){
+							System.out.println("Not found");
+						} else {
+							System.out.println("Found at index " + intIndex);
+						}
+						//============================//
+
+						if (strOri.contains("baby")) {
+							// true
+							System.out.println("baby found in " + strOri);
+						} else {
+							// false
+							System.out.println(" baby not found.");
+						}
+					}
+				}
+				
+			7. 如何將字串分割(split)為多個子字串?
+			=> split , delimeter
+
+				public class StringSplit{
+					public static void main(String[] args){
+						String str = "jan-feb-march";
+						String[] temp;
+						String delimeter = "-";
+
+						temp = str.split(delimeter);
+						for(String w : temp){
+							System.out.println(w);
+						}
+
+						str = "one.two.three";
+						// (.) is a speical character
+						delimeter = "\\."; 
+						temp = str.split(delimeter);
+						for(String w : temp){
+							System.out.println(w);
+						}
+
+						temp = str.split(delimeter,1); //public String split(String regex, int limit of how many substring)
+						for(String w : temp){
+							System.out.println(w);
+						}
+
+						str = "a b c d e f";
+						// delimeter is space
+						delimeter = "\\s"; 
+						temp = str.split(delimeter);
+						for(String w : temp){
+							System.out.println(w);
+						}
+					}
+				}
+
+			8. 如何將字串全部轉為大寫(toUpperCase)?
+			=> string.toUpperCase()
+
+				public class StringToUpperCase{
+					public static void main(String[] args){
+						String strLower = "i am a father.";
+						String strUpper = strLower.toUpperCase();
+						System.out.println(strLower);
+						System.out.println(strUpper);
+					}
+				}
+
+			9. 如何比對區域/部分字串?
+			=> regionMatches(position_First_Str , second_Str, position_second_Str, number_of_characters to compare)
+
+				public class StringRegionMatches{
+					public static void main(String[] args){
+						String strFirst = "Welcome to the Earth.";
+						String strSecond = "The Earth is our home.";
+						boolean match = strFirst.regionMatches(15, strSecond, 4, 5);
+						System.out.println(match);
+					}
+				}
+
+			10. 如何比較產生字串速度?
+			=> String strFast = "rabbit"; // (快) 指定字串值
+			=> String strSlow = new String("turtle"); // (慢) 產生字串物件
+
+				public class StringComparePerformance{
+					public static void main(String[] args){
+						
+						long startTime = System.currentTimeMillis();
+						for(int i = 0 ; i < 50000 ; i++){
+							String s1 = "hello";
+							String s2 = "world";
+						}
+						long endTime = System.currentTimeMillis();
+
+						System.out.println("Time taken for creation of String literals:" + 
+							(endTime - startTime) + "milli seconds");
+
+						
+						long startTime2 = System.currentTimeMillis();
+						for(int i = 0 ; i < 50000 ; i++){
+							String s3 = new String("hello");
+							String s4 = new String("hello");
+						}
+						long endTime2 = System.currentTimeMillis();
+
+						System.out.println("Time taken for creation of String Objects:" + 
+							(endTime2 - startTime2) + "milli seconds");
+
+					}
+				}
+
+			11. 如何最佳化字串(物件)產生速度?
+			=> (快) 指定字串值
+			=> (中,最佳化) String.intern();
+			=> (慢) 產生字串物件. new String("str");
+
+				public class StringOptimization{
+					public static void main(String[] args){
+						String aryVariables[] = new String[50000];
+						for(int i = 0 ; i < 50000 ; i++){
+							aryVariables[i] = "s"+i;
+						}
+						// ===============================================
+
+						long startTime0 = System.currentTimeMillis();
+						for(int i = 0 ; i < 50000 ; i++){
+							aryVariables[i] = "hello";
+						}
+						long endTime0 = System.currentTimeMillis();
+						
+						System.out.println("Time taken for creation of String literals:" + 
+							(endTime0 - startTime0) + "milli seconds");
+
+						// ===============================================
+						long startTime1 = System.currentTimeMillis();
+						for(int i = 0 ; i < 50000 ; i++){
+							aryVariables[i] = new String("hello");
+						}
+						long endTime1 = System.currentTimeMillis();
+
+						System.out.println("Time taken for creation of String Objects with new key word:" + 
+							(endTime1 - startTime1) + "milli seconds");
+
+						// ===============================================
+						long startTime2 = System.currentTimeMillis();
+						for(int i = 0 ; i < 50000 ; i++){
+							aryVariables[i] = new String("hello");
+							aryVariables[i] = aryVariables[i].intern();
+						}
+						long endTime2 = System.currentTimeMillis();
+
+						System.out.println("Time taken for creation of String Objects with intern():" + 
+							(endTime1 - startTime1) + "milli seconds");
+
+					}
+				}
+
+			12. 如何將字串格式化(format)?
+			=> String.format("format", variable);
+			=> String.out.format("format", variable);
+			=> String.out.format("region", "format", variable);
+
+				import java.util.*;
+
+				public class StringFormat{
+					public static void main(String[] args){
+						double e = Math.E;
+						System.out.format("%f%n" ,e);
+						System.out.format(Locale.TAIWAN, "%-10.4f%n%n", e);
+
+						String name = "KL";
+						System.out.format("%s%n", name);
+						System.out.format("value is %f%n", 32.33434);
+						System.out.format("value is %10.12f%n", 32.33434);
+					}
+				}
+
+			13. 如何將字串合併(concatenate)?
+			=> (快) +
+			=> (慢) StringBuffer.append();
+			=> (慢) String.concat(str1, str2, ...);
+
+				public class StringConcat{
+					public static void main(String[] args){
+						
+						// ===============================================
+						long startTime0 = System.currentTimeMillis();
+						for(int i = 0 ; i < 50000 ; i++){
+							String result = "This" + "is" + "a" + "very" + "long" + "sentence";
+						}
+						long endTime0 = System.currentTimeMillis();
+						
+						System.out.println("Time taken for concatenation of String literals:" + 
+							(endTime0 - startTime0) + "milli seconds");
+						
+						// ===============================================
+						long startTime1 = System.currentTimeMillis();
+						for(int i = 0 ; i < 50000 ; i++){
+							StringBuffer result = new StringBuffer();
+							result.append("This");
+							result.append("is");
+							result.append("a");
+							result.append("very");
+							result.append("long");
+							result.append("sentence");
+						}
+						long endTime1 = System.currentTimeMillis();
+
+						System.out.println("Time taken for concatenation of StringBuffer:" + 
+							(endTime1 - startTime1) + "milli seconds");
+
+						// ===============================================
+						long startTime2 = System.currentTimeMillis();
+						for(int i = 0 ; i < 50000 ; i++){
+							String result = "This";
+							result.concat("is");
+							result.concat("a");
+							result.concat("very");
+							result.concat("long");
+							result.concat("sentence");
+						}
+						long endTime2 = System.currentTimeMillis();
+
+						System.out.println("Time taken for concatenation of String with concat():" + 
+							(endTime1 - startTime1) + "milli seconds");
+
+					}
+				}
+
+			14. 如何取得字串的萬用字元碼(unicode code point)?
+			=> string.codePointBefore(charPosition)
+
+				public class StringUnicodePoint{
+					public static void main(String[] args){
+						String str = "Welcome to Point.";
+						System.out.println("String under test is " + str);
+
+						System.out.println(str.codePointBefore(1));
+					}
+				}
+
+			15. 如何暫存(buffer)字串值?
+			=> string += "word";
+			=> StringBuffer.append("word");
+			=> StringBuilder.append("word");
+
+			<StringBuffer & StringBuilder 間的比較>
+			No.	StringBuffer	StringBuilder
+			1)	安全性
+			(高,同步化)StringBuffer is synchronized i.e. thread safe. It means two threads can't call the methods of StringBuffer simultaneously.	
+			(低,非同步化)StringBuilder is non-synchronized i.e. not thread safe. It means two threads can call the methods of StringBuilder simultaneously.
+			
+			2)	速度
+			(慢)StringBuffer is less efficient than StringBuilder.	
+			(快)StringBuilder is more efficient than StringBuffer.
+
+				public class StringBuffer_StringBuilder{
+					public static void main(String[] args){
+						StringBuffer sb = new StringBuffer("hello ");
+						sb.append("world");
+						sb.insert(sb.length() , " Nice ");
+						System.out.println(sb);
+
+						StringBuilder sbr = new StringBuilder("hello ");
+						sbr.append("world");
+						sbr.insert(0, "nice ");
+						System.out.println(sbr);
+
+					}
+				}
+
+		* Arrays(OK)
+
+			1. 如何排序陣列 & 搜尋?
+			=> Bubble Sort(泡泡排序法)
+			=> Linear Search(線性搜尋, 毋須排序)
+			=> Binary Search(先作排序, 再二元搜尋)
+
+				//Binary Search(先作排序, 再二元搜尋)
+				import java.util.Arrays;
+
+				public class ArraySortSearch {
+					public static void main(String[] args){
+						int array[] = {2, 5, -2, -6, -3, 8, 0, -7, -9, 4};
+
+						Arrays.sort(array); //Sort Array
+						printArray("Sorted Array ", array);
+
+						int index = Arrays.binarySearch(array, 0); //Search Array
+						System.out.println("Found 0 @ " + index);
+					}
+
+					private static void printArray(String message, int array[]){
+						System.out.println(message + ":[length:" + array.length + "]");
+						for(int i = 0; i< array.length; i++){
+							if(i!=0) System.out.print(", ");
+							System.out.print(array[i]);
+						}
+						System.out.println();
+					}
+				}
+
+				//Linear Search(線性搜尋)
+				public class ArraySearchLinear{
+					public static void main(String[] args){
+						int array[] = {2, 5, -2, -6, -3, 8, 0, -7, -9, 4};
+						int target = 0;
+
+						for(int i = 0; i < array.length; i++){
+							if (array[i] == target){
+								System.out.println("Found:"+ target + " @ " + i);
+								break;
+							}
+						}
+					}
+				}
+
+				//Bubble Sort(泡泡排序法)
+				public class ArraySortBubble{
+					public static void main(String[] args){
+						int array[] = {2, 5, -2, -6, -3, 8, 0, -7, -9, 4};
+
+						System.out.println("Before Sorted:");
+						for(int i : array){
+							System.out.print(i + ",");
+						}
+						System.out.println("");
+						
+						//First, Bubble Sort
+						int temp = 0;
+						for(int i = 0; i < array.length; i++){
+							for(int j = 1; j < array.length; j++){ 
+								if(array[j-1] > array[j]){
+									temp = array[j-1];
+									array[j-1] = array[j];
+									array[j] = temp;
+								}
+							}
+						}
+
+						System.out.println("After Sorted:");
+						for(int i : array){
+							System.out.print(i + ",");
+						}
+
+					}
+				}
+
+			2. 如何排序陣列 & 插入(System.arraycopy)?
+			=> insert New element by System.arraycopy
+			=> // System.arraycopy(sourceArray, starting position in sourceArray,
+			=>                     destinationArray, starting position in destinationArray,
+			=>                     length(the number of array elements to be copied.))
+
+				import java.util.Arrays;
+
+				public class ArraySortInsertNewElement{
+					public static void main(String[] args){
+						int array[] = {2, 5, -2, -6, -3, 8, 0, -7, -9, 4};
+						printArray(array);
+
+						Arrays.sort(array);
+						printArray(array);
+
+						int index = Arrays.binarySearch(array, 1); //not found.
+						System.out.println("Not found 1 @ " + index);
+
+						int newIndex = -(index) -1; //the position which new element should be inserted into.
+						array = insertElement(array, 1, newIndex);
+						printArray(array);
+
+					}
+
+					// System.arraycopy(sourceArray, starting position in sourceArray,
+					//                  destinationArray, starting position in destinationArray,
+					//                  length(the number of array elements to be copied.))
+					private static int[] insertElement(int[] aryOri, int newElement, int insertIndex){
+						int length = aryOri.length;
+						int aryDes[] = new int[length+1];
+						System.arraycopy(aryOri, 0, aryDes, 0, insertIndex);
+						aryDes[insertIndex] = newElement;
+
+						System.arraycopy(aryOri, insertIndex, aryDes, insertIndex+1, length - insertIndex );
+						return aryDes;
+					}
+
+					private static void printArray(int array[]){
+						int count = 0;
+						for(int i: array){
+							System.out.print(i);
+							count++;
+							if(count != array.length)
+								System.out.print(", ");
+						}
+						System.out.println();
+					}
+
+				}
+
+			3. 如何決定兩維陣列的上限?
+			=> data.length
+			=> data[0].length
+
+				public class ArrayDimensionLength{
+					public static void main(String[] args){
+						String[][] data = new String[2][5];
+						System.out.println("Dimension1:" + data.length);
+						System.out.println("Dimension2:" + data[0].length);
+					}
+				}
+
+			4. 如何反轉陣列清單(ArrayList)?
+			=> java.util.Collections.reverse(java.util.ArrayList)
+
+				import java.util.ArrayList;
+				import java.util.Collections;
+
+				public class ArrayListReverse{
+					public static void main(String[] args){
+						ArrayList aryList = new ArrayList();
+						
+						//==方法1===========================//
+						aryList.add("A");
+						aryList.add("B");
+						aryList.add("C");
+						System.out.println("Before reverse:" + aryList);
+						Collections.reverse(aryList);
+						System.out.println("After reverse:" + aryList);
+
+						//==方法2===========================//
+						int[] nums = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+						System.out.print("Before reverse:");
+						printArray(nums);
+
+						for(int i=0; i< nums.length /2; i++){
+							int temp = nums[i];
+							nums[i] = nums[nums.length - 1 -i];
+							nums[nums.length - 1 -i] = temp;
+						}
+						
+						System.out.print("After reverse:");
+						printArray(nums);
+					}
+
+					private static void printArray(int array[]){
+						int count = 0;
+						for(int i: array){
+							System.out.print(i);
+							count++;
+							if(count != array.length)
+								System.out.print(", ");
+						}
+						System.out.println();
+					}
+				}
+
+			5. 如何將字串陣列, 輸出至主控台?
+			=> Arrays.toString(arr);
+			=> Arrays.deepToString(arr);
+
+				import java.util.Arrays;
+
+				public class ArrayOutput{
+					public static void main(String[] args){
+						String[] greeting = {"Monday", "Tuesday", "Wednesday"};
+						for(String s:greeting){
+							System.out.println(s);
+						}
+
+						System.out.println(Arrays.toString(greeting));
+
+						String[][] deepArray = {{"Tainan", "Taipei"}, {"ILan","Hualien"}};
+						System.out.println(Arrays.toString(deepArray));
+						System.out.println(Arrays.deepToString(deepArray));
+
+					}
+				}
+
+			6. 如何搜尋陣列中最大值 & 最小值?
+			=> Collections.Max(Arrays.asList(nums))
+			=> Collections.Min(Arrays.asList(nums))
+
+				import java.util.Arrays;
+				import java.util.Collections;
+
+				public class ArrayMaxMin{
+					public static void main(String[] args){
+						Integer[] nums = {8, 2, 3, 1, 19, 29};
+
+						// Methon 1
+						int min = (int) Collections.min(Arrays.asList(nums));
+						int max = (int) Collections.max(Arrays.asList(nums));
+
+						System.out.println(min);
+						System.out.println(max);
+
+						// Method 2
+						min = nums[0];
+						max = nums[0];
+						for(int i : nums){
+							if(i > max) 
+								max = i;
+							else if (i < min)
+								min = i;
+						}
+
+						System.out.println(min);
+						System.out.println(max);
+					}
+				}
+			
+			7. 如何合併兩個陣列?
+			=> List list = ArrayList(Arrays.asList(array1))
+			=> list.addAll(Arrays.asList(arrar2))
+
+				import java.util.Arrays;
+				import java.util.ArrayList;
+				import java.util.List;
+
+				public class ArrayMerge{
+					public static void main(String[] args){
+						
+						//Method 1
+						String[] a = {"A", "B", "C"};
+						String[] b = {"K", "L"};
+
+						List list = new ArrayList(Arrays.asList(a));
+						list.addAll(Arrays.asList(b));
+						Object[] o = list.toArray();
+						System.out.println(Arrays.toString(o));
+
+						//Method 2
+						int[] list1 = {1,4,7,9,11,89};
+						int[] list2 = {2,6,99,100,142};
+						int[] listMerge = new int[list1.length + list2.length];
+						int count = 0;
+
+						for(int i: list1){
+							listMerge[count] = i;
+							count++;
+						}
+						for(int j: list2){
+							listMerge[count] = j;
+							count++;
+						}
+
+						Arrays.sort(listMerge);
+						System.out.println(Arrays.toString(listMerge));
+						System.out.println(Arrays.binarySearch(listMerge, 142));
+					}
+				}
+
+			8. 如何填滿(至少1次)陣列內容?
+			=> Arrays.fill(arrayName, fillValue);
+			=> Arrays.fill(arrayName, startIndex, endingIndex, fillValue);
+
+				import java.util.Arrays;
+
+				public class ArrayFill{
+					public static void main(String[] args){
+						
+						//Method 1
+						int[] ary = new int[6];
+						Arrays.fill(ary, 100);
+						System.out.println(Arrays.toString(ary));
+						
+						Arrays.fill(ary, 3, 6, 68);
+						System.out.println(Arrays.toString(ary));
+
+						//Method 2
+						int[] ary2 = {5, 6, 9, 10, 2, 45, 65};
+						System.out.println(Arrays.toString(ary2));
+
+						Arrays.fill(ary2, 3, 6, 81);
+						System.out.println(Arrays.toString(ary2));
+
+					}
+				}
+
+			9. 如何擴充陣列, 在初始化後?
+			=> // System.arraycopy(sourceArray, starting position in sourceArray,
+			=>                     destinationArray, starting position in destinationArray,
+			=>                     length(the number of array elements to be copied.))
+
+				import java.util.Arrays;
+
+				public class ArrayExtended{
+					public static void main(String[] args){
+						String[] srcArray = {"A", "B", "C"};
+						String[] desArray = new String[5];
+						desArray[3] = "D";
+						desArray[4] = "E";
+						System.arraycopy(srcArray, 0, desArray, 0, 3);
+						System.out.println(Arrays.toString(desArray));
+					}
+				}
+
+			10. 如何移除陣列(ArrayList)中的元素?
+			=> arrayList.remove(index);
+			=> arrayList.remove("item value"); //注意: ArrayList<Integer> 無法使用; ArrayList 可以使用.
+
+				import java.util.ArrayList;
+
+				public class ArrayListRemove{
+					public static void main(String[] args){
+						
+						// Method 1
+						ArrayList aryList = new ArrayList();
+						aryList.clear();
+
+						aryList.add(0,"Zero");
+						aryList.add(1,"One");
+						aryList.add(2,"Two");
+						aryList.add(3,"Three");
+						System.out.println(aryList);
+						
+						aryList.remove(1);
+						aryList.remove("Zero");
+						System.out.println(aryList);
+
+						// Method 2
+						ArrayList<Integer> list = new ArrayList<Integer>();
+						list.add(20);
+						list.add(30);
+						list.add(80);
+						list.add(500);
+						list.add(1680);
+						System.out.println(list);
+
+						list.remove(0); //remove 20
+						list.remove(0); //remove 30
+						// list.remove(20); //Error
+						System.out.println(list);
+
+					}
+				}
+
+			11. 如何從另一個陣列(ArrayList)中, 移除一個陣列?
+			=> arrayList1.removeAll(arrayList2);
+			=> arrayList1內, 與 arrayList2 相同值會被移除.
+
+				import java.util.ArrayList;
+
+				public class ArrayListRemoveAll{
+					public static void main(String[] args){
+						ArrayList ary1 = new ArrayList();
+						ary1.add(0,"com1");
+						ary1.add(1,"com2");
+						ary1.add(2,"not common");
+						ary1.add(3,"not common1");
+
+						ArrayList ary2 = new ArrayList();
+						ary2.add(0,"com2");
+						ary2.add(1,"not common");
+						ary2.add(2,"not common1");
+
+						ary1.removeAll(ary2);
+						System.out.println(ary1);
+
+					}
+				}
+
+			12. 如何找出相同元素(common elements), 從陣列(ArrayList)中?
+			=> arrayList1.retainAll(arrayList2);
+			=> 保留 arrayList1 & arrayList2 內相同元素
+
+				import java.util.ArrayList;
+
+				public class ArrayListRetainAll{
+					public static void main(String[] args){
+						ArrayList ary1 = new ArrayList();
+						ary1.add(0,"com1");
+						ary1.add(1,"com2");
+						ary1.add(2,"not common");
+						ary1.add(3,"not common1");
+
+						ArrayList ary2 = new ArrayList();
+						ary2.add(0,"com2");
+						ary2.add(1,"not common");
+						ary2.add(2,"not common1");
+
+						ary1.retainAll(ary2);
+						System.out.println(ary1);
+
+					}
+				}
+
+			13. 如何找出一個物件或字串, 從陣列(ArrayList)中?
+			=> arrayList1.contains("xxx") //找字串
+			=> arrayList1.contains(arrayList2) //找物件
+
+				import java.util.ArrayList;
+
+				public class ArrayListContains{
+					public static void main(String[] args){
+						ArrayList ary1 = new ArrayList();
+						ary1.add(0,"com1");
+						ary1.add(1,"com2");
+						ary1.add(2,"not common");
+						ary1.add(3,"not common1");
+
+						ArrayList ary2 = new ArrayList();
+						ary2.add(0,"com88");
+						ary2.add(1,"com2");
+						ary2.add(2,"not common");
+						ary2.add(3,"not common1");
+						
+						System.out.println("ary1 contains is : " + ary1.contains("com3")); //false
+						System.out.println("ary1 contains ary2 is : " + ary1.contains(ary2)); //false
+
+					}
+				}
+
+			14. 如何檢查兩個陣列是否相同?
+			=> Arrays.equals(ary1, ary2) -> 正確方法, 比較陣列內容值
+			=> ary1 == ary2 , false
+
+				import java.util.Arrays;
+
+				public class ArrayEquals{
+					public static void main(String[] args){
+						int[] ary1 = {1, 2, 3};
+						int[] ary2 = {1, 2, 3};
+
+						System.out.println(Arrays.equals(ary1, ary2));
+
+					}
+				}
+
+			15. 如何比較兩個陣列?
+			=> Arrays.equals(ary1, ary2) -> 正確方法, 比較陣列內容值
+
+		* Date & Time(OK)
+
+			=> VIP建議: 使用 Calendar 轉換為 Date, Calendar.getInstance().getTime() will return a Date Object.
+			=> VIP建議: Calendar & SimpleDateFormat 都能指定區域別(Locale), 放在SimpleDateFormat內指定比較清楚.
+			=> VIP建議: Calendar.setTime(Date), 設定日期物件初始值, initialize a Date Object.
+			=> VIP建議: Calendar.getTime(), 回傳一個日期物件, return a Date Object.
+
+
+			1. 如何將時間格式化為上午/下午?
+			=> import java.text.SimpleDateFormat;
+			=> import java.util.Date;
+			=> String strDateFormat = "HH:mm:ss a";
+			=> SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
+			=> sdf.format(date);
+
+				import java.util.Date;
+				import java.text.SimpleDateFormat;
+
+				public class DateAMPM {
+					public static void main(String[] args){
+						Date date = new Date();
+						String strDateFormat = "HH:mm:ss a"; // print AM/PM
+						SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
+						System.out.println(sdf.format(date)); // 08:34:31 上午
+					}
+				}
+
+			2. 如何顯示月份名稱(MMM)? ex. October, Oct, 10
+			=> import java.util.Calendar;
+			=> import java.util.Formatter;
+			=> Calendar cal = Calendar.getInstance;
+			=> Formatter fmt = new Formatter();
+			=> fmt.format("%tB %tb %tm", cal, cal, cal);
+			=> System.out.println(fmt);
+
+				import java.util.Calendar;
+				import java.util.Formatter;
+				import java.util.Locale;
+				import java.util.Date;
+
+				public class DateMonthName {
+					public static void main(String[] args){
+						// Calendar cal = Calendar.getInstance();
+						Date date = new Date(2020,10,11);
+						Locale l = Locale.ENGLISH;
+						Formatter fmt = new Formatter(l); //specific Language
+						Formatter fmtLocal = new Formatter(); // default is local.
+
+						fmt.format("%tB %tb %tm", date, date, date); //November Nov 11
+						fmtLocal.format("%tB %tb %tm", date, date, date); //十一月 十一月 11
+						System.out.println(fmt);
+						System.out.println(fmtLocal);
+					}
+				}
+
+			3. 如何顯示小時 & 分鐘?
+			=> import java.util.Calendar;
+			=> import java.util.Formatter;
+			=> Calendar cal = Calendar.getInstance();
+			=> Formatter fmt = new Formatter();
+			=> fmt.format("%tl:%tM", cal);
+			=> System.out.println(fmt);
+
+				import java.util.Calendar;
+				import java.util.Formatter;
+				import java.util.Locale;
+				import java.util.Date;
+				import java.text.SimpleDateFormat;
+
+				public class DateHourMinute {
+					public static void main(String[] args){
+						
+						// Method 1
+						Calendar cal = Calendar.getInstance();
+						Locale l = Locale.CANADA;
+						Formatter fmt = new Formatter(l);
+						fmt.format("%tl:%tM", cal, cal);
+						System.out.println(fmt);
+
+						// Method 2: Easy to use, 使用 SimpleDateFormat 比較容易
+						SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss a");
+						Date date = new Date();
+						System.out.println(sdf.format(date));
+
+					}
+				}
+
+			4. 如何顯示目前日期/時間?
+			=> import java.util.Date;
+			=> Date d = new Date();
+			=> d.toString();
+
+				import java.util.Date;
+
+				public class DateCurrentDateTime{
+					public static void main (String[] args){
+						Date date = new Date();
+						System.out.println(date.toString());
+					}
+				}
+
+			5. 如何將時間格式化為24小時制?
+			=> import java.util.Date;
+			=> import java.text.SimpleDateFormat;
+			=> new SimpleDateFormat("kk:mm:ss") kk = 1-24小時 / new SimpleDateFormat("h") 上午|下午 = 1-12
+
+				import java.util.Date;
+				import java.util.Calendar;
+				import java.text.SimpleDateFormat;
+
+				public class DateTime24Hours{
+					public static void main(String[] args){
+						// Date date = new Date(2021,05,04,16,30);
+						Calendar cal = Calendar.getInstance();
+						// month - the value used to set the MONTH calendar field. 
+						// Month value is 0-based. e.g., 0 for January, 05 for June
+						cal.set(2021,05,04,16,30); //2021/06/04 16:30
+						
+						SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd kk:mm:ss");
+						// cal.getTime() return a Date 
+						System.out.println(sdf.format(cal.getTime()));
+					}
+				}
+
+			6. 如何將時間格式化為MMMMM(長月份名稱)/MMM(短月份名稱)/MM(數值月份名稱)?
+			=> import java.text.SimpleDateFormat;
+			=> import java.util.Calendar;
+			=> VIP建議: 使用 Calendar 轉換為 Date, Calendar.getInstance().getTime() will return a Date Object.
+			=> VIP建議: Calendar & SimpleDateFormat 都能指定區域別(Locale), 放在SimpleDateFormat內指定比較清楚.
+			=> 區域別(Locale): 會影響什麼? Locale.ENGLISH, 輸出 October; Locale.TAIWAN, 輸出 十月.
+			
+				import java.util.Calendar;
+				import java.text.SimpleDateFormat;
+				import java.util.Locale;
+
+				public class DateMonthName_BySimpleDateFormat{
+					public static void main(String[] args) {
+						
+						Calendar cal = Calendar.getInstance();
+						cal.set(2021,9,30); //2021/10/30
+
+						Locale l = Locale.ENGLISH;
+						SimpleDateFormat sdf0 = new SimpleDateFormat("MM",l);
+						SimpleDateFormat sdf1 = new SimpleDateFormat("MMM",l);
+						SimpleDateFormat sdf2 = new SimpleDateFormat("MMMM",l);
+						SimpleDateFormat sdf3 = new SimpleDateFormat("MMMMM",l);
+						
+						System.out.println(sdf0.format(cal.getTime()));
+						System.out.println(sdf1.format(cal.getTime()));
+						System.out.println(sdf2.format(cal.getTime()));
+						System.out.println(sdf3.format(cal.getTime()));
+					}
+				}
+
+			7. 如何格式化 (秒) ?
+			=> import java.text.SimpleDateFormat;
+			=> import java.util.Calendar;
+			=> SimpleDateFormat("ss");
+
+				import java.text.SimpleDateFormat;
+				import java.util.Calendar;
+
+				public class DateSecondFormat{
+					public static void main(String[] args) {
+						Calendar cal = Calendar.getInstance();
+						SimpleDateFormat sdf = new SimpleDateFormat("ss");
+						System.out.println(sdf.format(cal.getTime()));
+					}
+				}
+
+			8. 如何顯示月份的短名稱?
+			=> import java.text.SimpleDateFormat;
+			=> import java.util.Calendar;
+			=> SimpleDateFormat("MMM");
+
+			9. 如何顯示星期幾的名稱?
+			=> import java.text.SimpleDateFormat;
+			=> import java.util.Calendar;
+			=> SimpleDateFormat("E"); // Tuesday; Tue
+			=> SimpleDateFormat("u"); // 1 = Monday, ..., 7=Sunday
+
+			10. 如何將日期增加時間?
+			=> import java.text.SimpleDateFormat;
+			=> import java.util.Calendar;
+			=> Calendar.add(Calendar.MONTH, 7) //加 7個月
+			=> Calendar.add(Calendar.HOUR, 3) //加 3個小時
+			=> Calendar.add(Calendar.YEAR, 5) //加 5個月
+
+			11. 如何顯示不同國家格式的時間?
+			=> import java.text.SimpleDateFormat;
+			=> import java.util.Calendar;
+			=> import java.util.Locale; //語言
+
+				import java.util.Date;
+				import java.util.Locale;
+				import java.text.SimpleDateFormat;
+
+				public class DateShowDifferentCountryTime{
+					public static void main(String[] args) {
+						Date d = new Date();
+						Locale l = Locale.ENGLISH;
+						SimpleDateFormat sdf = new SimpleDateFormat("YYYY/MMM/dd HH:mm:ss", l);
+						System.out.println("Local Time Format:" + d.toString());
+						System.out.println("ENGLISH Time Format:" + sdf.format(d));
+
+					}
+				}
+
+			12. 如何顯示不同語言的時間?
+			=> import java.text.DateFormat;
+			=> import java.util.Calendar;
+			=> import java.util.Locale; //語言
+
+				import java.text.DateFormat;
+				import java.util.Locale;
+				import java.util.Date;
+
+				public class DateDifferentLanguageTime {
+					public static void main(String[] args) {
+						Date d = new Date();
+						Locale l = Locale.ENGLISH;
+						Locale locItalian = new Locale("it");
+						DateFormat df = DateFormat.getDateInstance(DateFormat.FULL, l);
+						System.out.println(d.toString());
+						System.out.println(df.format(d));
+					}
+				}
+
+			13. 如何 roll through 小時 & 月份? (看不太懂)
+			=> Calendar.roll(int field, boolean up)
+			=> Calendar.roll(int field, int amount)
+
+				import java.util.*;
+				import java.text.SimpleDateFormat;
+
+				public class DateRoll {
+					public static void main(String[] args){
+						Calendar cal = Calendar.getInstance();
+						System.out.println(cal.getTime().toString());
+
+						cal.roll(Calendar.MONTH, 1);
+						System.out.println(cal.getTime().toString());
+
+						cal.roll(Calendar.HOUR, 3);
+						SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd kk:mm:ss a");
+						System.out.println(sdf.format(cal.getTime()));
+
+						cal.roll(Calendar.YEAR, false); //往下
+						System.out.println(cal.getTime().toString());
+
+						cal.roll(Calendar.HOUR, true); //往上
+						System.out.println(cal.getTime().toString());
+
+					}
+				}
+
+			14. 如何找出該年內的第幾週?
+			=> Calendar cal = Calendar.getInstance();
+			=> cal.WEEK_OF_YEAR
+			=> cal.WEEK_OF_MONTH
+			=> cal.DAY_OF_MONTH
+
+				import java.util.Calendar;
+				import java.util.Date;
+				import java.text.SimpleDateFormat;
+
+				public class DateWeekDay{
+					public static void main(String[] args) {
+						Calendar cal = Calendar.getInstance();
+						Date date = new Date();
+						cal.setTime(date);
+						SimpleDateFormat sdf = new SimpleDateFormat("w / W / d / F");
+						//w 	Week in year 
+						//W 	Week in month
+						//d 	Day in month 
+						//F 	Day of week in month 
+
+						System.out.println(cal.getTime().toString());
+						System.out.println(sdf.format(date));
+						System.out.println(cal.WEEK_OF_YEAR); //看不太懂
+						System.out.println(cal.WEEK_OF_MONTH); //看不太懂
+						System.out.println(cal.DAY_OF_MONTH); //看不太懂
+					}
+				}
+
+			15. 如何顯示不同格式的日期?
+			=> import java.text.SimpleDateFormat;
+			=> import java.util.Date;
+			=> import java.util.Locale;
+
+				import java.text.ParseException;
+				import java.text.SimpleDateFormat;
+				import java.util.Date;
+				import java.util.Locale;
+
+				public class SimpleDateFormatExample {
+					public static void main(String[] args) {
+							Date curDate = new Date();
+							SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+							
+							String DateToStr = format.format(curDate);
+							System.out.println(DateToStr);
+							
+							format = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
+							DateToStr = format.format(curDate);
+							System.out.println(DateToStr);
+							
+							format = new SimpleDateFormat("dd MMMM yyyy zzzz", Locale.ENGLISH);
+							DateToStr = format.format(curDate);
+							System.out.println(DateToStr);
+							
+							format = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
+							DateToStr = format.format(curDate);
+							System.out.println(DateToStr);
+							
+							try {
+								Date strToDate = format.parse(DateToStr);
+								System.out.println(strToDate);
+							} catch (ParseException e) {
+								e.printStackTrace();
+							} 
+					} 
+				}
+
+	Day1(Afternoon)
+
+		* Methods(OK)
+
+			1. 如何覆載函式? (overload)
+			=> 依據 參數型態(type of Parameters) 和 參數個數(number of Parameters)
+			=> 建構子 & 類別函式, 均能覆載
+
+				Sample1: 使用他類別內, 函式覆載
+					class MyClass {
+						int height;
+						MyClass() {
+								System.out.println("bricks");
+								height = 0;
+						}
+						MyClass(int i) {
+								System.out.println("Building new House that is " + i + " feet tall");
+								height = i;
+						}
+						void info() {
+								System.out.println("House is " + height + " feet tall");
+						}
+						void info(String s) {
+								System.out.println(s + ": House is " + height + " feet tall");
+						}
+					}
+
+					public class MainClass {
+						public static void main(String[] args) {
+								MyClass t = new MyClass(0);
+								t.info();
+								t.info("overloaded method");
+								
+								//Overloaded constructor:
+								new MyClass();
+						}
+					}
+
+				Sample2: 同類別內, 函式覆載
+					public class Calculation {
+						void sum(int a,int b){System.out.println(a+b);}
+						void sum(int a,int b,int c){System.out.println(a+b+c);}
+
+						public static void main(String args[]){
+								Calculation cal = new Calculation();
+								cal.sum(20,30,60);
+								cal.sum(20,20);
+						}
+					}
+
+			2. 如何利用覆載函式(method overloading), 列印不同型態的陣列?
+			=> 依據 參數型態(type of Parameters) 和 參數個數(number of Parameters)
+				public static void printArray(Integer[] inputArray)
+				public static void printArray(Character[] inputArray)
+				public static void printArray(Double[] inputArray)
+
+				Sample:
+					public class MainClass {
+						public static void printArray(Integer[] inputArray) {
+								for (Integer element : inputArray){
+									System.out.printf("%s ", element);
+									System.out.println();
+								}
+						}
+						public static void printArray(Double[] inputArray) {
+								for (Double element : inputArray){
+									System.out.printf("%s ", element);
+									System.out.println();
+								}
+						}
+						public static void printArray(Character[] inputArray) {
+								for (Character element : inputArray){
+									System.out.printf("%s ", element);
+									System.out.println();
+								}
+						}
+						public static void main(String args[]) {
+								Integer[] integerArray = { 1, 2, 3, 4, 5, 6 };
+								Double[] doubleArray = { 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7 };
+								Character[] characterArray = { 'H', 'E', 'L', 'L', 'O' };
+								
+								System.out.println("Array integerArray contains:");
+								printArray(integerArray);
+								
+								System.out.println("\nArray doubleArray contains:");
+								printArray(doubleArray);
+								
+								System.out.println("\nArray characterArray contains:");
+								printArray(characterArray);
+						}
+					}
+
+			3. 如何利用函式(遞迴), 解決河內塔問題?
+
+				//方法1: 此函式易理解(愛這個)
+				public class FnTowersOfHanoi_2{ 
+					public static void doTowers(int topN, char from, char mid, char to){
+						if(topN == 1){
+							System.out.printf("move %s from %s to %s \n", topN, from , to);
+						}else{
+							doTowers(topN-1, from, to, mid);
+							System.out.printf("move %s from %s to %s \n", topN, from , to);
+							doTowers(topN-1, mid, from, to);
+						}
+					}
+
+					public static void main(String[] args) {
+						doTowers(5, 'A', 'B', 'C'); //Five disks
+						doTowers(3, 'A', 'B', 'C'); //Three disks
+					}
+
+				}
+
+				//方法2: 達到一樣結果, 但多了一個6計算 中間那根柱子很怪.
+				public class FnTowersOfHanoi_1{
+					public static void move(int n, int startPole, int endPole){
+						if(n == 0){
+							return ; 
+						}
+						int interPole = 6 - startPole - endPole;
+
+						move(n-1, startPole, interPole);
+						System.out.println("Move " + n + " from " + startPole + " to " + endPole);
+						move(n-1, interPole, endPole);
+					}
+
+					public static void main(String[] args){
+						// move(3, 1, 3); //three disks, from Pole1 to Pole3
+						move(5, 1, 3); //five disks, from Pole1 to Pole3
+					}
+				}
+
+			4. 如何利用函式, 計算Fibonacci序列(費波那契數)? (Logic: F0=0, F1=1, Fn = Fn-1 + Fn-2)
+
+				public class FnFibonacci{
+					public static int doFibonacci(int i){
+						if(i == 0 || i == 1) 
+							return i;
+						else
+							return doFibonacci(i-1) + doFibonacci(i-2);
+					}
+					public static void main(String[] args){
+						for(int i = 0; i<11; i++){
+							System.out.print(" " + doFibonacci(i));
+						}
+					}
+				}
+
+			5. 如何利用函式, 計算Factorial of a number(階乘數)? (Logic: 0|1 return 1, else return n * f(n-1))
+
+				public class FnFactorial {
+					public static long doFactorial(long n){
+						if(n <= 1)
+							return 1;
+						else
+							return n * doFactorial(n-1);
+					}
+					public static void main(String[] args){
+						for(int i=0; i<11; i++){
+							System.out.printf("%s! = %s\n", i , doFactorial(i));
+						}
+					}
+				}
+
+			6. 如何父類別-覆載函式? (how to use method overriding in inheritance for subclasses?)
+			=> super(a,b); 在子類別內, 使用父類別的建構子.
+			=> Parent = Son; OK, 因為子類別繼承了父類別(Rectangle extends Figure)
+
+				public class Findareas {
+					public static void main (String []agrs) {
+							Figure f = new Figure(10 , 10);
+							Rectangle r = new Rectangle(9 , 5);
+							Figure figref;
+							figref = f;
+							System.out.println("Area is :"+figref.area());
+							figref = r; //OK, 因為子類別繼承了父類別(Rectangle extends Figure)
+							System.out.println("Area is :"+figref.area());
+					}
+				}
+				class Figure { //父類別
+					double dim1;
+					double dim2;
+					Figure(double a , double b) {
+							dim1 = a;
+							dim2 = b;
+					}
+					Double area() {
+							System.out.println("Inside area for figure.");
+							return(dim1*dim2);
+					}
+				}
+				class Rectangle extends Figure { //子類別
+					Rectangle(double a, double b) {
+							super(a ,b); //在子類別內, 使用父類別的建構子.
+					}
+					Double area() {
+							System.out.println("Inside area for rectangle.");
+							return(dim1*dim2);
+					}
+				}
+
+			7. 如何顯示物件類別, 利用 instanceOf 關鍵字?
+			=> if (o instanceOf ArrayList) //檢查物件是否為 ArrayList類別
+			=> o.getClass() //顯示物件類別名稱.
+
+				import java.util.ArrayList;
+				import java.util.Vector;
+
+				public class Main { 
+					public static void main(String[] args) {
+							Object testObject = new ArrayList();
+							displayObjectClass(testObject);
+					}
+					public static void displayObjectClass(Object o) {
+							if (o instanceof Vector) System.out.println(
+								"Object was an instance of the class java.util.Vector");
+							else if (o instanceof ArrayList) System.out.println(
+								"Object was an instance of the class java.util.ArrayList");
+							else System.out.println("Object was an instance of the " + o.getClass());
+					}
+				}
+
+			8. 如何使用break, 跳出函式內的迴圈(loop)?
+			=> break; //結束迴圈, 不再執行
+
+				public class Main {
+					public static void main(String[] args) {
+							int[] intary = { 99,12,22,34,45,67,5678,8990 };
+							int no = 5678;
+							int i = 0;
+							boolean found = false;
+							
+							for ( ; i < intary.length; i++) {
+								if (intary[i] == no) {
+										found = true;
+										break;
+								}
+							}
+							if (found) {
+								System.out.println("Found the no: " + no + " at  index: " + i);
+							} else {
+								System.out.println(no + "not found  in the array");
+							}
+					}
+				}
+
+			9. 如何使用continue, 在函式內?
+			=> continue; //跳至下一輪, 迴圈未結束
+
+				public class Main {
+					public static void main(String[] args) {
+							StringBuffer searchstr = new StringBuffer(
+								"hello how are you. ");
+							int length = searchstr.length();
+							int count = 0;
+							
+							for (int i = 0; i < length; i++) {
+								//charAt(charIndex); 抓出該位置字元
+								if (searchstr.charAt(i) != 'h')continue; 
+								count++;
+								//setCharAt(charIndex, charValue);設定位置字元為 'h'
+								searchstr.setCharAt(i, 'h'); 
+							}
+							System.out.println("Found " + count + " h's in the string.");
+							System.out.println(searchstr);
+					}
+				}
+
+			10.如何使用Label, 在函式內?
+			=> break Label;
+			=> continue Label;
+			=> 和 break, continue用法相同, 只是加上GOTO的意味在裡面.
+
+				public class NewClass {
+					public static void main(String[] args) {
+							String strSearch = "This is the string in which you have to search for a substring.";
+							String substring = "substring";
+							boolean found = false;
+							int max = strSearch.length() - substring.length();
+							
+							//Label is here.
+							testlbl: for (int i = 0; i <= max; i++) {
+								int length = substring.length();
+								int j = i;
+								int k = 0;
+								while (length-- != 0) {
+										if(strSearch.charAt(j++) != substring.charAt(k++)){
+											continue testlbl;
+										}
+								}
+								found = true;
+								break testlbl;
+							}
+							if (found) {
+								System.out.println("Found the substring .");
+							} else {
+								System.out.println("did not find the substing in the string.");
+							}
+					}
+				}
+
+			11.如何使用enum & switch 陳述式?
+			=> enum Car {Toyota, Ford, Skoda, Honda}; Car c = Car.Skoda;
+			=> switch (c) {case xxx: ... break; default: ... break;}
+
+				enum Car {
+					lamborghini,tata,audi,fiat,honda
+				}
+				public class Main {
+					public static void main(String args[]){
+							Car c;
+							c = Car.tata;
+							switch(c) {
+								case lamborghini:
+										System.out.println("You choose lamborghini!");
+										break;
+								case tata:
+										System.out.println("You choose tata!");
+										break;
+								case audi:
+										System.out.println("You choose audi!");
+										break;
+								case fiat:
+										System.out.println("You choose fiat!");
+										break;
+								case honda:
+										System.out.println("You choose honda!");
+										break;
+								default:
+										System.out.println("I don't know your car.");
+										break;
+							}
+					}
+				}
+
+			12.如何新增enum 建構子, 實體變數 & 函式? (how to make enum constructor, instance variable & method ?)
+			=> enum Car {  
+				Toyota(80), Ford(85), Skoda(90), Honda(87);
+				private int price;
+				Car(int p){
+					price = p;
+				}
+				int getPrice(){
+					return price;
+				}
+			}
+
+				enum Car {
+					lamborghini(900),tata(2),audi(50),fiat(15),honda(12);
+					private int price;
+					Car(int p) {
+							price = p;
+					}
+					int getPrice() {
+							return price;
+					} 
+				}
+				public class Main {
+					public static void main(String args[]){
+							System.out.println("All car prices:");
+							
+							//Car.values() 可以一次抓出所有列舉值
+							for (Car c : Car.values()) System.out.println(
+								c + " costs " + c.getPrice() + " thousand dollars.");
+					}
+				}	
+
+			13.如何使用 for & foreach 迴圈, 列印陣列內的值?
+			=> for(int i=0; i<length; i++)
+			=> foreach(int i: array)
+			=> foreach(String s: ArrayList<String>)
+
+				public class Main {
+					public static void main(String[] args) {
+							int[] intary = { 1,2,3,4};
+							forDisplay(intary);
+							foreachDisplay(intary);
+					}
+					public static void forDisplay(int[] a) {  
+							System.out.println("Display an array using for loop");
+							for (int i = 0; i < a.length; i++) {
+								System.out.print(a[i] + " ");
+							}
+							System.out.println();
+					}
+					public static void foreachDisplay(int[] data) {
+							System.out.println("Display an array using for each loop");
+							for (int a  : data) {
+								System.out.print(a+ " ");
+							}
+					}
+				}
+
+				//==============================
+				import java.util.*;
+				public class HelloWorld {  
+					public static void main(String args[]) {  
+							ArrayList<String> list = new ArrayList<String>();  
+							list.add("Tutorials");  
+							list.add("Point");  
+							list.add("India PVT Limited");
+							for(String s:list) { 
+								System.out.println(s);  
+							}
+					}   
+				}  
+
+			14.如何新增函式, 以(變數長度|不限個數)作為參數值?
+			=> String... varName / int... varName
+			=> ... 表示它可以是 >= 0
+
+				public class FnVariableLength{
+
+					static int sum(int... intAry){
+						int sum = 0;
+						for(int i: intAry){
+							sum += i;
+						}
+						return sum;
+					}
+
+					static void display(String... strMsg){
+						System.out.print("Your Msg is: ");
+						for(String s: strMsg){
+							System.out.printf(" %s",s);
+						}
+					}
+
+					public static void main(String[] args){
+						int[] ary = {2,3,5};
+						int intSum = sum(ary);
+						System.out.println("Summery is " + intSum);
+
+						display("");
+						display("Today is a nice day.");
+						display("Yesterday","was","a","nice","day",",","too.");
+
+					}
+				}
+
+			15.如何使用變數參數作為輸入, 在處理覆載函式時?
+			=> 同樣利用 參數個數 & 參數型態 的不同, 程式會判斷該用哪個函式.
+
+				public class Main {
+					static void vaTest(int ... no) {
+							System.out.print(
+								"vaTest(int ...): " + "Number of args: " + no.length +" Contents: ");
+							for(int n : no)System.out.print(n + " ");
+							System.out.println();
+					}
+					static void vaTest(boolean ... bl) {
+							System.out.print(
+								"vaTest(boolean ...) " + "Number of args: " + bl.length + " Contents: ");
+							for(boolean b : bl)System.out.print(b + " ");
+							System.out.println();
+					}
+					static void vaTest(String msg, int ... no) {
+							System.out.print(
+								"vaTest(String, int ...): " + msg +"no. of arguments: "+ no.length +" Contents: ");
+							for(int  n : no)
+							System.out.print(n + " ");
+							System.out.println();
+					}
+					public static void main(String args[]) {
+							vaTest(1, 2, 3);
+							vaTest("Testing: ", 10, 20);
+							vaTest(true, false, false);
+					}
+				}
+
+		* Files(OK)
+
+			1. 如何比較兩個檔案的路徑?
+			=> import java.io.File;
+			=> file1.compareTo(file2); return 0; // path is same
+
+				import java.io.File;
+
+				public class Main {
+					public static void main(String[] args) {
+							File file1 = new File("C:/File/demo1.txt");
+							File file2 = new File("C:/java/demo1.txt");
+							
+							if(file1.compareTo(file2) == 0) {
+								System.out.println("Both paths are same!");
+							} else {
+								System.out.println("Paths are not same!");
+							}
+					}
+				}
+
+			2. 如何新增(create)檔案?
+			=> import java.io.File;
+			=> import java.io.IOException;
+			=> file1.createNewFile(); return true; //表示檔案新增成功
+			=> 1. File file = new File("c:/myFile.txt"); if (file.createNewFile()) System.out.println("Success.");
+			=> 2. FileOutputStream out = new FileOutputStream("c:/myFile.txt"); out.write(data.getBytes()); out.close();
+			=> 3. Files.write(Paths.get("c:/myFile.txt"), data.getBytes());
+
+			//方法1: 新增(create)檔案, 無內容
+				import java.io.File;
+				import java.io.IOException;
+
+				public class Main {
+					public static void main(String[] args) {
+							try {
+								File file = new File("C:/myfile.txt");
+								
+								if(file.createNewFile())System.out.println("Success!");
+								else System.out.println ("Error, file already exists.");
+							}
+							catch(IOException ioe) {
+								ioe.printStackTrace();
+							}
+					}
+				}
+
+			//方法2: 新增(create)檔案, 並寫入值
+				import java.io.IOException;
+				import java.io.File;
+				import java.io.FileOutputStream;
+				import java.io.FileWriter;
+				import java.io.IOException;
+
+				import java.nio.charset.StandardCharsets;
+				import java.nio.file.Files;
+				import java.nio.file.Paths;
+				import java.nio.file.StandardOpenOption;
+
+				import java.util.Arrays;
+				import java.util.List;
+
+				public class JavaApplication1 { 
+					public static void main(String[] args) throws IOException {
+							createFileUsingFileClass();
+							createFileUsingFileOutputStreamClass();
+							createFileIn_NIO();
+							// TODO code application logic here
+					} 
+					private static void createFileUsingFileClass() throws IOException { 
+							File file = new File("c://testFile1.txt");
+							
+							//Create the file
+							if (file.createNewFile()) { 
+								System.out.println("File is created!");
+							} else {
+								System.out.println("File already exists.");
+							} 
+							
+							//Write Content
+							FileWriter writer = new FileWriter(file);
+							writer.write("Test data");
+							writer.close();
+					} 
+					private static void createFileUsingFileOutputStreamClass() throws IOException { 
+							String data = "Test data";
+							FileOutputStream out = new FileOutputStream("c://testFile2.txt");
+							out.write(data.getBytes());
+							out.close();
+					} 
+					private static void createFileIn_NIO()  throws IOException { 
+							String data = "Test data";
+							Files.write(Paths.get("c://testFile3.txt"), data.getBytes());
+							List<String> lines = Arrays.asList("1st line", "2nd line");
+							Files.write(Paths.get(
+								"file6.txt"), lines, StandardCharsets.UTF_8, 
+								StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+					}
+				}
+
+			3. 如何取得(get)檔案, 最近修改日期?
+			=> import java.io.File;
+			=> import java.util.Date;
+			=> import java.text.SimpleDateFormat;
+			=> file.lastModified(); return 日期數值; //須丟入Date解析後, 人類才看的懂.
+
+				import java.io.File;
+				import java.util.Date;
+
+				public class Main {
+					public static void main(String[] args) {
+							File file = new File("Main.java");
+							Long lastModified = file.lastModified();
+							Date date = new Date(lastModified);
+							System.out.println(date);
+					}
+				}
+
+			4. 如何新增(create)檔案, 在指定目錄內?
+			=> import java.io.File;
+			=> File.createTempFile(); //將檔案, 新增(create)在指定目錄內.
+
+				//方法1
+					import java.io.File;
+
+					public class Main {
+						public static void main(String[] args) throws Exception {
+								File file = null;
+								File dir = new File("C:/");
+								file = File.createTempFile("JavaTemp", ".javatemp", dir);
+								System.out.println(file.getPath());
+						}
+					}
+
+				//方法2
+					import java.io.IOException;
+					import java.nio.file.FileAlreadyExistsException;
+					import java.nio.file.Files;
+					import java.nio.file.Path;
+					import java.nio.file.Paths;
+
+					public class CreateFile {
+						public static void main(String[] args) throws IOException {
+								Path p1 = Paths.get("C:/");
+								Files.createDirectories(p1.getParent());
+								try {
+									Files.createFile(p1);
+								} catch (FileAlreadyExistsException e) {
+									System.err.println("already exists: " + e.getMessage());
+								}
+						}
+					}
+
+			5. 如何檢查(check)檔案, 存在與否?
+			=> import java.io.File;
+			=> file.exists(); return true; // 檔案存在
+
+				//方法1:
+					import java.io.File;
+
+					public class Main {
+						public static void main(String[] args) {
+								File file = new File("C:/java.txt");
+								System.out.println(file.exists());
+						}
+					}
+
+				//方法2:
+					import java.io.File;
+					import java.io.FileNotFoundException;
+					import java.io.IOException;
+					import java.io.PrintpWriter;
+
+					import java.nio.file.FileAlreadyExistsException;
+					import java.nio.file.Files;
+					import java.nio.file.Path;
+					import java.nio.file.Paths;
+
+					public class fileexist {
+						public static void main(String[] args) throws IOException {
+								File f = new File(System.getProperty("user.dir")+"/folder/file.txt");
+								System.out.println(f.exists());
+								
+								if(!f.getParentFile().exists()){
+									f.getParentFile().mkdirs();
+								} 
+								if(!f.exists()){
+									try {
+											f.createNewFile();
+									} catch (Exception e) {
+											e.printStackTrace();
+									} 
+								} 
+								try {
+									File dir = new File(f.getParentFile(), f.getName());
+									PrintpWriter pWriter = new PrintpWriter(dir);
+									pWriter.print("writing anything...");
+									pWriter.close();
+								} catch (FileNotFoundException e) {
+									e.printStackTrace();
+								} 
+						}
+					}
+
+			6. 如何改變(make)檔案, 成唯讀?
+			=> import java.io.File;
+			=> file.setReadOnly(); //設定唯讀
+			=> file.canWrite(); //檢查是否能寫入
+
+				//範例1
+				import java.io.File;
+
+				public class Main {
+					public static void main(String[] args) {
+							File file = new File("C:/java.txt");
+							System.out.println(file.setReadOnly());
+							System.out.println(file.canWrite());
+					}
+				}
+
+				//範例2
+				import java.io.File;
+				import java.io.IOException;
+
+				public class FileReadAttribute { 
+					public static void main(String[] args) throws IOException { 
+							File file = new File("c:/file.txt");
+							file.setReadOnly();
+					
+							if(file.canWrite()) {
+								System.out.println("This file is writable");
+							} else {
+								System.out.println("This file is read only"); 
+							} 
+							file.setWritable(true);
+							if(file.canWrite()) {
+								System.out.println("This file is writable");
+							} else {
+								System.out.println("This file is read only");
+							}
+					}
+				}
+
+			7. 如何檔案(rename)更名?
+			=> import java.io.File;
+			=> File oldFile = new File("c://old.txt");
+			=> File newFile = new File("c://new.txt");
+			=> oldFile.renameTo(newFile); return true|false; // 表示更名成功否
+
+				import java.io.File;
+
+				public class Main {
+					public static void main(String[] args) {
+							File oldName = new File("C:/program.txt");
+							File newName = new File("C:/java.txt");
+							
+							if(oldName.renameTo(newName)) {
+								System.out.println("renamed");
+							} else {
+								System.out.println("Error");
+							}
+					}
+				}
+
+			8. 如何取得(get)檔案, 大小 in bytes?
+			# import java.io.File;
+			# file.exists() & file.isFile() & file.length(); return the length of bytes;
+			# kb = bytes / 1024; mb = kb / 1024;
+
+				//範例1
+				import java.io.File;
+
+				public class Main {
+					public static long getFileSize(String filename) {
+							File file = new File(filename);
+							if (!file.exists() || !file.isFile()) {
+								System.out.println("File doesn\'t exist");
+								return -1;
+							}
+							return file.length();
+					}
+					public static void main(String[] args) {
+							long size = getFileSize("c:/java.txt");
+							System.out.println("Filesize in bytes: " + size);
+					}
+				}
+
+				//範例2:換算檔案不同單位大小
+				import java.io.File;
+
+				public class FileSizeExample { 
+					public static void main(String[] args) { 
+							File file = new File("C:\\Users\\TutorialsPoint7\\Desktop\\abc.png");
+							if(file.exists()) { 
+								double bytes = file.length();
+								double kilobytes = (bytes / 1024);
+								double megabytes = (kilobytes / 1024);
+								double gigabytes = (megabytes / 1024);
+								double terabytes = (gigabytes / 1024);
+								double petabytes = (terabytes / 1024);
+								double exabytes = (petabytes / 1024);
+								double zettabytes = (exabytes / 1024);
+								double yottabytes = (zettabytes / 1024);
+								
+								System.out.println("bytes : " + bytes);
+								System.out.println("kilobytes : " + kilobytes);
+								System.out.println("megabytes : " + megabytes);
+								System.out.println("gigabytes : " + gigabytes);
+								System.out.println("terabytes : " + terabytes);
+								System.out.println("petabytes : " + petabytes);
+								System.out.println("exabytes : " + exabytes);
+								System.out.println("zettabytes : " + zettabytes);
+								System.out.println("yottabytes : " + yottabytes);
+							} else {
+								System.out.println("File does not exists!");
+							}
+					}
+				}
+
+			9. 如何變更(change)檔案, 最近修改日期?
+			# import java.io.File;
+			# import java.util.Date;
+			# file.lastModified(); //return 最近修改日期(數值)
+			# file.setLastModified(System.currentTimeMillis()); //變更最近修改日期, 以最新時間.
+
+				import java.io.File;
+				import java.util.Date;
+
+				public class Main {
+					public static void main(String[] args) throws Exception {
+							File fileToChange = new File ("C:/myjavafile.txt");
+							fileToChange.createNewFile();
+							Date filetime = new Date (fileToChange.lastModified());
+							System.out.println(filetime.toString());
+							System.out.println (fileToChange.setLastModified (System.currentTimeMillis()));
+							filetime = new Date (fileToChange.lastModified());
+							System.out.println(filetime.toString());
+					}
+				}
+
+			10.如何新增(create)暫存檔?
+			# 暫存檔後面, Java會自動加上1串數字.
+			# import java.io.File;
+			# File.createTempFile("fileName", ".副檔名");
+
+				//範例1
+				import java.io.*;
+
+				public class Main {
+					public static void main(String[] args) throws Exception {
+							File temp = File.createTempFile ("pattern", ".suffix");
+							temp.deleteOnExit(); 
+							BufferedWriter out = new BufferedWriter (new FileWriter(temp));
+							out.write("aString");
+							System.out.println("temporary file created:");
+							out.close();
+					}
+				}
+
+				//範例2
+				import java.io.File;
+				import java.io.IOException;
+
+				public class CreateTempFileExample { 
+					public static void main(String[] args) { 
+							try { 
+								File f1 = File.createTempFile("temp-file-name", ".tmp");
+								System.out.println("Temp file : " + f1.getAbsolutePath());
+							} catch(IOException e) { 
+								e.printStackTrace();
+							} 
+					}
+				}
+
+			11.如何附加(append)字串, 在現有檔案內?
+			# BufferedWriter out = new BufferedWriter(new FileWriter("C://test.txt"));
+			# out.write("abc");
+			# out.close();
+
+				//範例1
+				import java.io.*;
+
+				public class Main {
+					public static void main(String[] args) throws Exception {
+							try {
+								BufferedWriter out = new BufferedWriter(new FileWriter("filename"));
+								out.write("aString1\n");
+								out.close();
+								out = new BufferedWriter(new FileWriter("filename",true));
+								out.write("aString2");
+								out.close();
+								BufferedReader in = new BufferedReader(new FileReader("filename"));
+								String str;
+								
+								while ((str = in.readLine()) != null) {
+										System.out.println(str);
+								}
+							}
+							in.close();
+							catch (IOException e) {
+								System.out.println("exception occoured"+ e);
+							}
+					}
+				}
+
+				//範例2
+				import java.io.File;
+				import java.io.FileWriter;
+				import java.io.BufferedWriter;
+				import java.io.IOException;
+
+				public class AppendToFileExample {
+					public static void main( String[] args ) { 
+							try { 
+								String data = " Tutorials Point is a best website in the world";
+								File f1 = new File("C:\\Users\\TutorialsPoint7\\Desktop\\abc.txt");
+								if(!f1.exists()) {
+										f1.createNewFile();
+								} 
+								FileWriter fileWritter = new FileWriter(f1.getName(),true);
+								BufferedWriter bw = new BufferedWriter(fileWritter);
+								bw.write(data);
+								bw.close();
+								System.out.println("Done");
+							} catch(IOException e){
+								e.printStackTrace();
+							}
+					}
+				}
+
+			12.如何複製(copy)檔案?(copy one file into another file)
+			# FileInputStream 讀檔
+			# FileOutputStream 寫檔
+			# 如何讀檔, 寫檔
+				byte[] buffer = new byte[1024];
+				int length;
+
+				while((length = ins.read(buffer)) > 0){
+					outs.write(buffer, 0, length);
+				}
+				ins.close();
+				outs.close();
+			
+					//範例1
+					import java.io.*;
+
+					public class Main {
+						public static void main(String[] args) throws Exception {
+								BufferedWriter out1 = new BufferedWriter(new FileWriter("srcfile"));
+								out1.write("string to be copied\n");
+								out1.close();
+								InputStream in = new FileInputStream(new File("srcfile"));
+								OutputStream out = new FileOutputStream(new File("destnfile"));
+								byte[] buf = new byte[1024];
+								int len;
+								
+								while ((len = in.read(buf)) > 0) {
+									out.write(buf, 0, len);
+								}
+								in.close();
+								out.close();
+								BufferedReader in1 = new BufferedReader(new FileReader("destnfile"));
+								String str;
+								
+								while ((str = in1.readLine()) != null) {
+									System.out.println(str);
+								}
+								in.close();
+						}
+					}
+
+					//範例2
+					import java.io.File;
+					import java.io.FileInputStream;
+					import java.io.FileOutputStream;
+					import java.io.IOException;
+					
+					public class CopyExample {
+						public static void main(String[] args) {
+								FileInputStream ins = null;
+								FileOutputStream outs = null;
+								try {
+									File infile = new File("C:\\Users\\TutorialsPoint7\\Desktop\\abc.txt");
+									File outfile = new File("C:\\Users\\TutorialsPoint7\\Desktop\\bbc.txt");
+									ins = new FileInputStream(infile);
+									outs = new FileOutputStream(outfile);
+									byte[] buffer = new byte[1024];
+									int length;
+									
+									while ((length = ins.read(buffer)) > 0) {
+											outs.write(buffer, 0, length);
+									} 
+									ins.close();
+									outs.close();
+									System.out.println("File copied successfully!!");
+								} catch(IOException ioe) {
+									ioe.printStackTrace();
+								} 
+						}
+					}
+
+			13.如何刪除(delete)檔案?
+			# import java.io.*;
+			# file.delete(); return true; //刪除成功
+
+				//範例1
+				import java.io.*;
+
+				public class Main {
+					public static void main(String[] args) { 
+							try {
+								BufferedWriter out = new BufferedWriter (new FileWriter("filename"));
+								out.write("aString1\n");
+								out.close();
+								boolean success = (new File("filename")).delete();
+								
+								if (success) {
+										System.out.println("The file has been successfully deleted"); 
+								}
+								BufferedReader in = new BufferedReader(new FileReader("filename"));
+								String str;
+								
+								while ((str = in.readLine()) != null) {
+										System.out.println(str);
+								}
+								in.close();
+							}catch (IOException e) {
+								System.out.println("exception occoured"+ e);
+								System.out.println("
+										File does not exist or you are trying to read a file that has been deleted");
+							}
+					}
+				}
+
+				//範例2
+				import java.io.File;
+
+				public class DeleteFileExample { 
+					public static void main(String[] args) { 
+							try { 
+								File file = new File("C:\\Users\\TutorialsPoint7\\Desktop\\abc.txt");
+								if(file.delete()) { 
+										System.out.println(file.getName() + " is deleted!");
+								} else {
+										System.out.println("Delete operation is failed.");
+								}
+							} catch(Exception e) {
+								e.printStackTrace();
+							}
+					}
+				}
+
+			14.如何讀取(read)檔案?
+			# import java.io.*;
+			# BufferedReader in = new BufferedReader(new FileReader("c:\\test.txt"));
+			# while( (str == in.readLine()) != null ) ...
+
+				//範例1
+				import java.io.*;
+
+				public class Main {
+					public static void main(String[] args)  {
+							try {
+								BufferedReader in = new BufferedReader(new FileReader("c:\\filename"));
+								String str;
+								
+								while ((str = in.readLine()) != null) {
+										System.out.println(str);
+								}
+								System.out.println(str);
+							} catch (IOException e) {
+							}
+					}
+				}
+
+				//範例2
+				import java.io.BufferedReader;
+				import java.io.FileReader;
+				import java.io.IOException;
+
+				public class BufferedReaderExample {
+					public static void main(String[] args) {
+							try (BufferedReader br = new BufferedReader(
+								new FileReader("C:\\\\Users\\\\TutorialsPoint7\\\\Desktop\\\\bbc.txt"))) { 
+								
+								String sCurrentLine;
+								while ((sCurrentLine = br.readLine()) != null) {
+								System.out.println(sCurrentLine);
+							} 
+							} catch (IOException e) {
+								e.printStackTrace();
+							} 
+					}
+				} 
+
+			15.如何寫入(write)檔案?
+			# import java.io.*;
+			# BufferedWriter out = new BufferedWriter(new FileWriter("c:\\test.txt"));
+			# out.write(xxx); out.close();
+
+				//範例1
+				import java.io.*;
+
+				public class Main {
+					public static void main(String[] args) {
+							try {
+								BufferedWriter out = new BufferedWriter(new FileWriter("outfilename"));
+								out.write("aString");
+								out.close();
+								System.out.println("File created successfully");
+							}
+							catch (IOException e) {
+							}
+					}
+				}
+
+				//範例2
+				import java.io.BufferedWriter;
+				import java.io.File;
+				import java.io.FileWriter;
+				import java.io.IOException;
+
+				public class FileExample {
+					public static void main(String[] args) {
+							try {
+								String content = "TutorialsPoint is one the best site in the world";
+								File file = new File("C:\\Users\\TutorialsPoint7\\Desktop\\abc.txt");
+								if (!file.exists()) {
+										file.createNewFile();
+								} 
+								FileWriter fw = new FileWriter(file.getAbsoluteFile());
+								BufferedWriter bw = new BufferedWriter(fw);
+								bw.write(content);
+								bw.close();
+								
+								System.out.println("Done");
+							} catch (IOException e) {
+								e.printStackTrace();
+							} 
+					} 
+				}
+
+		* Directories
+
+			1. 如何新增目錄以遞迴方式?
+				
+				import java.io.File;
+				public class FileCreateMultiDir {
+					public static void main(String[] args){
+						String dirs = "E:\\a\\b\\c\\d";
+						File file = new File(dirs);
+						boolean result = file.mkdirs();
+						System.out.println("Status=" + result);
+					}
+				}
+
+			2. 如何刪除目錄? (先刪目錄內的檔案&子目錄後, 再刪除主目錄)
+
+				import java.io.File;
+				public class FileDeleteFolder{
+					public static void main(String[] args){
+						deleteDir("E:\\tempFolder");
+					}
+
+					public static boolean deleteDir(File dir){
+						if(dir.isDirectory()){
+							String[] children = dir.list();
+							for(int i = 0; i< children.length; i++){
+								
+								boolean success = deleteDir(new File(dir, children[i]));
+
+								if(!success) return false;
+							}
+						}
+						
+						return dir.delete();
+						System.out.println("The folder is deleted.");
+					}
+				}
+
+			3. 如何取得目錄, 是否為空?
+
+				import java.io.File;
+				public class FileCheckEmptyFolder{
+					public static void main(String[] args){
+						File file = new File("E:\\temp");
+						if(file.isDirectory()){
+							String[] files = file.list();
+							if(files.length == 0){
+								System.out.println("folder is empty.");
+							}else{
+								System.out.println("folder is not empty.");
+							}
+						}
+					}
+				}
+
+			4. 如何取得目錄, 隱藏與否?
+
+				import java.io.File;
+				public class FileCheckHiddenFile{
+					public static void main(String[] args){
+						File file = new File("E:\\TEMP\\test.txt");
+						if(file.isHidden()){
+							System.out.println("this file is hidden.");
+						}else{
+							System.out.println("this file is not hidden.");
+						}
+					}
+				}
+
+			5. 如何列印目錄 的階層? (file.getName(); file.listFiles())
+
+				import java.io.File;
+				import java.io.IOException;
+				public class FileListFilesInFolder{
+					
+					public static void main(String[] args){
+						showDir(1,new File("E:\\TEMP"));
+					}
+
+					public static void showDir(int intentSize, File file) throws IOException{
+						for(int i=0; i< intentSize; i++){
+							System.out.print("=");
+						}
+						System.out.println(file.getName());
+
+						if(file.isDirectory()){
+							File[] files = file.listFiles();
+							for(int i=0; i<files.length; i++){
+								showDir(2, files[i]);
+							}
+						}
+					}
+				}
+
+			6. 如何列印目錄 的最近修改日期? (file.lastModified(); //要放入Date(), 人類才看的懂)
+
+				import java.io.File;
+				import java.util.Date;
+				public class FileShowLastModified{
+					public static void main(String[] args){
+						File file = new File("E:\\Temp\\test.txt");
+						System.out.println("last modified time is:" + new Date(file.lastModified()));
+					}
+				}
+
+			7. 如何取得檔案的根目錄(parent directory)? (file.getParent())
+
+				import java.io.File;
+				public class FileShowParentDir{
+					public static void main(String[] args){
+						File file = new File("E:\\TEMP\\test.txt");
+						System.out.println("Parent Folder is " + file.getParent());
+					}
+				}
+
+			8. 如何搜尋所有檔案, 在目錄內? 
+			(file.list(); return String[]; //給目錄, 回傳檔案名稱.)
+			(file.listFiles(); return File[]; //給目錄, 回傳完整檔案路徑名稱, file.getName(); //檔案名稱; file.getAbsolutePath()); //檔案路徑 )
+
+				import java.io.File;
+				public class FileShowAllFilesInFolder{
+					public static void main(String[] args){
+						File file = new File("E:\\TEMP");
+						String[] fileNames = file.list();
+						for(String s: fileNames){
+							System.out.println(s);
+						}
+					}
+				}			
+
+			9. 如何取得目錄, 大小?
+			10.如何遍歷(traverse)目錄?
+			11.如何取得目前工作目錄(current working directory)?
+			12.如何取得, 系統根目錄(root directory)?
+			13.如何搜尋1個檔案, 在目錄內?
+			14.如何顯示所有檔案, 在目錄內?
+			15.如何顯示所有目錄, 在目錄內?
+
+		* Exception
+
+			1. 如何使用 finally block , 抓取例外?
+			2. 如何使用 handle the 例外階層?
+			3. 如何使用 handle the 例外函式?
+			4. 如何使用 handle the runtime 例外?
+			5. 如何使用 handle the empty stack 例外?
+			6. 如何使用 catch 來控制例外?
+			7. 如何使用 catch 來控制連串例外(chained exception)?
+			8. 如何使用 handle the exception 以覆載函式(overloaded methods)?
+			9. 如何使用 handle the checked exceptions?
+			10.如何傳遞參數, 當丟出 checked exceptions?
+			11.如何使用 handle multiple exceptions(divide by zero)?
+			12.如何使用 handle multiple exceptions(array out of bound)?
+			13.如何列印 print stack of the Exception?(例外堆疊內容)
+			14.如何使用 exception with thread?(執行緒例外)
+			15.如何新增 user defined exception?(使用者自訂例外)
+
+	Day2(Morning)
+
+		* Data Structure
+
+			How to print summation of n numbers?
+
+			How to get the first and the last element of a linked list?
+
+			How to add an element at first and last position of a linked list?
+
+			How to convert an infix expression to postfix expression?
+
+			How to implement Queue?
+
+			How to reverse a string using stack?
+
+			How to search an element inside a linked list?
+
+			How to implement stack?
+
+			How to swap two elements in a vector?
+
+			How to update a linked list?
+
+			How to get the maximum element from a vector?
+
+			How to execute binary search on a vector?
+
+			How to get elements of a LinkedList?
+
+			How to delete many elements from a linkedList?
+
+		* Collections
+
+			How to convert an array into a collection?
+
+			How to compare elements in a collection?
+
+			How to convert a collection into an array?
+
+			How to print a collection?
+
+			How to make a collection read-only?
+
+			How to remove a specific element from a collection?
+
+			How to reverse a collection?
+
+			How to shuffle the elements of a collection?
+
+			How to get the size of a collection?
+
+			How to iterate through elements of HashMap?
+
+			How to use different types of Collections?
+
+			How to use enumeration to display contents of HashTable?
+
+			How to get Set view of Keys from Java Hashtable?
+
+			How to find min & max of a List?
+
+			How to find a sublist in a List?
+
+			How to replace an element in a list?
+
+			How to rotate elements of the List?
+
+		* Networking
+
+			How to change the host name to its specific IP address?
+
+			How to get connected with web server?
+
+			How to check a file is modified at a server or not?
+
+			How to create a multithreaded server?
+
+			How to get the file size from the server?
+
+			How to make a socket displaying message to a single client?
+
+			How to make a srever to allow the connection to the socket 6123?
+
+			How to get the parts of an URL?
+
+			How to get the date of URL connection?
+
+			How to read and download a webpage?
+
+			How to find hostname from IP Address?
+
+			How to determine IP Address & hostname of Local Computer?
+
+			How to check whether a port is being used or not?
+
+			How to find proxy settings of a System?
+
+			How to create a socket at a specific port?
+
+		* Threading(It's really hard.)
+    
+			1.How to check a thread is alive or not? (Thread.currentThread(); t.isAlive();)
+
+				public class TwoThreadAlive extends Thread{
+					
+					public void run(){
+						for(int i = 0; i< 10; i++){
+							printMsg();
+						}
+					}
+
+					public void printMsg(){
+						Thread t = Thread.currentThread(); //重點在這
+						String name = t.getName();
+						System.out.println("name is " + name);
+					}
+
+					public static void main(String[] args){
+						TwoThreadAlive tt = new TwoThreadAlive();
+						tt.setName("Thread");
+
+						System.out.println("Before start(), tt.isAlive() = " + tt.isAlive());
+						tt.start();
+						System.out.println("After start(), tt.isAlive() = " + tt.isAlive());
+
+						for(int i = 0; i<10; i++){
+							tt.printMsg();
+						}
+
+						System.out.println("The end of main(), tt.isAlive() = " + tt.isAlive());
+					}
+				}
+
+			2.How to check a thread has stop or not? (thread.isAlive();)
+
+				public class ThreadStopOrNot {
+					public static void main (String[] args){
+						Thread thread = new MyThread();
+						thread.start();
+
+						if(thread.isAlive()){
+							System.out.println("not finished");
+						} else {
+							System.out.println("Finished");
+						}
+
+						long delayMillis = 5000;
+						thread.join(delayMillis);
+
+						if(thread.isAlive()){
+							System.out.println("not finished");
+						} else {
+							System.out.println("Finished");
+						}
+
+						thread.join();
+					}
+				}
+
+				public class MyThread extends Thread{
+					boolean stop = false;
+					public void run(){
+						while(true){
+							if(stop) return;
+						}
+					}
+				}
+
+			3.How to solve deadlock using thread? (難度高, 先略過)
+
+				import java.util.*;
+				import java.util.concurrent.*;
+				import java.util.concurrent.locks.*;
+
+				public class DeadlockDetectingLock extends ReentrantLock {
+					private static List deadlockLocksRegistry = new ArrayList();
+					private static synchronized void registerLock(DeadlockDetectingLock ddl) {
+							if (!deadlockLocksRegistry.contains(ddl)) deadlockLocksRegistry.add(ddl);
+					}
+					private static synchronized void unregisterLock(DeadlockDetectingLock ddl) {
+							if (deadlockLocksRegistry.contains(ddl)) deadlockLocksRegistry.remove(ddl);
+					}
+					private List hardwaitingThreads = new ArrayList();
+					private static synchronized void markAsHardwait(List l, Thread t) {
+							if (!l.contains(t)) l.add(t);
+					}
+					private static synchronized void freeIfHardwait(List l, Thread t) {
+							if (l.contains(t)) l.remove(t);
+					}
+					private static Iterator getAllLocksOwned(Thread t) {
+							DeadlockDetectingLock current;
+							ArrayList results = new ArrayList();
+							Iterator itr = deadlockLocksRegistry.iterator();
+					
+							while (itr.hasNext()) {
+								current = (DeadlockDetectingLock) itr.next();
+								if (current.getOwner() == t)results.add(current);
+							} 
+							return results.iterator();
+					} 
+					private static Iterator getAllThreadsHardwaiting(DeadlockDetectingLock l) {
+							return l.hardwaitingThreads.iterator();
+					} 
+					private static synchronized boolean canThreadWaitOnLock (
+							Thread t,DeadlockDetectingLock l) {
+							
+							Iterator locksOwned = getAllLocksOwned(t);
+							while (locksOwned.hasNext()) {
+								DeadlockDetectingLock current = (DeadlockDetectingLock) locksOwned.next();
+								if (current == l)return false;
+								Iterator waitingThreads = getAllThreadsHardwaiting(current);
+							
+								while (waitingThreads.hasNext()) {
+										Thread otherthread = (Thread) waitingThreads.next();
+										if (!canThreadWaitOnLock(otherthread, l)) {
+											return false;
+										}
+								}
+							}
+							return true;
+					} 
+					public DeadlockDetectingLock() {
+							this(false, false);
+					} 
+					public DeadlockDetectingLock(boolean fair) {
+							this(fair, false);
+					} 
+					private boolean debugging;
+					public DeadlockDetectingLock(boolean fair, boolean debug) {
+							super(fair);
+							debugging = debug;
+							registerLock(this);
+					} 
+					public void lock() {
+							if (isHeldByCurrentThread()) {
+								if (debugging)
+								System.out.println("Already Own Lock");
+								super.lock();
+								freeIfHardwait(hardwaitingThreads, 
+								Thread.currentThread());
+								return;
+							} 
+							markAsHardwait(hardwaitingThreads, Thread.currentThread());
+							if (canThreadWaitOnLock(Thread.currentThread(), this)) {
+								if (debugging) System.out.println("Waiting For Lock");
+								super.lock();
+								freeIfHardwait(hardwaitingThreads, Thread.currentThread()); 
+								
+								if (debugging)System.out.println("Got New Lock");
+							} else {
+								throw new DeadlockDetectedException("DEADLOCK");
+							}
+					}
+					public void lockInterruptibly() throws InterruptedException {
+							lock();
+					}
+					public class DeadlockDetectingCondition implements Condition {
+							Condition embedded;
+							protected DeadlockDetectingCondition(ReentrantLock lock, Condition embedded) {
+								this.embedded = embedded;
+							} 
+							public void await() throws InterruptedException {
+								try {
+										markAsHardwait(hardwaitingThreads, Thread.currentThread());
+										embedded.await();
+								}
+								finally {
+										freeIfHardwait(hardwaitingThreads, 
+										Thread.currentThread());
+								}
+							} 
+							public void awaitUninterruptibly() {
+								markAsHardwait(hardwaitingThreads, Thread.currentThread());
+								embedded.awaitUninterruptibly();
+								freeIfHardwait(hardwaitingThreads, Thread.currentThread());
+							} 
+							public long awaitNanos(long nanosTimeout) throws InterruptedException {
+								try {
+										markAsHardwait(hardwaitingThreads, 
+										Thread.currentThread());
+										return embedded.awaitNanos(nanosTimeout);
+								}
+								finally {
+										freeIfHardwait(hardwaitingThreads, 
+										Thread.currentThread());
+								}
+							} 
+							public boolean await(long time, TimeUnit unit) throws InterruptedException {
+								try {
+										markAsHardwait(hardwaitingThreads, Thread.currentThread());
+										return embedded.await(time, unit);
+								} 
+								finally {
+										freeIfHardwait(hardwaitingThreads, Thread.currentThread());
+								} 
+							}
+							public boolean awaitUntil(Date deadline) throws InterruptedException {
+								try {
+										markAsHardwait(hardwaitingThreads, Thread.currentThread());
+										return embedded.awaitUntil(deadline);
+								} 
+								finally {
+										freeIfHardwait(hardwaitingThreads, Thread.currentThread());
+								}
+							} 
+							public void signal() {
+								embedded.signal();
+							} 
+							public void signalAll() {
+								embedded.signalAll();
+							}
+					}
+					public Condition newCondition() {
+							return new DeadlockDetectingCondition(this, super.newCondition());
+					}
+					private static Lock a = new DeadlockDetectingLock(false, true);
+					private static Lock b = new DeadlockDetectingLock(false, true);
+					private static Lock c = new DeadlockDetectingLock(false, true);
+					
+					private static Condition wa = a.newCondition();
+					private static Condition wb = b.newCondition();
+					private static Condition wc = c.newCondition();
+					private static void delaySeconds(int seconds) {
+							try {
+								Thread.sleep(seconds * 1000);
+							} catch (InterruptedException ex) {}
+					}
+					private static void awaitSeconds(Condition c, int seconds) {
+							try {
+								c.await(seconds, TimeUnit.SECONDS);
+							} catch (InterruptedException ex) {}
+					}
+					private static void testOne() {
+							new Thread(new Runnable() {
+								public void run() {
+										System.out.println("thread one grab a");
+										a.lock();
+										delaySeconds(2);
+										System.out.println("thread one grab b");
+										b.lock();
+										delaySeconds(2);
+										a.unlock();
+										b.unlock();
+								}
+							}).start();
+							new Thread(new Runnable() {
+								public void run() {
+										System.out.println("thread two grab b");
+										b.lock();
+										delaySeconds(2);
+										System.out.println("thread two grab a");
+										a.lock();
+										delaySeconds(2);
+										a.unlock();
+										b.unlock();
+								}
+							}).start();
+					}
+					private static void testTwo() {
+							new Thread(new Runnable() {
+								public void run() {
+										System.out.println("thread one grab a");
+										a.lock();
+										delaySeconds(2) ;
+										System.out.println("thread one grab b");
+										b.lock();
+										delaySeconds(10); 
+										a.unlock();
+										b.unlock();
+								}
+							}).start();
+							new Thread(new Runnable() {
+								public void run() {
+										System.out.println("thread two grab b");
+										b.lock();
+										delaySeconds(2);
+										System.out.println("thread two grab c");
+										c.lock();
+										delaySeconds(10);
+										b.unlock();
+										c.unlock();
+								}
+							}).start();
+							new Thread(new Runnable() {
+								public void run() {
+										System.out.println("thread three grab c");
+										c.lock();
+										delaySeconds(4);
+										System.out.println("thread three grab a");
+										a.lock();
+										delaySeconds(10);
+										c.unlock();
+										a.unlock();
+								}
+							}).start();
+					}
+					private static void testThree() {
+							new Thread(new Runnable() {
+								public void run() {
+										System.out.println("thread one grab b");
+										b.lock();
+										System.out.println("thread one grab a");
+										a.lock();
+										delaySeconds(2);
+										System.out.println("thread one waits on b");
+										awaitSeconds(wb, 10);
+										a.unlock();
+										b.unlock();
+								}
+							}).start();
+							new Thread(new Runnable() {
+								public void run() {
+										delaySeconds(1);
+										System.out.println("thread two grab b");
+										b.lock();
+										System.out.println("thread two grab a");
+										a.lock();
+										delaySeconds(10);
+										b.unlock();
+										c.unlock();
+								}
+							}).start();
+					}
+					public static void main(String args[]) {
+							int test = 1;
+							if (args.length > 0) test = Integer.parseInt(args[0]);
+							switch (test) {
+								case 1:
+										testOne();
+										break;
+								case 2:
+										testTwo(); 
+										break; 
+								case 3:
+										testThree();
+										break;
+								default:
+										System.err.println("usage: java DeadlockDetectingLock [ test# ]");
+							}
+							delaySeconds(60);
+							System.out.println("--- End Program ---");
+							System.exit(0);
+					}
+				}
+				class DeadlockDetectedException extends RuntimeException {
+					public DeadlockDetectedException(String s) {
+							super(s);
+					}
+				}
+
+			4.How to get the priorities of running threads? (難度高, 先略過)(setPriority((int)優先順序);)
+
+				public class SimplePriorities extends Thread{
+					private int countDown = 5;
+					private volatile double d = 0;
+					public SimplePriorities(int priority){
+						setPriority(priority);
+						start();
+					}
+					public String toString(){
+						return super.toString() + ": " + countDown;
+					}
+					public void run() {
+						while(true){
+							for(int i = 1; i< 100000; i++) d = d +(Math.PI + Math.E) / (double)i;
+							System.out.println(this);
+							if(--countDown == 0) return;
+						}
+					}
+					public static void main(String[] args){
+						new SimplePriorities(Thread.MAX_PRIORITY);
+						for(int i = 0; i<5 ; i++)
+						new SimplePriorities(Thread.MIN_PRIORITY);
+					}
+				}
+
+			5.How to monitor a thread's status? (難度高, 先略過) (currentThread.getName())
+
+				class MyThread extends Thread {
+					boolean waiting = true;
+					boolean ready = false;
+					MyThread() {
+					}
+					public void run() {
+							String thrdName = Thread.currentThread().getName();
+							System.out.println(thrdName + " starting.");
+							while(waiting) System.out.println("waiting:"+waiting); 
+							System.out.println("waiting...");
+							startWait(); 
+							try {
+								Thread.sleep(1000);
+							} catch(Exception exc) {
+								System.out.println(thrdName + " interrupted.");
+							}
+							System.out.println(thrdName + " terminating.");
+					}
+					synchronized void startWait() {
+							try {
+								while(!ready) wait();
+							} catch(InterruptedException exc) {
+								System.out.println("wait() interrupted");
+							}
+					}
+					synchronized void notice() {
+							ready = true;
+							notify();
+					}
+				}
+				public class new_class {
+					public static void main(String args[]) throws Exception {
+							MyThread thrd = new MyThread();
+							thrd.setName("MyThread #1");
+							showThreadStatus(thrd);
+							thrd.start();
+							
+							Thread.sleep(50);
+							showThreadStatus(thrd);
+							thrd.waiting = false;
+							
+							Thread.sleep(50); 
+							showThreadStatus(thrd);
+							thrd.notice();
+							
+							Thread.sleep(50);
+							showThreadStatus(thrd);
+							
+							while(thrd.isAlive()) 
+							System.out.println("alive");
+							showThreadStatus(thrd);
+					}
+					static void showThreadStatus(Thread thrd) {
+							System.out.println(thrd.getName()+"  Alive:="+thrd.isAlive()+" State:=" + thrd.getState() );
+					}
+				}
+
+			6.How to get the name of a running thread? (currentThread.getName())
+
+				public class TwoThreadGetName extends Thread {
+					public void run() {
+							for (int i = 0; i < 10; i++) {
+								printMsg();
+							}
+					}
+					public void printMsg() {
+							Thread t = Thread.currentThread(); //重點在這
+							String name = t.getName(); //重點在這
+							System.out.println("name=" + name);
+					} 
+					public static void main(String[] args) {
+							TwoThreadGetName tt = new TwoThreadGetName();
+							tt.start();
+							for (int i = 0; i < 10; i++) {
+								tt.printMsg();
+							}
+					}
+				}
+
+			7.How to solve the producer consumer problem using thread? 
+			(生產者/消費者問題, 生產過多或消費者等待的問題)
+			(中間放個桌子. 拿時,若不夠就等; 放時,若足夠就等; 拿放後,記得通知大家)
+
+				public class ProducerConsumerProblem {
+					public static void main(String[] args){
+						Table t = new Table();
+						Producer p = new Producer(t, 1);
+						Consumer c = new Consumer(t, 1);
+						p.start();
+						c.start();
+					}
+				}
+
+				class Table{
+					private int contents;
+					private boolean available = false;
+
+					public synchronized int get(){
+						while(available == false){
+							try{
+								wait();
+							} catch (InterruptedException e) {}
+						}
+						available = false;
+						notifyAll();
+						return contents;
+					}
+
+					public synchronized void put(int value){
+						while(available == true){
+							try{
+								wait();
+							} catch (InterruptedException e) {}
+							content = value;
+							available = true;
+							notifyAll();
+						}
+					}
+				}
+
+				class Consumer extends Thread {
+					private Table table;
+					private int number;
+					public Consumer(Table t, int n){
+						table = t;
+						this.number = n;
+					}
+					public void run(){
+						int value = 0;
+						for(int i=0; i< 10; i++){
+							value = table.get();
+							System.out.println("Consumer #" + this.number + " got:" + value);
+						}
+					}
+				}
+
+				class Producer extends Thread{
+					private Table table;
+					private int number;
+					public Producer(Table t, int n){
+						table = t;
+						this.number = n;
+					}
+					public void run(){
+						for(int i=0; i<10; i++){
+							table.put(i);
+							System.out.println("Producer #" + this.number + " put:" + i);
+							try{
+								sleep((int)(Math.random() * 100)); //要休息一下,不能一直生產.
+							} catch (InterruptedException e) {}
+						}
+					}
+
+				}
+
+			8.How to set the priority of a thread? (thread.setPriority(Thread.MAX_PRIORITY))
+
+				public class new_file {
+					public static void main(String[] args) throws Exception {
+							Thread thread1 = new Thread();
+							Thread thread2 = new Thread();
+							thread1.setPriority(Thread.MAX_PRIORITY);
+							thread2.setPriority(Thread.MIN_PRIORITY);
+							thread1.start();
+							thread2.start();
+							thread1.join();
+							thread2.join();
+							System.out.println("The priority has been set.");
+					}
+				}
+
+			9.How to stop a thread?
+			(run()函式內, 放入FLAG, 由另一個函式來改變FLAG值, 讓run()偵測到FLAG改變時, 可以將THREAD停下來)
+
+				import java.util.Timer;
+				import java.util.TimerTask;
+
+				class CanStop extends Thread {
+					private volatile boolean stop = false;
+					private int counter = 0;
+					
+					public void run() {
+							while (!stop && counter < 10000) {
+								System.out.println(counter++);
+							}
+							if (stop)
+							System.out.println("Detected stop"); 
+					}
+					public void requestStop() {
+							stop = true;
+					}
+				}
+				public class Stopping {
+					public static void main(String[] args) {
+							final CanStop stoppable = new CanStop();
+							stoppable.start();
+							
+							new Timer(true).schedule(new TimerTask() {
+								public void run() {
+										System.out.println("Requesting stop");
+										stoppable.requestStop();
+								}
+							}, 
+							350);
+					}
+				} 
+
+			10.How to suspend a thread for a while?
+			(暫停THREAD, 可以使用 sleep(XXX))
+
+				public class SleepingThread extends Thread {
+					private int countDown = 5;
+					private static int threadCount = 0;
+					
+					public SleepingThread() {
+							super("" + ++threadCount);
+							start();
+					}
+					public String toString() { 
+							return "#" + getName() + ": " + countDown;
+					}
+					public void run() {
+							while (true) {
+								System.out.println(this);
+								if (--countDown == 0) return;
+								try {
+										sleep(100); //重點在這
+								} catch (InterruptedException e) {
+										throw new RuntimeException(e);
+								}
+							}
+					}
+					public static void main(String[] args) throws InterruptedException {
+							for (int i = 0; i < 5; i++) new SleepingThread().join();
+							System.out.println("The thread has been suspened.");
+					}
+				}
+
+			11.How to get the Id of the running thread? (難度高, 先略過)
+			(getThreadId())
+
+				public class Main extends Object implements Runnable {
+					private ThreadID var;
+					public Main(ThreadID v) {
+							this.var = v;
+					} 
+					public void run() {
+							try {
+								print("var getThreadID =" + var.getThreadID());
+								Thread.sleep(2000);
+								print("var getThreadID =" + var.getThreadID());
+							} catch (InterruptedException x) {}
+					} 
+					private static void print(String msg) {
+							String name = Thread.currentThread().getName();
+							System.out.println(name + ": " + msg);
+					} 
+					public static void main(String[] args) {
+							ThreadID tid = new ThreadID();
+							Main shared = new Main(tid);
+							try {
+								Thread threadA = new Thread(shared, "threadA");
+								threadA.start();
+								Thread.sleep(500);
+								
+								Thread threadB = new Thread(shared, "threadB");
+								threadB.start();
+								Thread.sleep(500);
+								
+								Thread threadC = new Thread(shared, "threadC");
+								threadC.start();
+							} catch (InterruptedException x) {}
+					}
+				}
+				class ThreadID extends ThreadLocal {
+					private int nextID;
+					public ThreadID() {
+							nextID = 10001;
+					} 
+					private synchronized Integer getNewID() {
+							Integer id = new Integer(nextID);
+							nextID++;
+							return id;
+					} 
+					protected Object initialValue() {
+							print("in initialValue()");
+							return getNewID();
+					} 
+					public int getThreadID() {
+							Integer id = (Integer) get();
+							return id.intValue();
+					} 
+					private static void print(String msg) {
+							String name = Thread.currentThread().getName();
+							System.out.println(name + ": " + msg);
+					}
+				}
+
+			12.How to check priority level of a thread?
+			(getPriority())
+
+				public class Main extends Object {
+					private static Runnable makeRunnable() {
+							Runnable r = new Runnable() {
+								public void run() {
+										for (int i = 0; i < 5; i++) {
+											Thread t = Thread.currentThread();
+											System.out.println("in run() - priority = " + t.getPriority()+ ", name = " + t.getName());
+											try {
+													Thread.sleep(2000);
+											} catch (InterruptedException x) {}
+										}
+								}
+							};
+							return r;
+					}
+					public static void main(String[] args) {
+							System.out.println(
+								"in main() - Thread.currentThread(). getPriority() = " + Thread.currentThread().getPriority());
+							System.out.println(
+								"in main() - Thread.currentThread().getName() = "+ Thread.currentThread().getName());
+							
+							Thread threadA = new Thread(makeRunnable(), "threadA");
+							threadA.start();
+							try {
+								Thread.sleep(3000);
+							} catch (InterruptedException x) {}
+							System.out.println("in main() - threadA.getPriority() = " + threadA.getPriority());
+					}
+				}
+
+			13.How to display all running Thread?
+			(getName())
+
+				public class Main extends Thread {
+					public static void main(String[] args) {
+							Main t1 = new Main();
+							t1.setName("thread1");
+							t1.start();
+							ThreadGroup currentGroup = Thread.currentThread().getThreadGroup();
+							int noThreads = currentGroup.activeCount();
+							Thread[] lstThreads = new Thread[noThreads];
+							currentGroup.enumerate(lstThreads);
+							
+							for (int i = 0; i < noThreads; i++) System.out.println("Thread No:" + i + " = " + lstThreads[i].getName());
+					}
+				}
+
+			14.How to display thread status?
+			(isAlive() & getStatus())
+
+				class MyThread extends Thread {
+					boolean waiting = true;
+					boolean ready = false;
+					MyThread() {
+					}
+					public void run() {
+							String thrdName = Thread.currentThread().getName();
+							System.out.println(thrdName + " starting.");
+							
+							while(waiting) System.out.println("waiting:"+waiting);
+							System.out.println("waiting...");
+							startWait();
+							try {
+								Thread.sleep(1000);
+							} catch(Exception exc) {
+								System.out.println(thrdName + " interrupted.");
+							}
+							System.out.println(thrdName + " terminating.");
+					}
+					synchronized void startWait() {
+							try {
+								while(!ready) wait();
+							} catch(InterruptedException exc) {
+								System.out.println("wait() interrupted");
+							}
+					}
+					synchronized void notice() {
+							ready = true;
+							notify();
+					}
+				}
+				public class Main {
+					public static void main(String args[]) throws Exception {
+							MyThread thrd = new MyThread();
+							thrd.setName("MyThread #1");
+							showThreadStatus(thrd);
+							
+							thrd.start();
+							Thread.sleep(50);
+							showThreadStatus(thrd);
+							
+							thrd.waiting = false;
+							Thread.sleep(50);
+							showThreadStatus(thrd);
+							
+							thrd.notice();
+							Thread.sleep(50);
+							showThreadStatus(thrd);
+							
+							while(thrd.isAlive())
+							System.out.println("alive");
+							showThreadStatus(thrd);
+					}
+					static void showThreadStatus(Thread thrd) {
+							System.out.println(thrd.getName()+" Alive:"+thrd.isAlive()+" State:" + thrd.getState() );
+					}
+				}
+
+			15.How to interrupt a running Thread?
+			(interrupt() & isInterrupted())
+
+				public class GeneralInterrupt extends Object implements Runnable {
+					public void run() {
+							try {
+								System.out.println("in run() - about to work2()");
+								work2();
+								System.out.println("in run() - back from work2()");
+							} catch (InterruptedException x) {
+								System.out.println("in run() - interrupted in work2()");
+								return;
+							}
+							System.out.println("in run() - doing stuff after nap");
+							System.out.println("in run() - leaving normally");
+					}
+					public void work2() throws InterruptedException {
+							while (true) {
+								if (Thread.currentThread().isInterrupted()) {
+										System.out.println("C isInterrupted()="+ Thread.currentThread().isInterrupted());
+										Thread.sleep(2000);
+										System.out.println("D isInterrupted()="+ Thread.currentThread().isInterrupted());
+								}
+							}
+					}
+					public void work() throws InterruptedException {
+							while (true) {
+								for (int i = 0; i < 100000; i++) {
+										int j = i * 2;
+								}
+								System.out.println("A isInterrupted()="+ Thread.currentThread().isInterrupted());
+								if (Thread.interrupted()) {
+										System.out.println("B isInterrupted()="+ Thread.currentThread().isInterrupted());
+										throw new InterruptedException();
+								}
+							}
+					}
+					public static void main(String[] args) {
+							GeneralInterrupt si = new GeneralInterrupt();
+							Thread t = new Thread(si);
+							t.start();
+							try {
+								Thread.sleep(2000);
+							} catch (InterruptedException x) { }
+						
+							System.out.println("in main() - interrupting other thread");
+							t.interrupt();
+							System.out.println("in main() - leaving");
+					}
+				}
+
+	Day2(Afternoon)
+
+		* JDBC(OK)
+
+			1.How to establishing a connection with Database?
+
+				//方法1
+				DriverManager.registerDriver(new com.mysql.jdbc.Driver());				
+				String mysqlUrl = "jdbc:mysql://localhost:3306/mydatabase"; //Getting the connection
+				Connection con = DriverManager.getConnection(mysqlUrl, "root", "password");
+				System.out.println("Connection established......");
+				//Creating the Statement
+				Statement stmt = con.createStatement();
+				
+				//方法2
+				import java.sql.*;
+				public class JdbcConnDB {
+					public static void main(String[] args){
+						
+						//先抓Driver
+						try{
+							Class.forName("org.apache.derby.jdbc.ClientDriver");
+						} catch (ClassNotFoundException e){
+							System.out.println("Class not found " + e);
+						}
+						System.out.println("Class found ");
+						
+						//再建立連線, 新增Statement, 執行SQL指令, 讀取回傳值
+						int no_of_rows = 0;
+						try{
+							Connection conn = DriverManager.getConnection(
+								"jdbc:derby://localhost:1527/testDb","username","password"
+							);
+							Statement stmt = conn.createStatement();
+							ResultSet rs = stmt.executeQuery("select * from employee");
+							while(rs.next()){
+								no_of_rows++;
+							}
+							System.out.println("There are " + no_of_rows + " rows in this table.");
+						}catch(SQLException e) {
+							System.out.println("SQLException occured " + e);
+						}
+
+					}
+				}
+
+			2.How to Create, edit & alter table using Java?
+
+				import java.sql.*;
+				public class JdbcTable {
+					public static void main(String[] args){
+						//先找driver
+						try{
+							Class.forName("org.apache.derby.jdbc.ClientDriver");
+						} catch (ClassNotFoundException e){
+							System.out.println("Class Not found.");
+						}
+						
+						//再建立連線
+						try{
+							Connection conn = DriverManager.getConnection(
+							"jdbc:derby://localhost:1527/testDb","username","password");
+						
+							strCreateTable = "create table employee ( id integer primary key, firstname char(50), lastName char(50));";
+							strAddColumn = "alter table employee add address char(100);";
+							strDropColumn = "alter table employee drop column lastName;";
+
+							Statement stmt = conn.createStatement();
+							stmt.execute(strCreateTable);
+							stmt.execute(strAddColumn);
+							stmt.execute(strDropColumn);
+
+						} catch (SQLException e){
+							System.out.println("SQL Exception.");
+						}
+						
+					}
+				}
+
+			3.How to display contents of table ?
+
+				import java.sql.*;
+				public class JdbcQuery {
+					public static void main(String[] args){
+						Class.forName("org.apache.derby.jdbc.ClientDriver");
+						
+						try{
+							Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/testDb","username","password");
+							Statement stmt = conn.createStatement();
+							ResultSet rs = stmt.executeQuery("select id, firstName, lastName;");
+							while(rs.next()){
+								int id = rs.getInt("id");
+								String firstName = rs.getString("firstName");
+								String lastName = rs.getString("lastName");
+							}
+						} catch (SQLException e){
+							System.out.println("SQLException");
+						}
+					}
+				}
+
+			4.How to update, edit & delete rows ?
+
+				import java.sql.*;
+				public class JdbcUpdateRows{
+					public static void main(String[] args){
+						Class.forName("org.apache.derby.jdbc.ClientDriver");
+						Connection conn = DriverManager.getConnection(
+							"jdbc:derby://localhost:1527/testDb","username","password");
+						Statement stmt = conn.createStatement();
+						
+						String strUpdate = "Update Employee Set FirstName = 'Hello' Where id = 2;";
+						String strInsert = "Insert into Employee Values(3, 'Hello', 'Taipei');";
+						String strDelete = "Delete from Employee Where id = 1;";
+
+						stmt.execute(strUpdate);
+						stmt.execute(strInsert);
+						stmt.execute(strDelete);
+
+					}
+				}
+
+			5.How to search in the database using java commands?
+				String[] querys = {"cmd1","cmd2","cmd3"};
+				for(String s: querys){
+					ResultSet rs = stmt.executeQuery(s);
+					while(rs.next()){
+						rs.getInt();
+						rs.getString("columnName");
+					}
+
+				}
+
+			6.How to sort elements of a column using java commands?
+				select * from employee order by id;
+				select * from employee order by name;
+
+			7.How to combine data from more than one tables?
+				select e.*, b.* from employee e , boss b
+				where e.id = b.employeeid
+
+			8.How to use commit statement in Java?
+				conn.setAutoCommit(false);
+				stmt.execute("cmd1");
+				stmt.execute("cmd2");
+				conn.commit();
+				conn.close();
+
+			9.How to use prepared statement in Java?
+				PreparedStatement pStmt = 
+					conn.prepareStatement("insert into Employee values(?,?,?)");
+				pStmt.setInt(1,23);
+				pStmt.setString(2,"Hello");
+				pStmt.setString(3,"Tainan");
+				pStmt.executeUpdate();
+
+			10.How to set & rollback to a savepoint ?
+				Statement stmt = conn.createStatement();
+				conn.setAutoCommit(false);
+				Savepoint svpt1 = conn.setSavepoint("svpt1");
+				stmt.exeucte(sql);
+				conn.rollback(svpt1); //返回儲存點, 上1行執行動作回復.
+				conn.commit();
+
+			11.How to execute a batch of SQL statements using java?
+				Statement stmt = conn.createStatement(
+					ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE
+				);
+				String cmd1 = "XXX";
+				String cmd2 = "XXX";
+				String cmd3 = "XXX";
+				conn.setAutoCommit(false);
+
+				stmt.addBatch(cmd1);
+				stmt.addBatch(cmd2);
+				stmt.addBatch(cmd3);
+
+				stmt.executeBatch();
+				conn.commit();
+
+			12.How to use different row methods in java? (資料列-方法)
+				Statement stmt = conn.createStatement(
+					ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE
+				);
+
+				ResultSet rs = stmt.executeQuery(selectCmd);
+				rs.last(); //移到最後1筆
+				rs.getRow(); //回傳最後筆數
+
+				//準備新增
+				int newId = rs.getInt("id") + 1;
+				rs.moveToInsertRow();
+				rs.updateInt("id", newId);
+				rs.updateString("firstName", "Hello");
+				rs.updateString("lastName", "Hualien");
+				rs.insertRow();
+
+				rs.first(); //移到第1筆
+				rs.deleteRow(); //刪除目前位置
+
+			13.How to use different column methods in java? (資料欄-方法)
+				//不用另外設定 ResultSet 的屬性值, 因為使用 (資料欄-方法)
+				ResultSet rs = stmt.executeQuery(selectCmd);
+				ResultSetMetaData rsmd = rs.getMetaData();
+
+				rsmd.getColumnCount(); //欄位個數
+				rsmd.getColumnName(1); //第1個欄位名稱
+				rsmd.getColumnTypeName(2); //第2個欄位型態
+				rsmd.getColumnDisplaySize(2); //第2個欄位顯示長度
+
+		* Regular Expression
+
+			How to reset the pattern of a regular expression?
+
+			How to match duplicate words in a regular expression?
+
+			How to find every occurance of a word?
+
+			How to know the last index of a particular word in a string?
+
+			How to print all the strings that match a given pattern from a file?
+
+			How to remove the white spaces?
+
+			How to match phone numbers in a list to a certain pattern?
+
+			How to count a group of words in a string?
+
+			How to search a particular word in a string?
+
+			How to split a regular expression?
+
+			How to count replace first occourance of a String?
+
+			How to check check whether date is in proper format or not?
+
+			How to validate an email address format?
+
+			How to replace all occurings of a string?
+
+			How to make first character of each word in Uppercase?
+
+		* Applets
+
+		* Simple GUI
+
+	Day3(Morning)
+
+		* Apache PDF Box
+
+		* Apache POI PPT
+
+		* Apache POI Excel
+
+		* Apache POI Word
+
+	Day3(Afternoon)
+
+		* OpenCV
+
+		* Apache Tika
+
+		* iText
+
+(JAVA 考前複習重點)
+
+	==JDBC Driver安裝與設定==
+
+		0.安裝JDBC for mysql , Oracle , SQLServer...
+
+		1.Windows : 
+			1.1. Copy <mysql-connector.jar> to C:\Program Files\Java\jdk1.6.0\jre\lib\ext 
+				註:<mysql-connector.jar>檔名會有些許改變,至JDBC安裝路徑內找到最適合的 connector.jar
+			1.2. copy the same file to C:\Program Files\Java\jre1.6.0\lib\ext
+		
+		2.go to My Computer -> Properties -> Advanced -> Environment Variables
+			Set these paths
+				JAVA_HOME  
+				C:\Program Files\Java\jdk1.6.0
+
+				PATH 
+				C:\Program Files\Java\jdk1.6.0\bin;
+
+				CLASSPATH
+				.;C:\Program Files\Java\jre1.6.0\lib\ext\mysql-connector.jar;.;
+
+		3.open a fresh command propmpt,type
+			java -version press Enter
+
+	==JDBC設定異常排除==
+		異常訊息:Caused by: com.mysql.cj.exceptions.InvalidConnectionAttributeException: The server time zone value '?x?_?????' is unrecognized or represents more than one time zone. 
+						You must configure either the server or JDBC driver (via the 'serverTimezone' configuration property) to use a more specific time zone value if you want to utilize time zone support.
+		解決方法:
+			加入語法: useUnicode=true&characterEncoding=UTF-8
+		範例：
+			修改前--> spring.datasource.url=jdbc:mysql://localhost:3306/sys?serverTimezone=UTC&useSSL=false
+			修改後--> spring.datasource.url=jdbc:mysql://localhost:3306/sys?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=UTF-8
+
+	==資料庫存取==
+		1. JDBC = JDBC應用程式開發者介面(Application Developer Interface) & JDBC驅動程式開發者介面(Driver Developer Interface)
+		
+		2. 應用程式要存取資料庫的話，必須是呼叫 <JDBC應用程式開發者介面>，
+			import java.sql;
+			import javax.sql;
+		
+		3. 呼叫資料庫的簡易範例
+			SqlConnection conn = new SqlConnection("localhost","root","1234");
+			conn.selectDB("School");
+			SqlQuery query = conn.query("select * from student");
+		
+		4. 利用JDBC連線資料庫(主要作法)
+			Connection conn = DriverManager.getConnection(...);
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("select * from student");
+
+		5. 環境準備與設置
+			a.安裝資料庫 & JDBC Driver (http://dev.mysql.com/downloads/connector/j/)
+			b.Classpath內設定JDBC Driver (add jar/folder)
+			c.連接資料庫
+				> 註冊 Driver 實作物件
+					1.靜態方法 DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+					2.動態方法 (載入Driver介面的實作類別.class檔案,就會完成註冊)，列出4種方式:
+						2.1 Class.forName("com.mysql.jdbc.Driver"); //使用Class.forName()
+						2.2 java.sql.Driver driver = new com.mysql.jdbc.Driver(); //自行建立Driver介面實作類別的實例
+						2.3 java -D jdbc.drivers=com.mysql.jdbc.Driver;xxx.oooDriver <ProgramName> //啟動 JVM 時指定 jdbc.drivers 屬性,前例註冊 2個廠商 資料庫實例
+						2.4 設定JAR檔案/META-INF/services 資料夾內，放置1個 <java.sql.Driver檔案> ,撰寫Driver介面的實作類別名稱全名,DriverManager會自動讀取檔案並註冊
+
+				> 取得 Connection 實作物件
+					1.Connection conn = DriverManager.getConnection(jdbcUrl , username , password);
+					2.jdbcUrl 是由 <協定:子協定:資料來源識別> 所組成
+						ex(format): jdbc:mysql://主機名稱:連接埠/資料庫名稱?參數=值&參數=值
+						ex(sample): jdbc:mysql://localhost:3306/demo?user=root&password=openhome
+						ex(存取中文): jdbc:mysql://localhost:3306/demo?user=root&password=123&useUnicode=true&characterEncoding=UTF8
+						ex(jdbcUrl寫在XML設定檔內,&符號要用 &amp; 取代): jdbc:mysql://localhost:3306/demo?user=root&amp;password=123&amp;useUnicode=true&amp;characterEncoding=UTF8
+					
+				> 關閉 Connection 實作物作
+					1.可使用自動關閉資源語法,來簡化寫法
+						ex.
+						String url = "jdbc:mysql://localhost:3306/demo";
+						String user = "root";
+						String password = "1234";
+						try(Connection conn = DriverManager.getConnection(url,user,password))
+						{
+							...
+						}
+						catch(SQLException e)
+						{
+							throw new RuntimeException(e);
+						}
+
+				> 程式碼範例:連接資料庫
+					import java.sql.*;
+					import static java.lang.System.out;
+
+					public class HelloDB
+					{
+						public static void main(String[] args) throws ClassNotFoundException,SQLException
+						{
+							Class.forName("com.mysql.cj.jdbc.Driver"); //1.Load DB Driver
+							
+							//2.Prepare Connection Parameters
+							String jdbcUrl = "jdbc:mysql://localhost:3306/world?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=UTF-8"; 
+							//Error Resolve (For Chinese Character)--> ?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=UTF-8
+							String user = "root";
+							String password = "54878916";
+							
+							//3.Get Connection
+							try(Connection conn = DriverManager.getConnection(jdbcUrl,user,password)) 
+							{
+								out.printf("DB Connection is %s " , conn.isClosed()? "closed":"opened");
+							}
+						}
+					}
+		
+	==讀取檔案 how to read file data==
+		import java.io.File;
+		import java.io.FileNotFoundException;
+		import java.util.Scanner;
+
+		/**
+		*
+		* Java program to read file using Scanner class in Java.
+		* java.util.Scanner is added on Java 5 and offer convenient method to read data
+		*
+		* @author
+		*/
+		public class ScannerExample {
+
+				public static void main(String args[]) throws FileNotFoundException {
+			
+						//creating File instance to reference text file in Java
+						File text = new File("C:/temp/test.txt"); //定義檔案物件
+					
+						//Creating Scanner instnace to read File in Java
+						Scanner scnr = new Scanner(text); //利用Scanner去讀檔案
+					
+						//Reading each line of file using Scanner class
+						int lineNumber = 1;
+						while(scnr.hasNextLine()){
+								String line = scnr.nextLine(); //一併讀入空白字元
+								System.out.println("line " + lineNumber + " :" + line);
+								lineNumber++;
+						}       
+				}   
+		}
+
+		Read more: http://java67.blogspot.com/2012/11/how-to-read-file-in-java-using-scanner-example.html#ixzz3yEaeLshv
+
+	==Assertion==
+		語法：
+		1. assert <檢查結果>; 			//若檢查結果為false , 則丟出1個AssertionError(資訊模糊)
+		2. assert <檢查結果> : <運算式> //若檢查結果為false , 則丟出運算式內容(明確)
+
+		ex. assert obj != null;
+		ex. assert obj != null : "the object can't be null";
+		ex. assert false : "Error Condition.."
+
+	==overloading 多載 注意事項<重點在參數>==
+		1.同名方法有不同的簽名，要讓參數型別或數量不同
+		2.若參數型別及數量均相同，不管方法名稱不同或傳回參數不同，都會編譯錯誤
+
+	==陣列長度==
+		int[] i = new int[5];
+		int k = i.length; //取得陣列長度
+
+	==字串長度==
+		String s = "abcde";
+		int i = s.length(); //取得字串長度
+
+		1.完美數的計算要注意
+			int i, j, sum = 0;
+				for(i=2 ; i<= 1000 ; i++){ //<---i從2開始
+					sum = 0;
+					for(j=1 ; j < i ; j++){  //<---這裡不要寫錯(j<i)
+						if (i % j == 0) sum += j;
+					}
+					if (i== sum) System.out.print(i);
+				}
+
+		2.字串格式化
+			String.format(“<格式>”,Object )
+			範例：
+			數值轉字串，前面補0  		String.format (“%04d”, 123);  // 0123
+			數值轉字串，小數點後取幾位 	String.format("%.2f",12.365) // 12.365(只能放入double型態)
+
+		3.丟出自訂例外
+			throw new RuntimeException(strMessage); //正確寫法,丟出系統預設例外類別物件
+
+		4.Scanner的使用
+			nextLine()：讀取整行
+			4.1讀取輸入含空白
+			4.2讀取檔案內容
+			
+			Scanner input = new Scanner(new File("檔案路徑")); //讀檔
+			while(input.hasNextLine()){ input.nextLine();}  //讀取檔案資料
+			
+			Scanner input = new Scanner(System.in); //讀畫面輸入
+
+		Math.pow 計算次方i
+		Math.sqrt 計算平方根
+		Math.abs 求絕對值
+
+		5.泡泡排序法
+		for(int i=0;i<ary.length-1;i++){ //要少跑1次
+			for(int j=0;j<ary.length-1;j++){ //要少跑1次,才不會超出索引值
+				if(ary[j]>ary[j+1]){
+					temp = ary[j];
+					ary[j] = ary[j+1];
+					ary[j+1] = temp;
+				}
+			}
+		}
+
+		6.選擇排序法(假設最小數放最左側,再依序往後檢查)
+		for(int i=0;i<ary.length-1;i++){     //可以少跑1次
+			min = ary[i];
+			for(int j=i+1;j<ary.length;j++){ //要比到最後1個
+				if(ary[j]<min){
+					min = ary[j];
+					ary[j] = ary[i];
+					ary[i] = min;
+				}
+			}
+		}
+
+		7.二分搜尋法(Binary Search)
+			1. 1個已排序資料,最小值索引=0,最大值索引=個數-1
+			2. 每次都找出中間值索引 (minIndex + maxIndex) / 2
+			3. 搜尋值與中間值比較 , 
+				若小於中間值 , 則取左邊區間(最大值索引=中間值索引-1) , 重複步驟2
+				若大於中間值 , 則取右邊區間(最小值索引=中間值索引+1) , 重複步驟2
+				若等於中間值 , 則搜尋結束   , 結束步驟2
+				若最小值索引==最大值索引 & 未找到搜尋值 , 則搜尋結束 , 結束步驟2
+			
+		public static void search() {
+						int[] data = {5, 9, 13, 15, 17, 19, 25, 30, 45}; // 已排序資料
+
+						System.out.print("請輸入要找尋的資料：");
+
+						int target = keyboard.nextInt();
+				int midIndex = 0 , midValue = 0 , searchCnt = 0;
+				int minIndex = 0 , maxIndex = data.length-1;
+				
+				while(true)
+				{
+					searchCnt +=1; //統計搜尋次數
+					midIndex = (minIndex + maxIndex)/2;
+					midValue = data[midIndex];
+					System.out.println("尋找區間:"+minIndex+"("+ data[minIndex] +")..."
+													+maxIndex+"("+data[maxIndex]+"),"
+													+"中間:"+midIndex+"("+data[midIndex]+")");
+					if (midValue > target)
+						maxIndex = midIndex-1;
+					else if (midValue < target)
+						minIndex = midIndex+1;
+					else
+						break; //搜尋成功條件(midValue==target)	
+					if (minIndex > maxIndex) break; //最終結束條件(關鍵條件)
+				}
+				System.out.println("經過" + searchCnt + "次的尋找");
+				if (midValue == target)
+					System.out.println("您要找的資料在陣列中的第" + midIndex + "個位置");
+				else
+					System.out.println(target + "不在陣列中");
+				}
+		}
+
+	==do while判斷式==
+		至少跑1次
+
+		do{
+
+		}
+		while(condition); //分號不要忘記了
+
+		if condition == true 再跑1次
+		if condition == false 離開迴圈
+
+	==407.尾端遞迴計算字串的數值總和==
+			static int sumTail(String s , int i){
+				if(s.equals(""))
+					return i;
+				else
+					return sumTail(s.substring(1),i+Integer.valueOf(s.substring(0,1)));
+			}
+			static int sumLoop(String s , int i){
+				for(int j=0;j<s.length();j++){
+					i += Integer.valueOf(s.substring(j,j+1));
+				}
+				return i;
+			}
+
+	==507.計算停車費==
+			public static void park(int hours) {
+						int[] hourTable = {0, 2, 4, 6};   // 時段
+						int[] feeTable = {30, 50, 80, 100};   // 時段費率
+						System.out.println("停車時數：" + hours + "小時");
+				int fee = 0;   //停車費用
+						for(int i=0;i<feeTable.length;i++){
+					if (hours > hourTable[feeTable.length-1-i]){
+						fee += (hours-hourTable[feeTable.length-1-i]) * feeTable[feeTable.length-1-i];
+						hours = hourTable[feeTable.length-1-i];
+					}
+				}
+						System.out.println("應繳費用：" + fee + "元整");
+				}
+			
+			public static void park(int hours) {
+						int[] hourTable = {0, 2, 4, 6};   // 時段
+						int[] feeTable = {30, 50, 80, 100};   // 時段費率
+						int fee = 0;   //停車費用   
+				System.out.println("停車時數：" + hours + "小時");
+						for(int i=hourTable.length-1 ; i>=0 ; i--){
+					if ((hours - hourTable[i]) > 0) {
+						fee += (hours - hourTable[i]) * feeTable[i];
+						hours = hourTable[i];
+					}
+				}
+						System.out.println("應繳費用：" + fee + "元整");
+				}
+
+	==求最大公因數(用遞迴)==
+		static int gcd(int m ,int n){
+				if(m == 0)
+					return n;
+				else if(m > n)
+					return gcd(m-n,n);
+				else
+					return gcd(n-m,m);
+		}
+
+	==求最大公因數(用迴圈)==
+		static int gcd (int m, int n) {
+						int result=1;
+						while (m!=0){
+								if(m>n){
+						result = n;
+						m = m-n;
+					}
+					else if(m<n){
+						result = m;
+						n = n-m;
+					}
+					else{
+						result = m;
+						m = n-m;
+					}
+						}
+						return result;
+				}
+
+	==銀行帳戶題型:注意==
+			void buy(int price , int unitPrice){
+				if (!specialAccount.freeFee()){	
+					freeAccount.withdraw(price * 1.02); //再另扣手續費
+				}
+				else{
+					freeAccount.withdraw(price); //無手續費
+				}
+				intUnit += (price / (double)unitPrice); //這裡要注意用double除,否則會去小數
+			}
+			void sell(double unit , int unitPrice){
+				if (!specialAccount.freeFee())
+					freeAccount.deposit(unit * unitPrice * 0.98); //扣手續費後再存入
+				else
+					freeAccount.deposit(unit * unitPrice);
+				intUnit -= unit;
+			}
+
+	==505.反轉陣列(要轉2次)==
+		public static void reverse(String[] s) {
+				String[] t = new String[s.length];
+				for(int i=0;i<s.length;i++){
+					t[i] = s[s.length-1-i];
+				}
+				for(int i=0;i<s.length;i++){
+					s[i] = t[i];
+				}
+		}
+
+	==406.遞迴字串計算==
+		public static int countA(String str) {
+				if(str.equals(""))
+					return 0;
+				else{
+					if(str.substring(0,1).equals("A"))
+						return 1 + countA(str.substring(1));
+					else
+						return countA(str.substring(1));
+				}
+				}
+			
+		==207.三角形邊長判斷(注意:銳角三角形條件)==
+				if(x<0||y<0||z<0||x+y<=z||y+z<=x||x+z<=y)
+					System.out.println("不可以構成三角形");
+				else{
+					
+					if(x2+y2<z2||x2+z2<y2||z2+y2<x2) System.out.println("鈍角三角形");
+					if(x2+y2==z2||x2+z2==y2||z2+y2==x2) System.out.println("直角三角形");
+					if(x2+y2>z2 && x2+z2>y2 && z2+y2>x2) System.out.println("銳角三角形"); //這裡要注意
+				}
+			
+		==HashMap使用==
+		1.產生物件 HashMap<String,FundAccount> m = new HashMap<String,FundAccount>();
+		2.新增項目 m.put(key,value);
+		3.取出項目 m.get(key);
+		4.取值集合 m.values();
+		5.取key集合 m.keySet();
+
+		==數值轉字串==
+		String.valueOf(double or integer or float);
+
+		==字串轉數值==
+		Integer.valueOf("123");
+
+		==字串轉大寫==
+		String.toUpperCase();
+
+		==字串格式化==
+		String.format("<格式>",Object )
+		範例：
+		數值轉字串，前面補0  		String.format (“%04d”, 123);  // 0123
+		數值轉字串，小數點後取幾位 	String.format("%.2f",12.365) // 12.365(只能放入double型態)
+
+		System.out.printf("%d 前面是整數 , 後面是浮點數 %.0f 最後是換行 %n",123,12.365);
+
+(JAVA 基本觀念)
+	==為什麼要設定JAVA變數==
+	SET JAVA_HOME="C:\Program Files (x86)\Java\jdk1.8.0_65" 
+	SET PATH =%PATH%;%JAVA_HOME%\bin
+	SET CLASSPATH=.
+
+	1.其實，JAVA_HOME變數不一定要有。
+	2.不過，PATH變數內一定要指定javac的所在路徑，也就是 "C:\Program Files (x86)\Java\jdk1.8.0_65\bin"
+	3.為什麼環境設定時,要加上classpath設定,原來是給JVM使用的；設定PATH，是給Windows找javac編譯工具用的。
+
+	==泛型==
+
+	好處：
+	1.讓程式更安全,讓編譯器協助檢查型別的正確性,
+	2.取出資料時,不用多作轉型動作
+
+	ArrayList<String> data = new ArrayList<String>(); //這個ArrayList只能放入String物件,取出時也不用額外轉型
+
+	==繼承==
+	1.JAVA 不允許多重繼承 , 繼承多個類別(X)
+	2.JAVA 允許多層繼承 , 父-->子-->孫(O)
+
+	==基本資料 VS 物件資料(Wrapper Class)==
+
+	int 是 基本資料
+	Integer 是將基本資料包起來的類別
+
+	==注意:Integer & Double在使用上要特別注意==
+	!!如果用錯了，計算結果會天差地遠!!
+	int 是整數型態,double是浮點數 , 
+	例1: 3 / 2.0 = 1.5 (有小數點)
+	例2: 3 / 2   = 1   (只取整數)
+
+	==直接存取物件內的物件方法==
+
+	//freeAccount是存在於fund物件內的物件,而balance()是freeAccount的方法
+	fund.freeAccount.balance() 
+
+	==自訂例外類別==
+	class TypeErrorException extends RuntimeException{
+		public TypeErrorException(String strErrorMessage){
+			//System.out.println(strErrorMessage);
+			super(strErrorMessage);
+		}
+	}
+
+	==丟出例外-自行判斷後呼叫==
+
+		throw new Exception(strMessage); //錯誤寫法,因為Exception是最上層類別,無法產生例外物件
+		
+		throw new TypeErrorException("Incorrect input data: " + strSpec); //正確寫法,丟出自訂例外類別物件
+		
+		throw new RuntimeException(strMessage); //正確寫法,丟出系統預設例外類別物件
+		
+	==抓取例外-try catch==
+
+		try{
+				while(sc.hasNextLine()){
+					wh.add(sc.nextLine());
+				}
+			}
+			catch(TypeErrorException e){
+				System.out.println (e.getMessage()); //只有異常訊息
+				//System.out.println (e.toString()); //例外類別:異常訊息
+			}
+
+	==抓取例外-由方法本身自動抓==
+
+	public static void main(String args[]) throws FileNotFoundException { //<--重點在這
+					Scanner sc = null;
+					
+			try{
+				...
+			}
+			catch(FileNotFoundException e){  //<-- 不過,若有try...catch的話,外層會抓不到
+				System.out.println("File not found!");
+			}		
+			}			
+
+	==nextInt() 可連續讀取以空白分隔的數字==
+	Scanner sc = new Scanner(System.in);
+	int x = sc.nextInt();
+	int y = sc.nextInt();
+		
+	==boxing 物件轉型(父轉子-強迫轉型,<<有限制>>)==
+
+	/*錯誤轉型,因為傳入的obj是Note15,不能轉為PC*/
+	PC pc = new PC();
+	Note15 nt = new Note15();		
+	showObjectCost(nt); //<--重點
+
+	static void showObjectCost(Object obj)
+	{
+			String strType = obj.getClass().getName();
+			PC pc = (PC)obj; //強制轉型
+			System.out.println(strType + " Cost:" + pc.getCost());
+	}
+
+	/*成功轉型,因為傳入的obj是pc,可以轉為PC*/
+	PC pc = new PC();
+	Note15 nt = new Note15();		
+	showObjectCost(pc); //<--重點
+
+	static void showObjectCost(Object obj)
+	{
+			String strType = obj.getClass().getName();
+			PC pc = (PC)obj; //強制轉型	
+			System.out.println(strType + " Cost:" + pc.getCost());
+	}
+
+	==auto boxing 物件轉型(子轉父-自動轉型,但是子類別的方法會被遮蔽,除非再轉回子類別)==
+	Object obj = new Object();
+	PC pc = new PC();
+	obj = pc; //obj指向PC()這個物件,但是只能用到obj的方法屬性
+
+
+	==Reflection==
+	http://godleon.blogspot.tw/2007/09/class-class-java-class-class-jvm-class.html
+
+	==判斷Object類別及取得Object類別名稱==
+
+	1.透過 Object裡的 getClass().getName()可以得到Object具體的類型
+	2.判斷Object可用 instanceof
+		if(obj instanceof String)
+	如果obj是String則會回傳true，如果不是則會回傳false
+
+	==判斷是否為子類別或介面==
+	a instanceof b
+
+	a是否為B的子類別或介面 , 結果回傳布林值
+
+	==數值轉字串==
+	String.valueOf(double or integer or float);
+
+	==字串轉數值==
+	Integer.valueOf("123");
+
+	==字串轉大寫==
+	String.toUpperCase();
+
+	==字串格式化==
+	String.format("<格式>",Object )
+	範例：
+	數值轉字串，前面補0  		String.format (“%04d”, 123);  // 0123
+	數值轉字串，小數點後取幾位 	String.format("%.2f",12.365) // 12.365(只能放入double型態)
+
+	System.out.printf("%d 前面是整數 , 後面是浮點數 %.0f 最後是換行 %n",123,12.365);
+
+	==Java傳值方法==
+	1. Call by Value：傳入原生型別(傳值)
+
+	int D = 2;
+	add(D);
+	System.out.println(D);
+	public static void add(int d)
+	{
+		d = d + 20;
+		System.out.println(d);
+	}
+	執行後：D = 2(數值不變)
+
+	2. Call by Reference ：傳入物件(傳址)，例：數值矩陣 int[] a
+
+	int C[][] = new int[2][3];
+	public static void add(int[][] iC) {
+		iC[0][0] = 50;
+	}
+	執行後：C[0][0] = 50(傳入的物件值改變了)
+
+(Java 科目筆記)
+
+	1. Is a empty .java file a valid source file ? Yes
+
+	2. Primitive variables are stored on <Stack>.
+
+	3. Object variables are stored on <Heap>.
+
+	4. Static functions can not be accessed using null reference . True
+
+	5. Can type boolean compare to type int ? No. boolean only has two values , true or false. They can't be converted to integer.
+
+	6. <Local variables>
+	1.have no default value( Not assigned )
+	2.Variables defined inside methods, constructors or blocks are called local variables
+
+	7. <Instance variables>
+	1.have default value , it depends on type of variable.
+	2.Instance variables are declared in a class, but outside a method, constructor or any block
+
+	7. <Class variables>
+	also known as static variables are declared with the static keyword in a class, but outside a method, constructor or a block
+
+	8. <Size of Type> : byte(8) , short(16) , int(32) , long(64) , float(32) , double(64) , char(16) , boolean(not precisely defined)
+
+	9. <Default value of Type> : byte(0) , short(0) , int(0) , long(0L) , float(0.0f) , double(0.0d) , char('\u0000') , boolean(false) , Object(null)
+
+	10.<protected> : 只能不能用在類別和介面，它主要的目的在於保護父類別成員只能被繼承它的子類別存取。Variables, methods and constructors which are declared protected in the superclass can be accessed only by its child class.
+
+	它的存取權限
+
+	11.<private> : Variables, methods and constructors which are declared private can be accessed only by the members of the same class
+
+	11.<default> : By default, variables, methods and constructors can be accessed by any class lying in the same package.
+
+	12.<super class> :
+	12.1 Variables, methods and constructors which are declared private can be accessed only by the members of the super class.
+	12.2 Variables, methods and constructors which are declared protected can be accessed by any subclass of the super class
+	12.3 Variables, methods and constructors which are declared public in the superclass can be accessed by any class
+
+	13. <Inheritance繼承>Inheritance can be defined as the process where one class acquires the properties (methods and fields) of another.
+
+	14. <Polymorphism多形>Polymorphism is the ability of an object to take on many forms.
+
+	15. <Abstraction抽象> It refers to the ability to make a class abstract in OOP
+
+	16. <Encapsulation封裝> Encapsulation is the technique of making the fields in a class private and providing access to the fields via public methods
+
+	17. <Interface介面> It is a collection of abstract methods.
+
+	18. <類別和介面差異>
+	You cannot instantiate an interface.
+	An interface does not contain any constructors.
+	All of the methods in an interface are abstract.
+	An interface cannot contain instance fields. The only fields that can appear in an interface must be declared both static and final.
+	An interface is not extended by a class; it is implemented by a class.
+	An interface can extend multiple interfaces.
+
+	19. <static binding>
+	Static binding occurs during Compile time .
+	Method Overloading is a sample of static binding.
+	Use <type> for binding
+
+	20. <Dynamic binding>
+	Use <object> for binding
+	Method Overriding is a sample of dynamic binding.
+
+	21. <final class>
+	1.class declard final is a final class
+	2.Final classes are created so the methods implemented by that class cannot be overridden
+	&nbsp;3.It can't be inherited
+
+	22. <Set> : 不允許重複項目 Set is a collection of element which cannot contain duplicate elements.
+
+	23. <TreeSet> : Sorted Order , 而非hiearchical order
+
+	24. <JRE> : JRE is an implementation of the Java Virtual Machine which executes Java programs.
+
+	25. <JIT> : JIT improves the runtime performance of computer programs based on bytecode
+
+	26. <constructor建構子> :
+	1. 不能被final , 可以被 private
+	2. 不能被繼承inherited , 但可以被子類別覆寫
+	
+	27. <composition> : Holding the reference of the other class within some other class is known as composition.
+
+	28. <how to make a thread enter the waiting state>
+	1.Invoke its sleep method
+	2.invoke object's wait method
+	3.Invoke its suspend method
+
+	29. <invoke thread run method>JVM invokes the thread's run method when the thread is initially executed
+
+	30. <invoke thread yield method> Thread returns to the ready state.
+
+	31. <Wrapper classes> These are classes that allow primitive types to be accessed as objects
+
+	32. <runtime polymorphism> Runtime polymorphism is a process in which a call to an overridden method is resolved at runtime rather than at compile-time
+
+	33. <LinkedList & ArrayList Speed Compare>
+	1. LinkedList faster than ArrayList.
+	2. ArrayList is thread safe.(舊類別大多是thread safe, 但是速度較慢)
+
+	34. <StringBuilder & StringBuffer which is thread safe>
+	StringBuffer is thread safe.
+
+	35. <Parent of Error and Exception classes>
+	Throwable
+
+	36. <transient variable> 標註不會被序列化的變數
+
+	37. </ , %> can result in the throwing of an ArithmeticException.
+
+	38. <a main method without static modifier> : RunTime Error : NoSuchMethodError.
+
+	39. <Top Level class> should be public , can not be private or protected.
+
+	40. <If an exception occurs>, a program is expected to recover.
+		可是Error發生的話，通常是難以還原的。
+
+	1. 同一個Java檔案中，只能有1個 public class
+
+	2.<static block>
+	It is used to initialize the static data member., It is excuted before main method at the time of class loading.
+
+	4.<每個try block後,一定要有catch block嗎？>
+	沒有，但是每個try block後，至少要有catch block or finally block其中一個區塊
+
+	5.<marker interface>
+	一個沒有任何方法的介面，就是 marker interface.
+	serializable is a maker interface.
+
+	6.<Protected 存取修飾子>
+	只有子類別可以存取，位於不同封裝內的子類別也可以存取.
+	相同封裝內的介面也可以存取
+
+	7.<Function Overloading覆載>
+	方法具有相同名稱但不同參數項目
+
+	8.<Runtime Polymorphism>
+	Runtime Polymorphism is a process in which a call to an overridden method is resolved at runtime rather than at compile-time.指的是執行時，才會解析出哪個覆寫方法所執行的程序.
+
+	9.<何謂 currentThread()>
+	It is a Thread public static method used to obtain a reference to the current thread.
+	
+	10.<try catch如何決定catch執行順序>
+	第1個catch clause才會被執行，其他的catch子句都會被忽略
+	
+	11.<Can a double value be cast to a byte ?> Yes , 可是double值可能會被截斷.
+
+	12.何謂建構鏈(constructor chaining) 以及它如何在Java內實現？
+	子類別建構子總會先建立它的父類別建構子。自動在第1個statement內加入父類別的無參數建構子
+
+	13.覆寫override方法的限制？
+	(1)子類別方法的名稱、參數、回傳型別必須與父類別相同
+	(2)子類別法的存取修飾子必須和父類別相同或更開放
+
+	14.何謂巢狀類別(nested classes)？
+	定義在類別內部的類別稱之為內部類別，若存取修飾子為static，則為巢狀類別
+	Nested top-level class 也就是inner class
+
+	15.運算子優先順序(order of precedence)和執行順序(associativity , 左至右運算 OR 右至左運算)
+	大部份的執行順序都是由左至右，只有 ++ , -- , ~ , ! , = 是由右至左
+	優先順序為 . , (++ , -- , ~ , ! ) , ( * , / , % ) , ( + , - ) , .... , ( = )指定運算子在最後面
+
+	16.何謂物件鎖？
+	object lock flag的目的在於解決多執行緒同時存取同一物件的問題
+	只有在它取得object lock flag後，執行緒才可能執行一個已標註同步化的物件方法
+	synchronized(this){
+	 ...
+	}
+
+	17.物件導向的多形(Polymorphism)概念會用什麼方法實現？
+	多載(orverloading) & 覆寫(overriding)
+
+	18. static 方法或 static 區塊的限制為何？
+	(1)不能使用"this"運算子來存取物件實體
+	(2)不能使用物件屬性及物件方法，只有使用static屬性及static方法
+
+	19.Path and Classpath的差異？
+	Path and Classpath都是作業系統的變數。Path說明系統去哪找到執行檔(.EXE)，Classpath則是指定.class檔案的位置
+
+	20.Java的enumeration
+	它不是.net的列舉結構而是iterator。它負責將collections內的item依序取出使用
+
+	21.Java的日期相關類別，只實作一個日期類別
+	import java.util.GregorianCalendar;
+	Calendar cal = Calendar.getInstance(); //
+	System.out.printf("Today is %d/%d/%d %n",cal.get(Calendar.YEAR) , 1 + cal.get(Calendar.MONTH),cal.get(Calendar.DATE));
+
+	22.何謂Daemon執行緒
+	一個Daemon執行緒是一個在背景執行服務的執行緒(low priority thread)，例如網路伺服器傾聽連接埠的服務、隱藏的系統執行緒如垃圾收集執行緒或其它JVM 建立的執行緒，如果所有的非Daemon的執行緒都結束了，則Daemon執行緒自動就會終止。
+	public class DaemonTest {
+			public static void main(String[] args) {
+					Thread thread = new Thread(new Runnable() {
+							public void run() {
+									while(true) {
+											System.out.print("T");
+									}
+							}
+					});
+					thread.setDaemon(true); //設定為Daemon Thread的關鍵
+					thread.start();
+			}
+	}
+
+	23.如果把System.exit(0);放在try block的最後面，那finally block會被執行嗎？
+	No.因為System.exit(0);執行後程式立即結束
+
+	24.何謂Externalizable interface ?
+	Externalizable is an interface which contains two methods readExternal and writeExternal. These methods give you a control over the serialization mechanism.
+
+	25.java.lang封裝需要特別匯入import嗎 ?
+	No. JVM預設會載入
+
+	26.為什麼JAVA要用泛型呢？
+	Generics provide compile-time type safety that allows programmers to catch invalid types at compile time.
+
+	27.在用戶端及伺服器端撰寫socket須匯入的類別為何？
+	import java.net.Socket;
+
+	28.伺服器端程式執行取得埠號(port) & listen for client request須匯人類別為何？
+	import java.net.ServerSocket;
+
+	29.Java Socket優缺點.
+	優點：Sockets are flexible and sufficient.(彈性和效率) Efficient socket based programming can be easily implemented for general communications.(易於使用) It cause low network traffic.(低網路傳輸量)
+	缺點：Socket based communications allows only to send packets of raw data between applications.(之能傳輸raw data封包) Both the client-side and server-side have to provide mechanisms to make the data useful in any way.(用戶端和伺服器端須具備處理raw data封包的能力)
+
+	30.What is socket ?
+	提供兩台電腦間使用TCP協定進行溝通的機制

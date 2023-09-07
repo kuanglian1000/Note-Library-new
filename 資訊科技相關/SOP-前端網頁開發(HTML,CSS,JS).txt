@@ -2779,3 +2779,458 @@ import 匯入模組 (參考資料: https://developer.mozilla.org/zh-TW/docs/Web/
   '@cubejs-client/core'
     @用法 => 指定從找出 "cubejs-client/core" 資料夾中, 找出 "CubejsApi" module, 然後匯入.
 
+/* 使用JavaScript(language) + Express(Framework) + Node(Server) 開發網站 */ 開始日期: 2023/06/05 ~ 
+  https://developer.mozilla.org/zh-TW/docs/Learn/Server-side/Express_Nodejs/Introduction
+    綜觀說明 => Express 應用程序的主要部分（路由，中介件，錯誤處理和模板代碼）
+    ^ 參考資料:
+      1.Modules (Node API docs)
+      2.Express (home page)
+      3.Basic routing (Express docs)
+      4.Routing guide (Express docs)
+      5.Using template engines with Express (Express docs)
+      6.Using middleware (Express docs)
+      7.Writing middleware for use in Express apps (Express docs)
+      8.Database integration (Express docs)
+      9.Serving static files in Express (Express docs)
+      10.Error handling (Express docs)
+
+  > Setting up a Node development environment + Express + NPM
+    https://developer.mozilla.org/zh-TW/docs/Learn/Server-side/Express_Nodejs/development_environment
+
+    ^ test nodejs & NPM
+      node -v
+        v18.15.0
+      npm -v
+        9.5.0
+    
+    ^ run "hellonode.js" by Node
+      1. create a "hellonode.js" file
+        程式碼: C:\Projects\Projects_NodeJS\helloNode.js
+
+      2. run "hellonode.js" by Node
+        指令碼: node C:\Projects\Projects_NodeJS\helloNode.js
+
+      3. 瀏覽網址: http://localhost:8000 , 確認是否成功.
+
+    ^ Using NPM download 套件的基本觀念
+      1.慣例: 專案內相依套件(package)會記錄在 "package.json" 檔案內.
+      2.套件中相依套件(package) = NPM 套件, 都應該包含 "package.json" 檔案, 讓其他人使用該套件時, 能一併下載 相依套件(package)
+    
+    ^ Adding dependencies for "Express" 套件 至專案
+      1. mkdir myExpressApp
+         cd myExpressApp
+      2. {npm init} //給定專案初始設定
+         * Use the {npm init} command to create a {package.json} file for your application.
+         * This command prompts you for a number of things, 
+           including the name and version of your application 
+           and the name of the initial entry point file (by default this is {index.js}).
+         * display {package.json} content
+            {
+              "name": "myexpressapp",
+              "version": "1.0.0",
+              "description": "我的第1個Express專案",
+              "main": "index.js",
+              "scripts": {
+                "test": "echo \"Error: no test specified\" && exit 1"
+              },
+              "author": "kl.cheng",
+              "license": "ISC"
+            }
+      3. install Express package in App //將"Express" 套件加至專案
+         * {npm install express}
+         * display {package.json} content
+            {
+              ... ,
+              "dependencies": {
+                "express": "^4.18.2"
+              }
+            }
+      4. create {index.js} & use Express Library by calling {require("express")} statement.
+        {npm init} 新增專案過程中, 會詢問專案入口程式, 預設為 {index.js}, 所以才會新增程式碼{index.js}
+        程式碼: C:\Projects\Projects_NodeJS\myExpressApp\index.js
+
+      5. run "index.js" by Node
+        指令碼: node C:\Projects\Projects_NodeJS\myExpressApp\index.js
+
+    ^ Development dependencies //安裝開發專用的相依套件(ex. JavaScript Linting tool eslint), 不會上到正式環境.
+      1.If a dependency is only used {during development}, 
+        you should instead save it as a "development dependency" //安裝開發專用相依套件
+        (so that your package users don't have to install it in production). 
+      
+      2.For example, to use the popular JavaScript Linting tool {eslint} you would call NPM as shown:
+        
+        指令碼: npm install --save-dev eslint
+      
+      3.The following entry would then be added to your application's package.json:
+
+        "devDependencies": {
+          "eslint": "^4.12.1"
+        }
+
+        /* 開發環境 + 正式環境 */
+        "dependencies": {
+          "express": "^4.18.2"
+        },
+        /* 開發環境 only */
+        "devDependencies": {
+          "eslint": "^8.42.0"
+        }
+
+    ^ Running Tasks // npm run-script <TaskName>, 常用於開發階段自動執行指令用, 例:縮小JS大小, 壓縮圖片, 使用LINT/分析程式碼..
+      1.Gulp or Grunt也可以用來執行測試或外部工具.
+      2.舉例:
+        "scripts": {
+          ...
+          "lint": "eslint src/js",
+          ...
+        }
+      
+      3.{eslint src/js} is a command that we could enter in our terminal/command line to 
+        run eslint on JavaScript files contained in the src/js directory inside our app directory. 
+        Including the above inside our app's package.json file provides a shortcut for this command — {lint}
+        註: 完整指令 => {eslint src/js}, 縮寫指令 => {lint}
+      
+      4.使用NPM執行的方式
+        a. npm run-script lint
+        b. npm lint #使用 縮寫指令 執行.
+      
+      5.This example may not look any shorter than the original command, 
+        but you can include much bigger commands inside your npm scripts, 
+        including chains of multiple commands. 
+        You could identify a {single npm script} that {runs all your tests at once}.
+
+    /* 快速產生 Express Application 骨架 */
+
+    ^ Installing the Express Application Generator
+      * 指令碼: "npm install express-generator -g"
+        功能: 安裝快速產生 Express Application 骨架工具
+        
+        註 => Install the generator using NPM as above 
+              (the -g flag installs the tool globally so that you can call it from anywhere
+
+      * 指令碼: "express helloworld"
+        功能: 使用Express Application 骨架工具, 產生 helloworld app.
+
+        範例: cd C:\Projects\Projects_NodeJS
+          express secondExpressApp
+          ...
+          create..略
+          ...
+
+          change directory:
+            > cd secondExpressApp
+
+          install dependencies:
+            > npm install
+
+          run the app:
+            > SET DEBUG=secondexpressapp:* & npm start
+
+        註1 => To create an Express app named "helloworld" with the default settings, 
+              navigate to where you want to create it and run the app as above
+        註2 => "express --help" 有其他選項說明
+
+        # 注意: Express app專案內的 {package.json} 已自動生成寫入預設相依套件, 但{尚未安裝}. #
+          {package.json} 內容 =>
+            {
+              "name": "helloworld",
+              "version": "0.0.0",
+              "private": true,
+              "scripts": {
+                "start": "node ./bin/www"
+              },
+              "dependencies": {
+                "body-parser": "~1.18.2",
+                "cookie-parser": "~1.4.3",
+                "debug": "~2.6.9",
+                "express": "~4.15.5",
+                "jade": "~1.11.0",
+                "morgan": "~1.9.0",
+                "serve-favicon": "~2.4.5"
+              }
+            }
+        
+      * 指令碼: "cd helloworld" & "npm install"
+        功能: 切換至Express app專案, 執行相依套件安裝.
+
+      * 指令碼: "SET DEBUG = helloworld:* & npm start"
+        功能: The DEBUG command creates useful logging, resulting in an output like that shown below.
+
+        output:
+          >SET DEBUG=helloworld:* & npm start
+
+          > helloworld@0.0.0 start <Express app專案路徑>
+          > node ./bin/www
+
+            helloworld:server Listening on port 3000 +0ms
+
+            GET /favicon.ico 404 70.544 ms - 1262
+            Q: 出現 favicon.ico 404 不存在的訊息
+            A: 解法
+              1.下載免費的 favicon.ico from this website (https://favicon.io/emoji-favicons/beating-heart)
+              2.安裝套件 "npm install serve-favicon" (http://expressjs.com/en/resources/middleware/serve-favicon.html)
+              3.修改App.js內容
+                var favicon = require('serve-favicon'); //新增
+                var path = require('path'); //新增
+                
+                var app = express(); //自動產生.
+                app.use(favicon(path.join(__dirname, 'public', 'favicon.ico'))); //新增
+
+    ^ 總結: 
+      * 有一個 Node 開發環境在電腦上運行，
+      * 可以用來創造 Express 網頁應用
+      * 看到如何用 NPM 來加載 Express 到一個應用中，以及看到如何使用 Express 應用產生器，創建應用，然後執行它們。
+      * 註 => 在"Node.js"上, 提供HTTP服務的其中三種方式:
+        
+        1.使用HTTP(Node內建) 
+          網站啟動方式: node helloNode.js
+          程式路徑: C:\Projects\Projects_NodeJS\helloNode.js
+          
+        2.引用Express(輕度使用, 帶入{路由}, 沒有併用其他 package)
+          網站啟動方式: node index.js
+          程式路徑: C:\Projects\Projects_NodeJS\myExpressApp\index.js
+
+           var express = require("express");
+           var app = express();
+            app.get("/", function (req, res) {
+              res.send("# Hello Express Framework App Web Site #");
+            });
+
+            app.listen(8000, function () {
+              console.log(" Express Framework App Web Site is listening on port 8000 ");
+            });
+          
+        3.引用Express(重度使用, 併用其他 package, pug view Engine)
+          
+          網站啟動方式: SET DEBUG = helloworld:* & npm start # 看到如何用 NPM 來加載 Express 到一個應用 #
+          程式路徑: C:\Projects\Projects_NodeJS\secondExpressApp\app.js
+          
+  > Express教學1: 本地圖書館網站
+    https://developer.mozilla.org/zh-TW/docs/Learn/Server-side/Express_Nodejs/Tutorial_local_library_website  
+    
+    =學習目標 BEGIN=
+      ^ 使用 Express 應用產生器工具，建立一個框架網站與應用
+      ^ 啟動和停止 Node 網頁伺服器
+      ^ 使用資料庫存放應用的資料
+      ^ 建立路由用以要求不同的訊息，建立模板 ("視圖") 以 HTML 的形式在瀏覽器中呈現資料
+      ^ 使用表單
+      ^ 部署應用到生產環境
+    =學習目標 END=
+
+  > Express教學2: 新增一個骨架網站/框架網站 (Completed: 2023/06/11)
+    https://developer.mozilla.org/zh-TW/docs/Learn/Server-side/Express_Nodejs/skeleton_website
+
+    ^ 示範如何創建一個 "骨架" 網站項目，你可以接著在裡面
+      1.加入網站特定路由
+      2.模板/視圖
+      3.資料庫使用
+
+    ^ 新增框架前, 須先安裝Express 應用產生器工具
+      * 指令碼: npm install express-generator -g
+      
+    ^ 新增Express網站 = <本地圖書館>, 使用 pug Engine
+      * 專案路徑: C:\Projects\Projects_NodeJS\express-locallibrary-tutorial
+      * express express-locallibrary-tutorial --view=pug
+    
+    ^ 讓伺服器在檔案更改時重新啟動, 使用 nodemond 工具(未全域安裝 -g), 僅作為開發人員相依套件(development_environment) 
+      * 指令碼: npm install --save-dev nodemond 
+
+      * nodemond 工具(未全域安裝 -g), 無法從CMD啟動, 除非加PATH,
+        但可透過 npm 執行, 因為 npm 透過 package.json 知道專案 相依套件, 指令碼.
+      * 程式片段(package.json):
+          "scripts": {
+            "start": "node ./bin/www",
+            "devstart": "nodemon ./bin/www"
+          },
+
+      * 網站啟動方式:
+        1.(手動重啟 by node) => SET DEBUG = <APPName>:* & npm start # 對應上述程式片段(package.json) #
+        2.(自動重啟 by nodemond) => SET DEBUG = <APPName>:* & npm run devstart # 對應上述程式片段(package.json) #
+        ex. 
+          SET DEBUG = express-locallibrary-tutorial:* & npm start # 正確 #
+          SET DEBUG = express-locallibrary-tutorial:* & npm run devstart # 正確 #
+          SET DEBUG = express-locallibrary-tutorial:* & npm devstart # Error, 不能這麼寫 #
+
+    ^ 網站目錄結構
+      * package.json 文件定義了應用程序依賴項，和其他信息。
+        它還定義了一個啟動腳本，它將調用應用程序入口點 JavaScript 文件 /bin/www。(www.js是個JS檔)
+        這設置了一些應用程序的錯誤處理，然後加載 app.js ，來完成剩下的工作。
+      * 應用程序路徑，存儲在 /routes 目錄下的單獨模塊中。
+      * 模板存儲在 /views 目錄下。
+          /express-locallibrary-tutorial
+            app.js
+            /bin
+                www.js
+            package.json
+            /node_modules
+                [about 4,500 subdirectories and files]
+            /public
+                /images
+                /javascripts
+                /stylesheets
+                    style.css
+            /routes
+                index.js
+                users.js
+            /views
+                error.pug
+                index.pug
+                layout.pug
+      
+      * package.json => package.json 文件定義了應用程序依賴關係，和其他訊息：
+        {
+          "name": "express-locallibrary-tutorial",
+          "version": "0.0.0",
+          "private": true,
+          "scripts": {
+            "start": "node ./bin/www", <= 啟動網站指令 npm start, 實際上用 node 啟動了 JavaScript 文件 ./bin/www
+            "devstart": "nodemon ./bin/www" <= 啟動網站指令 npm run devstart, 實際上用 nodemon 啟動了 JavaScript 文件 ./bin/www
+          },
+          "dependencies": {
+            "body-parser": "~1.18.2", <= 解析傳入 HTTP request 的 body，更容易提取包含信息的不同部分。例如，您可以使用它來讀取 POST 參數。
+            "cookie-parser": "~1.4.3", <= 用於parse cookie header 並fill req.cookies
+            "debug": "~2.6.9", <= 小型 node Test程序，仿照 node 核心的調試技術建立的
+            "express": "~4.16.2", <= 網站架構套件
+            "morgan": "~1.9.0", <= 搭配 node 使用的 HTTP 請求記錄器中介層軟件
+            "pug": "~2.0.0-rc.4", <= View Engine
+            "serve-favicon": "~2.4.5" <= 用於提供收藏圖標 favicon 的 node 中介層軟件
+          },
+          "devDependencies": {
+            "nodemon": "^1.14.11" <= 讓伺服器在檔案更改時重新啟動(開發環境ONLY)
+          }
+        }
+
+      * www.js => 文件 /bin/www.js 是應用程序入口點！
+          node start
+            執行 package.json 中 scripts
+            "scripts": {
+              "start": "node ./bin/www",
+
+        1.它做的第一件事是 require() “真正的” 應用程序入口點(即根目錄中app.js)，
+          app.js 會設置並返回 express()應用程序的對象。
+
+          /* www.js 程式片段 */  
+            #!/usr/bin/env node
+
+            /**
+            * Module dependencies.
+            */
+
+            var app = require("../app");
+
+            註: require() 是一個全域 node 函數，用於將模組導入當前文件。
+                這裡我們使用相對路徑指定 app.js 模塊，並省略可選的（.js）文件副檔名。
+
+        2.此文件中的其餘程式碼，將設置一個 node 運行的 HTTP 服務器，
+          並將應用 app 設置為特定的port（在環境變數中定義，如果變數未定義，則定義為 3000），
+          並開始監聽和報告服務器錯誤和連接.
+
+      * app.js => 此文件創建一個 express 應用程序對象（依慣例命名為 app），使用各種設置和中介套件，以設置應用程序，
+        然後從模塊導出應用程序。
+
+        ----------------------------------
+        var express = require('express');
+        var app = express();
+        ...
+        module.exports = app;
+        ----------------------------------
+        回到上面的 www.js 入口點文件，它是在導入該文件時，提供給調用者的這個 module.exports 對象。
+        var app = require('../app'); # 在 www.js 的這段碼, 承接 app.js 最後一行 module.exports = app; #
+        ----------------------------------
+        詳細了解 app.js
+        
+        1.使用 require()將一些有用的 node 類別 導入到文件中.
+        var express = require("express");
+        var path = require("path");
+        var favicon = require("serve-favicon");
+        var logger = require("morgan");
+        var cookieParser = require("cookie-parser");
+        var bodyParser = require("body-parser");
+
+        2.使用 require()導入路由目錄的模組。這些模組/文件包含用於處理特定的相關 "路由" 集合（URL 路徑）的代碼
+        var indexRouter = require("./routes/index");
+        var usersRouter = require("./routes/users");
+
+        3.使用導入的 express 模塊, 創建應用程序 app 對象，然後使用它來設置視圖（模板）引擎。
+          引擎的設置有兩個部分。首先我們設置 'views' 值，來指定模板將被存儲的文件夾（在這種情況下是子文件夾 /views）。
+          然後我們設置 'view engine' 的值，來指定模板庫（在本例中為 “pug” ）
+        var app = express();
+
+        // view engine setup
+        app.set("views", path.join(__dirname, "views")); //View路徑
+        app.set("view engine", "pug"); //使用哪套 View Engine, 這裡用的是 pug
+
+        4.調用 app.use()，將中介件的庫，添加到請求處理鏈中。(註: 每個request都會跑1次)
+          除了我們之前導入的第三方庫之外，我們還使用 express.static 中介件，
+          來使 Express 提供在項目根目錄下，/public 目錄中的所有靜態文件。
+
+        // uncomment after placing your favicon in /public
+        //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+        app.use(logger("dev"));
+        app.use(bodyParser.json());
+        app.use(bodyParser.urlencoded({ extended: false }));
+        app.use(cookieParser());
+        app.use(express.static(path.join(__dirname, "public")));
+
+        5.其他中介件類別都已設置完畢，路由目錄的模組，添加到請求處理鏈中。
+          導入的代碼，將為網站的不同部分定義特定路由。
+        
+        app.use("/", indexRouter); //例: http://localhost:3000/ 交由indexRouter模組處理
+        app.use("/users", usersRouter); //例: http://localhost:3000/users/ 交由usersRouter模組處理
+
+        6.文件中的最後一個中介件，為錯誤和 HTTP 404 回應添加了處理程序方法。
+
+        // catch 404 and forward to error handler
+        app.use(function (req, res, next) {
+          var err = new Error("Not Found");
+          err.status = 404;
+          next(err);
+        });
+
+        // error handler
+        app.use(function (err, req, res, next) {
+          // set locals, only providing error in development
+          res.locals.message = err.message;
+          res.locals.error = req.app.get("env") === "development" ? err : {};
+
+          // render the error page
+          res.status(err.status || 500);
+          res.render("error");
+        });
+
+        7.Express 應用程序對象（app）現已完全完成配置。
+          最後一步，是將其添加到模塊導出（這允許它通過 /bin/www 導入）。
+
+        module.exports = app;
+
+    ^ 路由
+      *  The route file "/routes/users.js" is shown below 
+         (route files share a similar structure, so we don't need to also show index.js). 
+         route file有類似的結構, 所以這裡只說明 "/routes/users.js"
+
+      * First, it loads the express module and uses it to get an express.Router object. 
+        Then it specifies a route on that object and 
+        lastly exports the router from the module (this is what allows the file to be imported into app.js). 
+
+      * "/routes/users.js" 程式碼
+      const express = require("express");
+      const router = express.Router();
+
+      /* Get users listing. */
+      router.get("/", (req, res, next) => {
+        res.send("respond with a resource.");
+      });
+
+      module.exports = router; //最後一步，是將其添加到模塊導出（這允許它通過 /bin/www 導入）。
+
+    ^ 挑戰自我(2023/06/11)
+      * Create a new route in /routes/users.js that will display the text "You're so cool" at URL /users/cool/. 
+        Test it by running the server and visiting http://localhost:3000/users/cool/ in your browser
+      
+      * 程式碼: C:\Projects\Projects_NodeJS\express-locallibrary-tutorial\routes\users.js
+
+  TODO: 完善統整Express內的路由設定
+    https://betterprogramming.pub/serving-a-node-js-express-app-from-a-subfolder-a-routing-lifehack-a3c88da9840c
+
+  TODO: Express Tutorial Part 3: Using a Database (with Mongoose)
+    https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/mongoose

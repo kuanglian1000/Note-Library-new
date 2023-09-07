@@ -1,0 +1,9 @@
+1.下載JDK
+2.安裝JDK
+3.複製預設安裝路徑 ex. c:\Program Files\Java\jdk1.x.x_xx\bin;
+4.開啟環境變數
+5.編輯系統變數 Path, VALUE = VALUE + ";c:\Program Files\Java\jdk1.x.x_xx\bin"
+6.測試 javac 指令
+7.測試 java 指令
+	
+-->可能不需要 <--6.新增系統變數 CLASSPATH , VALUE = "."

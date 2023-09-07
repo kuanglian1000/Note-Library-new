@@ -1,0 +1,16 @@
+Change Command Prompt Default Directory
+
+1.) Open up registry editor by typing "regedit" [without the quotes] in the search box, and then clicking on the link up top.
+
+2.) Navigate to the key HKEY_CURRENT_USER \ Software \ Microsoft \ Command Processor and search for the string "Autorun" in the left window. If that string is not existing yet, create it. 
+
+	Double-click it afterwards and add the new directory path in the following way: CD /d C:\
+
+3.) If you would like the command prompt to open in the system32 folder, use this string instead: 
+
+CD /d C:\windows\system32
+
+CD /d C:\Users\sql2008\Documents\JavaProjects
+
+4.) Close the registry editor, and then open the command prompt to check your work.
+

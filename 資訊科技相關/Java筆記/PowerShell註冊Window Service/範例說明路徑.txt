@@ -1,0 +1,2 @@
+Windows PowerShell - Writing Windows Services in PowerShell
+https://msdn.microsoft.com/en-us/magazine/mt703436.aspx
