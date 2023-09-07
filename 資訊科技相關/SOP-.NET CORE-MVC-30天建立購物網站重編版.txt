@@ -81,7 +81,11 @@ Day4-Mvc View(視圖-詳細說明)
     (3)前端取值時, @ 要特別加註上去, 這是RazorPage的寫法.
     
     (4)使用方式 (程式範例: C:\Projects\Projects_ASP.NET_Core\MvcShopping\Views\HelloWorld\Index.cshtml)
-      
+
+      # 特別注意: ViewData 和 ViewBag是互通的, 只是寫法不同 #
+        ViewData["CategoryId"] = "ABC"; //可用 ViewData 存值
+        Console.WriteLine(ViewBag.CategoryId); //再用 ViewBag 取值
+
       {後端給值}
         a. ViewData["data_Index"] = data_Value; // ViewData["XXX"]
         b. ViewBag.data_Index = data_Value; // ViewBag.XXX
@@ -137,8 +141,11 @@ Day5-Mvc Model(模型-詳細說明)
       (2) 用 <Scaffold> 工具, 建立商品 CRUD 頁面及相關程式碼
           利用 Model & <aspnet-codegenerator> 工具, 完成 Controller, View, DbContext, ConnectionString新增, Database服務註冊.
           dotnet aspnet-codegenerator controller 
-          -m Product -name ProductsController  -dc StoreContext 
-          -outDir Controllers -sqlite -scripts -udl
+            -m Product -name ProductsController  -dc StoreContext 
+            -outDir Controllers -sqlite -scripts -udl
+
+          dotnet aspnet-codegenerator controller -m Product -name ProductsController  -dc StoreContext -outDir Controllers -sqlite -scripts -udl
+          dotnet aspnet-codegenerator controller -m Category -name CategoriesController  -dc StoreContext -outDir Controllers -sqlite -scripts -udl
       
       (3) 利用 <EntityFrameworkCore> 工具, 新增 資料庫移轉記錄(Migrations), 產生資料庫DB
           > drop and re-create(快速, 適用於開發環境, 直上Table Schema & 最新Data)
@@ -235,6 +242,53 @@ Day7-複雜的商品模型(正式進入後台實作),
   新增異動移轉(UpdateProduct_CreateCategory) + 重建資料庫    
     dotnet ef migrations add UpdateProduct_CreateCategory (註: 依照慣例, 第1次移轉的取名為 InitialCreate; 之後可以改為 add Column_Desc..)
     dotnet ef database update (註: 使用最近1次移轉, 執行移轉內的 Up 方法, 來新增資料庫.)
+
+  本日完工
+
+Day8-新增商品類別(Controller, View, DbContext | Category Model在前一天已新增) + 調整產品頁面(加入類別欄位)
+  # 新增商品類別(Controller, View, DbContext)
+  # 調整產品頁面(加入類別欄位)
+
+  新增商品類別(商品已新增, 再新增類別, 網站會掛掉?? 先跳過..)
+    dotnet aspnet-codegenerator controller -m Category -name CategoriesController  -dc StoreContext -outDir Controllers -sqlite -scripts -udl
+
+    # 超強(但是直接掛掉, 連 <產品> 頁面都沒有反應???) #
+      1.自動判斷StoreContext已存在. (註:只新增 public DbSet<MvcShopping.Models.Category>? Category { get; set; } )
+      2.Controller, View也都新增成功.
+
+
+    # 測試-新增類別資料 #
+
+  如果商品 & 類別同時新增, 再先後執行下列指令,(結果網站竟然正常, 而且還自動拉關聯, 太神奇了)
+    dotnet aspnet-codegenerator controller -m Category -name CategoriesController  -dc StoreContext -outDir Controllers -sqlite -scripts -udl
+    dotnet aspnet-codegenerator controller -m Product -name ProductsController  -dc StoreContext -outDir Controllers -sqlite -scripts -udl          
+
+  調整產品頁面(後端準備資料, 放入ViewBag. 前端再顯示)
+    
+    SelectList: 表示可讓使用者選取一個項目的清單(前端用)。
+    <select asp-for="CategoryId" class ="form-control" asp-items="ViewBag.CategoryId"></select>
+
+    # 注意: 後端會準備 "ViewBag.CategoryId" 給前端顯示用 #
+    # 註: 如果你想把 {ID-Name} 一起在前端顯示的話, 可以在Model內對屬性動手腳, 再去Controller將屬性放入ViewBag內.
+
+      public class Category
+      {
+        public string Id_Name //前端顯示用(Id-Name)
+        {
+          get => $"{Id} - {CategoryName}";
+        }
+      }
+
+      public class ProductsController : Controller
+      {
+        public IActionResult Create()
+        {
+            ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "Id", "Id_Name");
+            return View();
+        }
+      }
+
+  本日完工
 
 /*==從實作學習ASP.NET Core - 30天的購物網站系列 <.NET 6> [2023/04/05 ~ 未完成]==*/ 
   第1次沒有作完, 就去台半上班了. 2023/05/09從台半離職後, 再來把它作完
