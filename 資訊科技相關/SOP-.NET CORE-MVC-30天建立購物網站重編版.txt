@@ -123,8 +123,9 @@ Day5-Mvc Model(模型-詳細說明)
 
       (1) 建立模型(Create Model by Hand)
 
+        # 先來{簡易版} #
           * 資料模型(Data/Model): "Product.cs"
-            
+          
           using System;
           using System.Collections.Generic;
 
@@ -137,6 +138,43 @@ Day5-Mvc Model(模型-詳細說明)
               public decimal Price {get;set;}
               public int Stock {get;set;}
           }
+
+        # 再上{複雜版} #
+          Product資料表(新增欄位 + 與Category建立關聯) => 程式路徑: Models\Product.cs
+            
+            using System;
+            using System.Collections.Generic;
+
+            namespace MvcShopping.Models;
+
+            public class Product
+            {
+              public int Id { get; set; }
+
+              public string? Name { get; set; }            //商品名稱
+              public string? Description { get; set; }     //商品簡介
+              public string? Content { get; set; }         //商品內容
+              public int Price { get; set; }              //商品價格
+              public int Stock { get; set; }              //商品庫存
+              
+              public byte[] Image { get; set; }           //商品圖片
+              public int CategoryId { get; set; }         //類別 (Foreign Key)
+              public Category Category { get; set; }
+            }
+
+          Category資料表(新增資料表 + 與Product建立關聯) => 程式路徑: Models\Category.cs
+            
+            using System;
+            using System.Collections.Generic;
+
+            namespace MvcShopping.Models;
+
+            public class Category
+            {
+              public int Id { get; set; }
+              public string? Name { get; set; }            //類別名稱
+              public List<Product> Products { get; set; } 
+            }
       
       (2) 用 <Scaffold> 工具, 建立商品 CRUD 頁面及相關程式碼
           利用 Model & <aspnet-codegenerator> 工具, 完成 Controller, View, DbContext, ConnectionString新增, Database服務註冊.
@@ -144,15 +182,32 @@ Day5-Mvc Model(模型-詳細說明)
             -m Product -name ProductsController  -dc StoreContext 
             -outDir Controllers -sqlite -scripts -udl
 
-          dotnet aspnet-codegenerator controller -m Product -name ProductsController  -dc StoreContext -outDir Controllers -sqlite -scripts -udl
-          dotnet aspnet-codegenerator controller -m Category -name CategoriesController  -dc StoreContext -outDir Controllers -sqlite -scripts -udl
-      
-      (3) 利用 <EntityFrameworkCore> 工具, 新增 資料庫移轉記錄(Migrations), 產生資料庫DB
+          # 兩個模型一起上{複雜版}  #
+            (Test1: Product先執行, 再執行Category, 先開Product頁面, 後開Category頁面, 沒反應, 無法新增)
+            
+            $ 這種方式是可行的(先各自新增, 之後再串起關聯性.) $
+            (Test2: 執行Product Scaffold {Product & Category關聯都先拿掉}, 再執行{第1次移轉}+{產生資料庫DB}, 
+                      網站功能測試 => Product 新增OK;
+                    執行Category Scaffold {Product & Category關聯都先拿掉}, 再執行{第2次移轉}+{異動資料庫DB}, 
+                      網站功能測試 => Product 新增OK; Category 新增OK )
+
+            dotnet aspnet-codegenerator controller -m Category -name CategoriesController  -dc StoreContext -outDir Controllers -sqlite -scripts -udl
+            dotnet aspnet-codegenerator controller -m Product -name ProductsController  -dc StoreContext -outDir Controllers -sqlite -scripts -udl
+        
+      (3) 利用 <EntityFrameworkCore> 工具 + 新增 資料庫移轉記錄(Migrations) + 產生資料庫DB
           > drop and re-create(快速, 適用於開發環境, 直上Table Schema & 最新Data)
           * Delete the Migrations folder. 
-          * dotnet ef database drop --force
+          
+            dotnet ef database drop --force
             dotnet ef migrations add InitialCreate (註: 依照慣例, 第1次移轉的取名為 InitialCreate; 之後可以改為 add Column_Desc..)
             dotnet ef database update (註: 使用最近1次移轉, 執行移轉內的 Up 方法, 來新增資料庫.)
+
+            dotnet ef migrations add AddTable_Category
+            dotnet ef database update
+
+            dotnet ef migrations remove (註: 移除上一個移轉)
+            dotnet ef migrations list (註: 列出所有移轉)
+            (註: 重設所有移轉, 官方說直接把 /Migrations 資料夾 + DB刪除即可)
 
             # 出現 C:\Projects\Projects_ASP.NET_Core\MvcShopping\Models\Product.cs(9,29): warning CS8618: 
               退出建構函式時，不可為 Null 的 屬性 'Name' 必須包含非 Null 值。
@@ -204,7 +259,6 @@ Day6-Mvc Action(控制器行為-詳細說明-看懂CRUD的Action)
         發現同一個新增動作, 對應兩個同名 Create Action
         差在 one for [HttpGet], the other for [HttpPost]
 
-
       // GET: Products/Create
       public IActionResult Create()
       {
@@ -229,23 +283,84 @@ Day6-Mvc Action(控制器行為-詳細說明-看懂CRUD的Action)
 
   本日完工
 
-Day7-複雜的商品模型(正式進入後台實作), 
+= 正式進入後台實作 BEGIN =
+
+Day7-複雜的商品模型(後台)
   # Product資料表(新增欄位+與Category建立關聯) + Category資料表(新增資料表+與Product建立關聯)
   # 新增異動移轉(UpdateProduct_CreateCategory) + 重建資料庫
 
-  Product資料表(新增欄位+與Category建立關聯)
+  Product資料表(新增欄位 + 與Category建立關聯)
     程式路徑: Models\Product.cs
+    public class Product
+    {
+      public int Id { get; set; }
 
-  Category資料表(新增資料表+與Product建立關聯)
+      public string? Name { get; set; }            //商品名稱
+      public string? Description { get; set; }     //商品簡介
+      public string? Content { get; set; }         //商品內容
+      public int Price { get; set; }              //商品價格
+      public int Stock { get; set; }              //商品庫存
+      public byte[] Image { get; set; }           //商品圖片
+
+      public int CategoryId { get; set; }         //類別 (Foreign Key)
+      public Category Category { get; set; }
+    }
+
+  Category資料表(新增資料表 + 與Product建立關聯)
     程式路徑: Models\Category.cs
+    public class Category
+    {
+      public int Id { get; set; }
+      public string? Name { get; set; }            //類別名稱
+      public List<Product> Products { get; set; }
+    }
 
   新增異動移轉(UpdateProduct_CreateCategory) + 重建資料庫    
-    dotnet ef migrations add UpdateProduct_CreateCategory (註: 依照慣例, 第1次移轉的取名為 InitialCreate; 之後可以改為 add Column_Desc..)
-    dotnet ef database update (註: 使用最近1次移轉, 執行移轉內的 Up 方法, 來新增資料庫.)
+    dotnet ef migrations add UpdateDB_CreateRelation_Product_Category (註: 建立商品與類別間的模型關聯)
+    dotnet ef database update
+      (註: 出現Fatal Error, 因為FK建不起來, Product Table 已有資料, 
+        解法: 刪掉現存資料 Product Table, 重新執行 dotnet ef database update)
+
+    (Error)網站功能測試: 類別無法新增
+
+  新增異動移轉(RollbackProduct_CreateCategory) + 重建資料庫(卡關) 
+    dotnet ef migrations add RollbackRelation2_Product_Category (註: 再移除商品與類別間的模型關聯, 試圖救援)
+    dotnet ef database update
+
+    (OK)網站功能測試: 商品 & 類別都新增成功
+
+  新增異動移轉(CreateRelation_ProductHasFKToCategory) + 重建資料庫(卡關) 
+    (註: 再把商品與類別間的模型關聯建起來, 只有商品連類別, 類別未關聯回商品, 商品的Image欄位可為NULL)
+    dotnet ef migrations add CreateRelation_ProductHasFKToCategory
+    dotnet ef database update
+
+    (OK)資料庫新增
+    網站功能測試: 
+      問題: 商品新增(Error) => 因為後端有新增欄位(Category), 但前端沒有給它, 所以會新增失敗.
+      類別新增(OK)
+
+      問題: 商品新增(Error) => 因為後端有新增欄位(Category), 但前端沒有給它, 所以會新增失敗.
+      解法(50% 一樣儲存失敗??): 
+        (1)後端準備(Category)欄位資料放在 HttpGet Create() Action @ProductsController.cs
+            ViewData["Categories"] = new SelectList(_context.Set<Category>(), "Id", "Name");
+        (2)前端接值顯示
+            <div class="form-group">
+                <label asp-for="CategoryId" class="control-label"></label>
+                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories" ></select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+        (3)後端 HttpPost Create() Action 在Bind框框中, 也要接住前端回傳值 @ProductsController.cs
+            public async Task<IActionResult> Create([Bind("Id,Name,Description,Content,Price,Stock,CategoryId")] Product product)
+
+  新增異動移轉(CreateRelation_ProductHasFKToCategoryId) + 重建資料庫, 只有商品連類別[只連ID, 不連物件] (破關)
+  <= 問題剖析: 果真是連物件, 造成失敗, 因為商品物件內只有類別ID, 沒有類別物件, 導致新增失敗. =>
+    (註: 再把商品與類別間的模型關聯建起來, 只有商品連類別[只連ID, 不連物件], 類別未關聯回商品, 商品的Image欄位可為NULL)
+    dotnet ef migrations add CreateRelation_ProductHasFKToCategoryId
+    dotnet ef database update
 
   本日完工
 
-Day8-新增商品類別(Controller, View, DbContext | Category Model在前一天已新增) + 調整產品頁面(加入類別欄位)
+Day8-新增商品類別(Controller, View, DbContext | Category Model在前一天已新增) + 調整產品頁面(加入類別欄位) => (後台)
   # 新增商品類別(Controller, View, DbContext)
   # 調整產品頁面(加入類別欄位)
 
@@ -256,21 +371,19 @@ Day8-新增商品類別(Controller, View, DbContext | Category Model在前一天
       1.自動判斷StoreContext已存在. (註:只新增 public DbSet<MvcShopping.Models.Category>? Category { get; set; } )
       2.Controller, View也都新增成功.
 
+      沒有反應的原因.(ModelState.IsValid = false, 所以留在原畫面)
 
-    # 測試-新增類別資料 #
-
-  如果商品 & 類別同時新增, 再先後執行下列指令,(結果網站竟然正常, 而且還自動拉關聯, 太神奇了)
+  如果商品Model & 類別Model同時新增, 再先後執行下列 {scaffold} 指令 ?? 似乎又失效了...真奇怪 ??
+    => (結果網站竟然正常, 而且還自動拉關聯, 太神奇了) 
     dotnet aspnet-codegenerator controller -m Category -name CategoriesController  -dc StoreContext -outDir Controllers -sqlite -scripts -udl
     dotnet aspnet-codegenerator controller -m Product -name ProductsController  -dc StoreContext -outDir Controllers -sqlite -scripts -udl          
 
-  調整產品頁面(後端準備資料, 放入ViewBag. 前端再顯示)
-    
-    SelectList: 表示可讓使用者選取一個項目的清單(前端用)。
-    <select asp-for="CategoryId" class ="form-control" asp-items="ViewBag.CategoryId"></select>
+  調整產品頁面(後端準備資料, 放入ViewBag/ViewData, 前端再顯示)
 
     # 注意: 後端會準備 "ViewBag.CategoryId" 給前端顯示用 #
-    # 註: 如果你想把 {ID-Name} 一起在前端顯示的話, 可以在Model內對屬性動手腳, 再去Controller將屬性放入ViewBag內.
+    # 註: 如果你想把 {ID-Name} 一起在前端顯示的話, 可以在Model內對屬性動手腳, 再去Controller將屬性放入ViewBag內, 最後送至前端.
 
+      //Model: 商品類別
       public class Category
       {
         public string Id_Name //前端顯示用(Id-Name)
@@ -279,6 +392,7 @@ Day8-新增商品類別(Controller, View, DbContext | Category Model在前一天
         }
       }
 
+      //Controller: Products
       public class ProductsController : Controller
       {
         public IActionResult Create()
@@ -288,7 +402,107 @@ Day8-新增商品類別(Controller, View, DbContext | Category Model在前一天
         }
       }
 
+      SelectList: (前端用)表示可讓使用者選取一個項目的清單。
+      # 注意: asp-items="ViewBag.CategoryId", 裡面放的就是 ProductsController 準備好的資料.
+      
+      //View: Views/Products/Create.cshtml
+      <select asp-for="CategoryId" class ="form-control" asp-items="ViewBag.CategoryId"></select>
+
   本日完工
+
+Day9-圖片上傳與預覽(後台)
+
+  # 可同時服用 {在 ASP.NET Core 中上傳檔案}, 裡面有詳細解說與作法.
+    https://learn.microsoft.com/zh-tw/aspnet/core/mvc/models/file-uploads?view=aspnetcore-7.0
+
+  #網站呈現圖片的兩種方式
+    (1)圖片存放在磁碟/網路空間, 資料庫只存放檔案路徑.
+    (2)圖片以二進位型態(BLOB), 直接放入資料庫. => 本次實作方式 <=
+
+  # asp-for(輸入標籤協助程式) <input asp-for="<Expression Name>">
+    (1)會為 asp-for 屬性中指定的運算式名稱產生 id 和 name HTML 屬性
+    (2)已指定 HTML type 屬性值時不會予以覆寫. ex. Bool => type="checkbox"
+    (3)它會與Model作強型別檢查.
+
+  # 圖片上傳(終於破關, 因為ModelState is false, 問題出在 IFormFile 值為NULL)
+    (1)前端要作兩件事
+      a. 以 <input type="file" id="myImage" name="myImage" class="form-control" /> 作為圖片檔案上傳的欄位
+        * id & name 名稱要和後端 IFormFile 的參數名稱相同.
+        * asp-for="Image" 會快速長出 id="Image" name="Image", 而且也會跟 Model屬性對應.
+          
+          <label asp-for="Image" class="control-label"></label>
+          <input type="file" id="myImage" name="myImage" class="form-control" /> @* 正確寫法: 因為id跟後端Action有對應, 檢查成功 *@
+          @* <input type="file" asp-for="myImage" class="form-control" />  錯誤寫法: 因為Product Model裡面沒有 myImage 屬性, 對應失敗 *@
+          @* <input type="file" asp-for="Image" class="form-control" /> 錯誤寫法, 因為id跟後端Action沒有對應, 會檢查失敗 *@
+      
+      b. 如果是用表單<form>的話, 
+         enctype="multipart/form-data" 一定要加上去, 不然後端接不到, 新增失敗. (註: 找了好久問題出在哪, 快瘋掉..)
+        * 修改前 <form asp-action="Create" >
+        * 修改後 <form asp-action="Create" enctype="multipart/form-data">
+
+    (2)後端用 參數型態{IFormFile} 參數名稱{myimg} 來接收欄位的檔案，
+      ( 用 MemoryStream.ToArray() 把檔案轉成位元組陣列, 塞入資料庫的 BLOB 欄位中.)
+
+      public async Task<IActionResult> Create([Bind("Id,CategoryId,Name,Description,Content,Price,Stock")] Product product, IFormFile Image)
+      {
+        if (ModelState.IsValid)
+        {
+            if (Image != null)
+            {
+              using (var ms = new MemoryStream())
+              {
+                  Image.CopyTo(ms);
+                  product.Image = ms.ToArray();
+              }
+            }  
+            
+          ..略...
+        }
+        ViewData["Categories"] = new SelectList(_context.Set<Category>(), "Id", "Name", product.CategoryId);
+        return View(product);
+      }
+
+  # 圖片顯示(終於破關, 前端抓到Model值, SQLite BLOB欄位存的即是 Base64, 
+    只要再加上前面 "data:image/png;base64," + Base64_Value, 指派給 img src 屬性, 它就會顯示出來)
+
+    參考資料("data:image/png;base64,"): https://www.geeksforgeeks.org/how-to-display-base64-images-in-html/
+    參考資料(可能之後會用到): https://ithelp.ithome.com.tw/articles/10212341
+
+    實作功能：新增畫面, 預覽上傳圖片
+    程式碼：Views\Products\Create.cshtml
+    實作方式：
+      (1)[VIP] MVC View中, JavaScript 及呼叫JQuery的正確位置. 在View的最下方, 再用<script>包起來
+          @section Scripts {
+              @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+              <script>
+                  $(document).ready(function() {
+                      alert("Test");
+                  });
+
+                  $('#myImage').on('change', function (e) {
+                      const file = this.files[0];
+                      const objectURL = URL.createObjectURL(file);    // 使用 createObjectURL 產生圖片url
+                      $('#preview').attr('src', objectURL);
+                  });
+
+              </script>
+          }
+      (2)放個預覽顯示用的 Image 物件
+      (3)前端利用JS在 File 物件, 綁上 onChange 事件
+      (4)檔案上傳後, Image 物件就會顯示圖片.
+
+    實作功能：檢視畫面, 下載圖片
+    程式碼：Views\Products\Details.cshtml
+    實作方式：
+      (1)把圖片陣列轉為Base64字串, 先藏在Hidden內, 再傳至前端.
+      (2)前端利用JS抓出 Hidden 物件, 在 Hidden值前面加上 "data:image/png;base64,". (註: 不然Image會不認識)
+      (3)前端利用JS抓出 Image 物件, 把上個步驟組好的值, 塞給 img 的 src 屬性, 圖片即可正常顯示.
+
+  本日完工(終於破關)
+
+Day10-登入功能
+  
 
 /*==從實作學習ASP.NET Core - 30天的購物網站系列 <.NET 6> [2023/04/05 ~ 未完成]==*/ 
   第1次沒有作完, 就去台半上班了. 2023/05/09從台半離職後, 再來把它作完
