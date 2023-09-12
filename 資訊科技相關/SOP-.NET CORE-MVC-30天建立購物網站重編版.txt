@@ -4,6 +4,7 @@
 專案路徑：C:\Projects\Projects_ASP.NET_Core\MvcShopping
 Day1-Create the WebSite(建立網站雛形)
 
+  cd C:\Projects\Projects_ASP.NET_Core
   dotnet new mvc -o MvcShopping # 新增MVC架構網站
   dotnet build  # 編譯測試
 
@@ -112,8 +113,8 @@ Day5-Mvc Model(模型-詳細說明)
         # <程式碼自動產生> 套件 加入專案內 #
           dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version 6.0.10
         # <資料庫結構(Schema)自動產生> 套件 加入專案內 #
-          dotnet add package Microsoft.EntityFrameworkCore.Design
-          dotnet add package Microsoft.EntityFrameworkCore.SQLite
+          dotnet add package Microsoft.EntityFrameworkCore.Design --version 6.0.10
+          dotnet add package Microsoft.EntityFrameworkCore.SQLite --version 6.0.10
           dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 6.0.10
           dotnet add package Microsoft.EntityFrameworkCore.Tools --version 6.0.10
   
@@ -159,7 +160,7 @@ Day5-Mvc Model(模型-詳細說明)
               
               public byte[] Image { get; set; }           //商品圖片
               public int CategoryId { get; set; }         //類別 (Foreign Key)
-              public Category Category { get; set; }
+              //public Category Category { get; set; }
             }
 
           Category資料表(新增資料表 + 與Product建立關聯) => 程式路徑: Models\Category.cs
@@ -173,7 +174,8 @@ Day5-Mvc Model(模型-詳細說明)
             {
               public int Id { get; set; }
               public string? Name { get; set; }            //類別名稱
-              public List<Product> Products { get; set; } 
+              
+              //public List<Product> Products { get; set; } 
             }
       
       (2) 用 <Scaffold> 工具, 建立商品 CRUD 頁面及相關程式碼
@@ -202,7 +204,7 @@ Day5-Mvc Model(模型-詳細說明)
             dotnet ef migrations add InitialCreate (註: 依照慣例, 第1次移轉的取名為 InitialCreate; 之後可以改為 add Column_Desc..)
             dotnet ef database update (註: 使用最近1次移轉, 執行移轉內的 Up 方法, 來新增資料庫.)
 
-            dotnet ef migrations add AddTable_Category
+            dotnet ef migrations add AddTable_Category (再加入類別資料表)
             dotnet ef database update
 
             dotnet ef migrations remove (註: 移除上一個移轉)
@@ -219,7 +221,7 @@ Day5-Mvc Model(模型-詳細說明)
             dotnet ef database update
 
           dotnet tool uninstall --global dotnet-ef #已安裝不要再移除了#
-          dotnet tool install --global dotnet-ef --version 7.0.10
+		  dotnet tool install --global dotnet-ef --version 6.0.10  # 版本要跟SDK一致, 不然會出現奇怪的 #
 
           成功產生 Stores-Development.db, 
           # (appsettings.Development.json 內, "ConnectionStrings"值是我後來加上去的
@@ -336,7 +338,7 @@ Day7-複雜的商品模型(後台)
 
     (OK)資料庫新增
     網站功能測試: 
-      問題: 商品新增(Error) => 因為後端有新增欄位(Category), 但前端沒有給它, 所以會新增失敗.
+      問題: 商品新增(Error) => 因為後端有新增欄位(CategoryId), 但前端沒有給它, 所以會新增失敗.
       類別新增(OK)
 
       問題: 商品新增(Error) => 因為後端有新增欄位(Category), 但前端沒有給它, 所以會新增失敗.
@@ -353,7 +355,7 @@ Day7-複雜的商品模型(後台)
             public async Task<IActionResult> Create([Bind("Id,Name,Description,Content,Price,Stock,CategoryId")] Product product)
 
   新增異動移轉(CreateRelation_ProductHasFKToCategoryId) + 重建資料庫, 只有商品連類別[只連ID, 不連物件] (破關)
-  <= 問題剖析: 果真是連物件, 造成失敗, 因為商品物件內只有類別ID, 沒有類別物件, 導致新增失敗. =>
+    <= 問題剖析: 果真是連物件, 造成失敗, 因為商品物件內只有類別ID, 沒有類別物件, 導致新增失敗. =>
     (註: 再把商品與類別間的模型關聯建起來, 只有商品連類別[只連ID, 不連物件], 類別未關聯回商品, 商品的Image欄位可為NULL)
     dotnet ef migrations add CreateRelation_ProductHasFKToCategoryId
     dotnet ef database update
@@ -422,7 +424,7 @@ Day9-圖片上傳與預覽(後台)
   # asp-for(輸入標籤協助程式) <input asp-for="<Expression Name>">
     (1)會為 asp-for 屬性中指定的運算式名稱產生 id 和 name HTML 屬性
     (2)已指定 HTML type 屬性值時不會予以覆寫. ex. Bool => type="checkbox"
-    (3)它會與Model作強型別檢查.
+    (3)它會與Model作強型別檢查, 所以 asp-for ="xxx", 如果XXX非Model屬性會掛掉.
 
   # 圖片上傳(終於破關, 因為ModelState is false, 問題出在 IFormFile 值為NULL)
     (1)前端要作兩件事
@@ -489,20 +491,98 @@ Day9-圖片上傳與預覽(後台)
               </script>
           }
       (2)放個預覽顯示用的 Image 物件
+          <img id="preview" style="max-height:200px;" />
       (3)前端利用JS在 File 物件, 綁上 onChange 事件
+
       (4)檔案上傳後, Image 物件就會顯示圖片.
 
     實作功能：檢視畫面, 下載圖片
     程式碼：Views\Products\Details.cshtml
     實作方式：
-      (1)把圖片陣列轉為Base64字串, 先藏在Hidden內, 再傳至前端.
-      (2)前端利用JS抓出 Hidden 物件, 在 Hidden值前面加上 "data:image/png;base64,". (註: 不然Image會不認識)
+      (0)前端放個Image 物件
+        <img id='myImage' src='' alt="NotFound" height="100"/>
+
+      (1)後端把圖片陣列轉為Base64字串(可轉可不轉), 先藏在Hidden內, 再傳至前端.
+
+        @Html.Hidden("imageId", @Model.Image) # 自動轉型, 圖片顯示成功# 
+        @Html.Hidden("imageId", Convert.ToBase64String(@Model.Image)) # 手動轉型, 圖片顯示成功# 
+        @Html.Hidden("imageId", @System.Text.Encoding.UTF8.GetString(@Model.Image)) # UTF8不吃, 圖片Show不出來# 
+
+      (2)前端利用JS抓出 Hidden 物件, 在 Hidden值前面加上 "data:image/png;base64," . 
+        (註: 關鍵步驟 => 不然 img 會無法顯示, 因為它不認識這一串是什麼??)
+
       (3)前端利用JS抓出 Image 物件, 把上個步驟組好的值, 塞給 img 的 src 屬性, 圖片即可正常顯示.
+
+        @{
+          <script type="text/javascript">
+            const elem = document.getElementById("imageId"); //我是hidden Object
+            const img = document.getElementById("myImage"); //我是image Object
+
+            const imageValue = "data:image/png;base64," + elem.value;
+            img.src = imageValue;
+          </script>
+        }
 
   本日完工(終於破關)
 
-Day10-登入功能
+Day14-登入功能
   
+  參考來源(總論-ASP.NET Core 簡介 Identity)：https://learn.microsoft.com/zh-tw/aspnet/core/security/authentication/identity?view=aspnetcore-7.0&tabs=netcore-cli
+
+  參考來源(ASP.NET Core 專案中的 Scaffold Identity)：https://learn.microsoft.com/zh-tw/aspnet/core/security/authentication/scaffold-identity?view=aspnetcore-7.0&source=recommendations&tabs=visual-studio
+  想要的一篇教學, 在現有ASP.NET Core 專案中, 加入Identity功能(2023-09-11)
+
+  # 安裝 Identity 套件至專案中 # (OK)
+    dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore -v 6.0.10
+    dotnet add package Microsoft.AspNetCore.Identity.UI -v 6.0.10
+    
+  # 列出 Identity Scaffolder 選項(可加註的參數)
+    dotnet aspnet-codegenerator identity -h
+
+  # 執行 Identity Scaffolder 
+    (1)使用預設 UI 和最小檔案數目來設定身分識別
+    (2)不指定 --files 旗標或 --useDefaultUI 旗標，則會在專案中建立所有可用的 Identity UI 頁面
+    (3)列出幾種指令範例
+    
+    (註1: Identity 相關檔案會放在 Area\Identity 路徑內)
+    (註2: Identity 服務同樣要到 Program.cs 註冊, 就跟 Database服務註冊 一樣)
+    (註3: Area\Identity 資料夾產生後, 不要亂刪, 會編譯不過, 很煩....)
+
+    dotnet aspnet-codegenerator identity --useDefaultUI -sqlite 
+
+	
+    dotnet aspnet-codegenerator identity -dc MvcShopping.Data.IdentityDbContext -sqlite
+    dotnet aspnet-codegenerator identity -dc MyApplication.Data.ApplicationDbContext --files "Account.Register;Account.Login;Account.Logout"
+    dotnet aspnet-codegenerator identity -dc MyApplication.Data.ApplicationDbContext --files "Account.Register;Account.Login"
+
+  # 註冊 Identity 服務 @Program.cs
+    (1)新增 MapRazorPages 至 Program.cs
+
+      app.MapControllerRoute(
+          name: "default",
+          pattern: "{controller=Home}/{action=Index}/{id?}");
+      app.MapRazorPages(); //手動新增
+
+  # 新增 Identity 所需的 Migrations & DataTable
+    dotnet ef migrations add CreateIdentitySchema --context IdentityDbContext
+    dotnet ef database update
+
+  # (Option)將登入部分（_LoginPartial） 新增至 Views/Shared/_Layout.cshtml 檔案(如此一來, 每頁都會有登入功能)
+    <ul class="navbar-nav flex-grow-1">
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+        </li>
+    </ul>
+    <partial name="_LoginPartial" /> <!--新增程式碼在這-->
+
+  # 確認 Identity 所需的 Migrations 已產生 & 套用
+    dotnet ef migrations list
+
+  # (Option)如何停用頁面 (任何頁面均可)
+    參考來源：https://learn.microsoft.com/zh-tw/aspnet/core/security/authentication/scaffold-identity?view=aspnetcore-7.0&source=recommendations&tabs=netcore-cli#disable-a-page
 
 /*==從實作學習ASP.NET Core - 30天的購物網站系列 <.NET 6> [2023/04/05 ~ 未完成]==*/ 
   第1次沒有作完, 就去台半上班了. 2023/05/09從台半離職後, 再來把它作完

@@ -1,0 +1,105 @@
+Introduction to Identity on ASP.NET Core
+
+https://learn.microsoft.com/zh-tw/aspnet/core/security/authentication/scaffold-identity?view=aspnetcore-7.0&tabs=netcore-cli#scaffold-identity-into-an-mvc-project-without-existing-authorization
+
+cd C:\Projects\Projects_ASP.NET_Core
+dotnet new mvc -o Mvc_Identity
+
+=安裝Entity Framework Core 工具=
+	dotnet tool uninstall --global dotnet-ef #移除了#
+	dotnet tool install --global dotnet-ef --version 6.0.10  # 版本務必要跟SDK一致, 不然會出現奇怪的問題, 快被搞瘋了.. #
+
+=專案加入必要套件=
+	dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version 6.0.10
+	dotnet add package Microsoft.EntityFrameworkCore.Design --version 6.0.10
+	dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore --version 6.0.10
+	dotnet add package Microsoft.AspNetCore.Identity.UI --version 6.0.10
+	dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 6.0.10
+	dotnet add package Microsoft.EntityFrameworkCore.SQLite --version 6.0.10
+	dotnet add package Microsoft.EntityFrameworkCore.Tools --version 6.0.10
+
+//忘記加上 -sqlite, 結果生成for SqlServer dbcontext(不要用這個寫法)
+dotnet aspnet-codegenerator identity --useDefaultUI  
+dotnet run //結果竟然網站可以執行??
+
+//這個寫法(OK), 可以跑起來....
+dotnet aspnet-codegenerator identity -dc Mvc_Identity.Data.IdentityDbContext -sqlite -u User --files "Account.Register;Account.Login;Account.Logout" 
+
+//選擇性：將登入部分 （ _LoginPartial ） 新增至 Views/Shared/_Layout.cshtml 檔案
+	<partial name="_LoginPartial" />
+	dotnet run //可以執行, 共用頁面有顯示 註冊及登入 按鈕, 但是無法切換至註冊或登入網頁.
+
+新增 MapRazorPages 至 Program.cs
+	app.MapControllerRoute(
+		name: "default",
+		pattern: "{controller=Home}/{action=Index}/{id?}");
+	app.MapRazorPages(); //加上這行
+	dotnet run //結果可以執行, 成功切換至註冊或登入網頁
+	
+	但是執行會掛掉, 因為DB還沒有生出來...
+	
+產生Identity用DB(終於產生成功, 問題出在 dotnet-ef 版本必須要跟 .NET_Core SDK 一致.)
+	dotnet tool install --global dotnet-ef --version 6.0.10  # 版本要跟SDK一致, 不然會出現奇怪的問題, 快搞瘋了.. #
+
+	# 只有一個dbContext, 不用指定 #
+		dotnet ef migrations add CreateIdentitySchema 
+		dotnet ef database update
+
+新增Product Model, 再先利用 sccffold工具, 產出 controller & view
+	dotnet aspnet-codegenerator controller -m Product -name ProductsController  -dc StoreContext -outDir Controllers -sqlite -scripts -udl
+	
+	# 超過一個dbContext,  必須要指定 --context #
+		dotnet ef migrations add Create_Product_Schema --context StoreContext 
+		dotnet ef database update --context StoreContext
+	
+	# 超過一個dbContext, 若未指定要移轉哪個, 會出現下列異常 #
+	More than one DbContext was found. Specify which one to use. 
+	Use the '-Context' parameter for PowerShell commands and the '--context' parameter for dotnet commands.
+
+* [Authorize] 屬性套用至控制器、動作或 Razor 頁面，會限制對該元件的存取權給已驗證的使用者。
+
+	# 使用前, 要 using Microsoft.AspNetCore.Authorization;
+
+	# 限制對已驗證使用者的存取 AccountController
+		[Authorize]
+		public class AccountController : Controller
+		{
+			public ActionResult Login()
+			{
+			}
+
+			public ActionResult Logout()
+			{
+			}
+		}
+
+	# 限制對已驗證使用者的存取 至動作而非控制器
+		public class AccountController : Controller
+		{
+		   public ActionResult Login()
+		   {
+		   }
+
+		   [Authorize]
+		   public ActionResult Logout()
+		   {
+		   }
+		}
+	
+	#也可以使用 AllowAnonymous 屬性，允許未經驗證的使用者存取個別動作Login()
+		[Authorize]
+		public class AccountController : Controller
+		{
+			[AllowAnonymous]
+			public ActionResult Login()
+			{
+			}
+
+			public ActionResult Logout()
+			{
+			}
+		}
+	
+	#[AllowAnonymous] 略過授權語句。 
+		如果您合併 [AllowAnonymous] 和 [Authorize] 屬性，則會 [Authorize] 忽略屬性。
+		例如，如果您在控制器層級套用 [AllowAnonymous]
