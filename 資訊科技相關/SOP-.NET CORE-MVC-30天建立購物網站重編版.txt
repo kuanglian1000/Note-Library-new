@@ -1,6 +1,10 @@
 <從實作學習ASP.NET Core - 30天的購物網站>
 參考來源：https://ithelp.ithome.com.tw/articles/10258872
 
+# DOTNET偵錯用
+	C:\Projects\Projects_ASP.NET_Core\DOTNET偵錯用的檔\launch.json
+	它會被放在專案的 \.vscode 資料夾內.
+
 專案路徑：C:\Projects\Projects_ASP.NET_Core\MvcShopping
 Day1-Create the WebSite(建立網站雛形)
 
@@ -427,6 +431,10 @@ Day9-圖片上傳與預覽(後台)
     (3)它會與Model作強型別檢查, 所以 asp-for ="xxx", 如果XXX非Model屬性會掛掉.
 
   # 圖片上傳(終於破關, 因為ModelState is false, 問題出在 IFormFile 值為NULL)
+	問題: 圖片上傳失敗(Create.cshtml, 新增頁面)
+	解法: IFormFile 值為NULL, 前端沒有傳給後端, 導致新增失敗
+		* id & name 名稱要和後端 IFormFile 的參數名稱相同.
+  
     (1)前端要作兩件事
       a. 以 <input type="file" id="myImage" name="myImage" class="form-control" /> 作為圖片檔案上傳的欄位
         * id & name 名稱要和後端 IFormFile 的參數名稱相同.
@@ -525,13 +533,274 @@ Day9-圖片上傳與預覽(後台)
 
   本日完工(終於破關)
 
-Day14-登入功能
+Day10-文字編輯器 + CKEditor 5 (後台)
+	
+	# 官網 : https://ckeditor.com/ckeditor-5/
+	# 使用方式
+		(3)檢視畫面關閉"編輯功能", 怎麼做??
+			<script>    
+				ClassicEditor
+					.create( document.querySelector( '#editor' ) )
+					.then( editor => {
+						editor.isReadOnly = true; //檢視畫面(改唯讀)//
+					} )
+					.catch( error => {
+						console.error( error );
+					} );
+			</script>
+		
+		(2) CKEditor 5 Custom build (核心功能-加值功能[無])
+			連接網址: https://ckeditor.com/ckeditor-5/online-builder/
+			官方說明引用方式: https://ckeditor.com/docs/ckeditor5/latest/installation/integrations/dotnet.html
+			接著下載打包完的檔案，解壓縮並把資料夾丟到專案底下/wwwroot/assets/vendor
+			
+			(Create.cshtml)在前端引入檔案
+				<script src="~/lib/ckeditor5/build/ckeditor.js"></script>
+				<script src="assets/vendor/ckeditor5/build/ckeditor.js"></script>
+			
+			(Create.cshtml)在前端加入下面<textarea>作為編輯器的位置，並用下面的js渲染
+
+				<div class="form-group">
+					<label asp-for="Content" class="control-label"></label>
+					<textarea asp-for="Content" class="form-control" id="editor"></textarea>
+					<span asp-validation-for="Content" class="text-danger"></span>
+				</div>
+
+				<script>
+					ClassicEditor
+						.create( document.querySelector( '#editor' ), {	
+							toolbar: {
+									items: [
+										'heading','|','bold','italic','link','bulletedList','numberedList',
+										'|','alignment','outdent','indent','|','fontSize','fontColor',
+										'|','imageUpload','blockQuote','insertTable','mediaEmbed',
+										'undo','redo'
+									]
+								},
+								image: {
+									toolbar: [
+										'imageTextAlternative','imageStyle:inline',
+										'imageStyle:block','imageStyle:side'
+									]
+								},
+								table: {
+									contentToolbar: [
+										'tableColumn','tableRow','mergeTableCells'
+									]
+								},
+									licenseKey: '',
+								} )
+								.then( editor => {
+									window.editor = editor;
+								} )
+								.catch( error => {
+									console.error( 'Oops, something went wrong!' );
+									console.error( error );
+								} );
+				</script>
+		
+		(1) CKEditor 5 CDN (核心部分功能-加值功能[無])
+			官方有提供 CKEditor 5 CDN 來直接使用，有提供Classic、Inline、Balloon、Balloon-block、Document5種樣板可選擇，優點在於加載速度更快但是只有部分功能。
+			在 html 頁面上引用 CDN ，配合呼叫(JavaScript) ClassicEditor.create() 就可以呼叫 CKEditor
+			
+			=程式碼片段=
+			
+				<script src="https://cdn.ckeditor.com/ckeditor5/29.2.0/classic/ckeditor.js"></script>
+
+				<div class="form-group">
+					<label asp-for="Content" class="control-label"></label>
+					<textarea asp-for="Content" class="form-control" id="editor"></textarea>
+					<span asp-validation-for="Content" class="text-danger"></span>
+				</div>
+
+				<script>
+					ClassicEditor
+						.create( document.querySelector( '#editor' ) )
+						.catch( error => {
+							console.error( error );
+						} );
+				</script>
+	
+	本日完工(但是仍無法使用本機的 CKEditor Library, 先用 CDN 擋一擋)
+
+Day11-詳細資料與 ViewModel (後台)
+
+	參考程式碼:
+		(1)C:\Projects\Projects_ASP.NET_Core\MvcShopping\Views\Products\DetailsViewModel.cshtml
+		(2)C:\Projects\Projects_ASP.NET_Core\MvcShopping\Models\DetailViewModel.cs
+		(3)C:\Projects\Projects_ASP.NET_Core\MvcShopping\Controllers\ProductsController.cs
+	
+	# 控制器指定檢視的方式 #
+		(1) return View(); //預設傳至同Action的View
+		(2) return View("Orders"); //要傳回的明確檢視Orders
+		(3) return View(Orders); //指定要傳遞至檢視的模型, 而檢視則依預設規則
+		(4) return View("Orders", Orders); //指定檢視和模型
+		
+	# ViewModel 可以吃嗎??
+		(1) 原始設計 => MVC 一張 View 只能對應一個 Model 的概念
+		(2) ViewModel 破解 一張 View 只能對應一個 Model的方法。	
+			就是把需要用到的 Model +  跟資料再用一個更大 Model 包起來，就成了所謂的 ViewModel。
+		(3) ViewModel 只應該拿來顯示資料用，不要直接拿來對資料庫操作。
+	
+	# ViewModel or ViewBag or ViewData 如何挑選？
+		(1)ViewData ViewBag => 簡單顯示用
+		(2)ViewModel =>常用於前端畫面需要多個模型的時候使用。
+		(3)今天的例子主要是想要拿來示範，實際在操作的時候不見得需要用到 ViewModel。
+	
+	# Model DetailViewModel.cs
+		using System;
+		using System.Collections.Generic;
+
+		namespace MvcShopping.Models;
+
+		public class DetailViewModel
+		{
+		  public Product product {get;set;}
+		  public string imgSrc {get;set;}
+		}
+	
+	# Controller ProductController / DetailsVM Action
+		public async Task<IActionResult> DetailsVM(int? id)
+        {
+            if (id == null || _context.Product == null)
+            {
+                return NotFound();
+            }
+
+            var product = await _context.Product
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            DetailViewModel dvm = new DetailViewModel();
+            dvm.product = product;
+            if (product.Image != null)
+            {
+                dvm.imgSrc = ViewImage(product.Image);    
+            }
+            return View("DetailsViewModel", dvm); //注意: 指定丟給View"DetailsViewModel", Model=dvm;
+        }
+		
+	# Controller ProductController / ViewImage(byte[] image) Function (將圖片image array轉為base64用的函式)
+		
+		//BLOB 轉為 Image 可讀取顯示圖片的 Base64 字串
+        public string ViewImage(byte[] image)
+		{
+			string base64String = Convert.ToBase64String(image, 0, image.Length);
+			return "data: image/png; base64," + base64String;
+		}
+		
+	本日完工(2023-09-13)
+	
+Day12-實作功能：列表頁(Index.cshtml) => 依規則顯示不同內容 + 篩選資料 + 分頁(PaginatedList)
+
+	# 顯示: 庫存大於 0 的商品顯示在庫, 其餘顯示缺貨 + 利用 bootstrap 4 badge 
+	# 篩選資料: 修改 Index Action 接收前端的查詢字串
+	# 分頁(PaginatedList): 利用PaginatedList實作分頁功能
+	
+	# 顯示: 庫存大於 0 的商品顯示在庫, 其餘顯示缺貨 + 利用 bootstrap 4 badge 
+	
+		問題: 只更新庫存, 不更新圖片, 卻更新失敗(Edit.cshtml, 更新頁面)
+		解法(這個作法不行): IFormFile 型態改為可為NULL, 因為無法知道前端要不要更新圖片
+			public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Content,Price,Stock,Image,CategoryId")] Product product
+				, IFormFile? Image) //改在這裡( IFormFile? )
+		
+		已上傳的圖片不見了 !!!
+		
+		解法(破關): 抓取暫存在Hidden的Base64值, 轉為Array(), 再回傳至DB即可 => 開心 <=
+			(1) Hidden必須要寫 Form 裡面, 才會POST去Controller
+			(2) Hidden寫法 => @Html.Hidden("imageId", @Model.Image)
+			(3) Controller / Edit [HttpPost] Action 開一個同名參數來接, string? imageId (可為NULL值)
+			(4) Controller / Edit [HttpPost] Action 存檔前, 判斷是否上傳新圖片, 否則以舊圖片回存.
+
+					if (newImage != null) //表示有新圖片
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            newImage.CopyTo(ms);
+                            product.Image = ms.ToArray();
+                        }
+                    }
+                    else
+                    {
+                        //暫存舊圖片Array
+                        byte[] oldImageBytes = null;
+                        if (imageId != null)
+                        {
+                            oldImageBytes = Convert.FromBase64String(imageId);    
+                        }
+                        product.Image = oldImageBytes; //以舊圖片回存.
+                    }
+		
+	# 篩選資料: 修改 Index Action 接收前端的查詢字串
+
+		(1) 前端加上(查詢欄位)
+			<p>
+				<a asp-action="Create">Create New</a>
+			</p>
+			<form asp-action="Index" class="col-8" >
+				<div class="input-group mb-3">
+					<input type="text" class="form-control" name="searchString" placeholder="商品名稱" aria-label="商品名稱" aria-describedby="button-addon">
+					@* type必須用 "submit", 它才會傳送至後端事件 *@
+					<button class="btn btn-outline-secondary" type="submit" id="button-addon">查詢</button>
+					
+					@* type不能用 "button", 它無法誘發傳送至後端事件 *@
+					@* <button class="btn btn-outline-secondary" type="button" id="button-addon">查詢</button> *@			
+				</div>
+			</form>
+
+		(2) 後端抓取前端回傳(查詢欄位), 放入DB查詢條件中, 查詢後再回傳前端
+			
+			public async Task<IActionResult> Index(string searchString)
+			{
+				if (_context.Product == null)
+				{
+					return Problem("Entity set 'StoreContext.Product'  is null.");
+				}
+			
+				var products = from m in _context.Product select m;
+				if (!string.IsNullOrEmpty(searchString))
+				{
+					products = products.Where(s => s.Name!.Contains(searchString));
+				}
+				return View(await products.ToListAsync());
+			}
+	
+	# 分頁(PaginatedList): 利用PaginatedList實作分頁功能
+
+		問題: PaginatedList實作成功, 但是前端抓不到放在PaginatedList物件內的屬性
+		解法: 相關換頁參數用ViewData裝起來再傳給前端用
+			//設定分頁初始值
+			int pageSize = 5;
+			var obj = await PaginatedList<Product>.CreateAsync(products.AsNoTracking(), pageNumber ?? 1 , pageSize);
+			
+			//相關換頁參數用ViewData裝起來再傳給前端用, 放在 PaginatedList<Product> 的 Model裡會出錯(註: 因為前端抓不到)
+			ViewData["PageIndex"] = obj.PageIndex;
+			ViewData["TotalPages"] = obj.TotalPages;
+			ViewData["HasNextPage"] = obj.HasNextPage;
+			ViewData["HasPreviousPage"] = obj.HasPreviousPage;
+
+			return View(obj); 
+	
+	本日完工(2023-09-13~14)
+	
+Day13-實作功能：
+
+
+
+	本日完工(2023-09-14)
+	
+	
+Day14-登入功能(未完整, 請參考 # 自行實作(登入驗證小範例)步驟記錄-實作成功 # )
   
   參考來源(總論-ASP.NET Core 簡介 Identity)：https://learn.microsoft.com/zh-tw/aspnet/core/security/authentication/identity?view=aspnetcore-7.0&tabs=netcore-cli
-
   參考來源(ASP.NET Core 專案中的 Scaffold Identity)：https://learn.microsoft.com/zh-tw/aspnet/core/security/authentication/scaffold-identity?view=aspnetcore-7.0&source=recommendations&tabs=visual-studio
   想要的一篇教學, 在現有ASP.NET Core 專案中, 加入Identity功能(2023-09-11)
 
+  # 自行實作(登入驗證小範例)步驟記錄-實作成功 #
+	C:\Users\p10154383\Documents\個人資料夾\筆記-圖書館-new\資訊科技相關\SOP-.NET CORE_Introduction to Identity on ASP.NET Core(登入驗證小範例).txt
+  
   # 安裝 Identity 套件至專案中 # (OK)
     dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore -v 6.0.10
     dotnet add package Microsoft.AspNetCore.Identity.UI -v 6.0.10
@@ -550,7 +819,6 @@ Day14-登入功能
 
     dotnet aspnet-codegenerator identity --useDefaultUI -sqlite 
 
-	
     dotnet aspnet-codegenerator identity -dc MvcShopping.Data.IdentityDbContext -sqlite
     dotnet aspnet-codegenerator identity -dc MyApplication.Data.ApplicationDbContext --files "Account.Register;Account.Login;Account.Logout"
     dotnet aspnet-codegenerator identity -dc MyApplication.Data.ApplicationDbContext --files "Account.Register;Account.Login"
