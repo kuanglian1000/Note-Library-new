@@ -206,6 +206,7 @@ Day28:[演算法]-桶排序法Bucket Sort
       Array.from({length:num},(x) => x)
       //[undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined]
     
+      let num = 8
       Array.from({length:num},(x,i) => i)
       // [0,1,2,3,4,5,6,7]
 
@@ -294,31 +295,89 @@ Day24:[演算法]-希爾排序法Shell Sort
 
 Day23: [演算法]-插入排序法Insertion Sort 
   (1)插入排序法(Insertion Sort)，原理是逐一將原始資料加入已排序好資料中，
-    並逐一與已排序好的資料作比較，找到對的位置插入。
+    並逐一與已排序好的資料作比較(由後往前比較)，找到對的位置插入。
   (2)例如:已有2筆排序好資料，將第3筆資料與前面已排序好的2筆資料作比較，找到對的位置插入，
     接續從第4筆資料與前面已排序好的3筆資料作比較，找到對的位置插入，以此類推。
+
   (3)[注意]: 
-      a.若交換(插入)成功, 比較值要更新為新值.(插入排序跟氣泡排序其實很像..)
+      a.比較數列最左邊的索引會向右移動, 因為前端資料已排序完成, 就不再排序
+      b.若交換成功, 比較值位置要跟著前移.(插入排序跟氣泡排序其實很像..)
+
+  插入排序法(Insertion Sort)-實作內容
+    function Sort_Insertion(array){
+      for(let i = 1; i < array.length; i++) //預設第1筆資料已排序, 所以從第2筆資料開始往前作比較
+      {
+        let target = i; 
+        for(let j = i-1; j >= 0; j--){ //[易錯]: 倒著跑要遞減, 從已排序好的後1筆開始, 由後往前比較, 要插在哪裡
+          if(array[target] < array[j])
+          [array[target], array[j]] = [array[j], array[target]]
+          target = j; 
+        }
+      }
+      return array
+    }
+    function Sort_Bubble(array){
+      for(let i=0; i< array.length ; i++){ //決定次數
+        for(let j=0; j< array.length - i; j++){ //結束條件可以往前移(很容易錯)
+          if(array[j] < array[j+1]){ // [<] Desc; [>] Asec;
+            [array[j], array[j+1]] = [array[j+1],array[j]];
+          }
+        }
+      }
+      return array; //回傳排序結果
+    }
+  
       
-Day22: [演算法]-選擇排序法Selection Sort 
+Day22: [演算法]-選擇排序法(Selection Sort)[選擇最小值與之相比]
   (1)選擇排序法(Selection Sort)，原理是反覆從未排序數列中找出最小值，將它與最左邊的數做交換。
   (2)可以有兩種方式排序，一為由大到小排序時，將最小值放到末端;若由小到大排序時，則將最小值放到前端。
 
   (3)[注意]: 
-        最左邊的數會向右移動, 因為前端資料已排序完成, 就不再排序
+      a.比較數列最左邊的索引會向右移動, 因為前端資料已排序完成, 就不再排序
   
   (4)例如:未排序的數列中找到最小值的資料，和第1筆資料交換位置，
       再從剩下未排序的資料列中找到最小值的資料，和第2筆資料交換位置，以此類推。
 
-Day21: [演算法]-氣泡排序法(Bubble Sort)
+  選擇排序法(Selection Sort)-實作內容
+    function SelectionSort_Pratice(array){
+      for(let i = 0; i< array.length; i++){
+        let min = array[i]; //設定最小值 <= 預設第1筆 & 最左筆 是最小值
+        for(let j = i; j < array.length; j++){
+          if(array[j] < min){ //發現 i 的右側數列(未排序)中找到最小值
+            min = array[j]; 
+            [array[j], array[i]] = [array[i], array[j]];
+          }
+        }
+      }
+      return array;
+    }
+
+  //JS程式敘述結尾, 
+    可不加分號(編譯器會自動幫你加), 
+    可加分號(;) #JS語法小常識#
+    => 還是 選擇加分號(;) 比較保險, 不然問題會很難找....
+
+Day21: [演算法]-氣泡排序法(Bubble Sort)[兩兩相比, 隔壁換]
+  C:\Projects\Projects_NodeJS\DataStructure_Algorism\Algro_Bubblesort.js
+  
   氣泡排序法(Bubble Sort)又稱交換排序法，
   (1)原理是從第一筆資料開始，逐一比較相鄰兩筆資料，如果兩筆大小順序有誤則做交換，反之則不動，接者再進行下一筆資料比較，
   (2)所有資料比較完第1回合後，可以確保最後一筆資料是正確的位置。
   (3)再進行下一回合
-  (4)[注意]: 
-        比較結束索引可以往前1位, 因為最後一筆資料是正確的, 不用再比較了.
+  
+  (4)[注意]: 比較結束索引可以往前1位, 因為最後一筆資料是正確的, 不用再比較了.
 
-  C:\Projects\Projects_NodeJS\DataStructure_Algorism\Algro_Bubblesort.js
+  氣泡排序法(Bubble Sort)-實作內容
+    function Sort_Bubble(array){
+      for(let i=0; i< array.length ; i++){ //決定次數
+        for(let j=0; j< array.length - i; j++){ //結束條件可以往前移(很容易錯)
+          if(array[j] < array[j+1]){ // [<] Desc; [>] Asec;
+            [array[j], array[j+1]] = [array[j+1],array[j]];
+          }
+        }
+      }
+      return array; //回傳排序結果
+    }
 
 Day8: [資料結構]-佇列Queue-實作 
   C:\Projects\Projects_NodeJS\DataTypeQueue.js
@@ -326,8 +385,35 @@ Day8: [資料結構]-佇列Queue-實作
   佇列Queue建立的方法
     enqueue: 新增元素
     dequeue: 從(前端)移除元素
-    peek: 查看頂端(top)元素
+    peek: 查看頂端(top)元素[查看最前端]
     size: 查看此堆疊的元素量
+
+  佇列Queue-實作內容
+    class Queue{
+      constructor(){
+        this.list = [];
+      }
+
+      //加資料
+      enqueue(data){
+        this.list.push(data);
+      }
+
+      //刪資料(從最前端刪)
+      dequeue(){
+        this.list.shift();
+      }
+
+      //查詢佇列長度
+      size(){
+        this.length;
+      }
+
+      //查看佇列下個取出值
+      peek(){
+        this.list[0];
+      }
+    }
 
 Day7: [資料結構]-佇列Queue
   # 佇列(Queue)也是一種排列結構，佇列在新增與刪除資料必須在不同端進行，
@@ -342,13 +428,37 @@ Day7: [資料結構]-佇列Queue
     (2) 使用鏈結串列(Linked List)製作佇列
 
 Day6: [資料結構]-堆疊Stack-實作 
-  C:\Projects\Projects_NodeJS\DataTypeStack.js
+  C:\Projects\Projects_NodeJS\DataStructure_Algorism\DataTypeStack.js
 
   堆疊(Stack)建立的方法
     push: 新增元素
     pop: 從頂端移除元素
-    peek: 查看頂端(top)元素
+    peek: 查看頂端(top)元素[查看最末端]
     size: 查看此堆疊的元素量
+
+  堆疊Stack-實作內容:
+    class Stack{
+      constructor(){
+        this.list = []
+      }
+
+      push(data){
+        this.list.push(data);
+      }
+
+      pop(){
+        this.list.pop();
+      }
+
+      size(){
+        this.list.length;
+      }
+
+      peek(){
+        this.list[this.list.length-1]
+      }
+    }
+
 
 Day5: [資料結構]-堆疊Stack 
   # 堆疊(Stack)是一種排列結構，不過是由下往上堆放，任何動作都必須從最頂端(top)進行，因此有「後進先出」(Last In First Out)特性，縮寫為LIFO。
@@ -376,11 +486,18 @@ Day3: [資料結構]-鏈結串列Linked List
   定義: 由許多節點組成，每個節點包含資料欄與指標欄，指標欄會指向下一個資料所在的記憶體位置。
   優: (追加或刪除資料 => 快)，因為只需要更動指標的指向，
   缺: (讀取資料 => 慢)，因為必須從串列的頭開始尋找。
+  模擬: 可以想像一輛火車，透過掛勾將車廂一節一節地串起來，能夠依乘客需求多寡來使用掛勾更動車廂數量。
 
   類型: 
-    (0)單向鏈結串列Singly Linked List
+    (0)單向鏈結串列Singly Linked List: 在單向鏈結串列中，萬一某節點被破壞或遺失，整個串列將會沒作用
     (1)雙向鏈結串列Doubly Linked List
-    (2)環狀鏈結串列 Circular Linked List
+    (2)環狀鏈結串列 Circular Linked List: 如果把串列最後一個節點指向串列頭，這樣每個節點都可以是串列頭
+
+                  鏈結串列(Linked List) 與 陣列(Array) 的優缺點比較
+    (1)記憶體配置   不連續記憶體空間        連續記憶體空間
+    (2)取資料       慢                    快
+    (3)加資料       快                    慢
+    (4)刪資料       快                    慢
 
 Day2: [資料結構]-陣列(Array) 
   #連續記憶體空間 #固定記憶體空間 #存取快速 #異動耗時
@@ -399,7 +516,14 @@ Day2: [資料結構]-陣列(Array)
     而Array規定每一個資料都必須有相同的資料型別，它們在記憶體上的儲存位置會完全排在一起，因此Array的存取速度會比List快。
 
   JavaScript Code:
-    C:\Projects\Projects_NodeJS\DataTypeArray.js
+    C:\Projects\Projects_NodeJS\DataStructure_Algorism\DataTypeArray.js
+    let ary = [1,2,3,4,5] //這就是Array
+    let num = 8
+      Array.from({length:num},(x,i) => i)
+      // [0,1,2,3,4,5,6,7]
+
+      Array.from({length:num + 1},() => 0) //也能手動決定Array長度
+      // [0,0,0,0,0,0,0,0]
 
 Day1: 資料結構 + 演算法 概論
 
@@ -409,11 +533,11 @@ Day1: 資料結構 + 演算法 概論
   演算法
     演算法被定義為一個可以用來解決某一問題的方法或算法。
     Donald Ervin Knuth提出了演算法必須具備的五個特性:
-      輸入(Input):0個或是1以上的輸入。
-      輸出(Output):至少有一個輸出結果。
-      明確性(Definiteness):每個步驟或指令必須是明確的而不含糊的。
-      有限性(Finiteness):在有限的步驟後一定會結束，不會有無窮迴圈。
-      有效性(Effectiveness):每個步驟清楚具有可行性，能用紙筆來表達。
+      (1)輸入(Input):0個或是1以上的輸入。
+      (2)輸出(Output):至少有一個輸出結果。
+      (3)明確性(Definiteness):每個步驟或指令必須是明確的而不含糊的。
+      (4)有限性(Finiteness):在有限的步驟後一定會結束，不會有無窮迴圈。
+      (5)有效性(Effectiveness):每個步驟清楚具有可行性，能用紙筆來表達。
 
   複雜度
     複雜度可以用來衡量演算法的效率，又分為時間複雜度(Time Complexity)與空間複雜度(Space Complexity)，通常會用Big O來表示。
