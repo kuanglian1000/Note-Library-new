@@ -113,6 +113,8 @@ Day5-Mvc Model(模型-詳細說明)
   服用 " <命令列環境>下使用 <dotnet aspnet-codegenerator> 工具的前置作業 "
 
     (1) <dotnet aspnet-codegenerator> & <dotnet-ef> 兩種工具已安裝
+		# 版本要注意啊...一定要和.NET SDK相同
+		# 目前是.NET 6.0.10
     (2) 安裝套件至專案中
         # <程式碼自動產生> 套件 加入專案內 #
           dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version 6.0.10
@@ -205,8 +207,12 @@ Day5-Mvc Model(模型-詳細說明)
           * Delete the Migrations folder. 
           
             dotnet ef database drop --force
-            dotnet ef migrations add InitialCreate (註: 依照慣例, 第1次移轉的取名為 InitialCreate; 之後可以改為 add Column_Desc..)
-            dotnet ef database update (註: 使用最近1次移轉, 執行移轉內的 Up 方法, 來新增資料庫.)
+            dotnet ef migrations add InitialCreate --context StoreContext 
+			      dotnet ef database update
+			(註1: 依照慣例, 第1次移轉的取名為 InitialCreate; 之後可以改為 add Column_Desc..)
+			(註2: 超過1個 DbContext時, 必須指定 要移轉哪一個)
+			(註3: 使用最近1次移轉, 執行移轉內的 Up 方法, 來新增資料庫.)
+            (註4: 因為 IdentityDbContext [驗證專用] 已產生, 超過1個 DBContext, 所以都要指定 --context <DbContextName>)
 
             dotnet ef migrations add AddTable_Category (再加入類別資料表)
             dotnet ef database update
@@ -225,7 +231,7 @@ Day5-Mvc Model(模型-詳細說明)
             dotnet ef database update
 
           dotnet tool uninstall --global dotnet-ef #已安裝不要再移除了#
-		  dotnet tool install --global dotnet-ef --version 6.0.10  # 版本要跟SDK一致, 不然會出現奇怪的 #
+		      dotnet tool install --global dotnet-ef --version 6.0.10  # 版本要跟SDK一致, 不然會出現奇怪的 #
 
           成功產生 Stores-Development.db, 
           # (appsettings.Development.json 內, "ConnectionStrings"值是我後來加上去的
@@ -431,16 +437,16 @@ Day9-圖片上傳與預覽(後台)
     (3)它會與Model作強型別檢查, 所以 asp-for ="xxx", 如果XXX非Model屬性會掛掉.
 
   # 圖片上傳(終於破關, 因為ModelState is false, 問題出在 IFormFile 值為NULL)
-	問題: 圖片上傳失敗(Create.cshtml, 新增頁面)
-	解法: IFormFile 值為NULL, 前端沒有傳給後端, 導致新增失敗
-		* id & name 名稱要和後端 IFormFile 的參數名稱相同.
-  
+	問題: 圖片上傳失敗(Create.cshtml, 新增頁面)，IFormFile 值為NULL, 前端沒有傳給後端, 導致新增失敗
+	關鍵點： 
+		(1) View 中 input type = file的控制項 id or name 名稱必須和Controller 中 IFormFile 的參數名稱相同.
+		(2) View 中的 form 必須加上 enctype="multipart/form-data", method = "post" 則非必須
+		
     (1)前端要作兩件事
       a. 以 <input type="file" id="myImage" name="myImage" class="form-control" /> 作為圖片檔案上傳的欄位
-        * id & name 名稱要和後端 IFormFile 的參數名稱相同.
-        * asp-for="Image" 會快速長出 id="Image" name="Image", 而且也會跟 Model屬性對應.
-          
-          <label asp-for="Image" class="control-label"></label>
+        * (正確)：id & name 名稱要和後端 IFormFile 的參數名稱相同.
+		* (錯誤)：使用 asp-for
+        
           <input type="file" id="myImage" name="myImage" class="form-control" /> @* 正確寫法: 因為id跟後端Action有對應, 檢查成功 *@
           @* <input type="file" asp-for="myImage" class="form-control" />  錯誤寫法: 因為Product Model裡面沒有 myImage 屬性, 對應失敗 *@
           @* <input type="file" asp-for="Image" class="form-control" /> 錯誤寫法, 因為id跟後端Action沒有對應, 會檢查失敗 *@
@@ -534,21 +540,51 @@ Day9-圖片上傳與預覽(後台)
   本日完工(終於破關)
 
 Day10-文字編輯器 + CKEditor 5 (後台)
-	
+  
+  參考程式碼:
+    (1-唯讀)C:\Projects\Projects_ASP.NET_Core\MvcShopping\Views\Products\Details.cshtml
+    (2-編輯)C:\Projects\Projects_ASP.NET_Core\MvcShopping\Views\Products\Create.cshtml
+
 	# 官網 : https://ckeditor.com/ckeditor-5/
 	# 使用方式
-		(3)檢視畫面關閉"編輯功能", 怎麼做??
-			<script>    
-				ClassicEditor
-					.create( document.querySelector( '#editor' ) )
-					.then( editor => {
-						editor.isReadOnly = true; //檢視畫面(改唯讀)//
-					} )
-					.catch( error => {
-						console.error( error );
-					} );
-			</script>
-		
+		(3)檢視畫面關閉"編輯功能"(ReadOnly), 怎麼做??
+      a.前端加上編輯區
+        <dd class = "col-sm-10">
+            @* @Html.DisplayFor(model => model.Content) *@
+            
+            @* 顯示但無法修改 *@
+            <div id="editor" class="form-control">
+                @Model.Content
+            </div>
+        </dd>
+
+      b.引用CKEditor5的Library(路徑很重要)
+
+        @*引用方式一: 利用CDN方式 使用CKEditor5 *@
+        @* <script src="https://cdn.ckeditor.com/ckeditor5/29.2.0/classic/ckeditor.js"></script> *@
+
+        @*引用方式二: 自行下載JS, src路徑一定要寫對!!*@
+        真實路徑: wwwroot\assets\ckeditor5\ckeditor.js
+        <script src="~/assets/ckeditor5/ckeditor.js"></script>
+    
+      c.在@section Scripts {}區塊內加入唯讀設定
+
+        @* editor.isReadOnly; // isReadOnly是 唯讀值, 無法設定.
+          editor.enableReadOnlyMode( 'my-feature-id' ); 
+          //'my-feature-id'就是control的id, 前面不用再加上#
+          //'#my-feature-id' 會找不到... *@
+        <script>    
+            ClassicEditor
+                .create( document.querySelector( '#editor' ) )
+                .then( 
+                    //
+                    editor => { editor.enableReadOnlyMode("editor"); }
+                )
+                .catch( error => {
+                    console.error( error );
+                } );
+        </script>
+
 		(2) CKEditor 5 Custom build (核心功能-加值功能[無])
 			連接網址: https://ckeditor.com/ckeditor-5/online-builder/
 			官方說明引用方式: https://ckeditor.com/docs/ckeditor5/latest/installation/integrations/dotnet.html
@@ -621,8 +657,8 @@ Day10-文字編輯器 + CKEditor 5 (後台)
 						} );
 				</script>
 	
-	本日完工(但是仍無法使用本機的 CKEditor Library, 先用 CDN 擋一擋)
-
+	本日完工(2023-09-22 把唯讀功能全破, 可用本機 CKEditor Library, 先用 CDN 擋一擋)
+  
 Day11-詳細資料與 ViewModel (後台)
 
 	參考程式碼:
@@ -701,12 +737,12 @@ Day12-實作功能：列表頁(Index.cshtml) => 依規則顯示不同內容 + �
 	
 	# 顯示: 庫存大於 0 的商品顯示在庫, 其餘顯示缺貨 + 利用 bootstrap 4 badge 
 	
-		問題: 只更新庫存, 不更新圖片, 卻更新失敗(Edit.cshtml, 更新頁面)
+	#	問題: 只更新庫存, 不更新圖片, 卻更新失敗(Edit.cshtml, 更新頁面)
 		解法(這個作法不行): IFormFile 型態改為可為NULL, 因為無法知道前端要不要更新圖片
 			public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Content,Price,Stock,Image,CategoryId")] Product product
 				, IFormFile? Image) //改在這裡( IFormFile? )
 		
-		已上傳的圖片不見了 !!!
+		問題: 更新時, 已上傳的圖片卻不見了 !!! (什麼....)
 		
 		解法(破關): 抓取暫存在Hidden的Base64值, 轉為Array(), 再回傳至DB即可 => 開心 <=
 			(1) Hidden必須要寫 Form 裡面, 才會POST去Controller
@@ -714,24 +750,24 @@ Day12-實作功能：列表頁(Index.cshtml) => 依規則顯示不同內容 + �
 			(3) Controller / Edit [HttpPost] Action 開一個同名參數來接, string? imageId (可為NULL值)
 			(4) Controller / Edit [HttpPost] Action 存檔前, 判斷是否上傳新圖片, 否則以舊圖片回存.
 
-					if (newImage != null) //表示有新圖片
-                    {
-                        using (var ms = new MemoryStream())
-                        {
-                            newImage.CopyTo(ms);
-                            product.Image = ms.ToArray();
-                        }
-                    }
-                    else
-                    {
-                        //暫存舊圖片Array
-                        byte[] oldImageBytes = null;
-                        if (imageId != null)
-                        {
-                            oldImageBytes = Convert.FromBase64String(imageId);    
-                        }
-                        product.Image = oldImageBytes; //以舊圖片回存.
-                    }
+          if (newImage != null) //表示有新圖片
+          {
+              using (var ms = new MemoryStream())
+              {
+                  newImage.CopyTo(ms);
+                  product.Image = ms.ToArray();
+              }
+          }
+          else
+          {
+              //暫存舊圖片Array
+              byte[] oldImageBytes = null;
+              if (imageId != null)
+              {
+                  oldImageBytes = Convert.FromBase64String(imageId);    
+              }
+              product.Image = oldImageBytes; //以舊圖片回存.
+          }
 		
 	# 篩選資料: 修改 Index Action 接收前端的查詢字串
 
@@ -785,21 +821,34 @@ Day12-實作功能：列表頁(Index.cshtml) => 依規則顯示不同內容 + �
 	
 	本日完工(2023-09-13~14)
 	
-Day13-實作功能：
+Day13-實作功能：編輯和刪除頁面排版
 
+  # BootStrap的基本觀念派上用場
+      <div class="row">
+        <div class="col-md-12"> //拉到最寬-12格//
+          <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="row"> //自行分配比例 col-size-* , 同一個 row 的 * 加總上限就是12//
+                <div class = "col-sm-2"> 
+                    <label asp-for="Name" class="control-label"></label>
+                </div>
+                <div class = "col-sm-4">
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                ....
 
-
-	本日完工(2023-09-14)
+	本日完工(2023-09-14, 延到2023-09-23才完成, 因為之前在準備保發中心及台經院的面試..)
 	
-	
-Day14-登入功能(未完整, 請參考 # 自行實作(登入驗證小範例)步驟記錄-實作成功 # )
+Day14-登入功能(未完成, 請參考 # 自行實作(登入驗證小範例)步驟記錄-實作成功 # )
   
   參考來源(總論-ASP.NET Core 簡介 Identity)：https://learn.microsoft.com/zh-tw/aspnet/core/security/authentication/identity?view=aspnetcore-7.0&tabs=netcore-cli
   參考來源(ASP.NET Core 專案中的 Scaffold Identity)：https://learn.microsoft.com/zh-tw/aspnet/core/security/authentication/scaffold-identity?view=aspnetcore-7.0&source=recommendations&tabs=visual-studio
   想要的一篇教學, 在現有ASP.NET Core 專案中, 加入Identity功能(2023-09-11)
 
-  # 自行實作(登入驗證小範例)步驟記錄-實作成功 #
-	C:\Users\p10154383\Documents\個人資料夾\筆記-圖書館-new\資訊科技相關\SOP-.NET CORE_Introduction to Identity on ASP.NET Core(登入驗證小範例).txt
+  # 自行實作(登入驗證小範例)步驟記錄-實作成功 # (OK)
+	  C:\Users\p10154383\Documents\個人資料夾\筆記-圖書館-new\資訊科技相關\SOP-.NET CORE_Introduction to Identity on ASP.NET Core(登入驗證小範例).txt
   
   # 安裝 Identity 套件至專案中 # (OK)
     dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore -v 6.0.10
@@ -817,25 +866,26 @@ Day14-登入功能(未完整, 請參考 # 自行實作(登入驗證小範例)步
     (註2: Identity 服務同樣要到 Program.cs 註冊, 就跟 Database服務註冊 一樣)
     (註3: Area\Identity 資料夾產生後, 不要亂刪, 會編譯不過, 很煩....)
 
-    dotnet aspnet-codegenerator identity --useDefaultUI -sqlite 
-
     dotnet aspnet-codegenerator identity -dc MvcShopping.Data.IdentityDbContext -sqlite
-    dotnet aspnet-codegenerator identity -dc MyApplication.Data.ApplicationDbContext --files "Account.Register;Account.Login;Account.Logout"
-    dotnet aspnet-codegenerator identity -dc MyApplication.Data.ApplicationDbContext --files "Account.Register;Account.Login"
 
-  # 註冊 Identity 服務 @Program.cs
-    (1)新增 MapRazorPages 至 Program.cs
+    dotnet aspnet-codegenerator identity -dc MvcShopping.Data.IdentityDbContext -sqlite --files "Account.Register;Account.Login;Account.Logout" 
+		
+    //產生的程式碼及頁面, 都放在 \\Area\Identity 資料夾內.
+    //Program.cs 自動註冊下列服務
+      builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
+        .AddEntityFrameworkStores<IdentityDbContext>();
 
-      app.MapControllerRoute(
-          name: "default",
-          pattern: "{controller=Home}/{action=Index}/{id?}");
-      app.MapRazorPages(); //手動新增
+      app.UseAuthentication(); //Identity 自動新增程式碼
 
-  # 新增 Identity 所需的 Migrations & DataTable
+    //Problem.cs 要加上下列這一行, 不然會找不到 User類別, 因為User.cs放在 namespace MvcShopping.Areas.Identity.Data下;
+      using MvcShopping.Areas.Identity.Data;
+
+# 新增 Identity 所需的 Migrations & DataTable 
+  # 如果DbContext超過1個, 產生移轉時, 必須要指定
     dotnet ef migrations add CreateIdentitySchema --context IdentityDbContext
     dotnet ef database update
-
-  # (Option)將登入部分（_LoginPartial） 新增至 Views/Shared/_Layout.cshtml 檔案(如此一來, 每頁都會有登入功能)
+	  
+  # (Option)將登入部分（_LoginPartial） 新增至 Views/Shared/_Layout.cshtml 檔案
     <ul class="navbar-nav flex-grow-1">
         <li class="nav-item">
             <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
@@ -844,8 +894,22 @@ Day14-登入功能(未完整, 請參考 # 自行實作(登入驗證小範例)步
             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
         </li>
     </ul>
-    <partial name="_LoginPartial" /> <!--新增程式碼在這-->
+    <partial name="_LoginPartial" /> <!--新增程式碼在這(如此一來, 每頁都會有登入功能)-->
 
+  # 註冊 Identity 服務 @Program.cs
+    (1)新增 MapRazorPages 至 Program.cs
+      app.MapControllerRoute(
+          name: "default",
+          pattern: "{controller=Home}/{action=Index}/{id?}");
+      app.MapRazorPages(); //加上這行, 註冊及登入功能才會生效
+
+	# 完成真實的註冊Email發送設定及程式撰寫
+		https://aka.ms/aspaccountconf <= 詳細說明參閱連結 =>
+		
+		This app does not currently have a real email sender registered, 
+		see these docs for how to configure a real email sender. 
+		Normally this would be emailed: Click here to confirm your account
+  
   # 確認 Identity 所需的 Migrations 已產生 & 套用
     dotnet ef migrations list
 

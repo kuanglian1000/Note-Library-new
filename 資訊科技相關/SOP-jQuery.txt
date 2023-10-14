@@ -1,0 +1,865 @@
+
+=jQuery Event Methods=
+  > What are Events?
+    * An event represents the precise moment when something happens.
+      Examples:
+        1.moving a mouse over an element
+        2.selecting a radio button
+        3.clicking on an element
+
+  > jQuery Syntax For Event Methods
+    * In jQuery, most DOM events have an equivalent jQuery method.
+      <=大部份的DOM事件都有相等的jQuery method=>
+
+      $("p").click(function(){
+        //執行網頁動作..
+      });
+
+  > Commonly Used jQuery Event Methods <=常用的jQuery method=>
+    
+    * $(document).ready();
+      //execute a function when the document is fully loaded.
+
+    * click();
+      //executed when the user clicks on the HTML element.
+
+      //範例: When a click event fires on a <p> element; hide the current <p> element:
+      $("p").click(function(){
+        $(this).hide();
+      });
+
+    * dbclick();
+      //executed when the user double-clicks on the HTML element
+
+      $("p").dbclick(function(){
+        $(this).hide();
+      });
+
+    * mouseenter();
+      //executed when the mouse pointer enters the HTML element (游標移進element範圍)
+
+      //id = "p1" element
+      $("#p1").mouseenter(function(){
+        alert("You entered p1 !");
+      });
+
+    * mouseleave();
+      //executed when the mouse pointer leaves the HTML element (游標移開element範圍)
+
+      $("#p1").mouseleave(function(){
+        alert("Bye! You now leave p1!");
+      });
+    
+    * mousedown(); keypress();
+      //executed, when the left, middle or right mouse button is pressed down, while the mouse is over the HTML element
+        (游標在element上面 + 按下左、中、右鍵)
+
+      $("#p1").mousedown(function(){
+        alert("Mouse down over p1");
+      });
+
+    * mouseup();
+      //executed, when the left, middle or right mouse button is released, while the mouse is over the HTML element
+        (游標在element上面 + 放開左、中、右鍵)
+
+      $("p1").mouseup(function(){
+        alert("Mouse up over p1");
+      });
+
+    * hover();
+      //(兩個函式結合, mouseenter() + mouseleave())
+      //The first function is executed when the mouse enters the HTML element, 
+        and the second function is executed when the mouse leaves the HTML element:
+
+      $("p1").hover(
+        function(){
+          alert("You entered In p1");
+        },
+        function(){
+          alert("..You leave p1");
+        }
+      );
+  
+    * focus();
+      //executed when the form field gets focus
+        (取得焦點時)
+
+      //所有input(取得焦點時), 背景顏色改變
+      $("input").focus(function(){
+        $(this).css("background-color","#cccccc");
+      });
+      
+    * blur();
+      //executed when the form field loses focus
+        (失去焦點時)
+      
+      //所有input(失去焦點時), 背景顏色改變
+      $("input").blur(function(){
+        $(this).css("background-color","#cccccc");
+      });
+
+    * toggle();
+      //toggle between hiding and showing a <p> element
+        (在隱藏與顯示間切換)
+
+      $("button").click(function(){
+        $("p").toggle();
+      });
+
+    * fadeOut();
+      //元素滑出
+
+      $("div").fadeOut();
+      $("div").fadeOut("slow"); //慢慢滑出
+
+    * fadeTo("速度", 透明度);
+      //改變元素透明度
+
+      $("div").fadeTo("slow", 0.2); //透明度至0.2
+
+
+  > The on() Method => attaches one or more event handlers for the selected elements
+  <= 對單一ELEMENT, 繫結一個或多個事件 =>
+    
+    //single event
+    $("p").on("click", function(){
+      $(this).hide();
+    });
+
+    //multiple events(注意: ({II , OO , KK,...}))
+    $("p").on({
+      click: function(){
+        $(this).css("background-color","yellow");},
+      mouseenter: function(){
+        $(this).css("background-color","green");},
+      mouseleave: function(){
+        $(this).css("background-color","red");}
+      });
+
+=jQuery Effects - Hide and Show(隱藏 & 顯示)=
+  > jQuery hide() and show()
+    //hide and show HTML elements with the hide() and show() methods.
+
+    $("#hide").click(function(){
+      $("p").hide();
+    });
+
+    $("#show").click(function(){
+      $("p").show();
+    })
+
+    <= two optional parameter =>
+    $(selector).hide(speed,callback);
+    $(selector).show(speed,callback);
+
+    * speed => can take the following values: "slow", "fast", or milliseconds.
+    * callback function => a function to be executed after the hide() or show() method completes
+    * callback function => 前一動作執行完成後, 再執行的函式.
+
+    $("button").click(function(){
+      $("p").hide(1000);
+    });
+
+  > jQuery toggle()
+    //toggle between hiding and showing an element with the toggle() method.
+
+    $("button").click(function(){
+      $("p").toggle();
+    });
+
+    <= two optional parameter =>
+    $(selector).toggle(speed,callback);
+
+    * speed => can take the following values: "slow", "fast", or milliseconds.
+    * callback function => a function to be executed after the toggle() method completes
+    * callback function => 前一動作執行完成後, 再執行的函式.
+
+=jQuery Effects - Fading(褪色)=
+  > jQuery has the following fade methods:
+    * fadeIn() //淡進 (註: 前提 style="display:none" , 否則看不出效果.)
+    * fadeOut() //淡出
+    * fadeToggle() //視元素狀態搭配(來回切換), fadeIn + 隱藏 or fadeOut + 顯示
+    * fadeTo() //改變元素透明度(增加透明度設定, 數值範圍 float 0.0-1.0)
+      $(selector).fadeTo(speed,opacity,callback);
+
+    <= two optional parameter(四個函式都有這兩個參數可用) =>
+    $(selector).XXX(speed,callback);
+    
+    * speed => can take the following values: "slow", "fast", or milliseconds.
+    * callback function => a function to be executed after the hide() or show() method completes
+    * callback function => 前一動作執行完成後, 再執行的函式.
+
+=jQuery Effects - Sliding(滑動)=
+  > jQuery has the following fade methods:
+    * slideDown() //滑下
+    * slideUp() //滑上
+    * slideToggle() //視元素狀態搭配(來回切換), 滑上 or 滑下
+
+    <= two optional parameter(四個函式都有這兩個參數可用) =>
+      $(selector).XXX(speed,callback);
+    
+    * speed => can take the following values: "slow", "fast", or milliseconds.
+    * callback function => a function to be executed after the hide() or show() method completes
+    * callback function => 前一動作執行完成後, 再執行的函式.
+
+=jQuery Effects - Animation(動畫)=
+  > jQuery has the following Animation methods:
+    
+    <= Syntax(語法) =>
+      $(selector).animate({params},speed,callback);
+    
+      * (必要) params => defines the [CSS properties] to be animated.
+      * (可選) speed => can take the following values: "slow", "fast", or milliseconds.
+      * (可選)callback function => a function to be executed after the hide() or show() method completes
+      * callback function => 前一動作執行完成後, 再執行的函式.
+
+      $("button").click(function(){
+        $("div").animate({left: '250px'});
+      });
+      // it moves a <div> element to the right, until it has reached a left property of 250px:
+
+    <= Notice(注意) =>
+      To manipulate the position, remember to first set the CSS position property of the element 
+      to [relative], [fixed], or [absolute]!
+      (註: 如要控制位置, 記得先設定元素position 的初始值為 [relative], [fixed], or [absolute])
+
+    <= jQuery animate() - Manipulate Multiple Properties (同時控制多個屬性) =>
+
+      $("button").click(function(){
+          $("div").animate({
+            left: '250px',
+            opacity: '0.5',
+            height: '150px',
+            width: '150px'
+          });
+        });
+
+    <= Notice(注意) =>
+      Q1. Is it possible to manipulate ALL CSS properties with the animate() method?
+        Yes, 但是jQuery方法名稱要微調all property names must be camel-cased. 
+        例: css => padding-left, jQuery => paddingLeft.
+      Q2. color Animation 沒有在 jQuery Core library.
+         If you want to animate color, you need to download the [Color Animations plugin] from jQuery.com.
+
+    <= jQuery animate() - Using Relative Values(使用相對值, 來控制物件) =>
+      * This is done by putting += or -= in front of the value:
+
+      $("button").click(function(){
+          $("div").animate({
+            left: '250px',
+            opacity: '0.5',
+            height: '+=150px',
+            width: '+=150px'
+          });
+        });
+
+    <= jQuery animate() - Using Pre-defined Values(使用 jQuery 預先定義值, 來控制物件) =>
+      * You can even specify a property's animation value as "show", "hide", or "toggle":
+
+      $("button").click(function(){
+          $("div").animate({
+            height: 'toggle',
+            width: '+=150px'
+          });
+        });
+
+    <= jQuery animate() - Uses Queue Functionality(定義多個 animate, 依序執行. #更貼近動畫感覺.) =>
+      * By default, jQuery comes with queue functionality for animations.
+
+      $("button").click(function(){
+          var div = $("div");
+          div.animate({height: '300px', opacity: '0.4'},"slow");
+          div.animate({width: '300px', opacity: '0.8'},"slow");
+          div.animate({height: '100px', opacity: '0.4'},"slow");
+          div.animate({width: '100px', opacity: '0.8'},"slow");
+        });
+
+=jQuery Stop Animations(停止進行中的動作)=
+  > The jQuery stop() method is used to stop animations or effects [before it is finished].
+    <= Syntax(語法) =>
+       $(selector).stop(stopAll,goToEnd);
+        * The optional [stopAll] parameter specifies whether also the [animation queue] should be cleared or not.
+          1.True => 剩下未執行的animation才會停
+          2.False => 預設值, 目前animation停下來, 而是執行下個 animation
+        * The optional [goToEnd] parameter specifies whether or not to [complete the current animation immediately].
+          是否直接完成目前的animation(預設是false, 直接停)
+
+=2023-10-07 看到這裡..=
+
+=jQuery Callback Functions(確保目前動作完成後, 才會執行的函式)=
+  > A callback function is executed after the current effect is 100% finished.
+
+  > Syntax
+    * $(selector).hide(speed,callback);
+
+  > Examples(With Callback)
+    $("button").click(function(){
+      $("p").hide("slow", function(){
+        alert('..p is now hidden..'); //p隱藏後, 才會執行的函式(callback function)
+      });
+    });
+
+  > Examples(Without Callback)
+    $("button").click(function(){
+      $("p").hide(1000);
+      alert('..p is now hidden..'); //p還沒隱藏完, alert就跳出來..
+    });
+
+=jQuery - Chaining(可以把同一個元素上的動作串起寫)=
+  > Chaining allows us to run multiple jQuery methods (on the same element) within a single statement.
+  > Tip: This way, browsers do not have to find the same element(s) more than once.(優點: 元素只要找一次)
+  > Tip: When chaining, the line of code could become quite long. 
+      However, jQuery is not very strict on the syntax; 
+      you can format it like you want, including line breaks and indentations. (格式不限, 可以折行, 縮排)
+  
+  <= jQuery Method Chaining =>
+    > Examples
+      * $("#p_Chain").css('color','red').slideUp(2000).slideDown(2000);
+      
+      * $("#p_Chain")
+          .css('color','red')
+          .slideUp(2000)
+          .slideDown(2000);
+
+=jQuery - Get Content and Attributes(取元素的 內容 和 屬性)=
+  
+  <= jQuery DOM Manipulation =>
+    * One very important part of jQuery is the possibility to manipulate the DOM. (jQuery最重要就是 [操控DOM的能力] )
+
+  <= Get Content - text(), html(), and val() =>  
+    * text() - Sets or returns the text content of selected elements (只留[文字內容值])
+    * html() - Sets or returns the content of selected elements (including HTML markup) (保留HTML標籤 + [文字內容值])
+    * val() - Sets or returns the [value] of form fields (Value值)
+
+  <= Get Attributes - attr("xxx") =>
+    * The jQuery attr() method is used to get attribute values.
+
+= jQuery - Set Content and Attributes(設定元素的 內容和屬性 + Callback function 可取得舊值) =
+  
+  <= Set Content - text(), html(), and val() => (設定和存取一樣有 3 個函式)
+    * text() - Sets or returns the text content of selected elements ([文字內容值])
+    * html() - Sets or returns the content of selected elements (including HTML markup) (HTML標籤 + [文字內容值])
+    * val() - Sets or returns the [value] of form fields (Value值)
+
+  <= Set Attributes - attr("attrName", "newValue") =>
+    * The jQuery attr() method is used to get attribute values.
+    * $("#btnOne").click(function(){
+        $("#w3s").attr("href", "https://www.abc.com");
+      }); //(設定單個屬性)
+
+      $("#btnOne").click(function(){
+        $("#w3s").attr({
+            "href": "https://www.abc.com",
+            "title": "測試網址"});
+      }); //(設定多個屬性, 要加上 {a:1, b:2,...}, 跟JSON真的很像... )
+
+  <= A Callback Function for text(), html(), val(), attr() => (Callback function 可取得舊值 + 目前項目的索引值)
+    * Callback Function 可取得舊值, 再加上新值後, 回傳最終設定值.
+    * The callback function has [two parameters]: 
+        1.the index of the current element in the list of elements selected and 
+        2.the original (old) value. 
+    * You then return the string you wish to use as the new value from the function.
+    * Examples
+      $("#btnAttr").click(function(){
+        $("#w3s").attr("href", function(i, oldValue){
+          return oldValue + "/jQuery/";
+        });
+      });
+
+= jQuery - Add Elements(加入元素) =  
+  * append() - Inserts content at the end of the selected elements (從最後面加入)
+  * prepend() - Inserts content at the beginning of the selected elements (從最前面加入)
+  * after() - Inserts content after the selected elements (一直從元素正後方插入)
+  * before() - Inserts content before the selected elements (一直從元素正前方插入)
+
+  <= jQuery append() Method =>
+    * Examples
+        $("p").append("Some...");
+  
+  <= jQuery prepend() Method =>
+    * Examples
+        $("p").prepend("...Some");
+
+  <= Add Several New Elements With append() and prepend() =>
+    * 可同時放入無限多個元素
+    * 元素產生類型不限, 例: 文字 or jQuery產生 or DOM產生 均可.
+    * Examples
+        function appendText(){
+          var txt1 = "<p>text.</p>";
+          var txt2 = $("<p></p>").text("Created by jQuery!");
+          var txt3 = document.createElement("p");
+          txt3.innerHTML = "Created by DOM!";
+          $("body").append(txt1, txt2, txt3);
+        }
+  
+  <= jQuery after() and before() Methods =>
+    * Examples
+        $("img").after("Some text after");
+        $("img").before("Some text before");
+
+  <= Add Several New Elements With after() and before() =>
+    function afterText() {
+      var txt1 = "<b>I </b>";                    // Create element with HTML 
+      var txt2 = $("<i></i>").text("love ");     // Create with jQuery
+      var txt3 = document.createElement("b");    // Create with DOM
+      txt3.innerHTML = "jQuery!";
+      $("img").after(txt1, txt2, txt3);          // Insert new elements after <img>
+    } 
+
+= jQuery - Remove Elements(移除元素) =
+  > remove() - Removes the selected element (and its child elements) (移除元素 + 它的子元素)
+  > empty() - Removes the child elements from the selected element (只移除元素中的子元素)
+
+  <= jQuery remove() Method =>
+    * Examples
+        $("#div1").remove();
+
+  <= jQuery empty() Method =>
+    * Examples
+        $("#div1").empty();
+
+  <= Filter the Elements to be Removed => (篩選要移除的項目)
+    * The jQuery remove() method also [accepts one parameter], which allows you to filter the elements to be removed.
+    * The parameter can be [any of the jQuery selector syntaxes]. (例: "p" 所有p, "#btnWa" id="btnWa", ".test" class="test")
+    
+    * Examples1 => (removes all <p> elements with class="test")
+        $("p").remove(".test");
+
+    * Examples2 => (removes all <p> elements with class="test" and class="demo")
+        $("p").remove(".test, .demo");
+
+= jQuery - Get and Set CSS Classes(新增, 移除及切換 CSS樣式) =
+
+  <= jQuery Manipulating CSS =>  
+    * addClass() - Adds one or more classes to the selected elements (新增CSS & 值)
+    * removeClass() - Removes one or more classes from the selected elements (移除CSS & 值)
+    * toggleClass() - Toggles between adding/removing classes from the selected elements (新增/移除CSS & 值 間切換)
+    * css() - Sets or returns the style attribute (設定/存取CSS & 值)
+
+  <= Example Stylesheet =>
+    .important{
+      font-weight: bold;
+      font-size: xx-large;
+    }
+    .blue{
+      color: blue;
+    }
+  
+  <= jQuery addClass() Method =>
+    * Examples
+        ==
+        $("#btnAddClass").click(function(){
+          $("h1, h2, p").addClass("important"); //一次針對多個元素
+          $("div").addClass("blue"); //一次一個
+        });
+        ==
+        $("#btnAddClass").click(function(){
+          $("#div1").addClass("blue important"); //一次加上多個CSS樣式.
+        });
+
+  <= jQuery removeClass() Method =>
+    * Examples
+        ==
+        $("#btnRemoveClass").click(function(){
+          $("div").removeClass("blue");
+        });
+
+  <= jQuery toggleClass() Method =>
+    * Example
+        ==
+        $("#btnToggleClass").click(function(){
+          $("#div1").toggleClass("blue");
+        });
+        ==
+        $("p").click(function(){
+          $(this).toggleClass("important");
+        });
+
+= jQuery - css() Method(存取 及 設定 CSS樣式) =
+  
+  <= jQuery css() Method =>
+    * The css() method [sets or returns] one or more style properties for the selected elements.
+
+  <= Return a CSS Property =>
+    * Syntax
+        css("propertyname"); (存取CSS值)
+        css("propertyname","value"); (設定CSS值)
+        css({"propertyname":"value","propertyname":"value",...}); (設定多個CSS值)
+    
+    * Examples
+        $("p").css("background-color"); 
+        $("p").css("background-color", "yellow"); 
+        $("p").css({"background-color": "yellow", "font-size": "200%"}); 
+
+= jQuery - Dimensions(尺寸 => 元素和瀏覽器) =
+
+  <= jQuery Dimension Methods =>
+    > jQuery has several important methods for working with dimensions:
+      * width() => element本身的寬
+      * height() => element本身的高
+      * innerWidth() => width + padding(border外框與element間的距離)
+      * innerHeight() => height + padding(border外框與element間的距離)
+      * outerWidth() => width + padding + border(外框寬度)
+      * outerHeight() => height + padding + border(外框高度)
+
+  <= jQuery width() and height() Methods =>
+    > The width() method sets or returns the width of an element (excludes padding, border and margin).
+    > The height() method sets or returns the height of an element (excludes padding, border and margin).
+      * Example
+        $("button").click(function(){
+          var txt = "";
+          txt += "Width: " + $("#div1").width() + "</br>";
+          txt += "Height: " + $("#div1").height();
+          $("#div1").html(txt);
+        }); 
+
+  <= jQuery innerWidth() and innerHeight() Methods =>
+    > The innerWidth() method returns the width of an element (includes padding).
+    > The innerHeight() method returns the height of an element (includes padding).
+      * Example
+        $("button").click(function(){
+          var txt = "";
+          txt += "Inner width: " + $("#div1").innerWidth() + "</br>";
+          txt += "Inner height: " + $("#div1").innerHeight();
+          $("#div1").html(txt);
+        }); 
+  
+  <= jQuery outerWidth() and outerHeight() Methods =>
+    > The outerWidth() method returns the width of an element (includes padding and border).
+    > The outerHeight() method returns the height of an element (includes padding and border).
+      * Example
+        $("button").click(function(){
+          var txt = "";
+          txt += "Outer width: " + $("#div1").outerWidth() + "</br>";
+          txt += "Outer height: " + $("#div1").outerHeight();
+          $("#div1").html(txt);
+        }); 
+    
+    > The outerWidth(true) method returns the width of an element (includes padding, border, and margin).
+    > The outerHeight(true) method returns the height of an element (includes padding, border, and margin).
+      * Example
+        $("button").click(function(){
+          var txt = "";
+          txt += "Outer width (+margin): " + $("#div1").outerWidth(true) + "</br>";
+          txt += "Outer height (+margin): " + $("#div1").outerHeight(true);
+          $("#div1").html(txt);
+        }); 
+
+  <= jQuery More width() and height() =>
+      * Examples
+      ===
+      $("button").click(function(){
+        var txt = "";
+        txt += "Document width/height: " + $(document).width();
+        txt += "x" + $(document).height() + "\n";
+        txt += "Window width/height: " + $(window).width();
+        txt += "x" + $(window).height();
+        alert(txt);
+      }); 
+      ===
+      $("button").click(function(){
+        $("#div1").width(500).height(500);
+      }); 
+
+= jQuery Traversing(遍歷) =
+
+  > The image below illustrates an HTML page as a tree (DOM tree). 
+  
+  > With jQuery traversing, you can easily 
+    [move up] (ancestors) 所有前輩, 
+    [down] (descendants) 所有晚輩 and 
+    [sideways] (siblings) 所有同輩 in the tree, starting from the selected (current) element. 
+  
+  > This movement is called traversing - or moving through - the DOM tree.
+
+  > The largest category of traversal methods are [tree-traversal]. (幅度最廣的是 [tree-traversal])
+
+= jQuery Traversing - Ancestors =
+  > Three useful jQuery methods for traversing up the DOM tree are:
+    * parent() (上一層前輩)
+    * parents() (所有前輩, 直到<html>)
+      or parents("element_name") (所有前輩中, 是 <element_name> 的項目)
+    * parentsUntil() (所有前輩中, 兩個給定 <element_name> 間的元素)
+
+  <= jQuery parent() Method =>
+    > The parent() method returns the direct parent element of the selected element.
+    > This method only traverse a single level up the DOM tree.
+
+      * Example => 取得 <span> 上一層的元素
+          $("span").parent();
+    
+  <= jQuery parents() Method =>
+    > The parents() method returns all ancestor elements of the selected element, 
+      all the way up to the document's root element (<html>).
+
+    > You can also use an [optional parameter] to filter the search for ancestors. (給定篩選參數)
+
+      * Examples
+        $("span").parents(); //取得 <span> 上層所有元素直到 <html>
+        $("span").parents("li"); //取得 <span> 上層所有 <li> 元素
+  
+  <= jQuery parentsUntil() Method =>
+    > The parentsUntil() method returns all ancestor elements between [two given arguments].
+
+      * Example
+        $("span").parentsUntil("div"); //取得 <span> 上層與 <li> 間的元素(不含 <span> & <div>)
+
+= jQuery Traversing - Descendants =
+  > Two useful jQuery methods for traversing down the DOM tree are:
+    * children() (下一層晚輩)
+    * find() (所有晚輩, 直到 <html>)
+
+  <= jQuery children() Method => (單層子階)
+    > The children() method returns [all direct children] of the selected element.
+    > This method only traverses a [single level down] the DOM tree.
+    > You can also use an [optional parameter] to filter the search for children. (加入篩選參數)
+
+      * Examples
+          $("div").children();
+          $("div").children("p.first"); //CSS='first'的<p>元素, 在 <div> 的子階中
+
+  <= jQuery find() Method => (到最後子階)
+    > The find() method returns descendant elements of the selected element, all the way down to the [last descendant]. 
+      * Examples
+          $("div").find("span"); //<div>所有子階中, 所有<span>元素.
+          $("div").find("*"); //returns all descendants of <div>.
+
+= jQuery Traversing - Siblings =
+  > Siblings share the same parent. (同一階)
+  > Traversing Sideways in The DOM Tree  
+    * siblings() 所有同輩
+    * next() 下一個同輩
+    * nextAll() 之後所有同輩
+    * nextUntil() 之後同輩間
+    * prev() 前一個同輩
+    * prevAll() 之前所有同輩
+    * prevUntil() 之後同輩間
+
+  <= jQuery siblings() Method =>
+    > The siblings() method returns all sibling elements of the selected element.
+    > You can also use an [optional parameter] to filter the search for siblings. (可以另外加上參數)
+      * Examples
+        $("h2").siblings(); //所有同輩
+        $("h2").siblings("p"); //所有同輩, 找出<p>
+
+  <= jQuery next() Method =>
+    > The next() method returns the next sibling element of the selected element.
+      * Examples
+        $("h2").next();
+
+  <= jQuery nextAll() Method =>
+    > The nextAll() method returns all next sibling elements of the selected element.
+      * Examples
+        $("h2").nextAll();
+  
+  <= jQuery nextUntil() Method =>
+    > The nextUntil() method returns all next sibling elements between [two given arguments].
+      * Examples
+        $("h2").nextUntil("h6"); //<h2>與<h6>之間的元素
+
+  <= jQuery prev(), prevAll() & prevUntil() Methods =>
+    > 功能都一樣, 只是方向不同.
+
+= jQuery Traversing - Filtering =
+  <= The first(), last(), eq(), filter() and not() Methods =>
+    > The most basic filtering methods are [first(), last() and eq()], 
+      which allow you to select a specific element based on its position in a group of elements. 
+
+    > Other filtering methods, like [filter() and not()] allow you to select elements 
+      that match, or do not match, a certain criteria. 
+
+  <= jQuery first() Method =>
+    > The first() method returns the first element of the specified elements.
+      * Example
+        $("div").first(); //<body>裡面的第1個<div>元素
+
+  <= jQuery last() Method =>
+    > The last() method returns the last element of the specified elements.
+      * Example
+        $("div").last(); //<body>裡面的最後1個<div>元素
+
+  <= jQuery eq(index) method => (選擇第幾個, index 由 0 開始)
+    > The eq() method returns an element with a specific index number of the selected elements.
+      * Example
+        $("p").eq(1);
+
+  <= jQuery filter('condition') Method => (給定篩選參數)
+    > The filter() method lets you specify a criteria. 
+    > Elements that do not match the criteria are removed from the selection, 
+      and those that match will be returned.
+      * Example
+        $("p").filter(".intro"); //<p>裡面 CSS='intro' 的元素
+
+  <= jQuery not('condition') Method => (給定'排除'篩選參數)
+    > The not() method returns all elements that do not match the criteria.
+    > Tip: The not() method is the opposite of filter(). (not 和 filter 是相對的)
+      * Example
+        $("p").not(".intro"); //<p>裡面 不是 CSS='intro' 的元素
+
+= jQuery - AJAX Introduction =
+  > AJAX is the art of exchanging data with a server, 
+    and updating parts of a web page - without reloading the whole page.
+  > In short; AJAX is about loading data in the background and display it on the webpage, 
+    without reloading the whole page.
+  
+  <= What About jQuery and AJAX? =>
+    > jQuery provides several methods for AJAX functionality.
+    > Without jQuery, AJAX coding can be a bit tricky!
+
+= jQuery - AJAX load() Method (可以載入文字檔) =
+  > The jQuery load() method is a simple, but powerful AJAX method.
+  > The load() method [loads data from a server] and [puts the returned data into the selected element].
+
+  <= jQuery load() Method =>
+    
+    > Syntax
+        $(selector).load(URL,data,callback); 
+
+      * The [required {URL} parameter] specifies the URL you wish to load. (必填: 資料來源網址)
+      * The [optional {data} parameter] specifies a set of querystring key/value pairs to send along with the request. (可選: key/value)
+      * The [optional {callback} parameter] is the name of a function to be executed after the load() method is completed. (可選: load()完成後, 要執行的funcion)
+        callback function 有三個參數:         
+          1.responseTxt - contains the resulting content if the call succeeds(呼叫成功後, 回傳的結果)
+          2.statusTxt - contains the status of the call(呼叫回傳的狀態, 例: success, error)
+          2.xhr - contains the XMLHttpRequest object(包含物件, xhr.status, xhr.statusText)
+
+    > Examples
+      "demo.txt" 內容        
+          <h2>jQuery and AJAX is FUN!!!</h2>
+          <p id="p1">This is some text in a paragraph.</p>
+
+      $("#div1").load("demo.txt"); //load也能載入文字檔, 它強了吧..
+      ===
+      $("#div1").load("demo.txt #p1"); //load載入文字檔, 也能指定載入部份項目(#p1)
+      ===
+      $("button").click(function(){
+        $("#div1").load("demo_test.txt", function(responseTxt, statusTxt, xhr){
+          if(statusTxt == "success")
+            alert("External content loaded successfully!");
+          if(statusTxt == "error")
+            alert("Error: " + xhr.status + ": " + xhr.statusText);
+        });
+      }); 
+
+= jQuery - AJAX get() and post() Methods (常用於與Server間 get & post 訊息交換用.) =
+  > The jQuery get() and post() methods are used to request data from the server with an HTTP GET or POST request.
+
+  <= HTTP Request: GET vs. POST =>    
+    > GET - Requests data from a specified resource
+    > POST - Submits data to be processed to a specified resource
+        GET is basically used for just getting (retrieving) some data from the server. 
+            Note: The GET method may return cached data.
+            (注意: GET 可能會回傳暫存, 而非最新資料)
+        POST can also be used to get some data from the server. 
+            However, the POST method NEVER caches data, and is often used to send data along with the request.
+            (注意: POST 也能用於取回資料.)
+            (注意: POST 永遠不會暫存資料.)
+            (注意: POST 常用於傳送資料.)
+
+  <= jQuery $.get() Method =>
+    > Syntax
+      $.get(URL, callback);
+      
+      The [first callback parameter] holds the content of the page requested, 
+      and the [second callback parameter] holds the status of the request
+    
+    > Example
+      $.get("demo_test.asp", function(data, status){
+        alert("Data:"+ data + "\nStatus:" + status);
+      });
+
+  <= jQuery $.post() Method =>
+    > Syntax
+      $.post(URL, data, callback);
+      
+      1.The required URL parameter specifies the URL you wish to request.
+      2.The optional data parameter specifies some data to send along with the request.
+      3.The optional callback parameter is the name of a function to be executed if the request succeeds.
+
+    > Example
+      $.post(URL, data, callback);
+      $.post("demo_post.asp", 
+          {name: 'Duck', city: 'Taipei'}, 
+          function(data, status){ 
+            alert("Data:" + data + "\nStatus:" + status); 
+        });
+
+= jQuery - The noConflict() Method (避免 $ 與其他 javascript framework 衝突的方法) =
+
+  <= jQuery and Other JavaScript Frameworks =>
+    > As you already know; jQuery uses the [$] sign as a shortcut for [jQuery].
+    > What if other JavaScript frameworks also use the $ sign as a shortcut?
+
+  <= The jQuery noConflict() Method =>
+    > The noConflict() method releases the hold on the [$] shortcut identifier, so that other scripts can use it.
+      (把 $ 留給其他javascript framework使用)
+      * 不過, 使用 jQuery 時, 就必須使用全名 'jQuery', 而不是捷徑 '$'
+      
+      * Example => 使用 jQuery 全名
+        ===
+        $.noConflict();
+        jQuery(document).ready(function(){
+          jQuery("button").click(function(){
+            jQuery("p").text("jQuery is still working..");
+          });
+        });
+        ===
+
+    > You can also create your own shortcut very easily. (你可以建立屬於自己的 jQuery 捷徑, 例: jQ)
+      The noConflict() method returns a reference to jQuery, that you can save in a variable, for later use.
+
+      * Example => 使用 自訂 jQuery 捷徑
+        ===
+        var jq = $.noConflict();
+        jq(document).ready(function(){
+          jq("button").click(function(){
+            jq("p").text("jQuery is still working..");
+          });
+        });
+        ===
+
+    > 你有一堆$不想改, 又不想發生衝突的作法.
+      you can pass the $ sign in as a parameter to the ready method.
+      (作法: 把 $ 當作 ready 函式參數丟進去..)
+      This allows you to access jQuery using $, inside this function - outside of it, you will have to use "jQuery"
+      (函式外必須使用 jQuery, 函式內保留使用 $)
+
+      * Example => 函式外必須使用 jQuery, 函式內保留使用 $
+      ===
+      $.noConflict();
+      jQuery(document).ready(function($){
+        $(button).click(function(){
+          $("p").text("jQuery is still working..");
+        });
+      });
+
+= jQuery - Filters = (篩選範例集, 裡面有很多寫好的範例可參考)
+
+  <= Filter Tables(篩選表格資料) =>
+
+  <= Filter Lists(篩選清單資料) =>
+
+  <= Filter Anything(篩選任何資料, p , button...) =>
+
+= ..2023/10/08 看到這裡.. =
+
+= Exams(只保留下錯誤或猜對的題目) =
+
+1. The jQuery html() method works for both HTML and XML documents 
+  (False)
+2. Which jQuery method is used to perform an asynchronous HTTP request? 
+  (jQuery.ajax())
+3. Which jQuery function is used to prevent code from running, before the document is finished loading? 
+  ($(document).ready();)
+4. Which jQuery method should be used to deal with name conflicts?
+  (noConflict())
+5. Is jQuery a W3C standard?
+  (No)
+6. Which jQuery method is used to remove selected elements?
+  (remove() & detach() 兩者都可以)
+7. Look at the following selector: $(":disabled"). What does it select?
+  (All disabled input elements)
+8. The jQuery animate() method can be used to animate ANY CSS property?
+  (No, Only properties contains number values. 不是所有的CSS都能animate, 只有數值屬性的CSS才行)
+
+= ..2023/10/10 看到這裡.. =

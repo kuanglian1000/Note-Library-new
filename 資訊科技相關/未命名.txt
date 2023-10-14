@@ -1,0 +1,3 @@
+# 可同時服用 {在 ASP.NET Core 中上傳檔案}, 裡面有詳細解說與作法.
+    https://learn.microsoft.com/zh-tw/aspnet/core/mvc/models/file-uploads?view=aspnetcore-7.0
+

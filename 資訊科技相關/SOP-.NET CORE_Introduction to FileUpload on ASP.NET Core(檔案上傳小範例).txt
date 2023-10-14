@@ -1,0 +1,25 @@
+# 可同時服用 {在 ASP.NET Core 中上傳檔案}, 裡面有詳細解說與作法.
+    https://learn.microsoft.com/zh-tw/aspnet/core/mvc/models/file-uploads?view=aspnetcore-7.0
+
+# Model
+	namespace Mvc_FileUpload.Models;
+
+	public class AppFile
+	{
+	  public int id{get;set;}
+	  public byte[] Content {get;set;}
+	}
+
+=專案加入必要套件=
+	dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version 6.0.10
+	dotnet add package Microsoft.EntityFrameworkCore.Design --version 6.0.10
+	dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 6.0.10
+	dotnet add package Microsoft.EntityFrameworkCore.SQLite --version 6.0.10
+	dotnet add package Microsoft.EntityFrameworkCore.Tools --version 6.0.10
+
+=產生基本框架=
+	dotnet aspnet-codegenerator controller -m AppFile -name FilesController  -dc FileContext -outDir Controllers -sqlite -scripts -udl
+
+=產生Migration & DB=
+	dotnet ef migrations add InitialCreate --context FileContext
+	dotnet ef database update

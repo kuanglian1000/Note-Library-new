@@ -1,0 +1,45 @@
+SOP-SAP ABAP程式語言
+	資料來源：https://www.tutorialspoint.com/sap_abap/sap_abap_overview.htm
+
+=SAP ABAP Tutorial=
+	> 對 Java程式語言 & 資料庫語言 有基本認識.
+	> You need to have a basic understanding of Java programming 
+		and Database technologies like PL/SQL to make the most of this tutorial.
+
+=SAP ABAP - Overview=
+	> 三層式架構
+		1.SAP GUI(User Client)
+		2.APAP AP Server
+			註1: All the central processing takes place in Application server.
+			註2: ABAP programs run at the application server level.
+			註3: [ABAP 程式儲存在 SAP database] 裡面, 不同於 C++ 或JAVA程式另存為 個別外部檔案.
+		3.DB
+	
+	> ABAP 程式碼型態 Inside the database, ABAP code exists in two forms −
+			1. [Source code] that can be viewed and edited with the ABAP workbench tools. <= 可檢視及編輯的原始碼 => 
+			2. [Generated code], which is a binary representation. <= 程式編譯後的可執行檔 =>
+				If you are familiar with Java, this generated code is somewhat comparable with Java byte code.
+	
+	> SAP 執行模式
+		1.The [run-time system] can be considered as a [virtual machine], just similar to Java virtual machine. 
+		2.<= ABAP 執行關鍵在於: 資料庫介面 可以將 ABAP code + SQL Command =>
+			A key component of the ABAP run-time system is the [database interface] 
+			that turns database independent statements (Open SQL) into the statements 
+			understood by the underlying database (Native SQL). 
+		3.<= SAP可以在不同的DB上執行 => SAP can work with a wide variety of databases and the same ABAP program can run on all of those. 
+
+=SAP ABAP - Environment=
+	> [Reports] are a good starting point for familiarizing yourself with general ABAP principles and tools.
+
+	> Hello ABAP Example
+		<=ABAP 語法規範=>
+		1.Each ABAP statement starts with an ABAP keyword and ends with a period.
+			(每個 ABAP 敘述句 都要以 "關鍵字" 開頭, "." 結尾)
+		2.Keywords must be separated by at least one space.
+			(每個 "關鍵字" 之間要以 " " 至少1個空白隔開)
+		
+		<=ABAP 程式在哪裡寫: "AS ABAP" =>
+		1.enter your code using the [ABAP Editor]
+			that is a part of ABAP Tools delivered with the SAP NetWeaver Application Server ABAP (also known as ‘AS ABAP’).
+		2."AS ABAP" is an [application server] 
+			with its own database, ABAP run-time environment, and ABAP development tools such as ABAP Editor.

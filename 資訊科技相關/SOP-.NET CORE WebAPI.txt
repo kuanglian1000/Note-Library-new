@@ -1,0 +1,221 @@
+SOP-.NET CORE WebAPI
+參考來源：https://learn.microsoft.com/zh-tw/training/modules/build-web-api-aspnet-core/
+
+# 使用 ASP.NET CORE 建立 WebApi 應用程式 #
+
+	課程目標：在本課程結束時，您將能夠使用 ASP.NET Core 建立新的 Web API 應用程式(RESTful服務)，
+						且您已了解如何建立可實作基本 CRUD 邏輯的 API 控制器。
+						
+	
+	=ASP.NET Core 中的 REST=
+		1.使用WEBAPI服務，WebServer可以和各種用戶端進行通訊。(瀏覽器、行動裝置、其他網頁伺服器等等，只有資料交換) 
+		2.使用MVC，網頁伺服器會使用 HTML、CSS 和 JavaScript 來與您的瀏覽器進行通訊。(一般的網頁瀏覽模式，有畫面+資料)
+	
+	=REST：使用 HTTP 建置 API 的常見模式(HTTP的指令動詞)=
+		1.GET=> 查詢
+		2.POST=>新增
+		3.PUT => 更新(整筆資料)
+		3.PATCH => 更新(部份更新)
+		4.DELETE => 刪除
+		
+	=在 ASP.NET Core 中建立 API 的優點=
+		> 透過 ASP.NET，您可以使用相同的架構和模式來建置網頁和服務。 
+		> 您可以重複使用模型類別及驗證邏輯。
+		> 甚至在相同專案中同時提供網頁和服務。(同一個專案中，可以同時有網頁及WEBAPI服務)
+		1.簡單序列化 => 端點會自動將您的類別序列化為現成且已正確格式化的 JSON
+				獨特需求的端點<自訂序列化>。
+		2.驗證和授權 => API 端點具有對業界標準 JSON Web 權杖 (JWT) 的內建支援。
+				<原則型授權>可讓您彈性地在程式碼中定義功能強大的存取控制規則。
+		3.與您的程式碼一起路由傳送 => ASP.NET 可讓您使用屬性來定義內嵌於程式碼中的路由和指令動詞。
+				[HTTPGet("id")], [HTTPDelete("id")]...
+		4.預設為 HTTPS => HTTPS 是新式專業 Web API 很重要的一部分。
+	
+	=使用 .NET HTTP REPL 測試 Web API=
+		> WebAPI 測試工具，<瀏覽器>不是首選
+		> 可以用 <.NET HTTP REPL> OR <PostMan>
+		
+	=使用 ASP.NET Core 建置 Web API 的理由=
+		(O)為 SPA 前端提供一個後端伺服器，例如 Angular 或 React。
+		(O)使用 XML 或 JSON 來提供資料給行動用戶端應用程式。
+		(X)提供傳統的 HTML 型 Web 應用程式。<= 這個不是哦....
+		
+	=建立並探索 Web API 專案=
+		> dotnet new webapi -f net6.0 #新增WEBAPI專案
+		> Web API 專案中重點目錄及檔案
+			Controllers/ 	包含公用方法公開為 HTTP 端點的類別。
+			Program.cs 	設定服務和應用程式的 HTTP 要求管線，並包含應用程式的受控進入點。
+			ContosoPizza.csproj 	包含專案的設定中繼資料。
+	
+	=建置並測試 Web API=
+		> dotnet run
+		> https://localhost:{PORT}/weatherforecast		
+		> https://localhost:7201/weatherforecast => 可以存取預設的WebAPI內容
+			https://localhost:7201/weatherforecast
+		> 安裝測試 Web API用工具 <Microsoft.dotnet-httprepl>
+			dotnet tool install -g Microsoft.dotnet-httprepl
+		> 使用 <Microsoft.dotnet-httprepl>，連線WEBAPI, 相關指令
+			
+			<= 詳細的使用說明=>
+			For detailed tool info, see https://aka.ms/http-repl-doc
+			
+			httprepl https://localhost:{PORT} => 連接
+			httprepl https://localhost:7201 or 進入httprepl 命令後, connect https://localhost:7201 
+
+			ls => 探索可用的端點
+
+			cd xxx => 前往 xxx 端點
+				https://localhost:{PORT}/> cd WeatherForecast
+				/WeatherForecast    [GET] //列出端點內, 可用的API輸出
+
+			get => 對 xxx 端點提出 GET 要求
+				輸出類似於在瀏覽器中前往端點的結果
+				
+			exit => 結束 httprepl 使用
+	
+	=ASP.NET Core Web API 控制器=
+		> 基底類別：ControllerBase < 
+			1. MVC or Razor Pages的 Controller 是繼承自 Controller 類別，Controller 衍生於 ControllerBase + 檢視(View)支援, 
+				因此會處理網頁, 但非 WebAPI 要求.
+			2. Web API的 Controller, 要使用 <ControllerBase>
+		
+		> API 控制器類別屬性 [ApiController] + [Route("xxx")] <
+			1.[ApiController] 會啟用固定的行為，以使建置 Web API 變得更容易。
+			2.[Route] 會定義路由模式 [controller]。(例: [Route("[controller]")], [Route("api/[controller]")])
+				注意: 路由可能包含靜態字串，如 api/[controller] 中所示。 
+							在此範例中，此控制器會處理對 https://localhost:{PORT}/api/weatherforecast 的要求。
+		
+		> 使用 Get() 方法提供天氣結果
+		
+		> [ApiController] 屬性的用途為何?
+			(O)[ApiController] 會啟用固定的行為，以使建置 Web API 變得更容易。(例: 此屬性包含數個固定 API 特有行為，例如，自動處理不正確的 HTTP 要求。)
+			(X)ApiController 是提供標準功能來處理 HTTP 要求的基底類別。
+			(X)[ApiController] 會將 HTTP 要求路由傳送至相關聯的控制器類別。
+		
+	=練習 - 新增資料存放區(Model)=
+		> 範例中：資料存放區是簡單的本機記憶體內部快取服務
+		> 真實世界：資料庫 (例如 SQL Server) 搭配 Entity Framework Core
+		
+		>建立資料模型, Pizza Model<
+			1.Create Models Folder
+			2.Create Pizza.cs
+			3.Add Code in Pizza.cs file
+				程式路徑：C:\Projects\Projects_ASP.NET_Core\MvcWebApi_Pizza\Models\Pizza.cs
+
+		>新增資料服務(記憶體內部資料服務)<
+			1.Create Services Folder
+			2.Create PizzaService.cs
+			3.Add Code in PizzaService.cs file
+				程式路徑：C:\Projects\Projects_ASP.NET_Core\MvcWebApi_Pizza\Services\PizzaService.cs
+				
+	=練習 - 新增控制器=
+		> 依照慣例，控制器置於專案根目錄的 Controllers 目錄中。 
+		> 控制器(Controller)內的動作(Action)會公開為 Web API 控制器內的 HTTP 端點。
+		
+		>建立控制器<
+			1.Create PizzaController.cs
+				依照慣例，控制器類別名稱的字首會加上 Controller。
+				a.這個類別衍生自 <ControllerBase>，也就是在 ASP.NET Core 中使用 HTTP 要求的基底類別。
+				b.兩個標準屬性：[ApiController] 和 [Route("[controller]")]
+				c.重要: 上述兩個屬性必加, 否則WEBAPI無法公開
+				
+				程式路徑：C:\Projects\Projects_ASP.NET_Core\MvcWebApi_Pizza\Controllers\PizzaController.cs
+				a.重要: [HttpGet]只能有一個, 寫兩個會無法識別)
+				
+				<ActionResult> 類型是 ASP.NET Core 中所有動作結果的基底類別。
+				<IActionResult> 會讓用戶端知道要求是否成功，並提供新建立披薩的 ID。 
+					IActionResult 會使用標準 HTTP 狀態碼，因此不論其語言或使用的平台為何，都可以輕鬆地與用戶端整合。
+				註: 目前看來, GET 會用 <ActionResult>, 而POST、PUT & DELETE 會用 <IActionResult>。
+				註: 會傳回 IActionResult，因為在執行階段之前，ActionResult 傳回型別都是未知。
+					BadRequest、NotFound 與 NoContent 方法會分別傳回 BadRequestResult、NotFoundResult 及 NoContentResult 型別。
+				
+				每個用於上述動作的 ActionResult 執行個體，都會對應至下表中的相應 HTTP 狀態碼：
+				ASP.NET Core動作結果(ASP.NET Core 程式碼) 	HTTP 狀態碼 	說明
+					OK																						200						執行成功
+					NotFound																		404						不存在
+				
+		>建置並測試控制器<	
+				httprepl https://localhost:{port}
+				ls
+				cd Pizza => /Pizza [GET]
+				get => return all pizzas
+				get 1 => return the pizza of index 1
+			
+	=ASP.NET Core 中的 CRUD 動作=
+					HTTP Action Verb			CRUD作業			ASP.NET Core 動作上方的屬性
+					GET									讀取						[HttpGet]
+					POST									新增						[HttpPost]
+					PUT									更新						[HttpPut]
+					DELETE								刪除						[HttpDelete]
+					
+		>POST(使用IActionResult)<
+			每個用於上述動作的 IActionResult 執行個體，都會對應至下表中的相應 HTTP 狀態碼：
+			ASP.NET Core動作結果(ASP.NET Core 程式碼) 	HTTP 狀態碼 	說明
+				CreatedAtAction															201						披薩已新增至記憶體內部快取。
+				BadRequest																	400						要求本文的 pizza 物件無效。
+	
+			例: return CreatedAtAction(nameof(Get), new { id = pizza.Id }, pizza);
+	
+		>PUT(使用IActionResult)<
+			每個用於上述動作的 IActionResult 執行個體，都會對應至下表中的相應 HTTP 狀態碼：
+			ASP.NET Core動作結果(ASP.NET Core 程式碼) 	HTTP 狀態碼 	說明
+				NoContent		//更新後,記得回傳NoContent		204						披薩已在記憶體內部快取中更新
+				BadRequest																	400						要求本文(Body)的 Id 值不符合路由(URL)的 id 值。
+				BadRequest																	400						要求本文(Body)的 pizza 物件無效。
+	
+		>DELETE(使用IActionResult)<
+			每個用於上述動作的 IActionResult 執行個體，都會對應至下表中的相應 HTTP 狀態碼：
+			ASP.NET Core動作結果(ASP.NET Core 程式碼) 	HTTP 狀態碼 	說明
+				NoContent		//刪除後,記得回傳NoContent	   	204						已從記憶體內部快取中刪除披薩。
+				BadRequest																	400						符合所提供 id 參數的披薩，不在記憶體內部快取中。
+				
+	=檢定您的知識=
+		1. 假設您需要更新產品名稱。 哪個 HTTP 動作動詞最適合此要求？ 
+			PUT(HttpUpdate)
+		2.哪個情節最適合傳回 HTTP 404 狀態碼，以及如何在 ASP.NET Core 中完成此情節？ 
+			NotFound = 404
+			其他有問題的回應, 都是 400
+	
+	=練習 - 實作 CRUD 作業=
+	
+		1.Controller內[HttpPost]屬性方法的程式碼內容..
+			
+			return CreatedAtAction(nameof(Get), new { id = pizza.Id }, pizza);
+			註1: 由於控制器的標註會採用 [ApiController] 屬性，這意味著 Pizza 參數會出現在要求本文(Body)中。
+		
+		2.Controller內[HttpUpdate]屬性方法的程式碼內容..
+			[HttpPut("{id}")]
+			public IActionResult Update(int id, Pizza pizza)
+			
+			註：id 是URL的路由, pizza 從BODY傳進來
+				a. 更新前, 要檢查 id != pizza.Id, return BadRequest();
+				b. 更新前, 要檢查 id 是否存在於現存資料中, 找不到return BadRequest();
+				c. 檢查成功後, 才會update 
+			
+		3.Controller內 [HttpDelete] 屬性方法的程式碼內容..
+			[HttpDelete("{id}")]
+			public IActionResult Delete(int id)
+			
+			註：id 是URL的路由
+				a. 更新前, 要檢查 id 是否存在於現存資料中, 找不到return NotFound; //這裡跟Update不同.
+				b. 檢查成功後, 才會delete 
+			
+	=建立並執行已完成的 Web API=
+		httprepl https://localhost:{port}/{controller} 連線WEBAPI
+		ls 列出可存取的服務清單
+		cd xxx 進入某一服務清單
+		get 使用沒有參數的查詢
+		get 1 使用有參數的端點查詢
+		
+		POST
+			post -c "{"name":"夏威夷", "isGlutenFree": false}"
+			//post 只要 pizza的資料即可.
+			
+		PUT
+			put 3 -c "{"id":3, "name":"宜蘭", "isGlutenFree": true}"
+			//put 要有 id , 也要有 pizza的資料.
+		
+		DELETE
+			delete 3
+		
+		
+		

@@ -1,0 +1,7 @@
+SOP-C#-精簡版
+
+學習資源：https://www.w3schools.com/cs
+
+
+
+	

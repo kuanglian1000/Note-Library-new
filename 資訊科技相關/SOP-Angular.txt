@@ -1,0 +1,93 @@
+= AngularJS Tutorial =
+
+= AngularJS Introduction =
+  > AngularJS is a JavaScript framework. 
+    It can be added to an HTML page with a <script> tag.
+  
+  > AngularJS extends [HTML attributes with Directives], 
+    and [binds data to HTML with Expressions].
+
+  <= AngularJS is a JavaScript Framework => (跟 jQuery 一樣, 都是JavaScript Framework)
+    > 使用前, 要在網頁的 <head> 裡面加入下列參考, 跟 jQuery 一樣      
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+
+  <= AngularJS Extends HTML => (AngularJS 擴充了 HTML)
+    > AngularJS extends HTML with ng-directives.
+      * The [ng-app] directive defines an AngularJS application. (ng-app, 定義 app)
+      * The [ng-model] directive binds the value of HTML controls (input, select, textarea) to application data. 
+          (ng-model, 將控制項的值 繫結至 app 變數)
+      * The [ng-bind] directive binds application data to the HTML view. 
+          (ng-bind, 將HTML view 繫結至 app 變數)
+
+      * Example
+        <div ng-app="">
+          <p> Name: <input type="text" ng-model="name"> </p>
+          <p ng-bind="name"></p>
+        </div>
+
+        (註1: The ng-app directive tells AngularJS that the <div> element is the "owner" of an AngularJS application.)
+        (註2: The ng-model directive binds the value of the input field to the [application variable name].)
+        (註3: The ng-bind directive binds the content of the <p> element to the [application variable name]. )
+
+  <= AngularJS Directives =>
+    > AngularJS directives are HTML attributes with an [ng] prefix.
+      * The [ng-init] directive initializes AngularJS application variables.
+          (ng-init, 初始化 App 變數)
+
+      * Example
+        <div ng-app="" ng-init="firstName='KL'">
+          <p> My Name is: <span ng-bind="firstName"></span> </p> //直接繫結資料
+        </div>
+
+      * Example
+        <div data-ng-app="" data-ng-init="firstName='KL'">
+          <p> My Name is: <span data-ng-bind="firstName"></span> </p> //直接繫結資料
+        </div>
+
+      (註: 上述兩個範例是相同的, 差別在於 data-ng 不會出警告吧??
+          You can use data-ng-, instead of ng-, if you want to make your page HTML valid.)
+
+  <= AngularJS Expressions =>
+    > AngularJS expressions are written inside double braces: {{ expression }}.
+    > AngularJS will "output" data exactly where the expression is written: (它會直接將 {{expression}} 內容輸出 )
+    > AngularJS [expressions] bind AngularJS data to HTML the same way as the [ng-bind] directive.
+      (註: {{expression}} & ng-bind 繫結至資料的效果是相同的)
+
+      * Example-1
+        <div data-ng-app="" data-ng-init="firstName='KL'">
+          <p>My first expression: {{ 5 + 5 }} </p> //直接輸出資料
+        </div>
+
+      * Example-2
+        <div ng-app="">
+          <p> Name: <input type="text" ng-model="name"> </p>
+          <p ng-bind="name"></p> //使用ng-bind
+        </div>
+
+        <div ng-app="">
+          <p> Name: <input type="text" ng-model="name"> </p>
+          <p>{{name}}</p> //使用expression
+        </div>
+
+  <= AngularJS Applications => (這個段落比較難理解, 複雜一點)
+    > AngularJS [modules] define AngularJS applications. (可重複使用的程式, 定義在[modules]裡面, [ng-app])
+    > AngularJS [controllers] control AngularJS applications. (而 [controllers] 負責控制程式, [ng-controller])
+
+      * Example
+        //先寫程式
+        <div ng-app="myApp" ng-controller="myCtrl">
+          First Name: <input type="text" ng-model="firstName"><br>
+          Last Name: <input type="text" ng-model="lastName"><br>
+          <br>
+          Full Name: {{firstName + "  " + lastName}}
+        </div>
+
+        <script>
+          var app = angular.module('myApp', []);
+          app.controller('myCtrl', function($scope){
+            $scope.firstName = "KL";
+            $scope.lastName = "Cheng";
+          });
+        </script>
+
+
