@@ -1,12 +1,12 @@
 國文有複選題, 要寫
 
 2023/10/14  
-BCBCC-DCCBB
-CABAD-DABCC
-CADCB-DDCDB
-ACCBA
-ABD/BD/CD/ABCD/BCD
-ABC/ACDE/ABC/AE/ABC
+  BCBCC-DCCBB
+  CABAD-DABCC
+  CADCB-DDCDB
+  ACCBA
+  ABD/BD/CD/ABCD/BCD
+  ABC/ACDE/ABC/AE/ABC
 
   1. 孟子說：「以不忍人之心，行不忍人之政，治天下可運之掌上。」下列社會情境，最符合孟子理念的選項是：
   (A)某大企業不忍心員工家庭、事業兩頭燒，在公司內成立安親班
