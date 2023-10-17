@@ -1,29 +1,31 @@
 =題庫-英文=
 
-(111年考古題) 112/10/16 added
+(111年考古題) 112/10/16 added | 112/10/17 review
 
-  1. A:I can’t get into my favorite jeans anymore. It’s really depressing. [____].B:Well, I think you look fine. You shouldn’t worry about it.
+  1. A:I can’t get into my favorite jeans anymore. It’s really depressing(令人沮喪). [____].
+      B:Well, I think you look fine. You shouldn’t worry about it.
   (A)I am almost broke
   (B)I need more organic food
   (C)I’m going on a diet (O)
   (D)I am too busy
 
-  2. Europe's universities must start considering [_____] methods of raising money if they want to stay competitive.
+  2. Europe's universities must start considering [_____] methods of raising money 
+    if they want to stay competitive.
   (A)antique
   (B)innovative (O)
-  (C)juvenile
+  (C)juvenile (青少年)
   (D)trivial. (微不足道
 
   3. He published his novel [____], so no one really knew who the author was.
-  (A)anonymously (O)
+  (A)anonymously (O, 匿名)
   (B)alphabetically
   (C)amiably (溫和的
   (D)ambitiously。(野心勃勃的
 
-  4. His corruption as a government employer 
+  4. His corruption(腐敗) as a government employer 
 		has put a [____] on his long-standing reputation.(名譽
-  (A)transit
-  (B)decay
+  (A)transit(通過)
+  (B)decay(衰變)
   (C)hymn (聖歌
   (D)stain (O，染色
 
@@ -35,10 +37,10 @@
   (D)disgrace (恥辱
 
   6. From now on, any employee who is usually late for work will be [____].
-  (A)dismissed (O)
-  (B)enclosed
-  (C)knuckled
-  (D)revolved
+  (A)dismissed (O, 解僱)
+  (B)enclosed (封閉)
+  (C)knuckled (指節)
+  (D)revolved (圍繞)
 
   7. There were 47 crashes at the Kedzie and Belmont intersection in 2010 alone, 
 			making it one of the most _____ intersections in the region.
@@ -61,7 +63,7 @@
   (C)do I know
   (D)I did know
 
-  10. With the intense heat, the chocolate bar began to melt and thus became [____].
+  10. With the intense(激烈) heat, the chocolate bar began to melt(融化) and thus became [____].
   (A)sunk (凹陷的，無法挽救的
   (B)sticky (O)
   (C)lengthy (漫長的
@@ -76,10 +78,10 @@
 
   12. A spokesperson for the MOTC says that the “fat cat“ problem will be [____] in the coming weeks 
 		in order to meet the expectations of the public.
-  (A)addressed (O)
-  (B)misplaced
-  (C)featured
-  (D)insisted
+  (A)addressed (O, 解決)
+  (B)misplaced (錯位)
+  (C)featured (特色)
+  (D)insisted (堅持)
 
   13. If people were better educated in zoology,
 		 animals [____] treated differently.
@@ -98,15 +100,15 @@
   15. The [____] is the highest administrative organ of the government of Republic of China.
   (A)Examination Yuan
   (B)Judicial Yuan
-  (C)Executive Yuan (O)
+  (C)Executive Yuan (O, 行政院)
   (D)Control Yuan
 
   16. The government may require individuals to 
-		limit the carbon dioxide they produce to [____] global warming.
+		limit the [carbon dioxide](二氧化碳) they produce to [____] global warming.
   (A)combat (O，戰鬥
   (B)continue
-  (C)decorate
-  (D)inflame，發炎
+  (C)decorate (裝飾)
+  (D)inflame (發炎)
 
   17. You do not have to be a television critic or historian 
 		to read the culture that is projected over the airwaves.
@@ -122,17 +124,17 @@
   (C)route　
   (D)case
 
-  19. This ring was a family heirloom(傳家寶, which was [_____] from my grandfather to my father.
-  (A)came across
+  19. This ring was a family heirloom(傳家寶), which was [_____] from my grandfather to my father.
+  (A)came across (遇到)
   (B)handed down (O，傳下來
-  (C)pulled up
-  (D)put aside
+  (C)pulled up (拉起)
+  (D)put aside (放下)
 
   20. He decided to [____] smoking because it was bad for his health.
   (A)quit (O)
-  (B)sweep
+  (B)sweep (掃)
   (C)video
-  (D)wed
+  (D)wed (結婚)
 
   21. Bali is the most popular island with [____], who come to enjoy the beaches, surfing and the nightlife.
   (A)journeys
@@ -142,19 +144,56 @@
 
   22. Tom: That cake looks delicious.
 		Willa:Well, it's not very fresh. I think it's at least a week old. [____]
-  (A)It's soft and tender.
+  (A)It's soft and tender(嫩).
   (B)I would even say it's a bit stale. (O，stale 陳舊，不新鮮，腐壞的
   (C)It's absolutely tasty.
   (D)It's a bit overdone for my taste.
 
   23. He [____] to school, but not any more.
-  (A)is used to walking
+  (A)is used to walking (他習慣了...)
   (B)uses to walking
   (C)is used to walk
   (D)used to walk (O)
 
+  (註:
+    [used to + 原形動詞]
+      I used to go jogging every day, but now I’m too busy.
+      我以前習慣每天慢跑，但我現在太忙了。
+
+      Did you use to exercise regularly?
+      你以前習慣規律運動嗎？
+
+    [be used to + V-ing（動名詞）/ N.（名詞）]
+      I am used to hitting the gym every week.
+      我習慣每個禮拜都上健身房。
+
+      She wasn’t used to walking so much and her legs hurt after the hike.
+      她不習慣走這麼多路，才健行完後她的腳就受傷了。
+
+    [be used to 也可以透過副詞來進行修飾。]
+      I’m very used to her lame jokes now.
+      我現在習慣她的冷笑話到不行。
+
+      Don’t worry, he is pretty used to driving for long hours.
+      不要擔心，他滿習慣開長途車了。
+
+    [get used to 的用法與例句]
+
+    get used to 可等同 become used  to，和 be used to 的用法類似，
+    但意思上有些差異，由於 get 本身有「漸漸」的意思，
+    可想而知它是「開始習慣某事」，也就是從不習慣轉為習慣的狀態。
+
+    ➡️ [get/become used to + V-ing（動名詞）/ N.（名詞）]
+      It took me a long time to get used to living by myself.
+      我花了很長一段時間才習慣自己一個人住。
+
+      She is getting used to driving in the rain.
+      她越來越習慣在雨天開車。
+  )
+
+
   24. You'd better [____] smoking, or you'd endanger (危及 other people's health along with your own.
-  (A)break up
+  (A)break up(中止)
   (B)end up
   (C)back up
   (D)give up (O)
@@ -177,7 +216,7 @@
 		not to arrest them but to [_____] them in the fight against computer crime.
   (A)recruit (O，招募
   (B)reinforce (強化
-  (C)repudiate，斷絕關係，否認
+  (C)repudiate (斷絕關係，否認)
   (D)reject
 
   28. Michelle often reviews research papers for one of the top journals in [____] genetics.
@@ -188,12 +227,12 @@
 
   29. Even though Agassi was beaten by his opponent in the tennis finals, 
 		he remains [______] about his chances of winning the next tournament.
-  (A)objectionable(令人反感的
-  (B)obnoxious(令人討厭的
+  (A)objectionable (令人反感的
+  (B)obnoxious (令人討厭的
   (C)optimistic (O，樂觀
-  (D)obtrusive(顯眼的
+  (D)obtrusive (顯眼的
 
-  30. What [____] at noon yesterday? I called but couldn’t get hold of you.
+  30. What [____] at noon yesterday? I called but couldn’t [get hold of] you.(掌握)
   (A)did you
   (B)you did
   (C)you were doing
@@ -206,7 +245,8 @@
   (C)while
   (D)but (O)
 
-  32. The thick layer of dirt (泥土 on the window prevents the sunlight from _____ into the house.
+  32. The thick layer of dirt (泥土) on the window 
+    prevents the sunlight from _____ into the house.
   (A)justifying (證明
   (B)navigating (導覽
   (C)penetrating (O，穿透
@@ -214,7 +254,7 @@
 
   33. In this industry, you really need to
 		 keep [_____] if you don't want to be caught off guard.(catch off guard 措手不及
-  (A)your head up (O)
+  (A)your head up (O, keep your head up 抬起頭來)
   (B)an arm and a leg
   (C)tooth and nail
   (D)in the stars
@@ -226,11 +266,13 @@
   (C)whose
   (D)which
 
-  35. The politics of global warming has changed [____] since the court agreed last year to hear its first case on the subject, with many Republicans as well as Democrats now pressing for action.
-  (A)dramatically (O)
+  35. The politics of global warming has changed [____] 
+    since the court agreed last year to hear its first case on the subject, 
+    with many Republicans as well as Democrats now pressing for action.
+  (A)dramatically (O, 大幅)
   (B)unseemly (不適合，不得體
   (C)abundantly (豐富的
-  (D)loathsomely (令人作嘔
+  (D)loathsomely (令人作嘔, 可惡的
 
   36. I have fallen in love with a girl [____] father is a famous writer.
   (A)her
@@ -246,35 +288,35 @@
 
   38. The Review Board could be considering [____] the grants given to several non-governmental organizations.
   (A)to discontinue
-  (B)discontinuing (O)
+  (B)discontinuing (O, 停止)
   (C)to be discontinued
   (D)discontinue
 
   39. Volcanic [____] grounded thousands of passengers and fliers across Europe last year.
-  (A)devotion (獻身，忠誠
-  (B)eruption (O，爆發
-  (C)option (選項
-  (D)corruption (腐敗
+  (A)devotion (獻身，忠誠)
+  (B)eruption (O，爆發)
+  (C)option (選項)
+  (D)corruption (腐敗)
 
-  40. With the intense heat, the chocolate bar began to melt (融化and thus became [_____].
-  (A)sunk (凹陷的
-  (B)sticky (O)
+  40. With the intense heat, the chocolate bar began to melt(融化) and thus became [_____].
+  (A)sunk (凹陷的)
+  (B)sticky (O, 粘)
   (C)lengthy (漫長的
   (D)remaining
 
   41. A:I’d like to know whether foreign banks earn less profit 
-		when they deal with small firms instead of large conglomerates
-		.B:[_____]They earn more. A friend of mine told me so.
+		when they deal with small firms instead of large conglomerates.
+      B:[_____]They earn more. A friend of mine told me so.
   (A)Be my guest.
   (B)It is my pleasure.
   (C)On the contrary. (O)
   (D)Not many.
 
   42. Instead of making things clear, Jane’s explanation [_____] me.
-  (A)bandaged (包紮
-  (B)baffled (O)
+  (A)bandaged (包紮)
+  (B)baffled (O, 莫名其妙)
   (C)balanced
-  (D)bargained
+  (D)bargained (討價還價)
 
   43. The patient appreciated [_____] breakfast in bed 
 		when she wasn’t feeling well.
@@ -285,17 +327,17 @@
 
   44. Jane is tired of [____] to work by car 
 		and is going to try taking public transportation instead.
-  (A)submitting
+  (A)submitting (提交)
   (B)commuting (O)
-  (C)devoting
-  (D)adapting
+  (C)devoting (投入)
+  (D)adapting (適應)
 
   45. A research study showed that by the end of 5th grade,
 		 children who didn’t read over their summer breaks _____ two years 
 			behind the reading levels of summer readers.
   (A)left
   (B)lagged (O，滯後
-  (C)legged
+  (C)legged (腿)
   (D)put
 
   46. I’ve always thought that [____] the dishes is easier than preparing food，
@@ -317,21 +359,24 @@
   (C)printed
   (D)had been printing
 
-		用來敘述在過去某特定時間點「正在發生」或「短暫持續」的動作。 
-		肯定句：S. ＋ was ／ were ＋ V-ing... 
-		如：Johnny was eating breakfast at seven thirty this morning.
+    (註: 
+      [過去進行式]：用來敘述在過去某特定時間點「正在發生」或「短暫持續」的動作。 (當時正在)
+      肯定句：S. ＋ was ／ were ＋ V-ing... 
+      如：Johnny was eating breakfast at seven thirty this morning.
 
-		過去完成進行式指的是在過去某事件前，更早的另一個動作已經持續進行了一段時間，且該動作在那時仍持續進行中。 
-		I had been working nonstop for seven hours before he showed up. 
-		在他露面之前，我已經馬不停蹄的工作了七個小時。
-
+      [過去完成進行式]：指的是在過去某事件前，更早的另一個動作已經持續進行了一段時間，
+        且該動作在那時仍持續進行中。 (早已作了一段時間, 而且持續在作)
+      I had been working nonstop for seven hours before he showed up. 
+      在他露面之前，我已經馬不停蹄的工作了七個小時。
+    )
+		
   49. When we receive text messages of promotions from a company, 
 		we must be [____] of possible false advertisement out
 		 of which the company wants to make profit.
   (A)worried
   (B)suspicious (O，可疑的
   (C)reluctant (不情願的
-	  (D)effective (有效的
+	(D)effective (有效的
 
   50. The local farmers are looking to advanced agriculture
 		 as better protection from foreign [____] after Taiwan joins the WTO.
@@ -339,3 +384,4 @@
   (B)expedition (探險
   (C)frustration (沮喪
   (D)competition (O)
+
