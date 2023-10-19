@@ -1,0 +1,98 @@
+若使用 char 或 varchar，建議您：
+    當資料行資料項目的大小一致時，請使用 char。
+    當資料行資料項目的大小變化相當大時，請使用 varchar。
+    當資料行資料項目的大小變化相當大，且字串長度可能超出 8,000 位元組時，請使用 varchar(max) 。
+
+SELECT xxx FROM TABLE_NAME WITH(NOLOCK) 
+--常用於查詢[交易頻繁的資料表], 避免因未commit而等待查詢結果.
+--[注意]: 未commit的資料, 也會出現在 WITH(NOLOCK) 的查詢結果(出現髒資料)
+
+字串連接
+CONCAT(str1, str2, ...)
+output => 'str1str2'
+
+CONCAT_WS('字串分隔符號','APPLE', 'banana', ...)
+CONCAT_WS('=','APPLE', 'banana', ...)
+output => 'APPLE=banana'
+
+6. Write an SQL query to find the names of employees starting with ‘A’. 
+  where employees LIKE 'A%';
+
+7. What is the difference 
+  between CHAR and VARCHAR2 datatype in SQL? 
+  CHAR(5) => 固定長度(5), 就是5的長度
+  VARCHAR(5) => 可變長度(5), 5,4,3,2,1
+
+8. Name different types of case manipulation functions available 
+  in SQL. 
+  LOWER
+  UPPER
+  INITCAP
+
+9. What do you mean by data definition language? (DDL)
+  CREATE, DROP, ALTER, 定義資料物件用
+
+10. What do you mean by data manipulation language? (DML)
+  INSERT INTO TABLE (COLUMNS) VALUES (VALUE...);
+  UPDATE TABLE SET column_name = COLUMN_VALUE;
+  DELETE FROM TABLE WHERE CONDITION;
+  SELECT * FROM TABLE WHERE CONDITION;
+
+11. What is the difference 
+  between primary key and unique constraints? 
+  PK => NOT NULL & UNIQUE, 只能有1個PRIMARY, PK會自動新增叢集索引.
+  unique constraints => UNIQUE, 可以有空值, 可以有多個UNIQUE, UNIQUE不會新增叢集索引.
+
+12. What is the view in SQL? 
+  一種虛擬資料表
+
+13. What do you mean by foreign key? 
+  外部鍵 OR 外來鍵
+  有外部鍵的是子表(child table), 
+    外部鍵會對應到母表的PK(parent table)
+
+14. What is a join in SQL? 
+    What are the types of joins? 
+  JOIN可對多個資料表作資料的結合.
+
+  inner join
+  left join
+  right join
+  full outer join (FULL JOIN)
+    => The result set will contain all the rows from both tables. 
+      For the rows for which there is no matching, 
+      the result set will contain NULL values.
+    => 包含所有資料列, 如果有沒對應的列, 則會內含NULL 值.
+
+ 15. What is an index? 
+  To support faster access according to different values, 
+  a faster search like a binary search for different values is desired. 
+  For this purpose, indexes are created on tables. 
+  These indexes need extra space on the disk, 
+  but they allow faster search according to different frequently searched values.
+
+ 16. What are table and Field?
+  Table: A table has a combination of rows and columns.
+  Field: In DBMS, a database field can be defined as – a single piece of information from a record.
+
+ 17. What is a primary key?
+  A Primary Key is one of the candidate keys. 
+  One of the candidate keys is selected as the most important 
+  and becomes the primary key. 
+  There cannot be more than one primary key in a table. 
+
+18. What is a Default constraint?
+  預設值
+
+ 19. What is the On Delete cascade constraint?
+  當母資料被刪除時, 子資料會一併刪除.
+
+ 20. What is normalization?
+  1) Minimizing Redundancy (重複資料最小化)
+  2) Minimizing the Insertion, Deletion, And Update Anomalies (CRUD異常最小化)
+
+21. What is Denormalization?(反正規化)
+  This can help us avoid costly joins in a relational database. 
+  Note that denormalization does not mean not doing normalization. 
+  It is an optimization technique that is applied 
+    after normalization. 

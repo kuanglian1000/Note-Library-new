@@ -33,7 +33,7 @@
 
       > 摘要
         1. 所有資料表都要指定1個COLUMN為PK(或1組COLUMNS)為PK
-        2. 若擔心'非鍵值欄位'有重複值, 可對該'非鍵值欄位'定義'獨特索引', 以確保完整性.
+        2. 若擔心'非鍵值欄位'有重複值, 可對該'非鍵值欄位'定義'獨特索引(UNIQUE)', 以確保完整性.
         3. 盡可能使用 '簡單' & '不會變更' 的鍵值.
 
     #02 消除重複儲存資料
@@ -63,7 +63,7 @@
         以BAD DESIGN 實例作範例:
         Select ID as DrawingID, Predecessor_1 as Predecessor
         From Assignments Where Predecessor_1 is not NULL
-        UNION //UNION 排除重複資料; UNION ALL 則是全部資料
+        UNION --UNION 排除重複資料; UNION ALL 則是全部資料
         Select ID as DrawingID, Predecessor_2 as Predecessor
         From Assignments Where Predecessor_2 is not NULL
         UNION
@@ -161,6 +161,8 @@
       > 客戶 與 員工 間如何建立關係(1-N)
       > 產品(木材公司) 與 產品特性(長,寬,高,材質) 間如何建立關係 (1-N)
       > 產品(零售業) 與 產品特性(根據產品特性一直加欄位, 就不是好主意, 可將欄轉為列儲存) <= 但是查特定產品屬性時, 就麻煩了點.
+      
+      > ROW to COLUMN, 可以使用 [PIVOT] 的關鍵詞作轉換 <= 查特定產品屬性時, 利用ROW(列) 轉回 COLUMN(欄位)再查詢即可.
 
         create table products{
           productNumber int not null primary key,
@@ -206,6 +208,11 @@
           (註: '非結構化資料(XML OR JSON)' 前端容易使用, 但後端不易剖析及管理.)
 
     #08 3NF不夠時, 更多的正規化
+
+      原始資料(未整理) 
+      1. (去除重複資料) => 1NF
+      2. (去除部分相依 = 所有非主鍵欄位都要相依在主鍵上.) => 2NF
+      3. (去除遞移相依 = 所有非主鍵欄位間不得相依.) => 3NF
 
       > 摘要:
         1. 大部分的資料模型可能已達成更高的正規化.
