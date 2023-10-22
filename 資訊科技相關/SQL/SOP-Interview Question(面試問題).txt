@@ -1,3 +1,5 @@
+資料來源: https://www.geeksforgeeks.org/sql-interview-questions/amp/
+
 若使用 char 或 varchar，建議您：
     當資料行資料項目的大小一致時，請使用 char。
     當資料行資料項目的大小變化相當大時，請使用 varchar。
@@ -91,8 +93,61 @@ output => 'APPLE=banana'
   1) Minimizing Redundancy (重複資料最小化)
   2) Minimizing the Insertion, Deletion, And Update Anomalies (CRUD異常最小化)
 
-21. What is Denormalization?(反正規化)
+21. What is Denormalization? (反正規化)
   This can help us avoid costly joins in a relational database. 
-  Note that denormalization does not mean not doing normalization. 
-  It is an optimization technique that is applied 
-    after normalization. 
+  Note that denormalization does not mean not doing normalization. (反正規化不表示不作正規化)
+  It is an optimization technique that is applied after normalization. 
+
+22. Explain  WITH clause in SQL? (WITH table AS 資料表, 通用資料表運算式)
+  # WITH common_table_expression (Transact-SQL)
+  The WITH clause provides a way relationship of defining a temporary relationship 
+  whose definition is available only to the query in which the with clause occurs. 
+  SQL applies predicates in the WITH clause after groups have been formed, 
+  so aggregate functions may be used.
+  1. 通用資料表運算式 (CTE) 的暫存具名結果集。 
+  2. 這是從簡單查詢衍生而來，定義在單一 SELECT、INSERT、UPDATE、DELETE 或 MERGE 陳述式的執行範圍內。 
+  3. 您也可以在 CREATE VIEW 陳述式中使用這個子句，作為用來定義 SELECT 陳述式的一部分。 
+  4. 通用資料表運算式可以包括指向本身的參考。 這稱為遞迴通用資料表運算式。
+
+  #範例: 每個銷售代表每年的銷售訂單總數
+  -- Define the CTE expression name and column list.
+  WITH Sales_CTE (SalesPersonID, SalesOrderID, SalesYear)
+  as
+  (
+    -- Define the CTE query.
+    SELECT SalesPersonID, SalesOrderID, YEAR() AS SalesYear
+    FROM SALES.SALESORDERHEADER
+    WHERE SalesPersonID IS NOT NULL
+  )
+  -- Define the outer query referencing the CTE name.
+  SELECT SalesPersonID, COUNT(SalesOrderID) AS TotalSales, SalesYear
+  FROM Sales_CTE
+  GROUP BY SalesYear, SalesPersonID
+  ORDER BY SalesPersonID, SalesYear;
+
+23. What are all the different attributes of indexes?(索引的不同屬性)
+
+  The indexing has various attributes:
+
+  Access Types(存取型態): This refers to the type of access such as value-based search, range access, etc.
+  Access Time(存取期間): It refers to the time needed to find a particular data element or set of elements.
+  Insertion Time(新增時間): It refers to the time taken to find the appropriate space and insert new data.
+  Deletion Time(刪除時間): Time is taken to find an item and delete it as well as update the index structure.
+  Space Overhead(空間成本): It refers to the additional space required by the index.
+
+24. What is a Cursor?(指標)
+
+  The cursor is a Temporary Memory or Temporary Work Station. 
+  It is Allocated by Database Server at the Time of 
+    Performing DML operations on the Table by the User. (它可以在使用者執行DML作業時使用)
+  Cursors are used to store Database Tables. 
+
+25. Write down various types of relationships in SQL?(關聯類型)
+
+  There are various relationships, namely:
+    One-to-One Relationship.(1對1)
+    One to Many Relationships.(1對多)
+    Many to One Relationship.(多對1)
+    Self-Referencing Relationship.(自己對自己)
+
+
