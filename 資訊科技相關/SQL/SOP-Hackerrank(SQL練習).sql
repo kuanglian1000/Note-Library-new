@@ -106,9 +106,41 @@ BEGIN
     CONTINUE --往下一個run
 END
 
--- 網友寫的, 原來SQL可以這麼寫!!
+select 1 as n
+into #temp;
+select * from #temp;
+
+-- 網友寫的, 原來SQL可以這麼寫!!(未解開)
 with t as ( select 1 as n union all select n + 1 from t where n < 1000 ) , 
     tb1 as ( select t1.n as n1, t2.n as n2, t1.n % t2.n as n3 from t as t1, t as t2 where t1.n > t2.n and t2.n > 1 ) , 
     tb2 as ( select n1 from tb1 where n3 = 0 group by n1 ) , 
     prime as ( select n from t where n not in (select n1 from tb2) and n > 1 ) 
 SELECT STRING_AGG(n,'&') From prime OPTION (MAXRECURSION 1000);
+
+-- Query a count of the number of cities in CITY having a Population larger than 100,000. 
+SELECT COUNT(1) FROM CITY WHERE Population > 100000;
+
+-- Query the [total population] of all cities in CITY where District is California. 
+SELECT SUM(Population) FROM CITY WHERE District = 'California';
+
+-- Query the [average population] of all cities in CITY where [District is California]. 
+SELECT AVG(Population) FROM CITY WHERE District = 'California';
+
+-- Query the [average population] for all cities in CITY, [rounded down to the nearest integer].
+SELECT ROUND(AVG(Population), 0) FROM CITY;
+
+-- Query the [sum of the populations] for all Japanese cities in CITY. 
+-- The COUNTRYCODE for Japan is JPN.
+SELECT SUM(Population) FROM CITY WHERE COUNTRYCODE = 'JPN';
+
+-- Query the difference between the maximum and minimum populations in CITY.
+SELECT MAX(Population) - MIN(Population) FROM CITY;
+
+-- Write a query calculating the amount of error (i.e.: average monthly salaries), 
+-- and [round it up to the next integer].(CEIL => 此函式會傳回大於或等於所指定數值運算式的最小整數)
+
+SELECT CEIL(AVG(Salary) - AVG(CAST(REPLACE(CAST(salary AS VARCHAR(4)), '', '0') AS INT) ))
+FROM EMPLOYEES;
+
+SELECT CEIL(AVG(Salary) - AVG(CAST(REPLACE(Salary, '0', '') AS DECIMAL))) AS diff
+FROM EMPLOYEES;
