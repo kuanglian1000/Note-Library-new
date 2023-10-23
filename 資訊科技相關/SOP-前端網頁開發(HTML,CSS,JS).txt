@@ -4,7 +4,7 @@
   2.https://www.w3schools.com/css/css_quiz.asp
   3.https://www.w3schools.com/js/js_quiz.asp
 
-  10-24 => 錯誤/不確定檢討: 
+  10-24 => 檢討: 
   JS
       (1)Where is the correct place to insert a JavaScript?
           The <head> section    Your answer  
