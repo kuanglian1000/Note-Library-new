@@ -1,3 +1,229 @@
+準備112年集保考試的練習(HTML+CSS+JS)
+資料來源: https://www.w3schools.com 的 Quiz
+  1.https://www.w3schools.com/html/html_quiz.asp
+  2.https://www.w3schools.com/css/css_quiz.asp
+  3.https://www.w3schools.com/js/js_quiz.asp
+
+  10-24 => 錯誤/不確定檢討: 
+  JS
+      (1)Where is the correct place to insert a JavaScript?
+          The <head> section    Your answer  
+          The <body> section
+          Both the <head> section and the <body> section are correct    Correct answer  
+
+      (2)The [Math.ceil()] static method always [rounds up] 
+          and returns [the smallest integer greater than or equal to] a given number.
+        
+        把（數）上捨入，把（數字）調高為整數, 回傳小於或等於給值的最小整數
+        正數: 只要有小數, 就往上進位
+        負數: 不會進位
+
+        console.log(Math.ceil(0.95));
+        // Expected output: 1
+
+        console.log(Math.ceil(4));
+        // Expected output: 4
+
+        console.log(Math.ceil(7.001));
+        // Expected output: 8
+
+        console.log(Math.ceil(-7.004));
+        // Expected output: -7
+
+        console.log(Math.ceil(-7.9));
+        // Expected output: -7
+
+      (3)The [Math.floor()] static method always [rounds down] 
+          and returns [the largest integer less than or equal to] a given number.
+        
+        捨棄尾數把（數字）調低為整數, 回傳小於或等於給值的最大整數
+        正數: 不會進位
+        負數: 只要有小數, 就往上進位
+
+        console.log(Math.floor(5.95));
+        // Expected output: 5
+
+        console.log(Math.floor(5.05));
+        // Expected output: 5
+
+        console.log(Math.floor(5));
+        // Expected output: 5
+
+        console.log(Math.floor(-5.05));
+        // Expected output: -6
+    
+      (4)The [Math.round()] static method 
+        returns the value of a number rounded to the nearest integer.
+        正數: 4捨5入
+        負數: 5捨6入
+
+        console.log(Math.round(0.9));
+        // Expected output: 1
+
+        console.log(Math.round(5.95), Math.round(5.5), Math.round(5.05));
+        // Expected output: 6 6 5
+
+        console.log(Math.round(-5.05), Math.round(-5.5), Math.round(-5.6), Math.round(-5.95));
+        // Expected output: -5 -5 -6 -6
+  CSS
+    What is the correct HTML for referring to an external style sheet?
+      <link rel="stylesheet" type="text/css" href="mystyle.css">
+
+    Where in an HTML document is the correct place to refer to an external style sheet?
+      <head>
+    
+    Which HTML tag is used to define an internal style sheet?
+      <style>
+
+    Which HTML attribute is used to define inline styles?
+      style
+
+    Which is the correct CSS syntax?
+      body{color:black;}
+
+    Which CSS property controls the text size?
+      font-size
+
+    What is the correct CSS syntax for making all the <p> elements bold?
+      p{font-weight: bold;}
+
+    How do you display hyperlinks without an underline?
+      如何隱藏超連結的底線?
+      a{text-decoration:none;} 正確答案
+      a{text-decoration:no-underline;} 錯誤答案
+      
+    How do you make each word in a text start with a capital letter?
+      text-transform:capitalize
+
+    Which property is used to change the font of an element?
+      font-family
+
+    How do you display a border like this:
+      The top border = 10 pixels
+      The bottom border = 5 pixels
+      The left border = 20 pixels
+      The right border = 1pixel?
+      順序:上右下左
+      border-width: 10px 1px 5px 20px;
+    
+    Which property is used to change the left margin of an element?
+      margin-left
+
+    When using the padding property; are you allowed to use negative values?
+      可以在 [padding property] 上, 使用負值嗎? => 不行
+
+      Yes 錯誤答案
+      No 正確答案
+
+    How do you make a list that lists its items with squares?
+      如何產生方塊清單?
+
+      list-type: square; 錯誤答案
+      list-style-type: square; 正確答案
+
+    How do you select an element with id 'demo'?
+      #demo
+
+    How do you select elements with class name 'test'?
+      .test
+
+    How do you select all p elements inside a div element?
+      div p
+
+    How do you group selectors?
+      如何群組化CSS選擇器? => 每個選擇器以逗號[,]分隔.
+      Separate each selector with a comma  
+
+    What is the default value of the position property?
+      relative 錯誤答案
+      static 正確答案
+  HTML
+    Inline elements are normally displayed without starting a new line.
+      false 錯誤答案
+      true 正確答案
+
+    How can you make a numbered list?(順序清單)
+      <ol> => order list
+
+    How can you make a bulleted list?(項目符號清單)
+      <ul>
+
+    What is the correct HTML for making a checkbox?
+      <input type="checkbox">
+
+    What is the correct HTML for making a text input field?
+      <input type="text">
+
+    What is the correct HTML for inserting a background image?
+      <body style="background-image:url(background.gif)"> 
+
+    Block elements are normally displayed without starting a new line.
+      一個區塊會新增一行
+      false
+
+    Which HTML element defines the title of a document?
+      <title>
+
+    Which HTML attribute specifies an alternate text for an image, if the image cannot be displayed?
+      alt
+
+    Which doctype is correct for HTML5?
+      <!DOCTYPE html>
+
+    What is the correct HTML element for playing video files?
+      <video>
+
+    What is the correct HTML element for playing audio files?
+      <audio>
+    
+    The HTML global attribute, "contenteditable" is used to:
+      Specify whether the content of an element should be editable or not  
+
+    Graphics defined by SVG is in which format?
+      XML
+
+    Which input type defines a slider control?
+      slider 錯誤答案
+      range 正確答案(range 可以產生動態拉把)
+      # Creating a Range Slider # https://www.w3schools.com/howto/howto_js_rangeslider.asp
+      <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+
+    Which HTML element is used to display a scalar measurement within a range?
+      range 錯誤答案
+      meter 正確答案(meter 可以產生類似溫度計)
+
+      Use the [meter element] to display a scalar value within a given range (a gauge):
+      <meter id="disk_c" value="2" min="0" max="10">2 out of 10</meter><br>
+
+    Which HTML element defines navigation links?
+      <nav>
+      The <nav> tag defines a set of navigation links.
+        <nav>
+          <a href="/html/">HTML</a> |
+          <a href="/css/">CSS</a> |
+          <a href="/js/">JavaScript</a> |
+          <a href="/python/">Python</a>
+        </nav> 
+        Output: HTML | CSS | JS | Python
+
+    In HTML, what does the <aside> element define?
+      A navigation list to be shown at the left side of the page 錯誤答案
+      Content aside from the page content  正確答案
+
+      <aside> element 通常作為主文的註解, 會加上CSS效果, 塞在主文的兩側, 右側或左側.
+      
+      The <aside> tag defines some content aside from the content it is placed in.
+      The aside content should be indirectly related to the surrounding content.
+      Tip: The <aside> content is often placed as a sidebar in a document.
+      https://www.w3schools.com/tags/tag_aside.asp
+      https://www.w3schools.com/tags/tryit.asp?filename=tryhtml5_aside2
+
+    Which HTML element is used to specify a header for a document or section?
+      <header>
+
+    Choose the correct HTML element to define important text
+      <strong>
+
 Web 入門 (資料來源: https://developer.mozilla.org/zh-TW/docs/Learn/Getting_started_with_the_web)
   
   HTML - 用來建構網頁內容, 並給予其含意和用途
