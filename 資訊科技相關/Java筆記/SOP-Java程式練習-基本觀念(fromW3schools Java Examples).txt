@@ -1,0 +1,126 @@
+https://www.w3schools.com/java/java_examples.asp
+
+  Java Syntax
+    // Main.java
+    public class Main{
+      public static void main(string[] args){
+        System.out.println("Hello World");
+      }
+    }
+
+  Java Output / Print
+    System.out.println("Hello World."); //輸出結果後, 會再寫一行空白
+    System.out.print(""); //輸出結果後, 不會寫空白行
+
+    System.out.print("Hello World.  ");
+    System.out.print("I will print on the same line.");
+    //Output: Hello World.  I will print on the same line.
+
+  Java Output Numbers
+    System.out.println(3);
+    System.out.println(3+6);
+    System.out.println(3*9);
+
+  Java Comments
+    // This is a comment
+    System.out.println("Hello World");
+
+    System.out.println("Hello World"); // This is a comment
+
+    /* The code below will print the words Hello World
+    to the screen, and it is amazing */
+    System.out.println("Hello World");
+
+  Java Modifiers
+    # final(常數用修飾子) #
+      public class Main{
+        final int x = 10;
+        final double PI = 3.14;
+
+        public static void main(string[] args){
+          Main myObj = new Main();
+          myObj.x = 50; //error occurs
+          myObj.PI = 25; //error occurs
+          System.out.println(myObj.x); //success
+        }
+      }
+
+    # Static(不用透過新增物件, 即可存取. 不像public) #
+      public class Main{
+        // Static method
+        static void myStaticMethod(){
+          System.out.println("Static method can be called without creating Objects");
+        }
+
+        public void myPublicMethod(){
+          System.out.println("Public method must be called by creating Objects");
+        }
+        
+        public static void main(string[] args){
+          myStaticMethod(); //OK
+
+          Main myObj = new Main();
+          myObj.myPublicMethod(); //OK
+        }
+      }
+      
+# Abstract( abstract方法屬於 abstract類別, 而且它沒有任何內容. abstract方法的內容是由子類別所提供[撰寫])
+
+  //abstract class. FileName: emptyStudent.java (BEGIN) ==
+    abstract class emptyStudent{
+      public String fname = "Kevin";
+      public int age = 24;
+      public abstract void study(); //abstract方法
+    }
+
+    //Subclass (繼承至 emptyStudent)
+    class Student extends emptyStudent{
+      public int graduationYear = 2018;
+      public void study(){
+        System.out.println(fname + " 整天認真學習..");
+      }
+    }
+  //abstract class. FileName: emptyStudent.java (END) ==
+
+  //Another class. FileName: Main.java (BEGIN) ==
+
+    public class Main{
+      public static void main(string[] args){
+        Student myStudent = new Student();
+        System.out.println("Name: " + myStudent.fname);
+        System.out.println("Age: " + myStudent.age);
+        System.out.println("graduationYear: " + myStudent.graduationYear);
+        myStudent.study();
+      }
+    }
+
+  //Another class. FileName: Main.java (END) ==
+
+  Java Files
+
+    import java.io.File;
+    File myObj = new File("filename.txt");
+
+    //Create a File
+    import java.io.File;
+    import java.io.IOException;
+
+    public class CreateFile{
+      public static void main(String[] args){
+        try{
+          
+
+        }catch(IOException e){
+          System.out.println("An error occurs");
+          e.printStackTrace();
+        }
+      }
+    }
+
+Code Template(撰寫程式框架)
+
+public class Main{
+  public static void main(string[] args){
+
+  }
+}
