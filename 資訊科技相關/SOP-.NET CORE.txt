@@ -4,8 +4,6 @@
   太扯了吧, 從05/09從台半離開到05/31現在, 都在花時間學習 {.NET Core}.
   氣死我了, 以後不玩了啦...
 
-
-
 {延後}
 
     Introduction to Identity on ASP.NET Core(登入驗證功能) => ProjectName: MvcIdentity (2021/07/12)
@@ -245,6 +243,9 @@
   dotnet tool install -g {toolName}
     安裝共用工具(-g)
     dotnet tool install -g Microsoft.dotnet-httprepl 安裝共用工具至專案中, Microsoft.dotnet-httprepl => 測試WEBAPI用
+
+  dotnet watch run
+    原始碼修改後存檔, 程式重新編譯再啟動, 不會自行重啟.
 
   dotnet run    
     Locates the project file at the current directory.(在目前資料夾找專案檔)
