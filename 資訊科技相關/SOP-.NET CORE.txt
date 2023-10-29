@@ -285,7 +285,7 @@
   # Entity Framework Core 指令碼使用手冊 #
     https://learn.microsoft.com/en-us/ef/core/cli/dotnet
 
-    例: dotnet ef migrations add UpdateProduct_CreateCategory (註: 依照慣例, 第1次移轉的取名為 InitialCreate; 之後可以改為 add Column_Desc..)
+    例: dotnet ef migrations <add UpdateProduct_CreateCategory> (註: 依照慣例, 第1次移轉的取名為 InitialCreate; 之後可以改為 add Column_Desc..)
     例: dotnet ef database update (註: 使用最近1次移轉, 執行移轉內的 Up 方法, 來新增資料庫.)
     例: dotnet ef dbcontext script --output <FilePath> (註: Generates a SQL script from the DbContext. Bypasses any migrations.)
 
@@ -311,13 +311,11 @@
         dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version 6.0.10
         
         # <資料庫結構(Schema)自動產生> 套件 加入專案內 #
-        dotnet add package Microsoft.EntityFrameworkCore.Design
-        dotnet add package Microsoft.EntityFrameworkCore.SQLite
+        dotnet add package Microsoft.EntityFrameworkCore.Design --version 6.0.10
+		dotnet add package Microsoft.EntityFrameworkCore.Tools --version 6.0.10
+        dotnet add package Microsoft.EntityFrameworkCore.SQLite --version 6.0.10
         dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 6.0.10
-        dotnet add package Microsoft.EntityFrameworkCore.Tools --version 6.0.10
-
-        # 連結Oracle資料庫套件 #
-        dotnet add package Oracle.EntityFrameworkCore --version 7.21.9
+        dotnet add package Oracle.EntityFrameworkCore --version 7.21.9 # 連結Oracle資料庫套件 #
 
   dotnet aspnet-codegenerator 自動產生程式碼範本用
     詳細作法參閱連結: https://learn.microsoft.com/zh-tw/aspnet/core/fundamentals/tools/dotnet-aspnet-codegenerator?view=aspnetcore-7.0

@@ -208,7 +208,7 @@ Day5-Mvc Model(模型-詳細說明)
           
             dotnet ef database drop --force
             dotnet ef migrations add InitialCreate --context StoreContext 
-			      dotnet ef database update
+			dotnet ef database update
 			(註1: 依照慣例, 第1次移轉的取名為 InitialCreate; 之後可以改為 add Column_Desc..)
 			(註2: 超過1個 DbContext時, 必須指定 要移轉哪一個)
 			(註3: 使用最近1次移轉, 執行移轉內的 Up 方法, 來新增資料庫.)

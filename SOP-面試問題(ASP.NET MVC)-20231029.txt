@@ -1,0 +1,107 @@
+<前10大 ASP.NET MVC 最常問的問題>
+  
+  1.State the Various Controller action ways to return Types.
+  1.控制器的方法可以回傳哪些類型？
+    > Browse Result / return View() / return PartialView();
+      (
+        ViewResult, return View(); 
+        PartialViewResult, return PartialView();
+      )
+    > Redirect / return Redirect / return RedirectToAction
+      (
+        RedirectResult, return Redirect("~/Home/Login"); //可導向內部動作 & 外部連結
+        RedirectResult, return Redirect("http://www.taiwan.gov.tw"); 
+        RedirectToRouteResult, return RedirectToAction("Page", "Default", new{index=1}); //只能導向內部動作
+        RedirectToRouteResult, return RedirectToAction("<ActionName>", "<ControllerName>>", new{index=1});
+       )
+    > JavaScript / return JavaScript
+        public IActionResult ShowAlert() //程式寫法
+        {
+          string myConfirm = "confirm("are you sure to delete data?")";
+          return JavaScript(myConfirm);
+        }
+    > Content-based Result / return Content(show, "text/html", Encoding.UTF8)
+        [Produces("text/html")]
+        public IActionResult ShowImages()
+        {
+            string show = "";
+            for (int i = 1; i < 5; i++)
+            {
+                show += $"<img src='/images/{i}.jpg' width='150' >";
+            }
+            return Content(show, "text/html", Encoding.UTF8) ;
+        }
+    > JSON Result / return Json(p, JsonRequestBehavior.AllowGet); 
+        //p是右側物件, Product p = new Product();, 準備序列化為JSON往外傳.
+        //預設: 不允許GET取得JSONRESULT, 所以要加上JsonRequestBehavior.AllowGet
+        public IActionResult GetJsonApi()
+        {
+          Product p = new Product();
+          return Json(p, JsonRequestBehavior.AllowGet); 
+        }
+
+  2.What Benefits does MVC Offer?
+  2.MVC可提供的效益?
+    > MVC將專案分為不同區塊, 讓開發人員便於維護.
+    > MVC改善專案檔案的分類
+    > MVC將顯示與商業邏輯作分離, 降低耦合
+    > 每個MVC項目執行不同的功能.
+
+  3.What are the MVC model's Shortcomings?
+  3.MVC model的缺點有哪些?
+
+  4.What are the Procedures for carrying out an MVC project?
+  4.MVC程式的執行步驟為何?
+    > 獲得應用程式要求request.
+    > 執行路由routing.
+    > 產生MVC request 控制器handler
+    > 產生控制器 controller 並執行
+    > 呼叫方法 action
+    > 執行輸出 Outcomes
+
+  5.How may Ajax be used in MVC?
+  5.如何在MVC使用 Ajax
+    > 利用整合在 MVC內的兩項技術.
+    (1) jQuery
+    (2) Ajax libraries
+
+  6.What kinds of Outcomes are there in MVC?
+  6.MVC 中有哪些類型的輸出結果？ 12種回傳結果, 主要是 "ActionResult", 其他都是副型態
+    ActionResult
+      View Result
+      PartialView
+      EmptyResult 
+      RedirectResult 
+      RedirectToRouteResult
+      JsonResult 
+      JavaScript Result
+      ContentResult
+      FileContent Result 
+      FileStreamResult 
+      FilePathResult
+
+  7.What File formats do razor Views Support?
+  7.razor Views支援哪些檔案類型?
+    依使用的程式語言而不同, 有兩種, 分別是 C# 用的 *.cshtml & VB用的 *.vbhtml.
+
+  8.What Characteristics does MVC have?
+  8.MVC有什麼特性?
+    
+    Effortless and simple testability. The framework is highly tested, extensible, and pluggable.
+      輕鬆且簡單的可測試性
+    Provides complete control of your HTML and URLs
+      完全控制你的HTML(View)及URL(網址/路由)
+    Utilizes pre-existing functionalities offered by JSP, Django, ASP.NET, etc.
+      利用現有的功能, 例: JSP, Django, ASP.NET都有各自的MVC架構
+    Model, View, and Controller all exhibit distinct logical separation. division of application tasks using business, input, and Ul logic.
+      模型、檢視和控制器都表現出明顯的邏輯分離。使用業務、輸入和 Ul 邏輯劃分應用程式任務。
+    URL Routing for URLs That Are SEO-Friendly Effective URL mapping for searchable and understandable URLs.
+      對 SEO 友好的 URL 的 URL 路由 可搜索和可理解的 URL 的有效 URL 映射。
+    Assistance with test-driven development (TDD).
+      協助測試驅動開發 （TDD）
+
+  9.How does Spring's MVC Work?
+
+  10.What does AngularJS's MVC mean?
+
+    
