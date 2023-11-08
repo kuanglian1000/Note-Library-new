@@ -1,0 +1,110 @@
+資料來源: https://www.tutorialsteacher.com/mvc
+
+Controller回傳的類型, 不能直接用 string 回傳
+
+    using System.Text;
+
+    // 回傳 HTML string 的生效範例(.NET Core 適用)
+    [Produces("text/html")]
+    public IActionResult ShowImages()
+    {
+        string show = "";
+        for (int i = 1; i < 5; i++)
+        {
+            show += $"<img src='/images/{i}.jpg' width='150' >";
+        }
+        return Content(show, "text/html", Encoding.UTF8) ;
+    }
+
+    // 回傳 HTML string 的無效範例(.NET Core 不適用, MVC 5 可以)
+    public string ShowArray()
+    {
+        int[] ary = new int[] {78,99,20,100,26};
+        string show = "";
+        int sum = 0;
+        foreach (var item in ary)
+        {
+            show += item + " , "; //string
+            sum += item; //int
+        }
+        show += " <br /> "; //加上換行(HTML Tag會失效.)
+        show += "總和 = " + sum;
+        return show;
+    }
+
+ASP.NET MVC Folder Structure
+  App_Data
+
+  App_Start 
+    => contain class files that will be executed when the application starts
+    default:
+      BundleConfig.cs, FilterConfig.cs, RouteConfig.cs
+    manual added:
+      AuthConfig.cs 
+
+  Content => CSS, images, icon files
+    default: 
+      bootstrap.css, bootstrap.min.css, Site.css
+
+  Controllers
+
+  fonts
+
+  Models
+
+  Scripts
+    default:
+      bootstrap, jquery 1.10, and modernizer
+
+  Views
+    The (Shared) folder under the View folder contains all the views shared among different controllers 
+    e.g., layout files, _Layout.cshtml
+
+  Global.asax
+    撰寫應用程式等級(application-level)的事件
+    例: Application_BeginRequest, application_start, application_error, session_start, session_end, etc
+
+  Package.config
+    管理已安裝套件用
+
+  Web.config
+    內含應用程式等級(application-level)的設定
+
+Routing in MVC
+  注意: Routing 並非 ASP.NET MVC 獨有; ASP.NET WebForm 也能設定 Routing.
+  例1: http://Domain/students 可對應 http://Domain/studentsinfo.aspx
+  例: http://Domain/students 也可對應 StudentController 內的 Index Action.
+
+  MVC framework evaluates each route in sequence(逐一往下比對)
+
+  重點記憶:
+    1.Routing對MVC架構扮演重要角色. Routing對應URL至實體檔案或類別(Controller)
+    2.Route包含 URL Pattern 及 handler 資訊. URL Pattern 會接續在 Domain名稱後面.
+    3.Route被定義在 RouteConfig.cs 類別內. 可以定義多個Route.
+    4.Route Constraints 應用在限制 參數值/型態
+    5.Route 必須註冊在 Application_Start 事件內 @ Global.ascx.cs
+
+      Global.ascx.cs
+        protected void Application_Start(){
+          RouteConfig.RegisterRoutes(RouteTable.Routes);
+        }
+      RouteConfig.cs
+        public class RouteConfig{
+          public static void RegisterRoutes(RouteCollection routes){
+            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+          }
+        }
+
+防止 ASP.NET Core中的跨網站腳本 (XSS)
+  1.WebAPI 應該要實作 (輸入驗證 & 輸出編碼)
+    (輸入驗證)可確保使用者輸入符合預期的準則，且不包含惡意程式碼。
+    (輸出編碼)可確保 API 傳回的任何資料都已正確清理，因此無法由使用者的瀏覽器以程式碼的形式執行
+
+防止 ASP.NET MVC 應用程式中的跨網站偽造要求 (CSRF) 攻擊
+  1.跨網站偽造要求 (CSRF) 是攻擊，惡意網站會將要求傳送至使用者目前登入的易受攻擊網站
+  2.使用 SSL 不會防止 CSRF 攻擊，因為惡意網站可以傳送「HTTPs://」要求
+  ==
+  3.使用 HtmlHelper.AntiForgeryToken 協助程式方法, 將防偽造權杖新增至 Razor 頁面
+    @using (Html.BeginForm("Manage", "Account")){
+      @Html.AntiForgeryToken()
+    }
