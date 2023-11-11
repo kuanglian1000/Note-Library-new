@@ -160,7 +160,7 @@ Python Variables
         x = "fantastic"
       myfunc()
       print("Python is " + x) 
-      
+
     (2)全域變數變成函式內區域變數使用
       x = "awesome"
       def myfunc():
@@ -186,3 +186,8 @@ Python Variables
   myVariableName = "John" #Camel Case
   MyVariableName = "John" #Pascal Case
   my_variable_name = "John" #Snake Case
+
+==2023/11/11==
+
+Python Data Types (TODO)
+
