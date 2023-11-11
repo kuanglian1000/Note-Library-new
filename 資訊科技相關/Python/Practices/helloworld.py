@@ -1,3 +1,5 @@
+import random
+
 print('Hello World')
 
 if 5 > 2:
@@ -77,3 +79,20 @@ def myfunc():
   x = "fantastic"
 myfunc()
 print("Python is " + x) 
+
+
+x = 35e3
+y = 12E4
+z = -87.7e100
+print(x)
+print(y)
+print(z)
+
+x = 3+5j
+y = 5j
+z = -5j
+print(x)
+print(y)
+print(z)
+
+print(random.randrange(1,100))
