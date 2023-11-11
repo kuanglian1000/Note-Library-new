@@ -1,4 +1,4 @@
-SOP-Python學習筆記.txt
+SOP-Python學習筆記(Django).txt
 
 ================================
 Django Tutorial Part 6: Generic list and detail views

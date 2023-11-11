@@ -1,0 +1,188 @@
+學習資源: https://www.w3schools.com/python/python_intro.asp
+
+Python Introduction
+
+  Python Syntax compared to other programming languages(Python與其他程式語言的差異)
+
+    Python was designed for readability, and has some similarities to the English language with influence from mathematics.
+    Python uses new lines to complete a command, as opposed to other programming languages which often use semicolons or parentheses.
+      (使用換行來完成一行指令, 而不是分號[;])
+    Python relies on indentation, using whitespace, to define scope; such as the scope of loops, functions and classes. Other programming languages often use curly-brackets for this purpose.
+      (使用縮排及空白來定義範圍, 而不是大括號{})
+
+Python Getting Started
+
+    Python Install
+      C:\Users\Your Name>python --version
+      (確認是否安裝的指令)
+      output => Python 3.8.7
+
+    > PowerShell 取得目前路徑
+        Get-Location
+
+    > PowerShell 切換路徑
+        Set-Location -Path C:\Windows -PassThru
+        (切換至 C:\Windows 路徑, -PassThru => 顯示切換後路徑)
+        Set-Location -Path C:\Windows
+        (切換至 C:\Windows 路徑, 無顯示切換後路徑)
+
+Python Syntax
+  > Execute Python Syntax
+    1. >>> print("Hello, World!")
+    2. C:\Users\Your Name>python myfile.py
+
+  > Python Indentation(縮排)
+    1.Indentation refers to the spaces at the beginning of a code line.(程式碼前面的空白)
+    2.Where in other programming languages the indentation in code is for readability only, 
+      the indentation in Python is very important.
+    3.Python uses indentation to indicate a block of code.(Python使用縮排決定程式碼的段落)
+
+    if 5 > 2:
+      print("5 is grater than 2")
+  
+Python Comments
+  1.Comments start with a [#], and Python will render the rest of the line as a comment: 
+
+    #This is a comment.
+    print("Hello, World!")
+
+  2.Multiline Comments
+
+    方式(1).使用多個 [#]
+    #This is a comment
+    #written in
+    #more than just one line
+    print("Hello, World!")
+
+    方式(2).使用未指定給變數的字串值, 因為Python會忽略未指定給變數的字串, 必須以 ['''] or ["""]包起來.
+
+    '''我是多行註解1
+    我是多行註解2
+    我是多行註解3
+    '''
+
+    """我是多行註解1
+    我是多行註解2
+    我是多行註解3
+    """
+
+Python Variables
+  1.In Python, variables are created when you assign a value to it: (第1次指定值時, 變數才會產生)
+  2.Python has no command for declaring a variable.(Python沒有宣告的變數的指令)
+  3.Variables do not need to be declared with any particular type, 
+    and can even change type after they have been set.
+    (變數毋須指定型態, 而且設定值後仍可改變型態)
+  4.If you want to specify the data type of a variable, this can be done with casting.
+    (變數可以指定型態, 使用[轉型函式])
+  5.You can get the data type of a variable with the [type()] function.
+    (可以利用 type() 函式, 取得變數型態)
+  6.String variables can be declared either by using single or double quotes:
+    (字串變數可以用 '' or "" 宣告)
+  7.Variable names are case-sensitive.
+    (變數名稱區分大小寫)
+  8.Multi Words Variable Names
+    (多字變數名稱-命名建議)
+
+    Python - Variable Names(變數命名規則)    
+      a.A variable name must start with a letter or the underscore character
+        (必須以英文字母或底線開頭)
+      b.A variable name cannot start with a number
+        (不能以數字開頭)
+      c.A variable name can only contain alpha-numeric characters and underscores (A-z, 0-9, and _ )
+        (只能包含英文字母+數字+底線)
+      d.Variable names are case-sensitive (age, Age and AGE are three different variables)
+        (區分大小寫)
+      e.A variable name cannot be any of the Python keywords.
+        (不能是Python保留字)
+
+  9.Python Variables - Assign Multiple Values
+  (一值指定多變數, 多值指定多變數, 拆集合值指定多變數[unpacking])
+    範例: 參照Practices\helloworld.py => line: 19-42
+
+  10.Python - Output Variables
+  (The best way to output multiple variables in the print() function 
+  is to separate them with [commas], which even support different data types:
+  print(int,str,float,..)使用逗號來結合, 支援不同資料型態)
+
+    a.The Python print() function is often used to output variables.
+      x = "Python is awesome"
+      print(x)
+    b.In the print() function, you output multiple variables, separated by a [comma]: #以逗號分隔
+      x = "Python"
+      y = "is"
+      z = "awesome"
+      print(x, y, z)
+    c.You can also use the [+] operator to output multiple variables: #以加號分隔
+      x = "Python"
+      y = "is"
+      z = "awesome"
+      print(x + y + z)
+    
+    d. [注意] 使用print()時, 不能用 [+] 把字串和數字結合, 但可以用 [,] 把字串和數字結合
+      # OK
+      x = "Buy " 
+      y = 5 
+      z = "apples"
+      print(x, y, z)
+
+      # Error, 使用print()時, 不能用 + 把字串和數字結合, 但可以用 [,] 把字串和數字結合
+      # x = "Buy " 
+      # y = 5 
+      # z = "apples"
+      # print(x + y + z)
+
+  11.Python - Global Variables
+    a.Variables that are created outside of a function (as in all of the examples above) are known as global variables.
+    b.Global variables can be used by everyone, both inside of functions and outside.
+      (全域變數能被函式內外使用)
+      x = "awesome"
+      def myfunc():
+        print("Python is " + x)
+      myfunc() #Python is awesome
+
+    c.If you create a variable with the same name inside a function, this variable will be local, 
+      and can only be used inside the function. 
+      The global variable with the same name will remain as it was, 
+      global and with the original value.
+      (全域變數與區域變數同名時, 並不會互相干擾)
+      x = "awesome"
+      def myfunc():
+        x = "fantastic"
+        print("Python is " + x) # x => fantastic
+
+      myfunc()
+      print("Python is " + x) # x => awesome      
+
+    d.The [global] Keyword, (1)使區域變數變成全域變數, (2)全域變數變成函式內區域變數使用
+    (1)使區域變數變成全域變數
+      def myfunc():
+        global x
+        x = "fantastic"
+      myfunc()
+      print("Python is " + x) 
+      
+    (2)全域變數變成函式內區域變數使用
+      x = "awesome"
+      def myfunc():
+        global x
+        x = "fantastic"
+
+      myfunc()
+      print("Python is " + x) 
+    
+
+  x = 5 #變數毋須指定型態
+  x = "change to string" #設定值後仍可改變型態
+  y = "hello World"
+
+  a = str(3) # a will be '3'
+  b = int(3) # b will be 3
+  c = float(3) # c will be 3.0
+
+  print(type(a)) # <class 'str'>
+  print(type(b)) # <class 'int'>
+  print(type(c)) # <class 'float'>
+
+  myVariableName = "John" #Camel Case
+  MyVariableName = "John" #Pascal Case
+  my_variable_name = "John" #Snake Case
