@@ -124,3 +124,8 @@ print(word[-6:-1]) #
 
 word = "I live in ILian"
 print(word.split(" "))
+
+print(10 < 9)
+
+print(bool("Hello"))
+print(bool(15))

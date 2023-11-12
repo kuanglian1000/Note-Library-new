@@ -313,7 +313,7 @@ Python Casting
 
 ==2023/11/11==
 
-Python Strings (TODO)
+Python Strings
   > Strings
     1.Strings in python are surrounded by either single quotation marks['], or double quotation marks["].
     2.'hello' is the same as "hello".
@@ -408,7 +408,7 @@ Python Strings (TODO)
     2.Lower Case
       word.lower()
     
-    3.Remove Whitespace(移至前後空白, 同C# trim)
+    3.Remove Whitespace(移至前後空白, 同C# trim())
       word.strip()
     
     4.Replace String
@@ -418,9 +418,110 @@ Python Strings (TODO)
       word = "I live in ILian"
       print(word.split(" "))
 
+  > String Concatenation (字串連結, 使用 [+] 作連結)
+    1.To concatenate, or combine, two strings you can use the [+] operator.
+      a = 'Hello'
+      b = ' World'
+      c = a + b
+      print(c) #Output => Hello World
 
+  > Format - Strings (字串格式化)
+    1.we cannot combine strings and numbers by [+]
+      (字串與數值間, 不能直接用 [+] 結合)
+    2.But we can combine strings and numbers by using the [format()] method!
+      (字串與數值間, 可以用 [format()] 結合)
+      (注意: 沒有很直覺, 感覺不是很好用..)
+      age = 43
+      txt = "I am {}"
+      print(txt.format(43))
+    3.The format() method takes [unlimited number of arguments], and are placed into the respective placeholders:
+      [format()的參數個數不限.]
+      quantity = 3
+      itemno = 567
+      price = 49.95
+      myorder = "I want {} pieces of item {} for {} dollars."
+      print(myorder.format(quantity, itemno, price))
+    4.You can use index numbers {0} to be sure the arguments are placed in the correct placeholders:
+      (注意: 指定index值, 確認放在哪一個位置)
+      quantity = 3
+      itemno = 567
+      price = 49.95
+      myorder = "I want to pay {2} dollars for {0} pieces of item {1}."
+      print(myorder.format(quantity, itemno, price))
+  
+  > Escape Characters (跳脫字元, 使用 [\], 和C#一樣)
+      txt = "We are the so-called "Vikings" from the north."   # (Error)
+      txt = "We are the so-called \"Vikings\" from the north." # (OK)
 
-Python Booleans (TODO)
+  > String Methods (所有內建函式都會回傳新值, 不會改變原字串)
 
+Python Booleans
+  1.Booleans represent one of two values: [True] or [False].
+
+  > Boolean Values
+
+  > Evaluate Values and Variables
+    1.The [bool()] function allows you to evaluate any value, 
+      and give you [True] or [False] in return,
+    
+    print(bool("Hello")) # True
+    print(bool(15))      # True
+
+  > Most Values are True
+    Almost any value is evaluated to True if it has some sort of content.
+    Any string is True, except empty strings. # 空字串是 False
+    Any number is True, except 0.             # 0是 False
+    Any list, tuple, set, and dictionary are True, except empty ones. # 空集合是 False
+
+  > Some Values are False
+    1.except empty values, such as (), [], {}, "", 
+    2.the number 0
+    3.the value None
+    4.the value False evaluates to False
+    5.Examples, 評估出來都是 False
+      bool(False)
+      bool(None)
+      bool(0)
+      bool("")
+      bool(())
+      bool([])
+      bool({})
+    
+    6.(還有一種情況會評為False 
+      => if you have an object that is made from a class with a __len__ function 
+      that returns 0 or False: )
+      
+      class myclass():
+        def __len__(self):
+          return 0
+
+      myobj = myclass()
+      print(bool(myobj)) # 評估結果是 False
+  
+  > Functions can Return a Boolean (函式可回傳 Boolean)
+    * Examples-1
+        def myFunction() :
+          return True
+
+        print(myFunction()) 
+
+    * Examples-2
+        if myFunction():
+          print("Yes")
+        else
+          print('No')
+
+    * Examples-3 => Python also has many built-in functions that return a boolean value, 
+        like the [isinstance()] function, 
+        which can be used to determine if an object is of a certain data type:
+
+        x = 200
+        print(isinstance(x, int)) #Output is True
 
 ==2023/11/12==
+
+Python Operators
+
+Python Lists
+
+==2023/11/13==
