@@ -96,3 +96,31 @@ print(y)
 print(z)
 
 print(random.randrange(1,100))
+
+mnames = '''1.koko
+2.jojo
+3.wowo'''
+print(mnames)
+
+city = "ILian"
+print(city[1]) #L
+
+for s in city:
+  print(s)
+
+Question = "How many animals in this zoo? 25 36 95"
+print("10" in Question)
+print("36" in Question)
+
+if ("36" in Question): #Use "Check String" in if statement
+  print("Yes, '36' 存在..")
+
+word = "sample"
+print(word[3:]) 
+print(word[3:5]) 
+
+word = "I am ready to work in taipei."
+print(word[-6:-1]) #
+
+word = "I live in ILian"
+print(word.split(" "))

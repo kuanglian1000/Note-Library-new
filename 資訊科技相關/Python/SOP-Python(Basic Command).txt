@@ -314,3 +314,113 @@ Python Casting
 ==2023/11/11==
 
 Python Strings (TODO)
+  > Strings
+    1.Strings in python are surrounded by either single quotation marks['], or double quotation marks["].
+    2.'hello' is the same as "hello".
+    3.Examples
+      print('hello')
+      print("hello")
+
+  > Assign String to a Variable
+    1.Assigning a string to a variable is done with the variable name followed by an equal sign and the string:
+    2.Examples
+      name = "kl"
+      print(name)
+
+  > Multiline Strings (use '''xxx''' or """XXX""")
+    1.You can assign a multiline string to a variable by using three quotes: [''']or["""]
+    2.(會保留換行符號)
+    3.Examples
+      mnames = '''1.koko
+      2.jojo
+      3.wowo'''
+      print(mnames)
+
+  > Strings are Arrays (字串是單字串陣列)
+    1.Like many other popular programming languages, strings in Python are arrays of bytes representing unicode characters.
+      (字串是字元陣列)
+    2.Python does not have a character data type, a single character is simply a string with a length of 1.
+      (Python沒有字元型態, 所以字元被視為長度1的字串)
+    3.Examples
+      city = "ILian"
+      print(city[1]) #Output => "L"
+
+  > Looping Through a String
+    1.Since strings are arrays, we can loop through the characters in a string, with a for loop.
+    2.Examples
+      for s in city:
+        print(s)
+
+  > String Length (len())
+    1.To get the length of a string, use the [len()] function.
+    2.Examples
+      city = "ILian"
+      print(len(city)) #Output => 4
+
+  > Check String (檢查字串內是否有特定字串, 使用關鍵字 [in] )
+    1.To check if a certain phrase or character is present in a string, we can use the keyword [in].
+    2.Examples
+      Question = "How many animals in this zoo? 25 36 95"
+      print("10" in Question) # Output is False
+      print("36" in Question) # Output is True
+
+      if ("36" in Question): #Use "Check String" in if statement
+        print("Yes, '36' 存在..")
+
+  > Check if NOT (檢查字串內是否有特定字串, 使用關鍵字 [not in] )
+    1.To check if a certain phrase or character is NOT present in a string, we can use the keyword [not in].
+    2.Examples  
+      Question = "How many animals in this zoo? 25 36 95"
+      print("10" not in Question) # Output is True
+      print("36" not in Question) # Output is False
+
+
+    3.
+
+  > Slicing Strings (同C# => substring, Python => variableName[startIndex: endIndex] => startIndex起, endIndex不含)
+    1.You can return a range of characters by using the slice syntax.
+    2.examples
+      word = "sample"
+      print(word[3:]) #ple
+      print(word[3:5]) #pl
+  
+  > Slice From the Start (沒有給起始索引 variableName[: endIndex])
+    2.examples
+      word = "sample"
+      print(word[:3]) #sam
+      
+  > Slice To the End (沒有給結尾索引 variableName[startIndex: ])
+    2.examples
+      word = "sample"
+      print(word[4:]) #le
+
+  > Negative Indexing (從字串結尾往回截)
+    1. Use negative indexes to start the slice from the end of the string: 
+    2.(注意: 0是字串開頭, 所以-1是字串結尾, 這點要注意...)
+    2.examples
+      word = "I am ready to work in taipei."
+      print(word[-7:-1]) #taipei
+
+  > Modify Strings (字串內建函式)
+    1.Upper Case
+      word.upper()
+    
+    2.Lower Case
+      word.lower()
+    
+    3.Remove Whitespace(移至前後空白, 同C# trim)
+      word.strip()
+    
+    4.Replace String
+      word.replace("H", "J")
+    
+    5.Split String(回傳LIST[])
+      word = "I live in ILian"
+      print(word.split(" "))
+
+
+
+Python Booleans (TODO)
+
+
+==2023/11/12==
