@@ -1,0 +1,255 @@
+
+Module1: Getting Started
+  Course Content
+
+    This Official ISC2 Certified in Cybersecurity (CC) self-paced course provides a 
+    comprehensive review of information systems security concepts, 
+    industry best practices and terminology. 
+
+    The goal of this content is to provide students with the core knowledge necessary 
+    to be a successful entry-level cybersecurity practitioner(實踐者) in today’s world 
+    and review concepts outlined in the Official ISC2 Certified in Cybersecurity (CC) Exam Outline.
+
+    The course covers all topics from the exam outline and additional topics approved by the ISC2 Education Committee. 
+
+    (建議作法: 先把考試大綱看1次, 了解每個領域及子題的目標)
+    It is recommended that candidates start with a review of the Exam Outline 
+    with the goal of understanding each domain and subtopics. 
+    Please see the ISC2 website to review the exam outline.
+
+    Material has been broken into five working chapters. 
+    The sixth chapter concludes the course and provides links to the ISC2 website, 
+    where you can access information about registering and preparing for the exam 
+    and the certification requirements and processes.
+
+    At the start of each chapter, the objectives are identified, 
+    indicating what you can expect to learn after completing the chapter. 
+    These objectives are divided into smaller modules and sections. 
+    Modules contain activities that reinforce covered topics with a goal of increasing knowledge retention(保留).
+
+    In addition, to help you learn industry terminology, definitions to glossary terms are included in the chapter content, 
+    as well as provided in the course glossary and the practice flash cards. 
+    A term that is bold and underlined in the text indicates that the word is a glossary term. 
+    Hover over the term and the definition will pop up.
+
+    Downloadable chapter resources are provided and designed to be a study tool that lists key takeaways from each chapter, 
+    including graphics illustrating chapter concepts and a glossary of terms.  
+
+Module2: Course Introduction(介紹 CC 考試裡面的五大領域)
+  
+    1.Security Principles 
+    2.Incident Response, Business Continuity and Disaster Recovery Concepts 
+    3.Access Control Concepts 
+    4.Network Security 
+    5.Security Operations 
+  
+  Course Objectives(課程目標)
+
+  >> After completing this course, you will be able to:  
+
+      Discuss the foundational concepts of cybersecurity principles. 
+      Recognize foundational security concepts of information assurance. 
+      Define risk management terminology and summarize the process. 
+      Relate risk management to personal or professional practices. 
+      Classify types of security controls. 
+      Distinguish between policies, procedures, standards, regulations and laws. 
+      Demonstrate the relationship among governance elements. 
+      Analyze appropriate outcomes according to the canons of the ISC2 Code of Ethics when given examples. 
+      Practice the terminology of and review security policies. 
+      Explain how organizations respond to, recover from and continue to operate during unplanned disruptions. 
+      Recall the terms and components of incident response. 
+      Summarize the components of a business continuity plan. 
+
+      Identify the components of disaster recovery. 
+      Practice the terminology and review concepts of business continuity, disaster recovery and incident response. 
+      Select access controls that are appropriate in a given scenario. 
+      Relate access control concepts and processes to given scenarios. 
+      Compare various physical access controls. 
+      
+      Describe logical access controls. 
+      Practice the terminology and review concepts of access controls. 
+      Explain the concepts of network security. 
+      Recognize common networking terms and models. 
+      Identify common protocols and ports and their secure counterparts. 
+      Identify types of network (cyber) threats and attacks. 
+      Discuss common tools used to identify and prevent threats. 
+      
+      Identify common data center terminology. 
+      Recognize common cloud service terminology. 
+      Identify secure network design terminology. 
+      Practice the terminology and review concepts of network security. 
+      
+      Explain concepts of security operations. 
+      Discuss data handling best practices. 
+      
+      Identify key concepts of logging and monitoring. 
+      Summarize the different types of encryption and their common uses. 
+      Describe the concepts of configuration management. 
+      Explain the application of common security policies. 
+      Discuss the importance of security awareness training. 
+      Practice the terminology and review concepts of network operations.  
+
+  CC Exam Domain to Course Chapter Mapping(有一份文件下載, CC五大領域 <==> 線上課程模組對應表.)
+
+課程揭露
+  ISC2 prides itself on providing a vendor neutral approach to all domains of information security. There is no shortage of open source and proprietary tools that an information security professional can utilize in practice. To enhance the learning of key concepts in our courses, we may choose to reference and/or leverage specific tools as mechanisms to facilitate your learning. We understand that the tools that ISC2 Education utilizes as examples are among a wide array that are available. The use of a specific tool is in no way intended to be an endorsement of any particular product, service or vendor.  
+  In some cases, course activities are based on fictional stories/scenarios and do not depict any actual person, organization or event. Any similarities to actual persons, organizations or events are purely coincidental.  
+  The information provided in this course is for educational purposes only. ISC2 accepts no responsibility or liability whatsoever for the use or misuse of any information herein. As a reminder, all ISC2 members are required to commit to the Code of Ethics.
+
+  ISC2 為所有資訊安全領域提供供應商中立的方法而感到自豪。
+  資訊安全專業人員可以在實務中使用的開源和專有工具並不缺乏。
+  為了加強對我們課程中關鍵概念的學習，我們可能會選擇引用和/或利用特定工具作為促進您學習的機制。
+  我們知道 ISC2 Education 所使用的工具是眾多可用工具之一。使用特定工具絕不意味著對任何特定產品、服務或供應商的認可。
+  在某些情況下，課程活動是基於虛構的故事/場景，並不描繪任何真實的人、組織或事件。
+  任何與真實人物、組織或事件的相似之處純屬巧合。
+  本課程中提供的資訊僅用於教育目的。 
+  ISC2 對使用或誤用此處任何資訊不承擔任何責任。謹此提醒，所有 ISC2 成員都必須遵守道德準則。
+
+ISC2 Code of Ethics(道德宣言)
+  All information security professionals who are certified by ISC2 recognize that such certification is a privilege that must be both earned and maintained. In support of this principle, all ISC2 members are required to commit to fully support this Code of Ethics (the "Code"). ISC2 members who intentionally or knowingly violate any provision of the Code will be subject to action by a peer review panel, which may result in the revocation of certification. ISC2 members are obligated to follow the ethics complaint procedure upon observing any action by an ISC2 member that breach the Code. Failure to do so may be considered a breach of the Code pursuant to Canon IV. 
+  所有獲得 ISC2 認證的資訊安全專業人員都認識到，此類認證是一種必須獲得和維持的特權。為了支持這項原則，所有 ISC2 成員都必須承諾全力支持本道德準則（「準則」）。故意或故意違反本準則任何規定的 ISC2 成員將受到同儕審查小組的處罰，這可能會導致認證被撤銷。 ISC2 成員在發現 ISC2 成員違反本準則的任何行為後，有義務遵守道德申訴程序。根據 Canon IV 的規定，如果不這樣做，可能會被視為違反本準則。
+
+  There are only four mandatory canons in the Code. By necessity, such high-level guidance is not intended to be a substitute for the ethical judgment of the professional. 
+  該守則中只有四項強制性規範。必要時，這種高水準的指導並不旨在取代專業人士的道德判斷。
+
+  Code of Ethics Preamble  (序言)
+  The safety and welfare of society and the common good, duty to our principals, and to each other, requires that we adhere, and be seen to adhere, to the highest ethical standards of behavior. 
+  Therefore, strict adherence to this Code is a condition of certification. 
+  社會的安全和福祉以及共同利益、對我們的委託人以及彼此的責任，要求我們堅持並讓人們看到我們遵守最高的行為道德標準。
+  因此，嚴格遵守本準則是獲得認證的條件。
+
+  Code of Ethics Canons:
+  保護社會、共同利益、必要的公眾信任和信心以及基礎設施。
+  行事誠實、公正、負責、合法。
+  為校長提供勤勉、稱職的服務。
+  促進並保護該職業。
+
+第1次考試結果：70分: 2024/01/01
+  38.In order for a biometric security to function properly, 
+  an authorized person's physiological data must be ______. (D3, L3.2.1) 
+
+
+  39.Which of the following would be considered a logical access control? (D3, L3.3.1)
+  A fingerprint reader that allows an employee to access a laptop computer
+
+  40.Handel is a senior manager at Triffid, Inc., and is in charge of implementing a new access control scheme for the company. Handel wants to ensure that employees who are assigned to new positions in the company do not retain whatever access they had in their old positions. 
+  Which method should Handel select? (D3, L3.3.1)
+  Role-based access controls (RBAC)
+
+  41.A _____ is a record of something that has occurred. (D3, L3.2.1) 
+  Log
+
+  42.Which of the following is probably most useful at the perimeter of a property? (D3, L3.2.1) 
+  fence
+
+  43.Tekila works for a government agency. All data in the agency is assigned a particular sensitivity level, called a "classification." Every person in the agency is assigned a "clearance" level, 
+  which determines the classification of data each person can access.  
+  What is the access control model being implemented in Tekila's agency? (D3, L3.3.1)
+  MAC (mandatory access control)
+
+  44.Suvid works at Triffid, Inc. When Suvid attempts to log in to the production environment, a message appears stating that Suvid has to reset the password. 
+  What may have occurred to cause this? (D3, L3.3.1)
+  Suvid's password has expired
+
+  45.Which of the following would be best placed in the DMZ of an IT environment? (D4.3 L4.3.3) 
+  Mail server.(B is correct; devices that must often interact with the external environment (such as a mail server) are typically best situated in the DMZ.)
+
+  46.Which type of fire-suppression system is typically the safest for humans? (D4.3 L4.3.1) 
+  Water
+
+  47.A device that filters network traffic in order to enhance overall security/performance. (D4.1 L4.1.1) 
+  Firewall
+
+  48.Which common cloud deployment model typically features only a single customer's data/functionality stored on specific systems/hardware? (D4.3 L4.3.2) 
+  B is correct; this is the defining feature of private cloud.
+
+  49.Triffid, Inc., has deployed anti-malware solutions across its internal IT environment. 
+  What is an additional task necessary to ensure this control will function properly? (D4.2 L4.2.3) 
+  Update the anti-malware solution regularly
+
+  50.To adequately ensure availability for a data center, it is best to plan for both resilience and _______ of the elements in the facility. (D4.3 L4.3.1) 
+  Redundancy
+
+  51.A VLAN is a _____ method of segmenting networks. (D4.3 L4.3.3) 
+  Logical
+
+  52.A means to allow remote users to have secure access to the internal IT environment. (D4.3 L4.3.3) 
+  VPN
+
+  53.An IoT (Internet of Things) device is typified by its effect on or use of the _____ environment. (D4.3 L4.3.3) 
+  Physical
+
+  54.A tool that inspects outbound traffic to reduce potential threats. (D4.2 L4.2.3) 
+  DLP (data loss prevention)
+
+  55.Triffid, Inc., has many remote workers who use their own IT devices to process Triffid's information. 
+  The Triffid security team wants to deploy some sort of sensor on user devices in order to recognize and identify potential security issues. Which of the following is probably most appropriate for this specific purpose? (D4.2 L4.2.2) 
+  HIDS (host-based intrusion-detection systems)
+
+  56.Ludwig is a security analyst at Triffid, Inc. Ludwig notices network traffic that might indicate an attack designed to affect the availability of the environment. 
+  Which of the following might be the attack Ludwig sees? (D4.2 L4.2.1) 
+  DDOS (distributed denial of service)
+
+  57.The section of the IT environment that is closest to the external world; where we locate IT systems that communicate with the Internet. (D4.3 L4.3.3) 
+  DMZ
+
+  58.A device that is commonly useful to have on the perimeter between two networks. (D4.3 L4.3.3) 
+  Firewall
+
+  59.Barry wants to upload a series of files to a web-based storage service, so that people Barry has granted authorization can retrieve these files. Which of the following would be Barry's preferred communication protocol if he wanted this activity to be efficient and secure? (D4, L4.1.2)
+  SFTP (Secure File Transfer Protocol)
+
+  60.A tool that aggregates log data from multiple sources, and typically analyzes it and reports potential threats. (D4.2 L4.2.2) 
+  SIEM
+
+  61."Wiring _____" is a common term meaning "a place where wires/conduits are often run, and equipment can be placed, 
+  in order to facilitate the use of local networks." (D4.3 L4.3.1) 
+  {Closet}
+
+  62.A tool that filters inbound traffic to reduce potential threats. (D4.2 L4.2.3) 
+  (O)Firewall
+  (X)DLP solutions typically monitor outbound traffic. 
+
+
+  63.Triffid, Inc., wants to host streaming video files for the company's remote users, but wants to ensure the data is protected while it's streaming. 
+  Which of the following methods are probably best for this purpose? (D5.1, L5.1.3) 
+  Symmetric encryption
+
+  64.The organization should keep a copy of every signed Acceptable Use Policy (AUP) on file, and issue a copy to _______. (D5.3, L5.3.1)
+  The user who signed it 
+
+  65.Data _____ is data left behind on systems/media after normal deletion procedures have been attempted. (D5.1, L5.1.1) 
+  Remanence
+
+  66.Dieter wants to send a message to Lupa and wants to be sure that Lupa knows the message has not been modified in transit. 
+  What technique/tool could Dieter use to assist in this effort? (D5.1, L5.1.3) 
+  Hashing
+
+  67.Archiving is typically done when _________. (D5.1, L5.1.1) 
+  Data is not needed for regular work purposes
+
+  68.If two people want to use symmetric encryption to conduct a confidential conversation, 
+  how many keys do they need? (D5.1, L5.1.3) 
+  1
+
+  69.Logs should be reviewed ______. (D5.1, L5.1.2) 
+  Continually
+
+  70.When Pritha started working for Triffid, Inc., Pritha had to sign a policy that described how Pritha would be allowed to use Triffid's IT equipment. 
+  What policy was this? (D5.3, L5.3.1) 
+  The acceptable use policy (AUP)
+
+  71.An organization must always be prepared to ______ when applying a patch. (D5.2, L5.2.1) 
+  Rollback
+
+  72.Proper alignment of security policy and business goals within the organization is important because: (D5.3, L5.3.1) 
+  Security policy that conflicts with business goals can inhibit productivity
+
+  73.Who dictates policy? (D5.3, L5.3.1) 
+  Senior management
+
+  74.By far, the most crucial element of any security instruction program. (D5.4, L5.4.1) 
+  Preserve health and human safety
+
+  75.Security controls on log data should reflect ________. (D5.1, L5.1.2) 
+  The sensitivity of the source device
