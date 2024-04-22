@@ -1,0 +1,600 @@
+
+Q1. 為什麼有些 PHP 程式碼 可以省略 最後的 「?>」
+A1. 程式碼中, 如果只有單純的 PHP語法, 可以省略.
+    避免編輯PHP 程式碼時, 不小心加入 空白字元 或空行, 導致程式錯誤.
+
+[結尾分號]
+  跟 C# 一樣, 每一行程式結束時都要加上「;」
+
+  單行程式沒有結尾分號是可行的.
+  <?php echo "Single line without '結尾分號' is OK..." ?>
+
+[區分大小寫]
+  > 所有變數 或 常數名稱 都 區分大小寫.
+
+  > 所有關鍵字(if, else, wwhile, echo, etc.) 類別, 函式, 自訂函式. 都 不分大小寫.
+
+[變數]
+  > 變數命名要以[$]開頭. ex. $myNum
+  > 變數名稱可以用 [ _ 大小寫英文字 數字] 組合而成. ex. $_123BBBbb (OK)
+  > 變數名稱不可用 [ 數字 ] 作開頭. ex. $1var (X)
+  > 宣告變數不用指定型態. ex. $num = 20; $str = "HelloPHP";
+  > 宣告或使用變數時, 一定要加上 [$] 字號
+
+[全域變數與區域變數]
+  > 原則上, 變數指定後整支程式都能用(全域變數)
+  > 在函式內宣告的變數為(區域變數)
+  > [注意1] (全域變數) 與 (區域變數) 互不干擾.
+  > [注意2] (全域變數) 影響範圍若要延伸至函式內, 必須對該變數作 (全域宣告)
+
+[預設變數的使用]
+  > 預設變數是 (全域變數), 可以在主程式中任何地方使用.
+  > 常用的預設變數
+    >> $GLOBALS => 存放所有定義的全域變數(資訊陣列)
+    >> $_SERVER => 存放網頁伺服器或目前程式環境的(資訊陣列)
+          $_SERVER['PHP_SELF'] 目前網頁的'虛擬路徑'
+          $_SERVER['SCRIPT_FILENAME'] 目前網頁的'絕對路徑'
+          $_SERVER['SERVER_NAME'] 目前網頁的伺服器名稱
+          $_SERVER['SERVER_PROTOCOL'] 請求頁面時的通信協議名稱和版本 ex. HTTP/1.0
+          $_SERVER['REQUEST_METHOD'] 目前網頁請求變數的方法 ex. GET or POST
+          $_SERVER['DOCUMENT_ROOT'] 目前網頁所在的網站根目錄
+          $_SERVER['HTTP_HOST'] 目前網頁的伺服器位置
+          $_SERVER['REMOTE_ADDR'] 目前網頁客戶端IP
+          $_SERVER['REMOTE_PORT'] 目前網頁客戶端PORT
+          $_SERVER['SERVER_PORT'] 目前網頁伺服器的PORT
+    >> $_ENV => 存放PHP執行環境相關的(資訊陣列)
+    >> $_GET => 存放以 GET 方式傳入的(資訊陣列)
+    >> $_POST => 存放以 POST 方式傳入的(資訊陣列)
+    >> $_SESSION => 存放註冊的SESSION的(資訊陣列)
+    >> $_COOKIE => 存放註冊的COOKIE的(資訊陣列)
+    >> $_FILES => 存放POST方式上傳檔案的(資訊陣列)
+    >> $_REQUESt => 存放GET, POST, COOKIE & FILES方式的(資訊陣列)
+
+[預設常數]
+  >> PHP_VERSION => PHP版本
+  >> PHP_OS => SERVER 的作業系統
+
+[魔術常數 magic constants]
+  >> __LINE__ => 取得運行程式行號
+  >> __FILE__ => 取得文件在本機的路徑與檔名
+  >> __DIR__ => 取得文件在本機的路徑
+  >> __FUNCTION__ => 目前函數名稱
+  >> __CLASS__ => 取得類別名稱
+  >> __METHOD__ => 取得類別的方法名稱
+  >> __NAMESPACE__ => 取得命名空間名稱
+  >> 魔術常數 magic constants 不區分大小寫, 表示 __LINE__ == __line__
+
+[常數的使用]
+  > define("常數名稱", 常數值, 常數名稱是否區分大小寫[預設值為True]);
+    define("PI", 3.1416, True); (XX錯誤寫法, 因為[預設值為True], 所以根本不用寫.)
+    define("PI", 3.1416, false); (OO正確寫法)
+    define可定義常數陣列.
+      ex. define("cars", ["bmw", "Skoda", "suzuki"]);
+  > const PI = 3.1416;
+  > 宣告常數時, 預設常數為大寫
+  > 使用常數時, 不用加上 [$] 字號
+  > 常數(constant) 是(is) 全域變數(GLOBALS), 但全域變數 不見得(!=) 常數
+    >> 常數可以直接在 函式內使用.
+    >> 函式內使用全域變數(GLOBALS), 要利用 $GLOBALS['variable_name'] or global $x, $y 兩種方式.
+
+[註解]
+  // 單行註解 echo "Hello Apple";
+  
+   # 單行註解 echo "Hello Sunny Day";
+
+  <!-- 多行註解
+  <?php echo "Single line without '結尾分號' is OK..." ?> -->
+
+  /* --這是正確的 */
+
+[PHP的資料型態: 共8種]
+  bool => true == TRUE == 1 , false == FALSE == 0
+  int => 10(指定10進位) , 010(指定8進位), 0x10(指定16進位), 三種指定整數指定方式.
+  float , double => 資料大小及長度依OS環境而定, 1.234, 1.2e3, 7E-10, 都可以, 加上科學符號.
+  string
+    '' 內容直接視為字串, 如有字串變數, 不編譯直接輸出
+    "" 內容如有字串變數, 會編譯後再輸出
+    
+    若字串的變數結構較複雜, 建議用{...}將變數包起來
+      [注意3] 此法常數不能用, 只有變數可以.
+        $myLanguage = "PHP";
+        echo "My favorite Web language is {$myLanguage}";
+    
+    heredoc 語法
+      $變數名稱 = <<<自訂名稱(隨便取, 但名稱後面不能有任何字元, 空白也不行)
+                字串內容.......................
+                ..$變數會編譯為內容值...........
+                ..可直接放入HTML語法............
+                ..不用考慮跳脫字元, 可直接使用特殊符號及字元............
+      自訂名稱(隨便取, 結尾這個要放行首, 名稱前面後面不能有任何字元, 空白也不行);
+
+        $myLanguage = "PHP";
+        $showStr = <<<MSG
+          language is $myLanguage <br>
+          It's easy to learn.
+        MSG;
+
+        echo $showStr;
+
+    nowdoc  語法 => 頁面須顯示程式碼時使用.
+      $變數名稱 = <<<'自訂名稱'(隨便取, 但名稱後面不能有任何字元, 空白也不行, 第一個自訂名稱要用''包起來, 不包''好像也可以)
+                字串內容.......................
+                ..$變數[不會]編譯為內容值,視為字串值...........
+                ..可直接放入HTML語法............
+                ..不用考慮跳脫字元, 可直接使用特殊符號及字元............
+      自訂名稱(隨便取, 結尾這個要放行首, 名稱前面後面不能有任何字元, 空白也不行);
+
+  object
+
+    class Car{
+      public $color;
+      public $model;
+      public function __construct($color, $model){
+        $this -> color = $color;
+        $this -> model = $model;
+      }
+      public function message(){
+        return "My car is a ". $this -> color . "  " . $this -> model . "!";
+      }
+    }
+
+    $myCar = new Car("blue", "Skoda");
+    var_dump($myCar);
+
+  array
+    $cars = array("bmw","ford","ninnan","toyota");
+
+  null
+    1.如果變數沒有被指定值, 則會自動設定為NULL.
+    2.如果變數值指定為NULL, 則值會被清空.
+
+  resource
+    1.例: 儲存資料庫的資料列.
+
+[取變數型態]
+  >> gettype(variable_name) => 
+  
+  $num = 5;
+
+  var_dump($num);
+  var_dump(5);
+  var_dump("Hello Kitty");
+  var_dump(3.14);
+  var_dump(true);
+  var_dump([2,4,6]);
+  var_dump(NULL);
+
+  輸出結果:看起來很不一樣.
+    float(123.45) int(5) string(11) "Hello Kitty" float(3.14) bool(true) array(3) { [0]=> int(2) [1]=> int(4) [2]=> int(6) } NULL 
+
+[變數範圍]
+  1.變數在[函式外]宣告, 視為[全域變數], 只能在函式外使用, 函式內使用會報錯.
+  2.變數在[函式內]宣告, 視為[區域變數], 只能在[函式內]使用, 函式外使用會報錯.
+  3.在不同函式內可以有相同名稱的區域變數, 因為它們互不干擾, 相互獨立.
+
+[存取全域變數的方法]
+  1. global $x, $ $y
+  3. $GLOBALS['variable_name'], $GLOBALS['x']
+  C:\chtdocs\CH3\php_getGlobalVar.php
+
+[保存函式值, static]
+  > 一般而言, 函式執行完畢後, 所有變數值都會被刪除.
+  > 我們可以使用 static 將變數值保留下來, 進行後續的運用.
+  C:\chtdocs\CH3\php_staticVar.php
+
+[型別轉換]  
+  >> (int) (integer) 轉整數
+  >> (bool) (boolean) 轉布林
+  >> (float) (double) (real) 轉浮點
+  >> (string) 轉字串
+  >> (array) 轉陣列
+  >> (object) 轉物件
+  >> (unset) 轉空值
+
+  >> settype(variable_name, dataType) => 型別轉換第二種方法.
+
+[運算子]
+  >> 字串連結 [.]
+  >> 指派 [=]
+  >> 算術 [+-*/%]
+  >> 遞增/遞減 [++/--]
+    $a = 5; 
+      ++$a //前置為先加再回傳變數值
+        ++$a 當下回傳值為 6
+        $s 結果值亦為 6
+      $a++ //後置為先回傳變數值再加
+        $a++ 當下回傳值為 5
+        $s 結果值亦為 6
+
+  >> 比較值 [==]
+  >> 比較值及型別 [===]
+  >> 值不相等 [!=]
+  >> 值及型別均不相等 [!==]
+    [注意4] PHP比較時, 資料型別會自動轉換
+    $a = 100; 
+    $b = "100";
+    $a == $b; //true => PHP比較時, 資料型別會自動轉換
+    $a === $b; //false, 值相同, 但型別不同
+
+  >> (條件運算式) ? true 回傳 : false 回傳
+  >> 邏輯運算子
+    > and &&, 均為TRUE才成立
+    > or ||, 任一為TRUE即成立
+    > xor, 均為TRUE 或 均為 FALSE 不成立, 反之則成立
+    > !, 相反的結果.
+
+  >>錯誤控制運算子 @ , 發生錯誤時, 抑制訊息顯示
+
+    $fp = @fopen ("test.txt", "r"); //檔案不存在
+
+  >>執行指令運算子 ` shell 指令 `, 指令回傳結果可存變數顯示.
+
+    $myIP = `ping 168.95.1.1`;
+    echo iconv('big5', 'utf-8', n12br($myIP));
+    //iconv 函式 將命令內容由'big5'轉 'utf-8'
+    //n12br 函式 將內容自動分行顯示.
+    
+[表單資料的傳送與接收]
+  $_GET["column_name"]
+
+  $_POST["column_name"]
+
+  上傳檔案只能 POST 方式傳送
+  GET 是表單預設的傳送方式
+
+[取得表單中複選欄位的值]
+  (前端表單欄位名稱)必須改為 "陣列型態", ex. items[] <= 重點在這裡
+  <select name="items[]" size="4", multiple="multiple">
+    <option value="Linux">Linux</option>
+    <option value="PHP">PHP</option>
+    <option value="MySQL">MySQL</option>
+    <option value="Apache">Apache</option>
+  </select>
+
+  (後端PHP程式取值方式)
+  <?php
+    foreach ($_GET["items"] as $value){
+      $echo $value. <br/>;
+    }
+  ?>
+
+  $_GET["column_name"]
+  $_POST["column_name"]
+  以上述兩種方法取表單值, 只會收到選項中的最後一個值.
+
+[程式引入檔 / 引用現有函式從其他程式]
+  語法:
+    include("檔案路徑或名稱.php") or include "檔案路徑或名稱.php"
+    require("檔案路徑或名稱.php") or require "檔案路徑或名稱.php"
+  
+  include 與 require 的差異:
+    1. 檔案不存在時, 都會顯示錯誤訊息, 但include 程式會[繼續]執行, require 程式會[中止]執行.
+    2. include 可以回傳值, 
+        載入檔案時, 每次評估, 建議迴圈或判斷式中引入使用 include.
+    3. require 不回傳值, 
+        只會載入1次, 建議引入檔程式碼被使用頻率高時使用 require.
+        >> 若 引入檔內容十分重要, 建議使用 require.
+
+  include_once & require_once 的用法與 include & require 的用法相同,
+    差異在於 "載入前會先檢查是否已載入", 確保同一頁面"不會出現重複載入"的問題.
+  
+  載入檔案的類型
+    1.txt OK, 可以被使用者下載, 有安全疑慮.
+    2.php OK, 合併為同一個PHP, 無安全疑慮, 使用者看不到內容, 也無法下載.
+
+  載入檔案的路徑
+    >> folder include
+          inc.php(被引入檔, 被引入後, 已成為該檔的一部份)
+       file.php(incldue inc.php)
+       img.jpg(如果要在 [inc.php] 中顯示 [img.jpg], 
+                路徑應表示為 ./img.jpg 跟 [file.php] 屬同一層[因為 inc.php 被 file.php 引用後, 就成為 file.php的一部分了.])
+
+[流程控制]
+  if (condition) {true}
+  if (condition) {true} else {false}
+  if (condition1) {true} elseif (condition2) {true} else {false}
+  switch ($variable) {
+    case "value1":
+      code;
+      break; //case 區塊內的 break 一定要加上去, 否則結果會很奇怪, 會跳進下一個case
+    case "value2":
+      // $variable, value1, value2的資料型態必須相同.
+      code;
+      break;
+    default:
+      code;
+      //break; 
+      //default區塊不必加上break; 
+      //如果 default 區塊不在最後一個, 記得加上 break;
+  }
+
+  不同的CASE條件, 使用相同的code block:
+    $d = 3;
+
+    switch ($d) {
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 5:  
+        echo "The weeks feels so long!";
+        break; //有 break;
+      case 6:
+      case 0:
+        echo "Weekends are the best!";
+        break; //有 break;
+      default:
+        echo "Something went wrong";
+                //default 在最後一個, 不用加上 break;
+    }
+
+
+  錯誤範例:
+    $favcolor = "red";
+
+    switch ($favcolor) {
+      case "red":
+        echo "Your favorite color is red!";
+        // break; //這裡少加break;
+      case "blue":
+        echo "Your favorite color is blue!"; //結果變成這個...
+        break;
+      case "green":
+        echo "Your favorite color is green!";
+        break;
+      default:
+        echo "Your favorite color is neither red, blue, nor green!";
+    }
+
+  goto : PHP 5.3以後才有
+    1. goto 只能在同一檔案或程式區域中跳轉, 無法跳出一個函數方法, 也無法跳入另一個函數.
+    2. goto 無法跳入任何迴圈或switch結構. 
+
+[echo / print 輸出函式]
+  兩個函式很像
+  echo echo() 都可以用, 都可以包括HTML 標籤
+  print print() 都可以用, 都可以包括HTML 標籤
+
+//書名: 使用Laravel 8 PHP主流框架打造RESTful API
+
+[Class] 類別
+  class Dog
+  {
+    public $age;
+
+    public function sayAge(){
+      echo "My age is ($this->age)";  //->前後不能有空格
+    }
+  }
+
+  $happy = new Dog();
+  $happy->age = 45; //->前後不能有空格
+  $happy->sayAge(); //->前後不能有空格
+
+[__construct] 建構子, 新增類別物件時, 一定會執行的第一個方法.
+
+class Dog
+  {
+    public $age;
+
+    public function __construct($age){
+      echo "a new dog was born..建構子";
+    }
+
+    public function sayAge(){
+      echo "My age is ($this->age)";  //->前後不能有空格
+      
+    }
+
+    public function __destruct(){
+      echo "解構子";
+    }
+  }
+
+  $happy = new Dog(15);
+  $happy->sayAge(); //->前後不能有空格
+
+[Encapsulation] 封裝
+  > public 所有地方均可存取(自身類別[O], 繼承後的子類別[O], 實體物件[O])
+  > protected (自身類別[O], 繼承後的子類別[O], 子類別物件[OK]) //這裡要特別注意..protected 是開放給子類別的.
+  > private (自身類別[O], 繼承後的子類別[X], 子類別物件[x])
+
+[interface] 介面
+  > 一個類別只能繼承單一類別, 但可以實作多個介面
+  > 介面中只能定義常數 或 public 存取權限的抽象方法.
+
+[namepsace] 命名空間
+  > 使用 Laravel 開發API 常見 命名空間及 類別
+  > 實務建議是 "一個類別一個檔案" 為原則, 介面也是一樣.
+  > 路徑定義是以 "\" 作分隔.
+  > 使用命名空間 "use", 
+    ex. use myProject\Dog;
+        use YourProject\Dog as YourProjectDog; //可以給別名區別.
+  >若設定好[namepsace] 命名空間仍無法正常操作檔案, 則必須使用 "require" or "include".
+  >Laravel 專案根目錄的composer.json有一個autoload參數, 就是設定自動載入的配置.
+
+  3.7 小練習 - 我的理解
+  > Class 類別
+  > Extends 繼承
+  > Encapsulation 封裝 -> public, protected, private
+  > interface 介面 -> 預先定義方法, 實作時要完成方法內容, 方法內容可依需求而定, 不一定要相同.
+  > Override 覆寫 -> 子類別重新定義父類別函式
+  > namepsace 命名空間
+  > use 使用檔案的方法 -> use namepsace or require or include
+  > Trait 跟Java一樣，PHP不允許多重繼承，這樣可以減少物件組織的複雜性，也比較容易避開一些相依問題。但是在許多狀況下，我們可能只是需要一些特定的功能，這些功能幾乎沒有相依性，用繼承來取得太複雜，這時候通常的作法是把它做成獨立的類別，然後在需要使用的地方把物件當做property來使用（composition）。但是在實際上需要作為物件的方法才方便使用時，就不適合這樣做了。使用Traits，可以在需要某些「特定」的特性與功能時，才引用特定的Traits，這樣很直接方便。
+          參考：PHP: Traits - Manual 
+          https://ithelp.ithome.com.tw/m/articles/10133226
+
+
+[Restful API]
+
+  [HTTP標頭]
+    > API常用的標頭有 "Accept", "Authorization", "Content-Type"三種, 亦可自行定義標頭.
+  
+  [內容協商標頭]
+    > 內容協商標頭有 "Accept", "Content-Type", 它們是一對的,
+      >> 前者"Accept"告訴伺服器->希望回傳的內容是什麼格式(JSON or XML)
+      >> 後者"Content-Type"告訴伺服器->request data的表單內容是什麼格式.
+
+  [認證標頭]
+    > API常用的標頭有 "Authorization".
+    > 確認API保證請求(request)的安全.
+
+  [狀態碼] -> HTTP傳輸協定義一系列的狀態碼.
+    > 200 請求成功
+    > 400 請求資料有問題
+    > 500 伺服器出錯
+
+[HTTP 動詞對應動作]
+  GET 查詢
+  POST 新增
+  DELETE 刪除
+  PUT 替換
+  PATCH 更新
+
+[REST 風格]
+  > 原則如下:
+    1. 定義一個可以被操作的資源物件(Object). ex. URI -> /api/v1/posts/{post}
+    2. 資源物件(Object)使用的固定動作. ex. CRUD
+      > Create, Read , Update, Delete
+    3. 可請求資源的網址 (URI).
+    4. 使用JSON OR XML 格式作資料傳遞. ex. JSON
+
+  > 範例:
+    資源物件  post(文章)
+      URI -> /api/v1/posts/{post}
+
+    [HTTP 動詞] [URI]           [說明]
+    GET         /api/v1/posts  查詢所有文章(篩選/排序)
+    GET         /api/v1/posts/1 查詢{id=1}的單一文章
+    POST        /api/v1/posts   新增一篇文章.若相同REQUEST送兩次, db會有相同內容的文章, 但id不同.
+    DELETE      /API/V1/posts/1 刪除{id=1}的文章.若相同REQUEST送第二次, 第二次回應會找不到資源的錯誤訊息.
+    PUT         /API/V1/posts/1 替換{id=1}的所有內容, 類似刪除舊資料, 以全新資料取代.
+    PATCH       /API/V1/posts/1 更新{id=1}的部分內容, 只替代發送REQUEST資料的部分內容, 沒填寫的部份保留原資料內容.
+
+  > 小練習: 決定一個資源(線上購物平台)
+      資源物件 product(商品)
+      URI -> api/shopping/proudcts/{product}
+
+      [HTTP 動詞] [URI]                       [功能]  [說明]
+      GET         api/shopping/proudcts/id=1  查詢{id=1}的產品
+      GET         api/shopping/proudcts/ALL  查詢所有產品
+      POST        api/shopping/proudcts/ID=1  將{id=1}的產品加入購物車
+      DELETE      api/shopping/proudcts/ID=1  將{id=1}的產品自購物車中刪除
+      PUT         api/shopping/proudcts/ID=1  替換[全部]購物車中{id=1}的產品
+      PATCH       api/shopping/proudcts/ID=1  替換[部分]購物車中{id=1}的產品
+
+[ch5 - 進入 Laravel, 規劃系統核心目的]
+
+  > 安裝 Laravel 套件 & 新增 Laravel 專案 & 啟動網站伺服器
+
+      cd C:\Projects\Laravel > composer global require "laravel/installer"
+      C:\Projects\Laravel > laravel new animal
+      # global 全域安裝套件, 因此在哪個資料夾下執行都沒差別, 自動切換到Composer安裝全域套件的目錄.
+      # require 表示要安裝套件 要安裝的套件名稱
+      #記得先檢查 php -v 是否可執行
+        > 如果不行, 要先把 php.exe 路徑放入[PATH]的系統變數中
+        > 不然等一下的 php artisan serve 一樣跑不起來.
+
+      # 建立一個 laravel 專案
+        composer create-project laravel/laravel example-app
+        cd example-app #進入專案資料夾
+        php artisan serve #啟動網站伺服器
+      #上一個指令執行後, CMD不會跑什麼出來, 不要痴痴地等, 直接連接 http://localhost:8000/ 即可.
+      #並不會出現下列提示
+        Starting Laravel development SERVER: http://127.0.0.1
+        ...
+        ...
+        
+      #安裝完成後, 會產生一個 .env環境變數檔, 並在檔案中產生一組KEY用來加密用
+      
+    =2024/04/20 今天進度, 終於把第一個PHP laravel 專案 RUN起來了...=
+    
+      > 把PHP + MySQL重裝一遍, 
+      > 什麼設定都維持不變
+      > 只改了apache listen 81
+      > 因為IIS一直佔著80 port, 怎麼都移不掉..=
+      > 好險安裝成功..
+      > 記得apache 要先啟動, 不然後面都無法連線成功.
+      > http://localhost:81/dashboard/ (OK)
+      > http://localhost:81/dashboard/phpinfo.php (OK)
+      > http://localhost:81/phpmyadmin/ (OK) 
+      > 好險 composer & Laravel 也沒有壞掉...
+    =2024/04/21 今天進度, 
+
+      # 建立一個 laravel 專案
+        composer create-project laravel/laravel example-app-0422
+        cd example-app-0422 #進入專案資料夾
+        php artisan serve #啟動網站伺服器
+      #上一個指令執行後, CMD不會跑什麼出來, 不要痴痴地等, 直接連接 http://localhost:8000/ 即可.    
+
+  > 新增一個新的資料庫(OK)
+    # 名稱 : animal
+    # 編碼 : utf8mb4_general_ci
+      # 目前資料庫沒有任何資料庫
+
+  > 新增資料庫管理帳號(OK)
+    # 登入 phpMyAdmin 首頁
+    # 進入 User Account Tab(使用者帳號)
+    # Click "Add user account "(新增使用者帳號)" 
+
+    ===========================
+    # User name : webAdmin
+    # Host name : %
+    # Password : 0000
+    # Password-ReType : 0000
+    # Global privileges(全域權限) : Check ALL
+
+  > Laravel 環境變數檔設定(以下的值要加在 .env 檔內) (OK)
+    # DB_CONNECTION = mysql
+    # DB_HOST = 127.0.0.1
+    # DB_PORT = 3306
+    # DB_DATABASE = animal
+    # DB_USERNAME = webAdmin
+    # DB_PASSWORD = 0000
+
+  > 為什麼不把 DB_CONNECTION 直接設定在 專案根目錄內的 config\database.php內呢?(OK)
+    1. 反而在 config\database.php 第18行左右加入下列這行引用 <.env 環境變數檔> 的 DB_CONNECTION 資訊.
+        'default' => env('DB_CONNECTION', 'mysql')
+        雖然它裡面定義了 Laravel 各式各樣 DB 預設的連線設定
+       ==========
+        # 因為 <.env 環境變數檔> 可以在不同環境(伺服器)內有不同的設定值. 
+          ex. 測試環境和正式環境使用不同的.env環境變數檔, 配置伺服器相關設定.
+        # 另外, .env環境變數檔是在排除 .gitignore 清單中.
+
+    2. 實際上, 如何完作DB 設定?
+      # 檔案 database.php 內加上下列這一行
+        'default' => env('DB_CONNECTION', 'mysql'),
+
+      # 檔案 .env 內加入下列的DB_Connection內容
+        # 額外新的DB Connection
+          DB_CONNECTION = mysql
+          DB_HOST = 127.0.0.1
+          DB_PORT = 3306
+          DB_DATABASE = animal
+          DB_USERNAME = webAdmin
+          DB_PASSWORD = 0000
+
+  > 系統分析
+    # CMS(內容管理系統)
+    # 類別分類(猫, 狗...)
+    # 會員註冊, 權限限制
+
+  > 小練習 - Git 初始化專案環境
+    # 切換至 專案目錄下 -> cd example-app-0422
+    # git 儲存庫初始化 -> git init
+    # 全部檔案加入git 暫存區 -> git add .
+    # 設定提交者名稱有加或沒加--global的區別在於 全域設定, 沒加只會影響目前專案資料夾
+        -> git config --global user.name "YourName" //設定姓名
+        -> git config --global user.email "YourMail" //設定MAIL
+        -> git config user.name //顯示當前的提交者姓名
+            kl
+        -> git config user.email //顯示當前的提交者MAIL
+            kl546@outlook.com
+    
+    # 加入儲存庫 -> git commit -m "要增加的簽入訊息"
+    # 查看儲存庫內的紀錄點 -> git log 
+    # 切換分支或某個commit id — git checkout ch5
+      切換至分支 ch5 進行開發
+      預設都是在 master
+
