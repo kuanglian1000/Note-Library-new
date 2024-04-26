@@ -520,7 +520,8 @@ class Dog
       > http://localhost:81/dashboard/phpinfo.php (OK)
       > http://localhost:81/phpmyadmin/ (OK) 
       > 好險 composer & Laravel 也沒有壞掉...
-    =2024/04/21 今天進度, 
+
+==2024/04/21 今天進度====
 
       # 建立一個 laravel 專案
         composer create-project laravel/laravel example-app-0422
@@ -588,13 +589,76 @@ class Dog
         -> git config --global user.name "YourName" //設定姓名
         -> git config --global user.email "YourMail" //設定MAIL
         -> git config user.name //顯示當前的提交者姓名
-            kl
+            kl.cheng
         -> git config user.email //顯示當前的提交者MAIL
             kl546@outlook.com
     
     # 加入儲存庫 -> git commit -m "要增加的簽入訊息"
     # 查看儲存庫內的紀錄點 -> git log 
-    # 切換分支或某個commit id — git checkout ch5
-      切換至分支 ch5 進行開發
-      預設都是在 master
+    # 切換分支或某個commit id -> git checkout ch5
+        切換至分支 ch5 進行開發
+        預設都是在分支 master 上開發
+
+==2024/04/22 今天進度====
+
+
+==2024/04/23 今天進度(CH06 新增資源)====
+  > 定義資源
+    # 決定主題(流浪動物之家認養)
+    # 資源 -> 動物
+    # 動物資源 -> 屬性(要有哪些屬性)
+  
+  > 新建資源檔案
+    # 建立Model檔案(與DB溝通的中介)
+      -> Laravel 的 model 又稱為 Eloquent ORM
+    # 產生 Model, Migration & Controller的指令碼
+      -> 請先切換至專案目錄下
+          cd example-app-0422
+      -> 輸入下列指令
+          php artisan make:model <DB name> -rmc
+          php artisan make:model <animal> -rmc
+          -rmc -> 表示同時 產生 Model, Migration & Controller 三個檔案.
+          -r   -> 載入預設的CRUD方法
+      -> 檔案存放路徑
+          app\database\migrations\...
+          app\Http\Controllers\AnimalController.php
+          app\Models\Animal.php
+
+  > 設定路由, 請開啟 routes\api.php, 
+      專用設定專案的API網址
+      每個API網址對應->一個方法
+    
+    # routes\api.php 內容 (找個地方加入下方程式)
+        use App\Http\Controllers\AnimalController;
+
+        Route::apiResource('animals', AnimalController::class);
+
+        Route Facades的 <apiResource> 是 laravel內建方法 
+          -> 將路由網址設定為 'animal' 字串,
+              對應到 AnimalController 檔案內相對應的方法
+
+    # 儲存 routes\api.php 檔案
+
+    # 查看路由表內容
+
+      -> 請輸入下列指令
+          php artisan route:list
+
+  > MVC架構
+    # DB Schema 
+      column_name desc dataType     property nullable memo
+      id          ID    int(10)     unsigned  No      PK, 不允許重複, 自動遞增+1
+      type_id     類別  int(10)     unsigned   Yes     將與類別資料表作關聯(ex.0=猫,1=狗,2=蛇,...)
+      name        小名  varchar(255)          No      文字最大255字元
+      birthday    生日  date                  Yes     年, 月, 日
+      area        地區  varchar(255)          Yes      文字最大255字元
+      fix         結紮  tinyint(1)            No      tinyint(0-255), 設定最大儲存1位數(0 or 1)
+      description 說明  text                  Yes     可輸入較多文字
+      personality 個性  text                  Yes     可輸入較多文字
+      user_id     會員  int(10)     unsigned   No     將與會員資料表作關聯(ex.0=Kevin,...)
+      create_date 新增日期  timestamp          Yes
+      Update_date 更新日期  timestamp          Yes
+
+
+
 

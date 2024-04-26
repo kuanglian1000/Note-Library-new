@@ -1,0 +1,279 @@
+SOP-MySQL 學習筆記
+
+參考書: MySQL 最成功應用範例全書
+
+CH1-初識 MySQL(OK)
+
+  DML 操作資料用: INSERT, UPDATE, DELETE.
+  DCL 控制權限用: GRANT, REVOKE, COMMIT, ROLLBACK.
+  DDL 定義結構用: DROP, CREATE, ALTER.
+  DQL 查詢資料用: SELECT.
+
+  CREATE TABLE STUDENTS
+  (
+    STUDENT_ID INT UNSIGNED,
+    NAME VARCHAR(30),
+    PRIMARY KEY (STUDENT_ID) //這裡要特別注意, 很容易出錯.
+  );
+
+  INSERT INTO STUDENTS
+  VALUES
+  (901383, 'KL.cheng');
+
+  資料庫存取介面
+    常見的有: ODBC, JDBC, ADO.NET, PDO.
+
+  MySQL的發行版本
+    MySQL-8.0.13
+          主版本.發行等級.發行等級的版本編號
+
+  MySQL的新特性
+    > 支援最小DDL, 與DDL操作連結的資料字典更新。
+    > 安全和帳戶管理, MySQL資料庫的授權表統一為InnoDB(交易性)表.
+      每個敘述都是交易性的.
+      MySQL 8.0 開始支援角色, 使用者指定為某一角色.
+      MySQL 8.0 開始維護密碼歷史資訊, 限制以往密碼的重複使用.
+      MySQL 8.0 允許帳戶有雙密碼.
+    
+    > InnoDB 增強功能
+      # 將自動增加主鍵計數器持久化到 <重做紀錄檔> 中
+      # 如果索引損壞, InnoDB將索引損壞標示寫入 <重做紀錄檔>
+      # 新的動態變數 "innodb_deadlock_detect" 可用於禁用<鎖死檢測>。
+          在高平行處理系統上, 當許多執行緒等待同一個鎖時, <鎖死檢測>會導致速度減慢, 
+          此時, 禁用<鎖死檢測>可能更有效.
+
+    > 字元集支援
+      # 預設字元集已從 lantin1 改為 utf8mb4, 避免資料內容出現亂碼.
+
+    > 增強JSON功能
+      # 增加了 "-->" 運算子, 相當於呼叫 "JSON UNQUOTE()" 的結果.
+      # 增加兩個JSON匯總函數 "JSON_ARRAYAGG()" & "JSON_OBJECTAGG()".
+          "JSON_ARRAYAGG()"  -> 將列或運算式作為其參數, 並將結果整合為單一JSON陣列.
+          "JSON_OBJECTAGG()" -> 取兩個列或運算式, 將其轉譯為鍵(KEY)和值(value), 並將結果作為單一JSON物件傳回.
+
+      # 增加了JSON應用程式功能 "JSON_PRETTY()".
+          "JSON_PRETTY()" -> JSON 以易於閱讀的格式輸出"現有值"; 
+            每個JSON物件成員或陣列值都列印在一毎單獨的行上.
+            子物件或陣列相對於其父物件是 2 個空格.
+
+      # 增加了JSON應用程式功能 "JSON_MERGE_PATCH()".
+          "JSON_MERGE_PATCH()" -> 可以合併符合RFC 7396標準的JSON.
+            在兩個JSON物件上使用時, 可以將它們合併為單一JSON物件.
+
+      # 資料類型的支援
+
+      # 查詢的最佳化
+
+      # 公用表運算式
+        with 
+
+      # 視窗函數
+        類似 sum(), count()的集合函數, 
+        它不會把多行查詢結果合併為一行, 而是將結果放回多行中.
+
+      # 統計長條圖
+        作資料分佈的統計, 特別是沒有索引的欄位, 這可幫助查詢最佳化工具找到更優的執行計劃.
+
+      # 備份鎖
+
+
+  MySQL工具(命令列工具)
+
+CH2-MySQL 的安裝與設定(OK)
+  > 檢查 MySQL 是否已啟動
+    工作管理員 -> 處理程序 ->  mysqld.exe (OK, 找到了)
+
+    services.msc
+    找到 MySQL 服務項, 應該是已啟動.
+    找到一個 mysql57 的服務, 但是沒有啟動
+      net start mysql
+      net stop mysql
+      net stop <服務名稱>
+    (先略過)
+
+  > 登入mysql資料庫
+      記得把 mysql.exe 路徑放入系統變數內, 不然會無法執行.
+
+      mysql 可以執行後, 不代表登入成功.
+      
+      指令型態 -> mysql -h hostname -u username -p Password
+
+      舉例: username root 可以在不同的 hostname 下, 一個有密碼, 另一個沒有.
+      以筆記內的範例DB為例
+        username  hostname    Password
+        root      127.0.0.1   是        mysql -h 127.0.0.1  -u root =>登入成功,
+        root      localhost   否        mysql -h localhost  -u root 免輸入密碼 => 登入成功
+
+      成功登入後, 記得 USE <DB_NAME>, 才能開始進DB操作.
+
+    > MySQL 常用的管理工具
+      # workbench(社區版免費, 商業版按年收費)
+
+      # phpmyAdmin
+          PHP寫, 
+            優點-> "新增, 複製, 刪除, 管理方便"
+            缺點-> "大DB備份及還原 不方便"
+      
+      # Navicat 
+          GUI好用, 支援中文, 有免費版本
+
+      # MySQLDumper
+          -> 以PHP開發的備份還原程式
+          -> 數百MB的DB都可以用.
+
+      # SQLyog
+          -> 可遠端維護mysql資料庫
+
+  > 無法開啟MYSQL的軟體安裝套件, 怎麼辦?
+    # 確定電腦已事先安裝 
+        .net framework 3.5
+        .net framework 4.0
+
+  > MySQL 安裝失敗, 怎麼辦?
+    # 移除之前安裝的目錄
+      -> C:\ProgramFile\MySQL
+      -> C:\Documents and Setting\ All Users\Application Data\ MySQL 等目錄.
+    # 移除後再重新安裝
+
+CH3-資料庫的基本操作(OK)
+  > 建立資料庫
+      'SHOW DATABASES;' //目前所有建立的db清單
+        MYSQL;        //這個db一定要存在, 它記錄使用者的存取權限
+
+      'CERATE DATABASE <DATABASE_NAME>;' //新增db
+      'SHOW CREATE DATABASE <DATABASE_NAME>\G;' //檢視db的定義
+
+  > 刪除資料庫
+      'DROP DATABASE <DATABASE_NAME>;' //刪除db
+  
+  > 綜合練習
+      'mysql -h localhost -u root ' //登入mysql資料庫(OK)
+      'CREATE DATABASE ZOO;' //新增db(OK)
+      'USE ZOO;' //使用db(OK)
+      'SHOW DATABASES;'  //目前所有建立的db清單(OK)
+      'SHOW CREATE DATABASE ZOO \G;' //檢視db的定義(OK)
+        CREATE DATABASE `zoo` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */
+      'DROP DATABASE ZOO' //刪除db(OK)
+      'SHOW DATABASES' //確認已刪除(OK)
+
+CH4-資料表的基本操作
+  > 建立資料表
+    # 語法
+      CREATE TABLE <TABLE_NAME>
+      (
+        COLUMN_NAME1, DATA_TYPE[ROW LEVEL CONTRAINT] [DEFAULT VALUE],
+        COLUMN_NAME2, DATA_TYPE[ROW LEVEL CONTRAINT] [DEFAULT VALUE],
+
+        [TABLE LEVEL CONTRAINT]
+      );
+
+    # EXAMPLE
+      CREATE TABLE TB_EMP1(
+        ID INT(11),
+        NAME VARCHAR(25),
+        DEPTID INT(11),
+        SALARY FLOAT
+      );
+    
+    # 使用pk CONTRAINT
+      CREATE TABLE TB_EMP2(
+        ID INT(11) PRIMARY KEY,
+        NAME VARCHAR(25),
+        DEPTID INT(11),
+        SALARY FLOAT
+      );
+
+      CREATE TABLE TB_EMP3(
+        ID INT(11) ,
+        NAME VARCHAR(25),
+        DEPTID INT(11),
+        SALARY FLOAT,
+        PRIMARY KEY(ID)
+      );
+
+      //TB_EMP2 & TB_EMP3 的結果是相同的.
+    
+    # 多欄位pk主鍵
+      CREATE TABLE TB_EMP3(
+        ID INT(11) ,
+        NAME VARCHAR(25),
+        DEPTID INT(11),
+        SALARY FLOAT,
+        PRIMARY KEY(NAME, DEPTID)
+      );
+
+  ====================================================
+  2024/04/25 進度.(CH1-CH4)
+
+      4.1.3 使用外鍵約束fk
+        外鍵對應的是參照完整性.
+        #一個表的外鍵可以為NULL
+        #若不為NULL, 必須是另一個表PK中的值
+
+        CREATE TABLE DEPT //父表或母表
+        (
+          DEPTID INT(11) PRIMARY KEY,
+          NAME VARCHAR(22) NOT NULL,
+          LOCATION VARCHAR(50)
+        );     
+
+        CREATE TABLE TB_EMP5( //子表
+          EMP_ID INT(11) ,
+          NAME VARCHAR(25),
+          DEPTID INT(11),
+          SALARY FLOAT,
+          PRIMARY KEY(EMP_ID),
+
+          //建立FK, 兩表間的資料型態必須一致.
+          CONTRAINT FK_EMP_DEPT FOREIGN KEY(DEPTID) REFERENCES DEPT(DEPTID)
+        );
+
+      4.1.4 使用不可為NULL 約束 NOT NULL
+
+      4.1.5 使用唯一性約束 UNIQUE
+
+      4.1.6 使用預設約束(給定預設值) DEFAULT
+
+      4.1.7 設定表的屬性值自動遞增
+
+      4.2.1 檢視資料表結構 DESC
+
+      4.2.2 檢視資料表詳細結構 SHOW CREATE TABLE \G
+        > 多顯示 儲存引擎 + 字元編碼
+
+      4.3.1 修改資料表名稱
+        ALTER TABLE <OLD_TABLE_NAME> RENAME TO <NEW_TABLE_NAME>
+
+        SHOW TABLES //確認是否修改成功
+
+      4.3.2 修改資料表欄位的資料型態
+        ALTER TABLE <TABLE_NAME> MODIFY <欄位名稱> <資料類型>
+
+        EX. ALTER TABLE TB_DEPT MODIFY NAME VARCHAR(10);
+
+        DESC <TABLE_NAME> //確認是否修改成功
+
+      4.3.3 修改資料表欄位的名稱 & 資料型態
+        ALTER TABLE CHANGE <OLD_COLUMN_NAME> <NEW_COLUMN_NAME> <NEW_DATA_TYPE>
+        > 如果毋須改變資料型態, 將資料型態設定為原來相同, 但不能為空
+
+        DESC <TABLE_NAME> //確認是否修改成功
+
+      4.3.4 增加欄位
+        ALTER TABLE <TABLE_NAME> ADD <NEW_COLUMN_NAME> <NEW_DATA_TYPE>
+          CONTRAINT FIRST | AFTER 已存在的欄位名稱;
+
+        EX1. ALTER TABLE DEPT ADD MANAGER_ID INT(10);
+        EX2. ALTER TABLE DEPT ADD OFFICE VARCHAR(30) NOT NULL;
+        EX3. ALTER TABLE DEPT ADD COL_FIRST INT(11) FIRST;
+        EX4. ALTER TABLE DEPT ADD COL3 INT(11) AFTER NAME;
+
+        DESC <TABLE_NAME> //確認是否修改成功
+
+      4.3.5 刪除欄位
+        ALTER TABLE <TABLE_NAME> DROP <COLUMN_NAME>;
+
+        
+
+  ====================================================
+  2024/04/26 進度.(CH5-CH8)
