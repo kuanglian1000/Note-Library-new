@@ -25,12 +25,13 @@ A1. 程式碼中, 如果只有單純的 PHP語法, 可以省略.
   > 原則上, 變數指定後整支程式都能用(全域變數)
   > 在函式內宣告的變數為(區域變數)
   > [注意1] (全域變數) 與 (區域變數) 互不干擾.
-  > [注意2] (全域變數) 影響範圍若要延伸至函式內, 必須對該變數作 (全域宣告)
+  > [注意2] (全域變數) 影響範圍若要延伸至函式內, 必須對該變數作 (全域宣告) global or $GLOBALS['全域變數名稱']
+
 
 [預設變數的使用]
   > 預設變數是 (全域變數), 可以在主程式中任何地方使用.
   > 常用的預設變數
-    >> $GLOBALS => 存放所有定義的全域變數(資訊陣列)
+    >> $GLOBALS['全域變數名稱'] => 存放所有定義的全域變數(資訊陣列)
     >> $_SERVER => 存放網頁伺服器或目前程式環境的(資訊陣列)
           $_SERVER['PHP_SELF'] 目前網頁的'虛擬路徑'
           $_SERVER['SCRIPT_FILENAME'] 目前網頁的'絕對路徑'
@@ -242,7 +243,7 @@ A1. 程式碼中, 如果只有單純的 PHP語法, 可以省略.
   上傳檔案只能 POST 方式傳送
   GET 是表單預設的傳送方式
 
-[取得表單中複選欄位的值]
+[3.6.2 取得表單中複選欄位的值]
   (前端表單欄位名稱)必須改為 "陣列型態", ex. items[] <= 重點在這裡
   <select name="items[]" size="4", multiple="multiple">
     <option value="Linux">Linux</option>
@@ -262,7 +263,7 @@ A1. 程式碼中, 如果只有單純的 PHP語法, 可以省略.
   $_POST["column_name"]
   以上述兩種方法取表單值, 只會收到選項中的最後一個值.
 
-[程式引入檔 / 引用現有函式從其他程式]
+[3.7.1 程式引入檔 / 引用現有函式從其他程式]
   語法:
     include("檔案路徑或名稱.php") or include "檔案路徑或名稱.php"
     require("檔案路徑或名稱.php") or require "檔案路徑或名稱.php"
@@ -289,7 +290,7 @@ A1. 程式碼中, 如果只有單純的 PHP語法, 可以省略.
        img.jpg(如果要在 [inc.php] 中顯示 [img.jpg], 
                 路徑應表示為 ./img.jpg 跟 [file.php] 屬同一層[因為 inc.php 被 file.php 引用後, 就成為 file.php的一部分了.])
 
-[流程控制]
+[4.流程控制]
   if (condition) {true}
   if (condition) {true} else {false}
   if (condition1) {true} elseif (condition2) {true} else {false}
@@ -328,7 +329,6 @@ A1. 程式碼中, 如果只有單純的 PHP語法, 可以省略.
                 //default 在最後一個, 不用加上 break;
     }
 
-
   錯誤範例:
     $favcolor = "red";
 
@@ -355,310 +355,366 @@ A1. 程式碼中, 如果只有單純的 PHP語法, 可以省略.
   echo echo() 都可以用, 都可以包括HTML 標籤
   print print() 都可以用, 都可以包括HTML 標籤
 
+> ch5-函式的使用
+    PHP的函式 不用加上 public, 函式可以放在程式的任何地方.
+
+    # 函式的傳值呼叫
+        函式內外如有同名變數, 互不干擾
+
+    # 函式的傳址呼叫
+        函式內外如有同名變數, 加上&符號後即可作連結. 
+        ex. &$x
+
+    # 變動長度參數列/不定長度參數列(不確定傳入的參數個數)
+        這類要依賴其他相關的三個函式
+        1. func_num_args -> 取函式的參數個數
+        3. func_get_args -> 將函式中所有參數轉為陣列回傳
+        2. func_get_arg(n) -> 取得函式中第N+1個參數值, n通常會塞入 (func_num_args -1) -> 最後的參數值
+    
+    # 5.2.3 區域變數, 全域變數, 靜態變數
+      > 區域變數 & 全域變數
+        >> 整個程式都能使用的稱之為 全域變數(預設)
+        >> 只有函式內能使用的稱之為 區域變數
+        >> 若希望函式內的區域變數 成為 全域變數, 可在函式內使用關鍵字 global or GLOBALS[]陣列與函式外的全域變數作連結.
+            ex. CH05\php_fun6_globalvariable.php
+        >> 靜態變數 在函式中使用關鍵字 static, 當 函式結束時, 變數值仍保留在記憶體內
+            ex. CH05\php_fun7_staticvariable.php
+
+    > 5.2.4 可變動函式
+      
+
+================================================================
 //書名: 使用Laravel 8 PHP主流框架打造RESTful API
 
-[Class] 類別
+  [Class] 類別
+    class Dog
+    {
+      public $age;
+
+      public function sayAge(){
+        echo "My age is ($this->age)";  //->前後不能有空格
+      }
+    }
+
+    $happy = new Dog();
+    $happy->age = 45; //->前後不能有空格
+    $happy->sayAge(); //->前後不能有空格
+
+  [__construct] 建構子, 新增類別物件時, 一定會執行的第一個方法.
+
   class Dog
-  {
-    public $age;
+    {
+      public $age;
 
-    public function sayAge(){
-      echo "My age is ($this->age)";  //->前後不能有空格
-    }
-  }
+      public function __construct($age){
+        echo "a new dog was born..建構子";
+      }
 
-  $happy = new Dog();
-  $happy->age = 45; //->前後不能有空格
-  $happy->sayAge(); //->前後不能有空格
-
-[__construct] 建構子, 新增類別物件時, 一定會執行的第一個方法.
-
-class Dog
-  {
-    public $age;
-
-    public function __construct($age){
-      echo "a new dog was born..建構子";
-    }
-
-    public function sayAge(){
-      echo "My age is ($this->age)";  //->前後不能有空格
-      
-    }
-
-    public function __destruct(){
-      echo "解構子";
-    }
-  }
-
-  $happy = new Dog(15);
-  $happy->sayAge(); //->前後不能有空格
-
-[Encapsulation] 封裝
-  > public 所有地方均可存取(自身類別[O], 繼承後的子類別[O], 實體物件[O])
-  > protected (自身類別[O], 繼承後的子類別[O], 子類別物件[OK]) //這裡要特別注意..protected 是開放給子類別的.
-  > private (自身類別[O], 繼承後的子類別[X], 子類別物件[x])
-
-[interface] 介面
-  > 一個類別只能繼承單一類別, 但可以實作多個介面
-  > 介面中只能定義常數 或 public 存取權限的抽象方法.
-
-[namepsace] 命名空間
-  > 使用 Laravel 開發API 常見 命名空間及 類別
-  > 實務建議是 "一個類別一個檔案" 為原則, 介面也是一樣.
-  > 路徑定義是以 "\" 作分隔.
-  > 使用命名空間 "use", 
-    ex. use myProject\Dog;
-        use YourProject\Dog as YourProjectDog; //可以給別名區別.
-  >若設定好[namepsace] 命名空間仍無法正常操作檔案, 則必須使用 "require" or "include".
-  >Laravel 專案根目錄的composer.json有一個autoload參數, 就是設定自動載入的配置.
-
-  3.7 小練習 - 我的理解
-  > Class 類別
-  > Extends 繼承
-  > Encapsulation 封裝 -> public, protected, private
-  > interface 介面 -> 預先定義方法, 實作時要完成方法內容, 方法內容可依需求而定, 不一定要相同.
-  > Override 覆寫 -> 子類別重新定義父類別函式
-  > namepsace 命名空間
-  > use 使用檔案的方法 -> use namepsace or require or include
-  > Trait 跟Java一樣，PHP不允許多重繼承，這樣可以減少物件組織的複雜性，也比較容易避開一些相依問題。但是在許多狀況下，我們可能只是需要一些特定的功能，這些功能幾乎沒有相依性，用繼承來取得太複雜，這時候通常的作法是把它做成獨立的類別，然後在需要使用的地方把物件當做property來使用（composition）。但是在實際上需要作為物件的方法才方便使用時，就不適合這樣做了。使用Traits，可以在需要某些「特定」的特性與功能時，才引用特定的Traits，這樣很直接方便。
-          參考：PHP: Traits - Manual 
-          https://ithelp.ithome.com.tw/m/articles/10133226
-
-
-[Restful API]
-
-  [HTTP標頭]
-    > API常用的標頭有 "Accept", "Authorization", "Content-Type"三種, 亦可自行定義標頭.
-  
-  [內容協商標頭]
-    > 內容協商標頭有 "Accept", "Content-Type", 它們是一對的,
-      >> 前者"Accept"告訴伺服器->希望回傳的內容是什麼格式(JSON or XML)
-      >> 後者"Content-Type"告訴伺服器->request data的表單內容是什麼格式.
-
-  [認證標頭]
-    > API常用的標頭有 "Authorization".
-    > 確認API保證請求(request)的安全.
-
-  [狀態碼] -> HTTP傳輸協定義一系列的狀態碼.
-    > 200 請求成功
-    > 400 請求資料有問題
-    > 500 伺服器出錯
-
-[HTTP 動詞對應動作]
-  GET 查詢
-  POST 新增
-  DELETE 刪除
-  PUT 替換
-  PATCH 更新
-
-[REST 風格]
-  > 原則如下:
-    1. 定義一個可以被操作的資源物件(Object). ex. URI -> /api/v1/posts/{post}
-    2. 資源物件(Object)使用的固定動作. ex. CRUD
-      > Create, Read , Update, Delete
-    3. 可請求資源的網址 (URI).
-    4. 使用JSON OR XML 格式作資料傳遞. ex. JSON
-
-  > 範例:
-    資源物件  post(文章)
-      URI -> /api/v1/posts/{post}
-
-    [HTTP 動詞] [URI]           [說明]
-    GET         /api/v1/posts  查詢所有文章(篩選/排序)
-    GET         /api/v1/posts/1 查詢{id=1}的單一文章
-    POST        /api/v1/posts   新增一篇文章.若相同REQUEST送兩次, db會有相同內容的文章, 但id不同.
-    DELETE      /API/V1/posts/1 刪除{id=1}的文章.若相同REQUEST送第二次, 第二次回應會找不到資源的錯誤訊息.
-    PUT         /API/V1/posts/1 替換{id=1}的所有內容, 類似刪除舊資料, 以全新資料取代.
-    PATCH       /API/V1/posts/1 更新{id=1}的部分內容, 只替代發送REQUEST資料的部分內容, 沒填寫的部份保留原資料內容.
-
-  > 小練習: 決定一個資源(線上購物平台)
-      資源物件 product(商品)
-      URI -> api/shopping/proudcts/{product}
-
-      [HTTP 動詞] [URI]                       [功能]  [說明]
-      GET         api/shopping/proudcts/id=1  查詢{id=1}的產品
-      GET         api/shopping/proudcts/ALL  查詢所有產品
-      POST        api/shopping/proudcts/ID=1  將{id=1}的產品加入購物車
-      DELETE      api/shopping/proudcts/ID=1  將{id=1}的產品自購物車中刪除
-      PUT         api/shopping/proudcts/ID=1  替換[全部]購物車中{id=1}的產品
-      PATCH       api/shopping/proudcts/ID=1  替換[部分]購物車中{id=1}的產品
-
-[ch5 - 進入 Laravel, 規劃系統核心目的]
-
-  > 安裝 Laravel 套件 & 新增 Laravel 專案 & 啟動網站伺服器
-
-      cd C:\Projects\Laravel > composer global require "laravel/installer"
-      C:\Projects\Laravel > laravel new animal
-      # global 全域安裝套件, 因此在哪個資料夾下執行都沒差別, 自動切換到Composer安裝全域套件的目錄.
-      # require 表示要安裝套件 要安裝的套件名稱
-      #記得先檢查 php -v 是否可執行
-        > 如果不行, 要先把 php.exe 路徑放入[PATH]的系統變數中
-        > 不然等一下的 php artisan serve 一樣跑不起來.
-
-      # 建立一個 laravel 專案
-        composer create-project laravel/laravel example-app
-        cd example-app #進入專案資料夾
-        php artisan serve #啟動網站伺服器
-      #上一個指令執行後, CMD不會跑什麼出來, 不要痴痴地等, 直接連接 http://localhost:8000/ 即可.
-      #並不會出現下列提示
-        Starting Laravel development SERVER: http://127.0.0.1
-        ...
-        ...
+      public function sayAge(){
+        echo "My age is ($this->age)";  //->前後不能有空格
         
-      #安裝完成後, 會產生一個 .env環境變數檔, 並在檔案中產生一組KEY用來加密用
+      }
+
+      public function __destruct(){
+        echo "解構子";
+      }
+    }
+
+    $happy = new Dog(15);
+    $happy->sayAge(); //->前後不能有空格
+
+  [Encapsulation] 封裝
+    > public 所有地方均可存取(自身類別[O], 繼承後的子類別[O], 實體物件[O])
+    > protected (自身類別[O], 繼承後的子類別[O], 子類別物件[OK]) //這裡要特別注意..protected 是開放給子類別的.
+    > private (自身類別[O], 繼承後的子類別[X], 子類別物件[x])
+
+  [interface] 介面
+    > 一個類別只能繼承單一類別, 但可以實作多個介面
+    > 介面中只能定義常數 或 public 存取權限的抽象方法.
+
+  [namepsace] 命名空間
+    > 使用 Laravel 開發API 常見 命名空間及 類別
+    > 實務建議是 "一個類別一個檔案" 為原則, 介面也是一樣.
+    > 路徑定義是以 "\" 作分隔.
+    > 使用命名空間 "use", 
+      ex. use myProject\Dog;
+          use YourProject\Dog as YourProjectDog; //可以給別名區別.
+    >若設定好[namepsace] 命名空間仍無法正常操作檔案, 則必須使用 "require" or "include".
+    >Laravel 專案根目錄的composer.json有一個autoload參數, 就是設定自動載入的配置.
+
+    3.7 小練習 - 我的理解
+    > Class 類別
+    > Extends 繼承
+    > Encapsulation 封裝 -> public, protected, private
+    > interface 介面 -> 預先定義方法, 實作時要完成方法內容, 方法內容可依需求而定, 不一定要相同.
+    > Override 覆寫 -> 子類別重新定義父類別函式
+    > namepsace 命名空間
+    > use 使用檔案的方法 -> use namepsace or require or include
+    > Trait 跟Java一樣，PHP不允許多重繼承，這樣可以減少物件組織的複雜性，也比較容易避開一些相依問題。但是在許多狀況下，我們可能只是需要一些特定的功能，這些功能幾乎沒有相依性，用繼承來取得太複雜，這時候通常的作法是把它做成獨立的類別，然後在需要使用的地方把物件當做property來使用（composition）。但是在實際上需要作為物件的方法才方便使用時，就不適合這樣做了。使用Traits，可以在需要某些「特定」的特性與功能時，才引用特定的Traits，這樣很直接方便。
+            參考：PHP: Traits - Manual 
+            https://ithelp.ithome.com.tw/m/articles/10133226
+
+
+  [Restful API]
+
+    [HTTP標頭]
+      > API常用的標頭有 "Accept", "Authorization", "Content-Type"三種, 亦可自行定義標頭.
+    
+    [內容協商標頭]
+      > 內容協商標頭有 "Accept", "Content-Type", 它們是一對的,
+        >> 前者"Accept"告訴伺服器->希望回傳的內容是什麼格式(JSON or XML)
+        >> 後者"Content-Type"告訴伺服器->request data的表單內容是什麼格式.
+
+    [認證標頭]
+      > API常用的標頭有 "Authorization".
+      > 確認API保證請求(request)的安全.
+
+    [狀態碼] -> HTTP傳輸協定義一系列的狀態碼.
+      > 200 請求成功
+      > 400 請求資料有問題
+      > 500 伺服器出錯
+
+  [HTTP 動詞對應動作]
+    GET 查詢
+    POST 新增
+    DELETE 刪除
+    PUT 替換
+    PATCH 更新
+
+  [REST 風格]
+    > 原則如下:
+      1. 定義一個可以被操作的資源物件(Object). ex. URI -> /api/v1/posts/{post}
+      2. 資源物件(Object)使用的固定動作. ex. CRUD
+        > Create, Read , Update, Delete
+      3. 可請求資源的網址 (URI).
+      4. 使用JSON OR XML 格式作資料傳遞. ex. JSON
+
+    > 範例:
+      資源物件  post(文章)
+        URI -> /api/v1/posts/{post}
+
+      [HTTP 動詞] [URI]           [說明]
+      GET         /api/v1/posts  查詢所有文章(篩選/排序)
+      GET         /api/v1/posts/1 查詢{id=1}的單一文章
+      POST        /api/v1/posts   新增一篇文章.若相同REQUEST送兩次, db會有相同內容的文章, 但id不同.
+      DELETE      /API/V1/posts/1 刪除{id=1}的文章.若相同REQUEST送第二次, 第二次回應會找不到資源的錯誤訊息.
+      PUT         /API/V1/posts/1 替換{id=1}的所有內容, 類似刪除舊資料, 以全新資料取代.
+      PATCH       /API/V1/posts/1 更新{id=1}的部分內容, 只替代發送REQUEST資料的部分內容, 沒填寫的部份保留原資料內容.
+
+    > 小練習: 決定一個資源(線上購物平台)
+        資源物件 product(商品)
+        URI -> api/shopping/proudcts/{product}
+
+        [HTTP 動詞] [URI]                       [功能]  [說明]
+        GET         api/shopping/proudcts/id=1  查詢{id=1}的產品
+        GET         api/shopping/proudcts/ALL  查詢所有產品
+        POST        api/shopping/proudcts/ID=1  將{id=1}的產品加入購物車
+        DELETE      api/shopping/proudcts/ID=1  將{id=1}的產品自購物車中刪除
+        PUT         api/shopping/proudcts/ID=1  替換[全部]購物車中{id=1}的產品
+        PATCH       api/shopping/proudcts/ID=1  替換[部分]購物車中{id=1}的產品
+
+  [ch5 - 進入 Laravel, 規劃系統核心目的]
+
+    > 安裝 Laravel 套件 & 新增 Laravel 專案 & 啟動網站伺服器
+
+        cd C:\Projects\Laravel > composer global require "laravel/installer"
+        C:\Projects\Laravel > laravel new animal
+        # global 全域安裝套件, 因此在哪個資料夾下執行都沒差別, 自動切換到Composer安裝全域套件的目錄.
+        # require 表示要安裝套件 要安裝的套件名稱
+        #記得先檢查 php -v 是否可執行
+          > 如果不行, 要先把 php.exe 路徑放入[PATH]的系統變數中
+          > 不然等一下的 php artisan serve 一樣跑不起來.
+
+        # 建立一個 laravel 專案
+          composer create-project laravel/laravel example-app
+          cd example-app #進入專案資料夾
+          php artisan serve #啟動網站伺服器
+        #上一個指令執行後, CMD不會跑什麼出來, 不要痴痴地等, 直接連接 http://localhost:8000/ 即可.
+        #並不會出現下列提示
+          Starting Laravel development SERVER: http://127.0.0.1
+          ...
+          ...
+          
+        #安裝完成後, 會產生一個 .env環境變數檔, 並在檔案中產生一組KEY用來加密用
+        
+      =2024/04/20 今天進度, 終於把第一個PHP laravel 專案 RUN起來了...=
       
-    =2024/04/20 今天進度, 終於把第一個PHP laravel 專案 RUN起來了...=
+        > 把PHP + MySQL重裝一遍, 
+        > 什麼設定都維持不變
+        > 只改了apache listen 81
+        > 因為IIS一直佔著80 port, 怎麼都移不掉..=
+        > 好險安裝成功..
+        > 記得apache 要先啟動, 不然後面都無法連線成功.
+        > http://localhost:81/dashboard/ (OK)
+        > http://localhost:81/dashboard/phpinfo.php (OK)
+        > http://localhost:81/phpmyadmin/ (OK) 
+        > 好險 composer & Laravel 也沒有壞掉...
+
+  ==2024/04/21 今天進度====
+
+        # 建立一個 laravel 專案
+          composer create-project laravel/laravel example-app-0422
+          cd example-app-0422 #進入專案資料夾
+          php artisan serve #啟動網站伺服器
+        #上一個指令執行後, CMD不會跑什麼出來, 不要痴痴地等, 直接連接 http://localhost:8000/ 即可.    
+
+    > 新增一個新的資料庫(OK)
+      # 名稱 : animal
+      # 編碼 : utf8mb4_general_ci
+        # 目前資料庫沒有任何資料庫
+
+    > 新增資料庫管理帳號(OK)
+      # 登入 phpMyAdmin 首頁
+      # 進入 User Account Tab(使用者帳號)
+      # Click "Add user account "(新增使用者帳號)" 
+
+      ===========================
+      # User name : webAdmin
+      # Host name : %
+      # Password : 0000
+      # Password-ReType : 0000
+      # Global privileges(全域權限) : Check ALL
+
+    > Laravel 環境變數檔設定(以下的值要加在 .env 檔內) (OK)
+      # DB_CONNECTION = mysql
+      # DB_HOST = 127.0.0.1
+      # DB_PORT = 3306
+      # DB_DATABASE = animal
+      # DB_USERNAME = webAdmin
+      # DB_PASSWORD = 0000
+
+    > 為什麼不把 DB_CONNECTION 直接設定在 專案根目錄內的 config\database.php內呢?(OK)
+      1. 反而在 config\database.php 第18行左右加入下列這行引用 <.env 環境變數檔> 的 DB_CONNECTION 資訊.
+          'default' => env('DB_CONNECTION', 'mysql')
+          雖然它裡面定義了 Laravel 各式各樣 DB 預設的連線設定
+        ==========
+          # 因為 <.env 環境變數檔> 可以在不同環境(伺服器)內有不同的設定值. 
+            ex. 測試環境和正式環境使用不同的.env環境變數檔, 配置伺服器相關設定.
+          # 另外, .env環境變數檔是在排除 .gitignore 清單中.
+
+      2. 實際上, 如何完作DB 設定?
+        # 檔案 database.php 內加上下列這一行
+          'default' => env('DB_CONNECTION', 'mysql'),
+
+        # 檔案 .env 內加入下列的DB_Connection內容
+          # 額外新的DB Connection
+            DB_CONNECTION = mysql
+            DB_HOST = 127.0.0.1
+            DB_PORT = 3306
+            DB_DATABASE = animal
+            DB_USERNAME = webAdmin
+            DB_PASSWORD = 0000
+
+    > 系統分析
+      # CMS(內容管理系統)
+      # 類別分類(猫, 狗...)
+      # 會員註冊, 權限限制
+
+    > 小練習 - Git 初始化專案環境
+      # 切換至 專案目錄下 -> cd example-app-0422
+      # git 儲存庫初始化 -> git init
+      # 全部檔案加入git 暫存區 -> git add .
+      # 設定提交者名稱有加或沒加--global的區別在於 全域設定, 沒加只會影響目前專案資料夾
+          -> git config --global user.name "YourName" //設定姓名
+          -> git config --global user.email "YourMail" //設定MAIL
+          -> git config user.name //顯示當前的提交者姓名
+              kl.cheng
+          -> git config user.email //顯示當前的提交者MAIL
+              kl546@outlook.com
+      
+      # 加入儲存庫 -> git commit -m "要增加的簽入訊息"
+      # 查看儲存庫內的紀錄點 -> git log 
+      # 切換分支或某個commit id -> git checkout ch5
+          切換至分支 ch5 進行開發
+          預設都是在分支 master 上開發
+
+  ==2024/04/22 今天進度====
+
+
+  ==2024/04/23 今天進度(CH06 新增資源)====
+    > 定義資源
+      # 決定主題(流浪動物之家認養)
+      # 資源 -> 動物
+      # 動物資源 -> 屬性(要有哪些屬性)
     
-      > 把PHP + MySQL重裝一遍, 
-      > 什麼設定都維持不變
-      > 只改了apache listen 81
-      > 因為IIS一直佔著80 port, 怎麼都移不掉..=
-      > 好險安裝成功..
-      > 記得apache 要先啟動, 不然後面都無法連線成功.
-      > http://localhost:81/dashboard/ (OK)
-      > http://localhost:81/dashboard/phpinfo.php (OK)
-      > http://localhost:81/phpmyadmin/ (OK) 
-      > 好險 composer & Laravel 也沒有壞掉...
+    > 6.2 新建資源檔案
+      # 建立Model檔案(與DB溝通的中介)
+        -> Laravel 的 model 又稱為 Eloquent ORM
+      # 產生 Model, Migration & Controller的指令碼
+        -> 請先切換至專案目錄下
+            cd example-app-0422
+        -> 輸入下列指令
+            php artisan make:model <DB name> -rmc
+            php artisan make:model <animal> -rmc
+            -rmc -> 表示同時 產生 Model, Migration & Controller 三個檔案.
+            -r   -> 載入預設的CRUD方法
+        -> 檔案存放路徑
+            app\database\migrations\...
+            app\Http\Controllers\AnimalController.php
+            app\Models\Animal.php
 
-==2024/04/21 今天進度====
+    > 設定路由, 請開啟 routes\api.php, 
+        專用設定專案的API網址
+        每個API網址對應->一個方法
+      
+      # routes\api.php 內容 (找個地方加入下方程式)
+          use App\Http\Controllers\AnimalController;
 
-      # 建立一個 laravel 專案
-        composer create-project laravel/laravel example-app-0422
-        cd example-app-0422 #進入專案資料夾
-        php artisan serve #啟動網站伺服器
-      #上一個指令執行後, CMD不會跑什麼出來, 不要痴痴地等, 直接連接 http://localhost:8000/ 即可.    
+          Route::apiResource('animals', AnimalController::class);
 
-  > 新增一個新的資料庫(OK)
-    # 名稱 : animal
-    # 編碼 : utf8mb4_general_ci
-      # 目前資料庫沒有任何資料庫
+          Route Facades的 <apiResource> 是 laravel內建方法 
+            -> 將路由網址設定為 'animal' 字串,
+                對應到 AnimalController 檔案內相對應的方法
 
-  > 新增資料庫管理帳號(OK)
-    # 登入 phpMyAdmin 首頁
-    # 進入 User Account Tab(使用者帳號)
-    # Click "Add user account "(新增使用者帳號)" 
+      # 儲存 routes\api.php 檔案
 
-    ===========================
-    # User name : webAdmin
-    # Host name : %
-    # Password : 0000
-    # Password-ReType : 0000
-    # Global privileges(全域權限) : Check ALL
+      # 查看路由表內容
 
-  > Laravel 環境變數檔設定(以下的值要加在 .env 檔內) (OK)
-    # DB_CONNECTION = mysql
-    # DB_HOST = 127.0.0.1
-    # DB_PORT = 3306
-    # DB_DATABASE = animal
-    # DB_USERNAME = webAdmin
-    # DB_PASSWORD = 0000
+        -> 請輸入下列指令
+            php artisan route:list
 
-  > 為什麼不把 DB_CONNECTION 直接設定在 專案根目錄內的 config\database.php內呢?(OK)
-    1. 反而在 config\database.php 第18行左右加入下列這行引用 <.env 環境變數檔> 的 DB_CONNECTION 資訊.
-        'default' => env('DB_CONNECTION', 'mysql')
-        雖然它裡面定義了 Laravel 各式各樣 DB 預設的連線設定
-       ==========
-        # 因為 <.env 環境變數檔> 可以在不同環境(伺服器)內有不同的設定值. 
-          ex. 測試環境和正式環境使用不同的.env環境變數檔, 配置伺服器相關設定.
-        # 另外, .env環境變數檔是在排除 .gitignore 清單中.
+    > MVC架構
+      # DB Schema 
+        column_name desc dataType     property nullable memo
+        id          ID    int(10)     unsigned  No      PK, 不允許重複, 自動遞增+1
+        type_id     類別  int(10)     unsigned   Yes     將與類別資料表作關聯(ex.0=猫,1=狗,2=蛇,...)
+        name        小名  varchar(255)          No      文字最大255字元
+        birthday    生日  date                  Yes     年, 月, 日
+        area        地區  varchar(255)          Yes      文字最大255字元
+        fix         結紮  tinyint(1)            No      tinyint(0-255), 設定最大儲存1位數(0 or 1)
+        description 說明  text                  Yes     可輸入較多文字
+        personality 個性  text                  Yes     可輸入較多文字
+        user_id     會員  int(10)     unsigned   No     將與會員資料表作關聯(ex.0=Kevin,...)
+        create_date 新增日期  timestamp          Yes
+        Update_date 更新日期  timestamp          Yes
 
-    2. 實際上, 如何完作DB 設定?
-      # 檔案 database.php 內加上下列這一行
-        'default' => env('DB_CONNECTION', 'mysql'),
+    > 6.6 實作 Migration
+      Migration 它可以建立資料庫結構
+      路徑在 專案\database\migrations\XXXXX_create_jobs_table.php裡面
+      裡面有 UP, DOWN 兩個方法, 
 
-      # 檔案 .env 內加入下列的DB_Connection內容
-        # 額外新的DB Connection
-          DB_CONNECTION = mysql
-          DB_HOST = 127.0.0.1
-          DB_PORT = 3306
-          DB_DATABASE = animal
-          DB_USERNAME = webAdmin
-          DB_PASSWORD = 0000
+        public function up()
+        {
+          Schema::create('animals', function (Blueprint $table) {
+            $table->id(); //使用遞增整數設定ID欄位
+            $table->unsignedBigInteger('type_id')->nullable();
+            $table->string('name');
+            $table->date('birthday')->nullable;
+            $table->string('area')->nullable;
+            $table->boolean('fix')->default(false);
+            $table->text('description')->nullable;
+            $table->text('personality')->nullable;
+            $table->unsignedBigInteger('user_id');
+            $table->timestamps();
+            $table->timestamp('create_date')->useCurrent();
+          });
 
-  > 系統分析
-    # CMS(內容管理系統)
-    # 類別分類(猫, 狗...)
-    # 會員註冊, 權限限制
+        }
 
-  > 小練習 - Git 初始化專案環境
-    # 切換至 專案目錄下 -> cd example-app-0422
-    # git 儲存庫初始化 -> git init
-    # 全部檔案加入git 暫存區 -> git add .
-    # 設定提交者名稱有加或沒加--global的區別在於 全域設定, 沒加只會影響目前專案資料夾
-        -> git config --global user.name "YourName" //設定姓名
-        -> git config --global user.email "YourMail" //設定MAIL
-        -> git config user.name //顯示當前的提交者姓名
-            kl.cheng
-        -> git config user.email //顯示當前的提交者MAIL
-            kl546@outlook.com
-    
-    # 加入儲存庫 -> git commit -m "要增加的簽入訊息"
-    # 查看儲存庫內的紀錄點 -> git log 
-    # 切換分支或某個commit id -> git checkout ch5
-        切換至分支 ch5 進行開發
-        預設都是在分支 master 上開發
-
-==2024/04/22 今天進度====
-
-
-==2024/04/23 今天進度(CH06 新增資源)====
-  > 定義資源
-    # 決定主題(流浪動物之家認養)
-    # 資源 -> 動物
-    # 動物資源 -> 屬性(要有哪些屬性)
-  
-  > 新建資源檔案
-    # 建立Model檔案(與DB溝通的中介)
-      -> Laravel 的 model 又稱為 Eloquent ORM
-    # 產生 Model, Migration & Controller的指令碼
-      -> 請先切換至專案目錄下
-          cd example-app-0422
-      -> 輸入下列指令
-          php artisan make:model <DB name> -rmc
-          php artisan make:model <animal> -rmc
-          -rmc -> 表示同時 產生 Model, Migration & Controller 三個檔案.
-          -r   -> 載入預設的CRUD方法
-      -> 檔案存放路徑
-          app\database\migrations\...
-          app\Http\Controllers\AnimalController.php
-          app\Models\Animal.php
-
-  > 設定路由, 請開啟 routes\api.php, 
-      專用設定專案的API網址
-      每個API網址對應->一個方法
-    
-    # routes\api.php 內容 (找個地方加入下方程式)
-        use App\Http\Controllers\AnimalController;
-
-        Route::apiResource('animals', AnimalController::class);
-
-        Route Facades的 <apiResource> 是 laravel內建方法 
-          -> 將路由網址設定為 'animal' 字串,
-              對應到 AnimalController 檔案內相對應的方法
-
-    # 儲存 routes\api.php 檔案
-
-    # 查看路由表內容
-
-      -> 請輸入下列指令
-          php artisan route:list
-
-  > MVC架構
-    # DB Schema 
-      column_name desc dataType     property nullable memo
-      id          ID    int(10)     unsigned  No      PK, 不允許重複, 自動遞增+1
-      type_id     類別  int(10)     unsigned   Yes     將與類別資料表作關聯(ex.0=猫,1=狗,2=蛇,...)
-      name        小名  varchar(255)          No      文字最大255字元
-      birthday    生日  date                  Yes     年, 月, 日
-      area        地區  varchar(255)          Yes      文字最大255字元
-      fix         結紮  tinyint(1)            No      tinyint(0-255), 設定最大儲存1位數(0 or 1)
-      description 說明  text                  Yes     可輸入較多文字
-      personality 個性  text                  Yes     可輸入較多文字
-      user_id     會員  int(10)     unsigned   No     將與會員資料表作關聯(ex.0=Kevin,...)
-      create_date 新增日期  timestamp          Yes
-      Update_date 更新日期  timestamp          Yes
-
-
+        public function DOWN() //這個方法只會有一行指令.
+        {
+          Schema::dropIfExists('animals');
+        }
+              
 
 

@@ -1,0 +1,200 @@
+SOP-HTML5學習筆記
+  > Using CSS
+    #  CSS can be added to HTML documents in 3 ways:
+
+        Inline - by using the style attribute inside HTML elements
+        Internal - by using a <style> element in the <head> section
+        External - by using a <link> element to link to an external CSS file
+
+        The most common way to add CSS, is to keep the styles in "external CSS files".
+        註1: 最常用的方式, 是外部CSS檔案.
+
+    # Tip: With an "external style sheet", you can change the look of an entire web site, 
+      by changing one file!
+
+      註2: 外部CSS檔案, 可以在一個CSS檔案內, 改變整個網站的外觀.
+
+      註3: 外部CSS檔案, HTML 的註解在CSS檔案不適用 <!-- <style>   </style> --> 
+
+      註4: 外部CSS檔案, CSS 檔內的註解, 換成 /*--*-/
+
+      註5: 外部CSS檔案, CSS關鍵字也更容易挑選, 顏色還會顯示在旁邊.
+            body {background-color: powderblue;}
+            body { background-color: lightyellow; }
+            h1 { color: blue;}
+            p  { color: red;}
+
+    # CSS Colors, Fonts and Sizes
+
+        The CSS "color" property defines the text color to be used. <文字顏色>
+
+        The CSS "font-size: 600%;" property defines the text size to be used. <文字大小>
+
+        The CSS "font-family" property defines the font to be used. <字型>
+
+    # CSS Border
+        The CSS border property defines a border around an HTML element.<外框>
+
+        註=>Tip: You can define a border for nearly all HTML elements.
+
+        p{
+          border: 2px solid blue;
+        }
+
+    # CSS Padding
+        The CSS padding property defines a padding (space) between the text and the border.
+          (定義文字與外框間空白距離)
+
+          p{
+            border: 2px solid blue;
+            padding: 30px;
+          }
+
+    # CSS Margin
+        The CSS margin property defines a margin (space) outside the border.
+          (定義外框外與其他元素間的空白距離)
+
+          p{
+            border: 2px solid blue;
+            margin: 50px;
+          }
+
+    # Link to External CSS
+      External style sheets can be referenced with a full URL 
+        or with a path relative to the current web page.
+
+        註: 連結外部完整的URL連結 OR 網站內部的CSS檔案.
+
+       <link rel="stylesheet" href="https://www.w3schools.com/html/styles.css"> 
+       <link rel="stylesheet" href="styles.css"> 
+
+> HTML Links
+  + HTML Links - Hyperlinks
+      . HTML Links 是超連結.
+      . 點選 連結, 跳至另一個文件.
+      . 移至 連結上, 遊標會變成小手.
+      註: Note: A link does not have to be text. 
+                A link can be an image or any other HTML element!
+
+      > HTML Links 語法 href Attribute
+        <a href="URL">link text</a>
+        <a href="https://eng.taiwan.net.tw/">Welcome to taiwan.</a>
+
+        By default, links will appear as follows in all browsers:(連結預設樣式)
+        An unvisited link is underlined and blue (藍)
+        A visited link is underlined and purple (紫)
+        An active link is underlined and red (紅)
+
+      > HTML Links - The target Attribute
+
+        The target attribute specifies where to open the linked document.
+          註: 連結網頁開啟的方式
+
+          The target attribute can have one of the following values:
+
+              _self - Default. Opens the document in the same window/tab as it was clicked
+                預設: 連結網頁開在原視窗內(可能只是parent frame 的一小部份)(網址不變)
+              _blank - Opens the document in a new window or tab
+                連結網頁開在新視窗內.(網址不變)
+
+              _parent - Opens the document in the parent frame
+                連結網頁開在父視窗內.(網址變成連結網頁)
+              _top - Opens the document in the full body of the window
+                連結網頁開在父視窗內.(網址變成連結網頁)
+
+
+      > Absolute URLs vs. Relative URLs
+        Absolute URLs 絕對路徑(通常是外部網站的路徑)      
+            <h2>Absolute URLs</h2>
+            <p><a href="https://www.w3.org/">W3C</a></p>
+            <p><a href="https://www.google.com/">Google</a></p>
+
+            <!-- 同網站檔案也可以用 '絕對路徑' 表示-->
+             <a href="https://www.w3schools.com/html/default.asp">HTML tutorial</a> 
+
+        Relative URLs 相對路徑(通常是內部網站的路徑)              
+          <h2>Relative URLs</h2>
+          
+          <!-- 同網站相同目錄下的檔案當然可以用 '相對路徑' 表示-->
+          <p><a href="html_images.asp">HTML Images</a></p>
+
+          <!-- 同網站不同目錄下的檔案當然可以用 '相對路徑' 表示-->
+          <p><a href="/css/default.asp">CSS Tutorial</a></p> 
+           <a href="/html/default.asp">HTML tutorial</a> 
+
+      > HTML Links - Use an Image as a Link
+
+        + To use an image as a link, just put the <img> tag inside the <a> tag:
+          把 img 放在 <a> 裡面, 製作圖片連結
+
+        +  <a href="default.asp">
+            <img src="smiley.gif" alt="HTML tutorial" style="width:42px;height:42px;">
+            </a> 
+
+      > Link to an Email Address
+        + Use mailto: inside the href attribute to create a link 
+          that opens the user's email program (to let them send a new email):
+        
+        +  <a href="mailto:someone@example.com">Send email</a> 
+
+      > Button as a Link
+        + To use an HTML button as a link, you have to add some JavaScript code.
+        +  <button onclick="document.location='default.asp'">HTML Tutorial</button> 
+
+      > Link Titles(提示字元)
+        + The information is most often shown as a tooltip text 
+            when the mouse moves over the element.
+        +  <a href="https://www.w3schools.com/html/" title="Go to W3Schools HTML section">
+              Visit our HTML Tutorial</a> 
+
+      
+      > Chapter Summary
+      
+        + Use the <a> element to define a link
+        + Use the 'href' attribute to define the link address
+        + Use the 'target' attribute to define where to open the linked document
+        + Use the <img> element (inside <a>) to use an image as a link
+        + Use the mailto: scheme inside the href attribute to create a link 
+        + that opens the user's email program
+
+        <a href="taiwan.com.tw">Welcome to taiwan </a>
+
+  + HTML Links - Different Colors
+
+    > By default, links will appear as follows in all browsers:(連結預設樣式)
+        An unvisited link is underlined and blue (藍)
+        A visited link is underlined and purple (紫)
+        An active link is underlined and red (紅)
+
+        You can change the link state colors, by using CSS:
+        範例檔: HTML+PHP\style.css
+
+
+  + HTML Links - Create Bookmarks
+
+> HTML Images
+  + Width and Height, or Style?
+    The width, height, and style attributes are all valid in HTML.
+    註: 建議作法使用 元素內的style 屬性來表示標註外觀.
+    However, we suggest using the "style attribute". 
+    It prevents styles sheets from changing the size of images:
+
+      <style>
+      img {
+        width: 100%;
+      }
+      
+      <!--這個會變形-->
+      <img src="html5.gif" alt="HTML5 Icon" width="128" height="128">
+      
+      <!--建議作法: 不會變形, prevents styles sheets from changing the size of images-->
+      <img src="html5.gif" alt="HTML5 Icon" style="width:128px;height:128px;">
+
+      實際範例
+        https://www.w3schools.com/html/tryit.asp?filename=tryhtml_images_style
+ee
++ HTML Image Maps
+
++ HTML Background Images
+
++ HTML <picture> Element
