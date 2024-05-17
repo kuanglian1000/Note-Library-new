@@ -171,30 +171,134 @@ SOP-HTML5學習筆記
 
 
   + HTML Links - Create Bookmarks
+     # Link + Bookmarks
+      <Chapter Summary>
 
+        Use the id attribute (id="value") to define bookmarks in a page
+        @ @ Use the href attribute (href="#value") to link to the bookmark
+
+      <Code Sameple>
+        <h2 id="C4">章節4</h2> //書籤定義
+        <a href="#C4">跳到本頁的章節4</a> //連結書籤-跳過去(容易錯誤的地方, 忘記加上 # 字號)
+        <a href="html+css+inhead+external.php#C4">跳到<html+css+inhead+external>跳到別頁的章節4</a>
+
+        <h2 id="C1">章節1</h2>
+        <h2 id="C2">章節2</h2>
+          <h2 id="C3">章節3</h2>
+          <h2 id="C4">章節4</h2>
+ 
 > HTML Images
+  錯誤路徑 \
+    <img src="C:\\xampp\\htdocs\\practices\\HTML+PHP\\images\\img1.jpg" alt="圖片描述"> 無法顯示
+
+  正確路徑 /
+    C:/xampp/htdocs/practices/HTML+PHP/php+html+sample.php
+    C:/xampp/htdocs/practices/HTML+PHP/images/img1.jpg
+
+    <a href="html+css+inhead+external.php#C4">跳到<html+css+inhead+external>跳到別頁的章節4(同資料夾)</a>
+    
+    
+    <img src="images/img1.jpg" alt="角落生物"> 成功顯示, 注意路徑的斜線方向(/)..
+    <img src="images\img1.jpg" alt="角落生物"> 無法顯示, 注意路徑的斜線方向(\)..
+
+  + Image Size - Width and Height
+      圖片尺寸-寬和高 width nd height
+      style='width:500; height:600' ; 預設單位就是px
+
+註: 圖片一定要指定寬和高, 如果沒有指定, 載入圖片時網頁可能會閃爍.
+
   + Width and Height, or Style?
-    The width, height, and style attributes are all valid in HTML.
+      The width, height, and style attributes are all valid in HTML.
+      
     註: 建議作法使用 元素內的style 屬性來表示標註外觀.
-    However, we suggest using the "style attribute". 
-    It prevents styles sheets from changing the size of images:
+      However, we suggest using the "style attribute". 
+      It prevents styles sheets from changing the size of images:
 
-      <style>
-      img {
-        width: 100%;
-      }
-      
-      <!--這個會變形-->
-      <img src="html5.gif" alt="HTML5 Icon" width="128" height="128">
-      
-      <!--建議作法: 不會變形, prevents styles sheets from changing the size of images-->
-      <img src="html5.gif" alt="HTML5 Icon" style="width:128px;height:128px;">
+        <style>
+        img {
+          width: 100%;
+        }
+        
+        <!--這個寫法會變形-->
+        <img src="html5.gif" alt="HTML5 Icon" width="128" height="128">
+        
+        <!--建議作法: 圖片不會變形, prevents styles sheets from changing the size of images-->
+        <img src="html5.gif" alt="HTML5 Icon" style="width:128px;height:128px;">
 
-      實際範例
-        https://www.w3schools.com/html/tryit.asp?filename=tryhtml_images_style
-ee
+        實際範例
+          https://www.w3schools.com/html/tryit.asp?filename=tryhtml_images_style
+
+  + Images in Another Folder
+       <img src="/images/html5.gif" alt="HTML5 Icon" style="width:128px;height:128px;"> 
+       註: 路徑要以 '/'分隔開, 不能用'\'
+
+  + Images on Another Server/Website
+         <img src="https://www.w3schools.com/images/w3schools_green.jpg" alt="W3Schools.com"> 
+         註: 如果圖片在別的網站裡, 要使用絕對路徑...
+
+  + Animated Images
+        <img src="programming.gif" alt="Computer Man" style="width:48px;height:48px;"> 
+        註: HTML5 允許放入動態小圖
+
+  + Image as a Link
+      註: 圖片連結, 就是在連結<a>內放入圖片<img>
+      <a href="default.php">
+        <img src="simle.gif" alt="微笑小圖示"  style="width:42px; height:42px;">
+      </a>
+
+  + Image Floating
+      Use the CSS 'float' property to let the image float to the right or to the left of a text:
+
+       <p><img src="smiley.gif" alt="Smiley face" style="float:right;width:42px;height:42px;">
+      The image will float to the right of the text.</p>
+
+      <p><img src="smiley.gif" alt="Smiley face" style="float:left;width:42px;height:42px;">
+      The image will float to the left of the text.</p> 
+
+  <Chapter Summary>
+
+    > Use the HTML <img> element to define an image
+    > Use the HTML src attribute to define the URL of the image
+    > Use the HTML alt attribute to define an alternate text for an image, if it cannot be displayed
+    > Use the HTML width and height attributes or the CSS width and height properties to define the size of the image
+    > Use the CSS float property to let the image float to the left or to the right
+
+Note: Loading large images takes time, and can slow down your web page. Use images carefully.
+
+註: 載入大張圖片會花費時間, 可能會拖慢你的網頁速度. 請小心使用圖片....
+
 + HTML Image Maps
+  # Image Maps
+
+  # How Does it Work?
+
+  # The Image
+
+  # Create Image Map
+
+  # The Areas
+
+  # Image Map and JavaScript
+
+  # Chapter Summary
 
 + HTML Background Images
 
+  # Background Image on a HTML element
+
+  # Background Image on a Page
+
+  # Background Repeat
+
+  # Background Cover
+
+  # Background Stretch
+
 + HTML <picture> Element
+  # The HTML <picture> Element
+
+  # When to use the Picture Element
+
+  # HTML Image Tags
+
+  # 
