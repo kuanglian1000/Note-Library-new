@@ -798,3 +798,367 @@ Note: Loading large images takes time, and can slow down your web page. Use imag
       <dl> 	Defines a description list
       <dt> 	Defines a term in a description list
       <dd> 	Describes the term in a description list
+
+
+    > HTML Ordered Lists
+
+      # Ordered HTML List
+
+      # Ordered HTML List - The Type Attribute
+          Type 	Description
+          type="1" 	The list items will be numbered with numbers (default)
+          type="A" 	The list items will be numbered with uppercase letters
+          type="a" 	The list items will be numbered with lowercase letters
+          type="I" 	The list items will be numbered with uppercase roman numbers
+          type="i" 	The list items will be numbered with lowercase roman numbers
+
+      # Control List Counting
+            By default, an ordered list will start counting from 1. 
+            If you want to start counting from a specified number, you can use the 'start' attribute:
+
+            <ol start="50">
+              <li>咖啡</li>
+              <li>茶</li>
+            </ol>
+
+      # 註: Note: A list item (<li>) can contain a new list, 
+            and other HTML elements, like images and links, etc.
+            項目裡面可以包含其他項目.
+
+      # Nested HTML Lists
+            <ol start="50">
+              <li>咖啡</li>
+              <li>茶</li>
+              <li>奶
+            <ol start="2">
+              <li>鮮奶</li>
+              <li>調味奶</li>
+              <li>保久奶</li>
+            </ol>
+              </li>
+            </ol>
+
+      # Chapter Summary
+        Use the HTML <ol> element to define an ordered list
+        Use the HTML 'type' attribute to define the numbering type
+          (1, A, a, I, i五種)
+        Use the HTML <li> element to define a list item
+        Lists can be nested
+        List items can contain other HTML elements
+
+      # HTML List Tags
+        Tag 	Description
+        <ul> 	Defines an unordered list
+        <ol> 	Defines an ordered list
+        <li> 	Defines a list item
+        <dl> 	Defines a description list
+        <dt> 	Defines a term in a description list
+        <dd> 	Describes the term in a description list
+
+    > HTML Other Lists
+
+      # HTML Description Lists
+
+        The <dl> tag defines the description list, 
+        the <dt> tag defines the term (name), 
+        and the <dd> tag describes each term:
+
+        <dl>
+          <dt>咖啡</dt>
+          <dd>熱黑咖</dd>
+          <dt>牛奶</dt>
+          <dd>冰奶茶</dd>
+        </dl>
+
+      # Chapter Summary
+
+        Use the HTML <dl> element to define a description list
+        Use the HTML <dt> element to define the description term
+        Use the HTML <dd> element to describe the term in a description list
+
+      # HTML List Tags
+        Tag 	Description
+        <ul> 	Defines an unordered list
+        <ol> 	Defines an ordered list
+        <li> 	Defines a list item
+        <dl> 	Defines a description list
+        <dt> 	Defines a term in a description list
+        <dd> 	Describes the term in a description list
+
+    > HTML Block and Inline Elements
+
+      Every HTML element has a default display value, depending on what type of element it is.
+
+      # Block-level Elements
+
+         * block-level element always starts on a new line, (block-level element總是從新行開始)
+            and the browsers automatically add some space (a margin) before and after the element.
+            (瀏覽器會自動在block-level element前後加上空白)
+
+         * A block-level element always takes up the full width available 
+              (stretches out to the left and right as far as it can).
+            (block-level element block-level element總是會延伸到最寬)
+
+          * Two commonly used block elements are: <p> and <div>.
+            (兩個最常用的 block-level element 是 <p> & <div>)
+
+            The <p> element defines a paragraph in an HTML document.
+              <p> 定義段落
+
+            The <div> element defines a division or a section in an HTML document.
+              <div> 定義部分區塊
+
+      # Inline Elements
+
+        An inline element does not start on a new line. (Inline Elements不會從新行開始)
+
+        An inline element only takes up as much width as necessary. (Inline Elements只會佔用必要的寬度)
+
+        This is a <span> element inside a paragraph.
+        <span> hello world </span>
+
+        Note: An inline element cannot contain a block-level element!
+        注意1: inline element內不能包含 block-level element(區塊元素)
+        注意2: 實際上可以( An inline element can contain a block-level element), 
+              只是會折行.
+
+      # The <div> Element => block-level elements
+
+        The <div> element is often used as a container for other HTML elements.
+        div 常作為其他 HTML elements的容器
+
+        The <div> element has no required attributes, but style, class and id are common.
+        div 經常會加上 style, class and id 屬性.
+
+        When used together with CSS, the <div> element can be used to style blocks of content:
+          <div style="background-color:black;color:white;padding:20px;">
+            <h2>London</h2>
+            <p>London is the capital city of England. It is the most populous city in the United Kingdom, with a metropolitan area of over 13 million inhabitants.</p>
+          </div> 
+
+      # The <span> Element
+
+          The <span> element is an inline container used to mark up a part of a text, 
+            or a part of a document.
+
+          The <span> element has no required attributes, but style, class and id are common.
+
+          When used together with CSS, the <span> element can be used to style parts of the text:
+
+          <p>My mother has 
+            <span style="color:blue;font-weight:bold;">blue</span> 
+            eyes and my father has 
+            <span style="color:darkolivegreen;font-weight:bold;">dark green</span> 
+            eyes.
+          </p>
+
+      # Chapter Summary
+
+        * A block-level element always starts on a new line and takes up the full width available
+        * An inline element does not start on a new line and it only takes up as much width as necessary
+        * The <div> element is a block-level and is often used as a container for other HTML elements
+        * The <span> element is an inline container used to mark up a part of a text, or a part of a document
+
+      # HTML Tags
+        Tag 	Description
+        <div> 	Defines a section in a document (block-level)
+        <span> 	Defines a section in a document (inline)
+
+    > HTML Div Element
+        The <div> element is used as a container for other HTML elements.
+      
+      # The <div> Element
+
+        1. The <div> element is by default a block element, 
+        meaning that it takes all available width, 
+        and comes with line breaks before and after.
+
+        2. The <div> element has no required attributes, 
+          but 'style', 'class' and 'id' are common.
+          * 一般 div 會使用 'style', 'class' and 'id' 等屬性.
+
+        <Code sample>
+         Lorem Ipsum <div>I am a div</div> dolor sit amet. 
+
+      # Center align a <div> element
+        If you have a <div> element that is not 100% wide, 
+        and you want to center-align it, 
+        set the CSS 'margin' property to auto.
+
+        如果你的DIV不是 100%寬, 且你想要置中, 
+        可以把CSS 'margin' property設定為 'auto'
+
+        <style>
+          div{
+            width:300%;
+            margin:auto; //與外面的間距
+          }
+        </style>
+
+      # Multiple <div> elements
+
+        You can have many <div> containers on the same page.
+
+        <Code sample>
+          <div style="background-color:lightyellow">
+            <h2>London</h2>
+            <p>London is the capital city of England.</p>
+            <p>London has over 13 million inhabitants.</p>
+          </div>
+
+          <div style="background-color:pink">
+            <h2>Oslo</h2>
+            <p>Oslo is the capital city of Norway.</p>
+            <p>Oslo has over 600.000 inhabitants.</p>
+          </div>
+
+          <div style="background-color:lightgreen">
+            <h2>Rome</h2>
+            <p>Rome is the capital city of Italy.</p>
+            <p>Rome has almost 3 million inhabitants.</p>
+          </div> 
+
+      # Aligning <div> elements side by side
+        肩並肩排列 => 有很多方式
+
+        * Float(非正規方式, 但在肩共肩樣式上已經用很久了..)
+
+          The CSS float property was not originally meant to align <div> elements side-by-side, 
+          but has been used for this purpose for many years.
+
+          註: Float(非正式用法)
+            The CSS float property is used for positioning and formatting content 
+            and allow elements float next to each other instead of on top of each other.
+
+          <CodeSample>
+            
+            <style>
+            div.mycontainer {
+              width:100%;
+              overflow:auto;
+            }
+            div.mycontainer div {
+              width:33%;  
+              float:left;
+            }
+            </style>
+
+            <div class="mycontainer">
+
+              <div style="background-color:#FFF4A3;">
+                <h2>London</h2>
+                <p>London is the capital city of England.</p>
+                <p>London has over 13 million inhabitants.</p>
+              </div>
+              
+              <div style="background-color:#FFC0C7;">
+                <h2>Oslo</h2>
+                <p>Oslo is the capital city of Norway.</p>
+                <p>Oslo has over 600.000 inhabitants.</p>
+              </div>
+              
+              <div style="background-color:#D9EEE1;">
+                <h2>Rome</h2>
+                <p>Rome is the capital city of Italy.</p>
+                <p>Rome has almost 3 million inhabitants.</p>
+              </div>
+
+            </div>
+
+            </CodeSample>
+
+        * Inline-block(不錯的方式)
+
+          If you change the <div> element's 'display' property from 'block' to 'inline-block', 
+          the <div> elements will no longer add a line break before and after, 
+          and will be displayed side by side instead of on top of each other.
+
+          註: 把 display:block; => 變成 block element
+              改為 display:inline-block; =>變成 inline element
+
+          <CodeSample>
+            <style>
+              div{
+                width: 30%;
+                display:inline-block;
+              }
+
+            </style>
+
+            <div>
+              block1
+            </div>
+            <div>
+              block2
+            </div>
+
+            </CodeSample>
+
+        * Flex (第三種方式)
+          C:\xampp\htdocs\practices\HTML+PHP\php+html+sample-3-style.php
+
+          * The CSS Flexbox Layout Module was introduced to make it easier to 
+            design flexible responsive layout structure without using 'float' or 'positioning'.
+          * To make the CSS flex method work, 
+            surround the <div> elements with another <div> element 
+            and give it the status as a flex container.
+
+            <style>
+              .mycontainer{
+                display:flex;
+              }
+              .mycontainer > div {
+                width: 33%;
+              }
+            </style>
+
+        * Grid (第四種方式) => 更精準的控制, rows, columns數量來決定位置
+
+          ^ The CSS Grid Layout Module offers a grid-based layout system, with rows and columns, 
+            making it easier to design web pages without having to use floats and positioning.
+
+          ^ Sounds almost the same as flex, 
+            but has the ability to define more than one row and position each row individually.
+
+          ^ The CSS grid method requires that you surround the <div> elements with another <div> element 
+            and give the status as a grid container, 
+            and you must specify the width of each column.
+
+            <CodeSample>
+
+                <style>
+                  .grid-mycontainer{
+                    display:grid;
+                    grid-template-columns: 33px 33% 33%;
+                  }
+                  
+                </style>
+
+                <div class="grid-mycontainer">
+
+                  <div style="background-color:orange;">
+                    <h2>台北</h2>
+                    <p>London is the capital city of England.</p>
+                    <p>London has over 13 million inhabitants.</p>
+                  </div>
+                  
+                  <div style="background-color:lightblue;">
+                    <h2>宜蘭</h2>
+                    <p>Oslo is the capital city of Norway.</p>
+                    <p>Oslo has over 600.000 inhabitants.</p>
+                  </div>
+                  
+                  <div style="background-color:yellow;">
+                    <h2>花蓮</h2>
+                    <p>Rome is the capital city of Italy.</p>
+                    <p>Rome has almost 3 million.</p>
+                  </div>
+
+                </div>
+            
+            </CodeSample>
+
+            
+
+
+            
