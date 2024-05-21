@@ -1030,42 +1030,42 @@ Note: Loading large images takes time, and can slow down your web page. Use imag
             The CSS float property is used for positioning and formatting content 
             and allow elements float next to each other instead of on top of each other.
 
-          <CodeSample>
-            
-            <style>
-            div.mycontainer {
-              width:100%;
-              overflow:auto;
-            }
-            div.mycontainer div {
-              width:33%;  
-              float:left;
-            }
-            </style>
-
-            <div class="mycontainer">
-
-              <div style="background-color:#FFF4A3;">
-                <h2>London</h2>
-                <p>London is the capital city of England.</p>
-                <p>London has over 13 million inhabitants.</p>
-              </div>
+            <CodeSample>
               
-              <div style="background-color:#FFC0C7;">
-                <h2>Oslo</h2>
-                <p>Oslo is the capital city of Norway.</p>
-                <p>Oslo has over 600.000 inhabitants.</p>
-              </div>
-              
-              <div style="background-color:#D9EEE1;">
-                <h2>Rome</h2>
-                <p>Rome is the capital city of Italy.</p>
-                <p>Rome has almost 3 million inhabitants.</p>
+              <style>
+              div.mycontainer {
+                width:100%;
+                overflow:auto;
+              }
+              div.mycontainer div {
+                width:33%;  
+                float:left;
+              }
+              </style>
+
+              <div class="mycontainer">
+
+                <div style="background-color:#FFF4A3;">
+                  <h2>London</h2>
+                  <p>London is the capital city of England.</p>
+                  <p>London has over 13 million inhabitants.</p>
+                </div>
+                
+                <div style="background-color:#FFC0C7;">
+                  <h2>Oslo</h2>
+                  <p>Oslo is the capital city of Norway.</p>
+                  <p>Oslo has over 600.000 inhabitants.</p>
+                </div>
+                
+                <div style="background-color:#D9EEE1;">
+                  <h2>Rome</h2>
+                  <p>Rome is the capital city of Italy.</p>
+                  <p>Rome has almost 3 million inhabitants.</p>
+                </div>
+
               </div>
 
-            </div>
-
-            </CodeSample>
+              </CodeSample>
 
         * Inline-block(不錯的方式)
 
@@ -1094,7 +1094,7 @@ Note: Loading large images takes time, and can slow down your web page. Use imag
 
             </CodeSample>
 
-        * Flex (第三種方式)
+        * Flex (第三種方式, 可以用, 但沒有GrID, 精準好用)
           C:\xampp\htdocs\practices\HTML+PHP\php+html+sample-3-style.php
 
           * The CSS Flexbox Layout Module was introduced to make it easier to 
@@ -1112,7 +1112,7 @@ Note: Loading large images takes time, and can slow down your web page. Use imag
               }
             </style>
 
-        * Grid (第四種方式) => 更精準的控制, rows, columns數量來決定位置
+        * Grid (第四種方式, 超好用, 超方便) => 更精準的控制, rows, columns數量來決定位置
 
           ^ The CSS Grid Layout Module offers a grid-based layout system, with rows and columns, 
             making it easier to design web pages without having to use floats and positioning.
@@ -1156,9 +1156,226 @@ Note: Loading large images takes time, and can slow down your web page. Use imag
 
                 </div>
             
-            </CodeSample>
+              </CodeSample>
 
-            
+    > HTML class Attribute
+
+       # Using The class Attribute
+
+       # The Syntax For Class (如果是 Class 用 .來指定)
+
+       # Multiple Classes
+
+       # Different Elements Can Share Same Class
+
+       # Use of The class Attribute in JavaScript
+
+       # Chapter Summary
+        * The HTML class attribute specifies one or more class names for an element
+          一個元素上可設定一個或多個CLASS
+        * Classes are used by CSS(.) and JavaScript(getElementsByClassName()) to select and access specific elements
+        * The class attribute can be used on any HTML element
+
+        * The class name is case sensitive
+          區分大小寫
+        * Different HTML elements can point to the same class name
+          不同的 HTML elements 可以指向相同的 class 設定
+        * JavaScript can access elements with a specific class name with the getElementsByClassName() method
+
+    > HTML id Attribute
+
+      The HTML id attribute is used to specify a unique id for an HTML element.
+        * id 屬性是唯一值
+        * id name 也是區分大小寫的.
+
+      You cannot have more than one element with the same id in an HTML document.
+
+        * 在一份 HTML 文件中, 不能有相同 id 的 Element
 
 
-            
+      # Using The id Attribute
+
+        * The syntax for id is: write a hash character (#), followed by an id name. 
+          Then, define the CSS properties within curly braces {}.
+
+        * In the following example we have an <h1> element that points to the id name "myHeader". 
+          This <h1> element will be styled according to the #myHeader style definition in the head section:
+
+        #<CodeSample>
+
+          <style>
+            #myHeader{
+              color: black;
+              padding: 40px;
+              text-align: center;
+            }
+
+          </style>
+
+          <h1 id="myHeader"> My Header </h1>
+
+          </CodeSample>
+
+      # Difference Between Class and ID
+        A class name can be used by multiple HTML elements, 
+          以 . class name 方式命名的 CSS 可以被多個 HTML elements 共用;
+
+        while an id name must only be used by one HTML element within the page:
+          以 # id name 方式命名的 CSS 只供單一 HTML elements 專用;
+
+      #<CodeSample>
+          <style>
+          /* Style the element with the id "myHeader" */
+          #myHeader {
+            background-color: lightblue;
+            color: black;
+            padding: 40px;
+            text-align: center;
+          }
+
+          /* Style all elements with the class name "city" */
+          .city {
+            background-color: tomato;
+            color: white;
+            padding: 10px;
+          }
+          </style>
+
+          <!-- An element with a unique id -->
+          <h1 id="myHeader">My Cities</h1>
+
+          <!-- Multiple elements with same class -->
+          <h2 class="city">London</h2>
+          <p>London is the capital of England.</p>
+
+          <h2 class="city">Paris</h2>
+          <p>Paris is the capital of France.</p>
+
+          <h2 class="city">Tokyo</h2>
+          <p>Tokyo is the capital of Japan.</p>
+
+
+        </CodeSample>
+
+      # HTML Bookmarks with ID and Links
+        * HTML bookmarks are used to allow readers to jump to specific parts of a webpage.
+        * Bookmarks can be useful if your page is very long.
+        * To use a bookmark, you must first create it, and then add a link to it.
+        1. 先作一個 'bookmark', 隨便一個 html element, 通常標題, 要給 id
+        2. 再作一個 'link', 從最開頭跳過去, 就像目錄一樣.
+          
+          <a href="#B2">跳到目錄 B2</a>
+          <h2 id='B2'>bookmark</h2>
+
+      # Using The id Attribute in JavaScript
+
+        * The 'id' attribute can also be used by JavaScript to perform some tasks for that specific element.
+
+        * JavaScript can access an element with a specific id with the 'getElementById()' method:
+
+          <script>
+          function displayResult() {
+            document.getElementById("myHeader").innerHTML = "Have a nice day!";
+          }
+          </script> 
+
+      #Chapter Summary
+        * The 'id' attribute is used to specify a unique id for an HTML element
+        * The value of the id attribute must be unique within the HTML document
+        * The id attribute is used by CSS and JavaScript to style/select a specific element
+        * The value of the id attribute is case sensitive
+        * The id attribute is also used to create HTML bookmarks
+        * JavaScript can access an element with a specific id with the getElementById() method
+
+      # 
+
+    > HTML Iframes
+        An HTML iframe is used to display a web page within a web page.
+
+        Tip: It is a good practice to always include a 'title' attribute for the <iframe>. 
+              This is used by screen readers to read out what the content of the iframe is.
+        註: iframe 最好要加上 title 屬性.
+
+        # HTML Iframe Syntax
+
+          <iframe src="url" title="description"> </iframe>
+
+        # Iframe - Set Height and Width
+
+          * Use the 'height' and 'width' attributes to specify the size of the iframe.
+          * The height and width are specified in pixels by default:
+
+            <iframe src="url" title="description" height="200" width="300" > </iframe>
+            <iframe src="url" title="description" style="height:200px; width: 300px;" > </iframe>
+
+        # Iframe - Remove the Border
+
+          * By default, an iframe has a border around it.
+            預設, iframe 會被外框包住
+
+          * To remove the 'border', add the style attribute and use the CSS border property:
+
+          <iframe src="url" title="description" style="height:200px; width: 300px; border:none;" > </iframe>
+
+          <iframe src="url" title="description" style="height:200px; width: 300px; border: 2px solid red;" > </iframe>
+
+        # Iframe - Target for a Link (a target 連結網頁由 iframe 來顯示, )
+
+          * An iframe can be used as the 'target' frame for a link.
+
+          * The 'target' attribute of the link must refer to the 'name' attribute of the iframe:          
+
+          <iframe src="demo_iframe.htm" name="iframe_a" title="Iframe Example"></iframe>
+
+          <p><a href="https://www.w3schools.com" target="iframe_a">W3Schools.com</a></p> 
+
+          註1: 兩點要注意, <a> 的 'href' 是要顯示網頁路徑, 'target' 則是指向 iframe的 'name' 屬性
+          註2: <iframe name ="if" title="要有標題" ></iframe>
+               <a href="https://www.nsysu.edu.tw" target="if">中山官網</a>
+
+        # Chapter Summary
+
+          The HTML <iframe> tag specifies an inline frame
+          The src attribute defines the URL of the page to embed
+          Always include a title attribute (for screen readers)
+          The height and width attributes specify the size of the iframe
+          Use border:none; to remove the border around the iframe
+
+    > HTML JavaScript
+
+      # The HTML <script> Tag
+
+        * The HTML <script> tag is used to define a client-side script (JavaScript).
+        * The <script> element either contains script statements, 
+          or it points to an external script file through the src attribute.
+        * Common uses for JavaScript are image manipulation, form validation, and dynamic changes of content.
+
+      # A Taste of JavaScript
+
+          document.getElementById('demo').innerHTML = "Hello JavaScript";
+          document.getElementById('demo').style.fontSize = "25px";
+          document.getElementById('demo').style.color = "red";
+          document.getElementById('demo').style.background = "yellow";
+
+          document.getElementById('image').src = "picture.jpg";
+
+      # The HTML <noscript> Tag
+
+        * The HTML <noscript> tag defines an alternate content to be displayed to users 
+          that have disabled scripts in their browser 
+          or have a browser that doesn't support scripts:
+
+        *  <script>
+            document.getElementById("demo").innerHTML = "Hello JavaScript!";
+          </script>
+          <noscript>
+            Sorry, your browser does not support JavaScript!
+          </noscript> 
+
+      # HTML Script Tags
+        Tag 	Description
+        <script> 	Defines a client-side script
+        <noscript> 	Defines an alternate content for users that do not support client-side scripts
+
+
+          
